@@ -1,6 +1,5 @@
 .container {
     min-height: 100vh;
-    height: auto;
 }
 
 .justified {
@@ -10,9 +9,24 @@
     align-items: center;
 }
 
-.button {
-    margin-top: 10px;
-    text-align: center;
+.header-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3pt;
+}
+
+.header-container img {
+    width: 10vw;
+}
+
+.match-buttons-container {
+    display: flex;
+    gap: 15pt;
+}
+
+.match-buttons-container .button {
+    padding: 5rem;
 }
 
 .team-name {
@@ -28,17 +42,4 @@
 
 .footer-item {
     text-align: center;
-}
-
-.footer-item p :nth-child(even) {
-    color: orange;
-}
-.footer-item p :nth-child(odd) {
-    color: blue;
-}
-
-.server-message {
-    justify-content: center;
-    width: 20%;
-    min-width: min-content;
 }

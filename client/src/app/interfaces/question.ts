@@ -5,6 +5,6 @@ export interface Question {
     description: string;
     question: string;
     points: number;
-    choices: Choice[];
+    choices?: Choice[];
     lastModification: Date | string;
 }

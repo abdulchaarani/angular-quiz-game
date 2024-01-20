@@ -1,1 +1,6 @@
-<app-question-list-item></app-question-list-item>
+<h2>Kaneshiro's Question Bank of Gluttony</h2>
+<mat-accordion class="">
+    <div cdkDropList class="" (cdkDropListDropped)="drop($event)">
+        <app-question-list-item *ngFor="let question of questions" cdkDrag [question]="question"> </app-question-list-item>
+    </div>
+</mat-accordion>

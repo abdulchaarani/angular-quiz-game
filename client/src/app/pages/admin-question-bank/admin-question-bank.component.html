@@ -1,6 +1,23 @@
-<h2>Kaneshiro's Question Bank of Gluttony</h2>
+<div class="top-page">
+    <h2>Kaneshiro's Question Bank of Gluttony</h2>
+    <div>
+        <span>Sort by last modification: </span>
+        <mat-button-toggle-group #group="matButtonToggleGroup" name="sort order" aria-label="Date Sort">
+            <mat-button-toggle value="ascending">Newest</mat-button-toggle>
+            <mat-button-toggle value="descending">Oldest</mat-button-toggle>
+        </mat-button-toggle-group>
+    </div>
+</div>
+
 <mat-accordion class="">
     <div cdkDropList class="" (cdkDropListDropped)="drop($event)">
-        <app-question-list-item *ngFor="let question of questions" cdkDrag [question]="question"> </app-question-list-item>
+        <app-question-list-item *ngFor="let question of questions | sortByLastModification: group.value" cdkDrag [question]="question">
+        </app-question-list-item>
+    </div>
+
+    <div class="add-button-container">
+        <button class="add-question-button">
+            <mat-icon>add</mat-icon>
+        </button>
     </div>
 </mat-accordion>

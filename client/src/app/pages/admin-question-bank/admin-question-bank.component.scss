@@ -1,0 +1,25 @@
+.top-page {
+    display: flex;
+    justify-content: space-between;
+}
+
+.add-button-container {
+    box-sizing: border-box;
+}
+
+.add-question-button {
+    box-sizing: border-box;
+    border-style: dashed;
+    background-color: white;
+    display: block;
+    height: 48px;
+    width: 100%;
+}
+
+.add-question-button:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+}
+
+.add-question-button:active {
+    background: lightgray;
+}

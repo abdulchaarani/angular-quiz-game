@@ -14,6 +14,7 @@ import { MaterialPageComponent } from '@app/pages/material-page/material-page.co
 import { AdminQuestionBankComponent } from './pages/admin-question-bank/admin-question-bank.component';
 import { QuestionListItemComponent } from './components/question-list-item/question-list-item.component';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { SortByLastModificationPipe } from './sort-by-last-modification.pipe';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -30,6 +31,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
         SidebarComponent,
         AdminQuestionBankComponent,
         QuestionListItemComponent,
+        SortByLastModificationPipe,
     ],
     imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule, DragDropModule],
     providers: [],

@@ -8,6 +8,8 @@ import { Question } from '@app/interfaces/question';
     styleUrls: ['./admin-question-bank.component.scss'],
 })
 export class AdminQuestionBankComponent {
+    sortAscending: string = '';
+
     questions: Question[] = [
         {
             type: 'QCM',

@@ -1,10 +1,8 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-host-page',
-  templateUrl: './host-page.component.html',
-  styleUrls: ['./host-page.component.scss']
+    selector: 'app-host-page',
+    templateUrl: './host-page.component.html',
+    styleUrls: ['./host-page.component.scss'],
 })
-export class HostPageComponent {
-
-}
+export class HostPageComponent {}

@@ -10,6 +10,8 @@ import { DateService } from '@app/services/date/date.service';
 import { ChatGateway } from '@app/gateways/chat/chat.gateway';
 import { ExampleService } from '@app/services/example/example.service';
 import { ExampleController } from '@app/controllers/example/example.controller';
+import { QuestionController } from './controllers/question/question.controller';
+import { QuestionService } from './services/question/question.service';
 
 @Module({
     imports: [
@@ -25,7 +27,7 @@ import { ExampleController } from '@app/controllers/example/example.controller';
     ],
     // controllers: [CourseController, DateController, ExampleController],
     // providers: [ChatGateway, CourseService, DateService, ExampleService, Logger],
-    controllers: [DateController, ExampleController],
-    providers: [ChatGateway, DateService, ExampleService, Logger],
+    controllers: [DateController, ExampleController, QuestionController],
+    providers: [ChatGateway, DateService, ExampleService, Logger, QuestionService],
 })
 export class AppModule {}

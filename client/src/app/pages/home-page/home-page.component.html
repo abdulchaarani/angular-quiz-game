@@ -1,23 +1,27 @@
-<div class="container justified mat-typography">
+<div class="main-container justified mat-typography">
     <div class="header-container">
-        <img
-            src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.pokepedia.fr%2Fimages%2F9%2F97%2FHoothoot-RFVF.png&f=1&nofb=1&ipt=e3f940cf8d3cd4ff6f1f4d227a5002854bdc1b86f17cf2cfc83896a68a2dfc0d&ipo=images"
-            alt="Logo Projet"
-        />
+        <i class="material-icons" id="game-logo">flutter_dash</i>
         <h1 class="header-item">Hoot Hoot</h1>
     </div>
 
-    <div class="match-buttons-container">
-        <button class="button" routerLink="/player">Join a Match</button>
-        <button class="button" routerLink="/host">Create a Match</button>
+    <div class="match-buttons">
+        <button mat-raised-button color="primary" routerLink="/player" class="match-button">
+            <mat-icon>play_circle</mat-icon>
+            Join a Match
+        </button>
+        <button mat-raised-button color="primary" routerLink="/host" class="match-button">
+            <mat-icon>add_circle</mat-icon>
+            Create a Match
+        </button>
     </div>
-    <button class="button" routerLink="/admin">Admin Settings</button>
 
-    <footer class="footer-item">
-        <h4 class="team-name">Team Members</h4>
+    <button mat-raised-button color="basic" routerLink="/admin" id="admin-settings-button">Admin Settings</button>
+
+    <footer class="footer-container">
+        <h4 class="team-name">Team Members:</h4>
         <p>
-            <span>Coéquipier #1</span>, <span>Coéquipier #2</span>, <span>Coéquipier #3</span>, <span>Coéquipier #4</span>,
-            <span>Coéquipier #5</span>, <span>Coéquipier #6</span>
+            <span>Ikram Arroud</span>, <span>Nada Benelfellah</span>, <span>Victoria-Mae Carrière</span>, <span>Abdul-Wahab Chaarani</span>,
+            <span>Hiba Chaarani</span>, <span>Adam Kassi-Lahlou</span>
         </p>
     </footer>
 </div>

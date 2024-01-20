@@ -1,7 +1,8 @@
 import { Logger, Module } from '@nestjs/common';
 // import { MongooseModule } from '@nestjs/mongoose';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { Course, courseSchema } from '@app/model/database/course';
+import { ConfigModule } from '@nestjs/config';
+// import { ConfigModule, ConfigService } from '@nestjs/config';
+// import { Course, courseSchema } from '@app/model/database/course';
 // import { CourseController } from '@app/controllers/course/course.controller';
 // import { CourseService } from '@app/services/course/course.service';
 import { DateController } from '@app/controllers/date/date.controller';

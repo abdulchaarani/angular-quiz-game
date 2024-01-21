@@ -1,4 +1,3 @@
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Component } from '@angular/core';
 import { Game } from '@app/interfaces/game';
 
@@ -28,8 +27,4 @@ export class AdminPageComponent {
             lastModification: new Date(2024, 2, 15),
         },
     ];
-
-    drop(event: CdkDragDrop<Game[]>) {
-        moveItemInArray(this.games, event.previousIndex, event.currentIndex);
-    }
 }

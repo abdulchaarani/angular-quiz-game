@@ -12,9 +12,7 @@
     </div>
 
     <mat-accordion class="">
-        <div cdkDropList class="" (cdkDropListDropped)="drop($event)">
-            <app-game-list-item *ngFor="let game of games" cdkDrag [game]="game"> </app-game-list-item>
-        </div>
+        <app-game-list-item *ngFor="let game of games" cdkDrag [game]="game"> </app-game-list-item>
 
         <div class="add-button-container">
             <button class="add-question-button" mat-raised-button color="basic">

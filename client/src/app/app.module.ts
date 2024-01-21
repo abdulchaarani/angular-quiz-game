@@ -1,3 +1,4 @@
+import { DragDropModule } from '@angular/cdk/drag-drop';
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -11,9 +12,8 @@ import { AppComponent } from '@app/pages/app/app.component';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
-import { AdminQuestionBankComponent } from './pages/admin-question-bank/admin-question-bank.component';
 import { QuestionListItemComponent } from './components/question-list-item/question-list-item.component';
-import { DragDropModule } from '@angular/cdk/drag-drop';
+import { AdminQuestionBankComponent } from './pages/admin-page/admin-question-bank/admin-question-bank.component';
 import { SortByLastModificationPipe } from './sort-by-last-modification.pipe';
 /**
  * Main module that is used in main.ts.

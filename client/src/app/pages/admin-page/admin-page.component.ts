@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Game } from '@app/interfaces/game';
+import { GamesService } from '@app/services/games.service';
 
 @Component({
     selector: 'app-admin-page',
@@ -8,23 +8,8 @@ import { Game } from '@app/interfaces/game';
 })
 export class AdminPageComponent {
     sortAscending: string = '';
-
-    games: Game[] = [
-        {
-            id: 0,
-            title: 'Hoot Hoot',
-            description: 'HOOT HOOT',
-            duration: 60,
-            isVisible: true,
-            lastModification: new Date(2024, 1, 10),
-        },
-        {
-            id: 1,
-            title: 'Lune quantique',
-            description: 'OOOOOH',
-            duration: 60,
-            isVisible: true,
-            lastModification: new Date(2024, 2, 15),
-        },
-    ];
+    constructor(private gamesService: GamesService) {}
+    get games() {
+        return this.gamesService.games;
+    }
 }

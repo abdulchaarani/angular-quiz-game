@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { Game } from '@app/interfaces/game';
+import { GamesService } from '@app/services/games.service';
 
 @Component({
     selector: 'app-game-list-item',
@@ -9,16 +10,17 @@ import { Game } from '@app/interfaces/game';
 export class GameListItemComponent {
     @Input() game: Game;
 
-    public toggleGameVisibility() {
-        this.game.isVisible = !this.game.isVisible;
-        window.alert('TODO: Toggle visibility and save in database');
+    constructor(private gamesService: GamesService) {}
+
+    toggleGameVisibility() {
+        this.gamesService.toggleGameVisibility(this.game.id);
     }
 
-    public downloadGameAsJson() {
+    downloadGameAsJson() {
         window.alert('TODO: Download JSON');
     }
 
-    public deleteGame() {
-        window.alert('TODO: Delete Game');
+    deleteGame() {
+        this.gamesService.deleteGame(this.game.id);
     }
 }

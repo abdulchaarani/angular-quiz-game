@@ -21,6 +21,6 @@ export class AdminQuestionBankComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.questionService.getAllQuestions().subscribe((data: Question[]) => (this.questions = data));
+        this.questionService.getAllQuestions().subscribe((data: Question[]) => (this.questions = [...data]));
     }
 }

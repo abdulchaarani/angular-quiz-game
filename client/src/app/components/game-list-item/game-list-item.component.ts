@@ -17,7 +17,7 @@ export class GameListItemComponent {
     }
 
     downloadGameAsJson() {
-        window.alert('TODO: Download JSON');
+        this.gamesService.downloadGameAsJson(this.game.id);
     }
 
     deleteGame() {

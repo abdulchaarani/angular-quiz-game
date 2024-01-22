@@ -16,7 +16,7 @@ export class QuestionController {
         return fs.readFileSync(this.jsonPath, 'utf8');
     }
 
-    @Get('/mcq')
+    @Get('/qcm')
     findMcq() {
         const questions: Question[] = JSON.parse(fs.readFileSync(this.jsonPath, 'utf8'));
 

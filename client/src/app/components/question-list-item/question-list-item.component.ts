@@ -8,4 +8,5 @@ import { Question } from '@app/interfaces/question';
 })
 export class QuestionListItemComponent {
     @Input() question: Question;
+    @Input() isLastModifiedDateVisible: boolean;
 }

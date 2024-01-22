@@ -14,6 +14,8 @@ import { PlayerPageComponent } from './pages/player-page/player-page.component';
 import { QuestionListItemComponent } from './components/question-list-item/question-list-item.component';
 import { AdminQuestionBankComponent } from './pages/admin-page/admin-question-bank/admin-question-bank.component';
 import { SortByLastModificationPipe } from './sort-by-last-modification.pipe';
+import { SidebarComponent } from './components/sidebar/sidebar.component';
+import { PlayAreaComponent } from './components/play-area/play-area.component';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -23,17 +25,17 @@ import { SortByLastModificationPipe } from './sort-by-last-modification.pipe';
 @NgModule({
     declarations: [
         AppComponent,
-        GamePageComponent,
-        MainPageComponent,
-        MaterialPageComponent,
         PlayAreaComponent,
         SidebarComponent,
         HomePageComponent,
         AdminPageComponent,
         PlayerPageComponent,
         HostPageComponent,
+        QuestionListItemComponent,
+        AdminQuestionBankComponent,
+        SortByLastModificationPipe,
     ],
-    imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule],
+    imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule, DragDropModule],
     providers: [],
     bootstrap: [AppComponent],
 })

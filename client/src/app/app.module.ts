@@ -16,6 +16,7 @@ import { AdminQuestionBankComponent } from './pages/admin-page/admin-question-ba
 import { SortByLastModificationPipe } from './sort-by-last-modification.pipe';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { PlayAreaComponent } from './components/play-area/play-area.component';
+import { ClickStopPropagationDirective } from './click-stop-propagation.directive';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -34,6 +35,7 @@ import { PlayAreaComponent } from './components/play-area/play-area.component';
         QuestionListItemComponent,
         AdminQuestionBankComponent,
         SortByLastModificationPipe,
+        ClickStopPropagationDirective,
     ],
     imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule, DragDropModule],
     providers: [],

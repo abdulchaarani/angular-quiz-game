@@ -3,8 +3,12 @@
         <mat-panel-title> {{ question.description }} </mat-panel-title>
         <mat-panel-description>
             <p *ngIf="isLastModifiedDateVisible">Last modified: {{ question.lastModification | date }}</p>
-            <mat-icon>create</mat-icon>
-            <mat-icon>delete</mat-icon>
+            <button mat-icon-button color="primary" aria-label="Example icon button with a menu icon" appClickStopPropagation>
+                <mat-icon>create</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" aria-label="Example icon button with a menu icon" appClickStopPropagation>
+                <mat-icon>delete</mat-icon>
+            </button>
             <p>{{ question.points }} points</p>
         </mat-panel-description>
     </mat-expansion-panel-header>

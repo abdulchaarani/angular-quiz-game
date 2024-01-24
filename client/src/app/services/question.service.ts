@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { Question } from './interfaces/question';
+import { Question } from '@app/interfaces/question';
 
 @Injectable({
     providedIn: 'root',
@@ -22,12 +22,14 @@ export class QuestionService {
     saveQuestion(question: Question): Observable<HttpResponse<string>> {
         return this.http
             .post(`${this.baseUrl}/${this.endpoint}`, question, { observe: 'response', responseType: 'text' })
-            .pipe(catchError(this.handleError<HttpResponse<string>>('OH NO')));
+            .pipe(catchError(this.handleError<HttpResponse<string>>('saveQuestion')));
     }
 
-    // basicPost(message: Message): Observable<HttpResponse<string>> {
-    //     return this.http.post(`${this.baseUrl}/example/send`, message, { observe: 'response', responseType: 'text' });
-    // }
+    deleteQuestion(questionId: string): Observable<HttpResponse<string>> {
+        return this.http
+            .delete(`${this.baseUrl}/${this.endpoint}/${questionId}`, { observe: 'response', responseType: 'text' })
+            .pipe(catchError(this.handleError<HttpResponse<string>>('deleteQuestion')));
+    }
 
     // TODO: Handle Error
     private handleError<T>(request: string, result?: T): (error: Error) => Observable<T> {

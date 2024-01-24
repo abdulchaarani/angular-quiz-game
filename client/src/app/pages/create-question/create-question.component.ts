@@ -25,16 +25,6 @@ export class CreateQuestionComponent {
         return this.timeService.time;
     }
 
-    @HostListener('keydown', ['$event'])
-    buttonDetect(event: KeyboardEvent) {
-        //this.buttonPressed = event.key;
-    }
-
-    // TODO : déplacer ceci dans un service de gestion de la souris!
-    mouseHitDetect(event: MouseEvent) {
-        this.timeService.startTimer(this.timer);
-    }
-
     disabled = false;
     max = 100;
     min = 0;
@@ -45,7 +35,7 @@ export class CreateQuestionComponent {
 
     question: Question = {
         type: 'QCM',
-        description: 'Soccer ball shapes',
+        description: '',
         question: '',
         points: 20,
         choices: [
@@ -66,17 +56,10 @@ export class CreateQuestionComponent {
     };
     addChoice() {
         this.question.choices?.push({ choice: '', isCorrect: false });
-        //this.question.choices.push({ choice: '', isCorrect: false });
     }
 
     removeChoice(index: number) {
         this.question.choices?.splice(index, 1);
     }
 
-    duplicateQuestion() {
-      const duplicatedQuestion: Question = { ...this.question }; 
-      duplicatedQuestion.choices = duplicatedQuestion.choices.map(choice => ({ ...choice })); 
-      this.addChoice(); 
-      this.question.push(duplicatedQuestion); 
-  }
 }

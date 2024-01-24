@@ -1,4 +1,31 @@
 import { Injectable } from '@nestjs/common';
-
+// import * as fs from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
+import { resolve } from 'path';
+import { Question } from '@app/model/database/question';
 @Injectable()
-export class QuestionService {}
+export class QuestionService {
+    jsonPath: string;
+
+    constructor() {
+        this.jsonPath = resolve(__dirname, '../../../../../assets/questions.json');
+    }
+
+    getAllQuestions() {
+        return readFileSync(this.jsonPath, 'utf8');
+    }
+
+    getAllMultipleChoiceQuestions() {
+        const questions: Question[] = JSON.parse(readFileSync(this.jsonPath, 'utf8'));
+        return questions.filter((question) => question.type === 'QCM');
+    }
+
+    deleteQuestion(questionId: string): boolean {
+        const allQuestions: Question[] = JSON.parse(this.getAllQuestions());
+        const previousQuestionAmount = allQuestions.length;
+        const filteredQuestions: Question[] = allQuestions.filter((question: Question) => question.id !== questionId);
+        if (previousQuestionAmount === filteredQuestions.length) return false;
+        writeFileSync(this.jsonPath, JSON.stringify(filteredQuestions), 'utf8');
+        return true;
+    }
+}

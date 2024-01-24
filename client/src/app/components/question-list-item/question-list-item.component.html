@@ -6,7 +6,7 @@
             <button mat-icon-button color="primary" aria-label="Example icon button with a menu icon" appClickStopPropagation>
                 <mat-icon>create</mat-icon>
             </button>
-            <button mat-icon-button color="warn" aria-label="Example icon button with a menu icon" appClickStopPropagation>
+            <button mat-icon-button color="warn" aria-label="Example icon button with a menu icon" appClickStopPropagation (click)="deleteQuestion()">
                 <mat-icon>delete</mat-icon>
             </button>
             <p>{{ question.points }} points</p>

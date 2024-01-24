@@ -7,7 +7,7 @@ export type QuestionDocument = Question & Document;
 @Schema()
 export class Question {
     @Prop({ required: true })
-    id: number;
+    id: string;
 
     @Prop({ required: true })
     type: string;

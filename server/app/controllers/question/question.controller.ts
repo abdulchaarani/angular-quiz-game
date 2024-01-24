@@ -1,25 +1,37 @@
-import { Question } from '@app/model/database/question';
-import { Controller, Get } from '@nestjs/common';
-import * as fs from 'fs';
-import * as path from 'path';
+import { Controller, Delete, Get, HttpException, HttpStatus, Param } from '@nestjs/common';
+import { QuestionService } from '@app/services/question/question.service';
 
 @Controller('questions')
 export class QuestionController {
-    jsonPath: string;
+    constructor(private questionService: QuestionService) {}
 
-    constructor() {
-        this.jsonPath = path.resolve(__dirname, '../../../../../assets/questions.json');
-    }
+    // TODO: async try catch DB
 
     @Get('/')
-    findAll() {
-        return fs.readFileSync(this.jsonPath, 'utf8');
+    allQuestions() {
+        return this.questionService.getAllQuestions();
     }
 
     @Get('/qcm')
-    findMcq() {
-        const questions: Question[] = JSON.parse(fs.readFileSync(this.jsonPath, 'utf8'));
+    allMultipleChoiceQuestions() {
+        return this.questionService.getAllMultipleChoiceQuestions();
+    }
 
-        return questions.filter((question) => question.type === 'QCM');
+    // @Delete('/:subjectCode')
+    // async deleteCourse(@Param('subjectCode') subjectCode: string, @Res() response: Response) {
+    //     try {
+    //         await this.coursesService.deleteCourse(subjectCode);
+    //         response.status(HttpStatus.OK).send();
+    //     } catch (error) {
+    //         response.status(HttpStatus.NOT_FOUND).send(error.message);
+    //     }
+    // }
+
+    @Delete('/:questionId')
+    deleteQuestion(@Param('questionId') questionId: string) {
+        if (!questionId) throw new HttpException('Invalid request', HttpStatus.BAD_REQUEST);
+        if (!this.questionService.deleteQuestion(questionId)) {
+            throw new HttpException('Question not found', HttpStatus.NOT_FOUND);
+        }
     }
 }

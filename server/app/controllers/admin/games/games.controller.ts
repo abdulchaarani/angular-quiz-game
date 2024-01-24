@@ -1,6 +1,7 @@
 import { Game } from '@app/model/database/game';
+import { CreateGameDto } from '@app/model/dto/create-game.dto';
 import { GamesService } from '@app/services/admin/games/games.service';
-import { Controller, Delete, Get, HttpStatus, Param, Patch, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Res } from '@nestjs/common';
 import { ApiNotFoundResponse, ApiOkResponse } from '@nestjs/swagger';
 import { Response } from 'express';
 
@@ -41,6 +42,16 @@ export class GamesController {
             response.status(HttpStatus.OK).json(game);
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send(error.message);
+        }
+    }
+
+    @Post('/json')
+    async addGameFromJson(@Body() createGameDto: CreateGameDto, @Res() response: Response) {
+        try {
+            const newGame = this.gamesService.addGameFromJson(createGameDto);
+            response.status(HttpStatus.CREATED).send(JSON.stringify(newGame));
+        } catch (error) {
+            response.status(HttpStatus.BAD_REQUEST).send(error.message);
         }
     }
 

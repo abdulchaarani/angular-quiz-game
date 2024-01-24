@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Game } from '@app/interfaces/game';
 import { Observable } from 'rxjs';
@@ -12,6 +12,10 @@ export class GamesService {
     // This Service should only be used to send the HTTP requests that will be handled by the Backend server
     // The core logic of each function should remain similar, hence why it has been first implemented in the front-end
     private readonly BASE_URL: string = `${environment.serverUrl}/admin/games`;
+    private CONTENT_JSON_HEADER = new HttpHeaders({
+        'Content-Type': 'application/json',
+    });
+
     constructor(private http: HttpClient) {}
 
     getGames(): Observable<Game[]> {
@@ -28,19 +32,24 @@ export class GamesService {
     }
 
     // Keep it in front-end for now
+    // Make the return type accept void as well AND Observable<Game>
     uploadGameAsJson(file: File) {
         // Reference: https://stackoverflow.com/questions/47581687/read-a-file-and-parse-its-content
         let fileReader = new FileReader();
         fileReader.onload = (e) => {
             console.log(fileReader.result);
             const newGameStringified = fileReader.result?.toString();
+            console.log(newGameStringified);
             if (newGameStringified) {
-                const newGame = JSON.parse(newGameStringified);
-                newGame.isVisible = true;
-                // TODO: HTTP POST (maybe move the parse there instead)
+                console.log('POSTING');
+                let newGame: Game;
+                this.http.post<Game>(`${this.BASE_URL}/json`, newGameStringified, { headers: this.CONTENT_JSON_HEADER }).subscribe((data) => {
+                    newGame = data;
+                });
             }
         };
         fileReader.readAsText(file);
+        // return this.getGames();
     }
 
     // Keep it in Front-end for now

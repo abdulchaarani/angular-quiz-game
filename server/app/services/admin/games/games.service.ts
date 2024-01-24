@@ -1,4 +1,5 @@
 import { Game } from '@app/model/database/game';
+import { CreateGameDto } from '@app/model/dto/create-game.dto';
 import { Injectable, Logger } from '@nestjs/common';
 
 @Injectable()
@@ -11,13 +12,13 @@ export class GamesService {
         this.start();
     }
 
-    start() {
+    start(): void {
         if (this.games.length === 0) {
             this.populateDB();
         }
     }
 
-    populateDB() {
+    populateDB(): void {
         const GAMES: Game[] = [
             {
                 id: 0,
@@ -51,23 +52,30 @@ export class GamesService {
         return this.games; // TODO: Read from file or Mongo
     }
 
-    getGameById(id: number) {
+    getGameById(id: number): Game {
         return this.games.find((x) => x.id === id);
     }
 
-    addGame(newGame: Game) {
+    addGame(newGame: CreateGameDto): void {
         // TODO: Add verifications
         this.games.push(newGame);
     }
 
-    toggleGameVisibility(gameId: number) {
+    addGameFromJson(newGame: CreateGameDto): Game {
+        // const newGame = JSON.parse(newGameStringified);
+        newGame.isVisible = true;
+        this.addGame(newGame);
+        return newGame;
+    }
+
+    toggleGameVisibility(gameId: number): void {
         const gameToToggleVisibility = this.getGameById(gameId);
         if (gameToToggleVisibility) {
             gameToToggleVisibility.isVisible = !gameToToggleVisibility.isVisible;
         }
     }
 
-    deleteGame(gameId: number) {
+    deleteGame(gameId: number): void {
         const gameToDelete = this.getGameById(gameId);
         if (gameToDelete) {
             this.games = this.games.filter((x) => x.id !== gameId);

@@ -1,6 +1,7 @@
-import { Controller, Delete, Get, HttpException, HttpStatus, Param } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Param, Body, HttpException, HttpStatus } from '@nestjs/common';
 import { QuestionService } from '@app/services/question/question.service';
-
+import { CreateQuestionDto } from '@app/model/dto/question/question-dto';
+import { Question } from '@app/model/database/question';
 @Controller('questions')
 export class QuestionController {
     constructor(private questionService: QuestionService) {}
@@ -17,15 +18,10 @@ export class QuestionController {
         return this.questionService.getAllMultipleChoiceQuestions();
     }
 
-    // @Delete('/:subjectCode')
-    // async deleteCourse(@Param('subjectCode') subjectCode: string, @Res() response: Response) {
-    //     try {
-    //         await this.coursesService.deleteCourse(subjectCode);
-    //         response.status(HttpStatus.OK).send();
-    //     } catch (error) {
-    //         response.status(HttpStatus.NOT_FOUND).send(error.message);
-    //     }
-    // }
+    @Post('/')
+    addQuestion(@Body() question: Question) {
+        this.questionService.addQuestion(question);
+    }
 
     @Delete('/:questionId')
     deleteQuestion(@Param('questionId') questionId: string) {

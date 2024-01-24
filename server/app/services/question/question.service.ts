@@ -3,6 +3,8 @@ import { Injectable } from '@nestjs/common';
 import { readFileSync, writeFileSync } from 'fs';
 import { resolve } from 'path';
 import { Question } from '@app/model/database/question';
+import { CreateQuestionDto } from '@app/model/dto/question/question-dto';
+
 @Injectable()
 export class QuestionService {
     jsonPath: string;
@@ -18,6 +20,14 @@ export class QuestionService {
     getAllMultipleChoiceQuestions() {
         const questions: Question[] = JSON.parse(readFileSync(this.jsonPath, 'utf8'));
         return questions.filter((question) => question.type === 'QCM');
+    }
+
+    // TODO: validate question input + DTO
+    addQuestion(question: Question): boolean {
+        const allQuestions: Question[] = JSON.parse(this.getAllQuestions());
+        allQuestions.push(question);
+        writeFileSync(this.jsonPath, JSON.stringify(allQuestions), 'utf8');
+        return true;
     }
 
     deleteQuestion(questionId: string): boolean {

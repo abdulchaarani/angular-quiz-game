@@ -16,7 +16,6 @@ export class GamesService {
 
     getGames(): Observable<Game[]> {
         // TODO: Add pipes
-        // return this.http.get<Game[]>(`${this.baseUrl}/admin/games`).subscribe((games: Game[]) => (this.games = games));
         return this.http.get<Game[]>(`${this.BASE_URL}`);
     }
 
@@ -45,8 +44,7 @@ export class GamesService {
     }
 
     // Keep it in Front-end for now
-    downloadGameAsJson(id: number) {
-        const gameToStringify = this.getGameById(id);
+    downloadGameAsJson(gameToStringify: Game) {
         const stringifiedGame = JSON.stringify(gameToStringify, function (key, value) {
             if (key !== 'isVisible') {
                 return value;
@@ -57,15 +55,13 @@ export class GamesService {
         const url = window.URL.createObjectURL(blob);
         const downloadLink = document.createElement('a');
         downloadLink.href = url;
-        downloadLink.download = `game.json`; // TODO: Change according to title
+        downloadLink.download = `${gameToStringify.title}.json`; // TODO: Change according to title
         downloadLink.click();
         window.URL.revokeObjectURL(url);
         downloadLink.remove();
     }
 
     deleteGame(id: number) {
-        // Maybe delete here AND in the backend as well?
-        // this.games = this.games.filter((game) => game.id !== id);
         return this.http.delete(`${this.BASE_URL}/${id}`).subscribe();
     }
 }

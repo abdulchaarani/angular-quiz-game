@@ -21,10 +21,11 @@ export class GameListItemComponent {
     }
 
     downloadGameAsJson() {
-        this.gamesService.downloadGameAsJson(this.game.id);
+        this.gamesService.downloadGameAsJson(this.game);
     }
 
     deleteGame() {
+        // Reference: https://stackoverflow.com/questions/43768024/delete-child-and-update-parent-list
         this.deleteGameFromList.emit(this.game);
     }
 }

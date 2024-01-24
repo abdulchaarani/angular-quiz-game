@@ -1,5 +1,8 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Game } from '@app/interfaces/game';
+import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
     providedIn: 'root',
@@ -8,45 +11,24 @@ export class GamesService {
     // TODO - IMPORTANT : Migrate to Backend by using HTTP requests instead here + Save games on a JSON file (required: import fs from 'fs')
     // This Service should only be used to send the HTTP requests that will be handled by the Backend server
     // The core logic of each function should remain similar, hence why it has been first implemented in the front-end
-    games: Game[] = [
-        {
-            id: 0,
-            title: 'Hoot Hoot',
-            description: 'HOOT HOOT',
-            duration: 60,
-            isVisible: true,
-            lastModification: new Date(2024, 1, 10),
-        },
-        {
-            id: 1,
-            title: 'Lune quantique',
-            description: 'OOOOOH',
-            duration: 60,
-            isVisible: true,
-            lastModification: new Date(2024, 10, 1),
-        },
-    ];
+    private readonly BASE_URL: string = `${environment.serverUrl}/admin/games`;
+    constructor(private http: HttpClient) {}
 
-    getGames() {
-        return this.games;
+    getGames(): Observable<Game[]> {
+        // TODO: Add pipes
+        // return this.http.get<Game[]>(`${this.baseUrl}/admin/games`).subscribe((games: Game[]) => (this.games = games));
+        return this.http.get<Game[]>(`${this.BASE_URL}`);
     }
 
-    getGameById(id: number) {
-        return this.games.find((x) => x.id === id);
+    getGameById(id: number): Observable<Game> {
+        return this.http.get<Game>(`${this.BASE_URL}/${id}`);
     }
 
-    addGame(newGame: Game) {
-        // TODO: Add verifications
-        this.games.push(newGame);
+    toggleGameVisibility(id: number) {
+        return this.http.patch(`${this.BASE_URL}/${id}`, {}).subscribe();
     }
 
-    toggleGameVisibility($event: number) {
-        const gameToToggleVisibility = this.getGameById($event);
-        if (gameToToggleVisibility) {
-            gameToToggleVisibility.isVisible = !gameToToggleVisibility.isVisible;
-        }
-    }
-
+    // Keep it in front-end for now
     uploadGameAsJson(file: File) {
         // Reference: https://stackoverflow.com/questions/47581687/read-a-file-and-parse-its-content
         let fileReader = new FileReader();
@@ -56,14 +38,15 @@ export class GamesService {
             if (newGameStringified) {
                 const newGame = JSON.parse(newGameStringified);
                 newGame.isVisible = true;
-                this.addGame(newGame);
+                // TODO: HTTP POST (maybe move the parse there instead)
             }
         };
         fileReader.readAsText(file);
     }
 
-    downloadGameAsJson($event: number) {
-        const gameToStringify = this.getGameById($event);
+    // Keep it in Front-end for now
+    downloadGameAsJson(id: number) {
+        const gameToStringify = this.getGameById(id);
         const stringifiedGame = JSON.stringify(gameToStringify, function (key, value) {
             if (key !== 'isVisible') {
                 return value;
@@ -74,16 +57,15 @@ export class GamesService {
         const url = window.URL.createObjectURL(blob);
         const downloadLink = document.createElement('a');
         downloadLink.href = url;
-        downloadLink.download = `${gameToStringify?.title}.json`;
+        downloadLink.download = `game.json`; // TODO: Change according to title
         downloadLink.click();
         window.URL.revokeObjectURL(url);
         downloadLink.remove();
     }
 
-    deleteGame($event: number) {
-        const gameToDelete = this.getGameById($event);
-        if (gameToDelete) {
-            this.games = this.games.filter((x) => x.id !== $event);
-        }
+    deleteGame(id: number) {
+        // Maybe delete here AND in the backend as well?
+        // this.games = this.games.filter((game) => game.id !== id);
+        return this.http.delete(`${this.BASE_URL}/${id}`).subscribe();
     }
 }

@@ -8,7 +8,7 @@ import { PlayerPageComponent } from '@app/pages/player-page/player-page.componen
 const routes: Routes = [
     { path: '', redirectTo: '/home', pathMatch: 'full' },
     { path: 'home', component: HomePageComponent },
-    { path: 'admin', component: AdminPageComponent },
+    { path: 'admin/games', component: AdminPageComponent },
     { path: 'player', component: PlayerPageComponent },
     { path: 'host', component: HostPageComponent },
     { path: '**', redirectTo: '/home' },

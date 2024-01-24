@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { Game } from '@app/interfaces/game';
 import { GamesService } from '@app/services/games.service';
 
 @Component({
@@ -6,13 +7,25 @@ import { GamesService } from '@app/services/games.service';
     templateUrl: './admin-page.component.html',
     styleUrls: ['./admin-page.component.scss'],
 })
-export class AdminPageComponent {
+export class AdminPageComponent implements OnInit {
     sortAscending: string = '';
+    games: Game[] = [];
 
     constructor(private gamesService: GamesService) {}
 
-    get games() {
-        return this.gamesService.games;
+    ngOnInit(): void {
+        this.getGames();
+    }
+
+    getGames(): void {
+        this.gamesService.getGames().subscribe((games) => (this.games = games));
+    }
+
+    onDeleteGameFromList(gameToDelete: Game) {
+        if (gameToDelete) {
+            this.games = this.games.filter((x) => x.id !== gameToDelete.id);
+            this.gamesService.deleteGame(gameToDelete.id);
+        }
     }
 
     // TODO: Find actual type of event

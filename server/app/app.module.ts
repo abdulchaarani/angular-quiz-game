@@ -5,11 +5,13 @@ import { ConfigModule } from '@nestjs/config';
 // import { Course, courseSchema } from '@app/model/database/course';
 // import { CourseController } from '@app/controllers/course/course.controller';
 // import { CourseService } from '@app/services/course/course.service';
+import { GamesController } from '@app/controllers/admin/games/games.controller';
 import { DateController } from '@app/controllers/date/date.controller';
-import { DateService } from '@app/services/date/date.service';
-import { ChatGateway } from '@app/gateways/chat/chat.gateway';
-import { ExampleService } from '@app/services/example/example.service';
 import { ExampleController } from '@app/controllers/example/example.controller';
+import { ChatGateway } from '@app/gateways/chat/chat.gateway';
+import { GamesService } from '@app/services/admin/games/games.service';
+import { DateService } from '@app/services/date/date.service';
+import { ExampleService } from '@app/services/example/example.service';
 
 @Module({
     imports: [
@@ -25,7 +27,7 @@ import { ExampleController } from '@app/controllers/example/example.controller';
     ],
     // controllers: [CourseController, DateController, ExampleController],
     // providers: [ChatGateway, CourseService, DateService, ExampleService, Logger],
-    controllers: [DateController, ExampleController],
-    providers: [ChatGateway, DateService, ExampleService, Logger],
+    controllers: [DateController, ExampleController, GamesController],
+    providers: [ChatGateway, DateService, ExampleService, Logger, GamesService],
 })
 export class AppModule {}

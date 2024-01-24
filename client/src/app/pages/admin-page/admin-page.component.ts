@@ -23,17 +23,30 @@ export class AdminPageComponent implements OnInit {
 
     onDeleteGameFromList(gameToDelete: Game) {
         if (gameToDelete) {
-            this.games = this.games.filter((x) => x.id !== gameToDelete.id);
+            this.games = this.games.filter((x) => x.id !== gameToDelete.id); // TODO: Check if it's "legal" for the correction
             this.gamesService.deleteGame(gameToDelete.id);
         }
     }
 
-    // TODO: Find actual type of event
+    // TODO: Find actual type of event to remove the "any" (which is currently illegal)
+    // TODO: See if the logic can be migrated to games.service.ts (Challenge: Returning the read game while managing fileReader)
     onFileSelected(event: any) {
         // Reference: https://blog.angular-university.io/angular-file-upload/
         const file: File = event.target.files[0];
         if (file) {
-            this.gamesService.uploadGameAsJson(file);
+            // Reference: https://stackoverflow.com/questions/47581687/read-a-file-and-parse-its-content
+            let fileReader = new FileReader();
+            fileReader.onload = (e) => {
+                const newGameStringified = fileReader.result?.toString();
+                if (newGameStringified) {
+                    this.gamesService.uploadGame(newGameStringified, true);
+                    const newGame = JSON.parse(newGameStringified);
+                    newGame.isVisible = true;
+                    this.games.push(newGame);
+                }
+            };
+            fileReader.readAsText(file);
+
             // const upload$ = this.http.post('/admin/json-game', formData);
             // upload$.subscribe();
         }

@@ -27,33 +27,19 @@ export class GamesService {
         return this.http.get<Game>(`${this.BASE_URL}/${id}`);
     }
 
+    // TODO: Return type
     toggleGameVisibility(id: number) {
         return this.http.patch(`${this.BASE_URL}/${id}`, {}).subscribe();
     }
 
-    // Keep it in front-end for now
-    // Make the return type accept void as well AND Observable<Game>
-    uploadGameAsJson(file: File) {
-        // Reference: https://stackoverflow.com/questions/47581687/read-a-file-and-parse-its-content
-        let fileReader = new FileReader();
-        fileReader.onload = (e) => {
-            console.log(fileReader.result);
-            const newGameStringified = fileReader.result?.toString();
-            console.log(newGameStringified);
-            if (newGameStringified) {
-                console.log('POSTING');
-                let newGame: Game;
-                this.http.post<Game>(`${this.BASE_URL}/json`, newGameStringified, { headers: this.CONTENT_JSON_HEADER }).subscribe((data) => {
-                    newGame = data;
-                });
-            }
-        };
-        fileReader.readAsText(file);
-        // return this.getGames();
+    uploadGame(gameStringified: String, isFromJsonUpload: boolean): void {
+        if (isFromJsonUpload) {
+            this.http.post<Game>(`${this.BASE_URL}/json`, gameStringified, { headers: this.CONTENT_JSON_HEADER }).subscribe();
+        }
     }
 
     // Keep it in Front-end for now
-    downloadGameAsJson(gameToStringify: Game) {
+    downloadGameAsJson(gameToStringify: Game): void {
         const stringifiedGame = JSON.stringify(gameToStringify, function (key, value) {
             if (key !== 'isVisible') {
                 return value;
@@ -64,12 +50,13 @@ export class GamesService {
         const url = window.URL.createObjectURL(blob);
         const downloadLink = document.createElement('a');
         downloadLink.href = url;
-        downloadLink.download = `${gameToStringify.title}.json`; // TODO: Change according to title
+        downloadLink.download = `${gameToStringify.title}.json`;
         downloadLink.click();
         window.URL.revokeObjectURL(url);
         downloadLink.remove();
     }
 
+    // TODO: Return type
     deleteGame(id: number) {
         return this.http.delete(`${this.BASE_URL}/${id}`).subscribe();
     }

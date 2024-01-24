@@ -3,7 +3,8 @@ import { Injectable } from '@nestjs/common';
 import { readFileSync, writeFileSync } from 'fs';
 import { resolve } from 'path';
 import { Question } from '@app/model/database/question';
-import { CreateQuestionDto } from '@app/model/dto/question/question-dto';
+import { v4 as uuidv4 } from 'uuid';
+// import { CreateQuestionDto } from '@app/model/dto/question/question-dto';
 
 @Injectable()
 export class QuestionService {
@@ -24,6 +25,7 @@ export class QuestionService {
 
     // TODO: validate question input + DTO
     addQuestion(question: Question): boolean {
+        question.id = uuidv4();
         const allQuestions: Question[] = JSON.parse(this.getAllQuestions());
         allQuestions.push(question);
         writeFileSync(this.jsonPath, JSON.stringify(allQuestions), 'utf8');

@@ -12,6 +12,8 @@ import { Game } from '@app/interfaces/game';
 export class QuestionAreaComponent implements OnInit {
     constructor(private readonly timeService: TimeService) {}
 
+    private readonly timeLimit = 3;
+
     currentGame: Game;
     currentQuestionIndex: number;
     playerScore: number;

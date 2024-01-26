@@ -10,12 +10,12 @@ export class TimeService {
     private readonly tick = 1000;
 
     private timerFinished = new Subject<void>();
+    private counter = 0;
 
     get timerFinished$() {
         return this.timerFinished.asObservable();
     }
 
-    private counter = 0;
     get time() {
         return this.counter;
     }

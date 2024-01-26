@@ -10,14 +10,18 @@ import { Game } from '@app/interfaces/game';
     styleUrls: ['./question-area.component.scss'],
 })
 export class QuestionAreaComponent implements OnInit {
-    constructor(private readonly timeService: TimeService) {}
-
-    private readonly timeLimit = 3;
-
     currentGame: Game;
     currentQuestionIndex: number;
     playerScore: number;
     answers: Choice[];
+
+    private readonly timeLimit = 60;
+
+    constructor(private readonly timeService: TimeService) {}
+
+    get time(): number {
+        return this.timeService.time;
+    }
 
     // TODO : Timer
     ngOnInit(): void {
@@ -28,12 +32,8 @@ export class QuestionAreaComponent implements OnInit {
         });
     }
 
-    get time(): number {
-        return this.timeService.time;
-    }
-
     computeTimerProgress(): number {
-        return (this.timeService.time / 60) * 100;
+        return (this.timeService.time / this.timeLimit) * 100;
     }
 
     submit(): void {}

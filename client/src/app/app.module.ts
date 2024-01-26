@@ -25,7 +25,7 @@ import {MatInputModule} from '@angular/material/input';
 import {MatCardModule} from '@angular/material/card';
 import {MatSelectModule} from '@angular/material/select';
 import {MatButtonModule} from '@angular/material/button';
-
+import {MatSnackBarModule} from '@angular/material/snack-bar';
 
 /**
  * Main module that is used in main.ts.
@@ -63,6 +63,7 @@ import {MatButtonModule} from '@angular/material/button';
         MatSelectModule,
         ReactiveFormsModule,
         MatButtonModule,
+        MatSnackBarModule,
     ],
     providers: [],
     bootstrap: [AppComponent],

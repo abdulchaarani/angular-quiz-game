@@ -8,8 +8,8 @@ import { environment } from 'src/environments/environment';
     providedIn: 'root',
 })
 export class GamesService {
-    private readonly BASE_URL: string = `${environment.serverUrl}/admin/games`;
-    private CONTENT_JSON_HEADER = new HttpHeaders({
+    private readonly baseUrl: string = `${environment.serverUrl}/admin/games`;
+    private contentJsonHeader = new HttpHeaders({
         'Content-Type': 'application/json',
     });
 
@@ -17,28 +17,28 @@ export class GamesService {
 
     getGames(): Observable<Game[]> {
         // TODO: Add pipes
-        return this.http.get<Game[]>(`${this.BASE_URL}`);
+        return this.http.get<Game[]>(`${this.baseUrl}`);
     }
 
     getGameById(id: number): Observable<Game> {
-        return this.http.get<Game>(`${this.BASE_URL}/${id}`);
+        return this.http.get<Game>(`${this.baseUrl}/${id}`);
     }
 
     // TODO: Return type
     toggleGameVisibility(id: number) {
-        return this.http.patch(`${this.BASE_URL}/${id}`, {}).subscribe();
+        return this.http.patch(`${this.baseUrl}/${id}`, {}).subscribe();
     }
 
-    uploadGame(gameStringified: String, isFromJsonUpload: boolean) {
+    uploadGame(gameStringified: string, isFromJsonUpload: boolean) {
         if (isFromJsonUpload) {
-            this.http.post<Game>(`${this.BASE_URL}/json`, gameStringified, { headers: this.CONTENT_JSON_HEADER }).subscribe();
+            this.http.post<Game>(`${this.baseUrl}/json`, gameStringified, { headers: this.contentJsonHeader }).subscribe();
         }
         // TODO: Adapt route when creating a game from scratch
     }
 
     // Keep it in Front-end for now
     downloadGameAsJson(gameToStringify: Game): void {
-        const stringifiedGame = JSON.stringify(gameToStringify, function (key, value) {
+        const stringifiedGame = JSON.stringify(gameToStringify, (key, value) => {
             if (key !== 'isVisible') {
                 return value;
             }
@@ -56,6 +56,6 @@ export class GamesService {
 
     // TODO: Return type
     deleteGame(id: number) {
-        return this.http.delete(`${this.BASE_URL}/${id}`).subscribe();
+        return this.http.delete(`${this.baseUrl}/${id}`).subscribe();
     }
 }

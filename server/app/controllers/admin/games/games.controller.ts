@@ -1,22 +1,13 @@
-import { Game } from '@app/model/database/game';
 import { CreateGameDto } from '@app/model/dto/create-game.dto';
 import { GamesService } from '@app/services/admin/games/games.service';
 import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Res } from '@nestjs/common';
-import { ApiNotFoundResponse, ApiOkResponse } from '@nestjs/swagger';
 import { Response } from 'express';
 
 // Dev note: Actual route will be: localhost/3000/api/admin/games
 @Controller('admin/games')
 export class GamesController {
     constructor(private readonly gamesService: GamesService) {}
-    @ApiOkResponse({
-        description: 'Returns all games',
-        type: Game,
-        isArray: true,
-    })
-    @ApiNotFoundResponse({
-        description: 'Return NOT_FOUND http status when request fails',
-    })
+
     @Get('/')
     async allGames(@Res() response: Response) {
         try {
@@ -27,14 +18,6 @@ export class GamesController {
         }
     }
 
-    @ApiOkResponse({
-        description: 'Returns a specific game by its id',
-        type: Game,
-        isArray: true,
-    })
-    @ApiNotFoundResponse({
-        description: 'Return NOT_FOUND http status when request fails',
-    })
     @Get('/:id')
     async gameById(@Param('id') id: string, @Res() response: Response) {
         try {

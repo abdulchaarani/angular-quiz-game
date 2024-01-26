@@ -30,13 +30,13 @@ export class AdminPageComponent implements OnInit {
 
     // TODO: Find actual type of event to remove the "any" (which is currently illegal)
     // TODO: See if the logic can be migrated to games.service.ts (Challenge: Returning the read game while managing fileReader)
-    onFileSelected(event: any) {
+    onFileSelected(event: unknown) {
         // Reference: https://blog.angular-university.io/angular-file-upload/
         const file: File = event.target.files[0];
         if (file) {
             // Reference: https://stackoverflow.com/questions/47581687/read-a-file-and-parse-its-content
-            let fileReader = new FileReader();
-            fileReader.onload = (e) => {
+            const fileReader = new FileReader();
+            fileReader.onload = () => {
                 const newGameStringified = fileReader.result?.toString();
                 if (newGameStringified) {
                     this.gamesService.uploadGame(newGameStringified, true);

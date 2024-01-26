@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { QuestionAreaComponent } from '@app/components/question-area/question-area.component';
 import { AdminPageComponent } from '@app/pages/admin-page/admin-page.component';
 import { HomePageComponent } from '@app/pages/home-page/home-page.component';
 import { HostPageComponent } from '@app/pages/host-page/host-page.component';
@@ -11,6 +12,7 @@ const routes: Routes = [
     { path: 'admin/games', component: AdminPageComponent },
     { path: 'player', component: PlayerPageComponent },
     { path: 'host', component: HostPageComponent },
+    { path: 'play', component: QuestionAreaComponent },
     { path: '**', redirectTo: '/home' },
 ];
 

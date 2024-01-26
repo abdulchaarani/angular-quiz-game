@@ -11,6 +11,7 @@ import { AdminPageComponent } from './pages/admin-page/admin-page.component';
 import { HomePageComponent } from './pages/home-page/home-page.component';
 import { HostPageComponent } from './pages/host-page/host-page.component';
 import { PlayerPageComponent } from './pages/player-page/player-page.component';
+import { QuestionAreaComponent } from './components/question-area/question-area.component';
 
 /**
  * Main module that is used in main.ts.
@@ -19,7 +20,8 @@ import { PlayerPageComponent } from './pages/player-page/player-page.component';
  * Otherwise Angular Cli will not know in which module to put new component
  */
 @NgModule({
-    declarations: [AppComponent, HomePageComponent, AdminPageComponent, PlayerPageComponent, HostPageComponent, GameListItemComponent],
+
+    declarations: [AppComponent, HomePageComponent, AdminPageComponent, PlayerPageComponent, HostPageComponent, GameListItemComponent,QuestionAreaComponent],
     imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule],
     providers: [],
     bootstrap: [AppComponent],

@@ -1,3 +1,5 @@
+import { Question } from './question';
+
 export interface Game {
     id: number;
     title: string;
@@ -5,5 +7,5 @@ export interface Game {
     lastModification: Date;
     duration: number;
     isVisible: boolean;
-    // TODO: Add List of Questions (requires interface Question)
+    questions: Question[];
 }

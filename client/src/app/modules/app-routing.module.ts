@@ -1,14 +1,16 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { GamePageComponent } from '@app/pages/game-page/game-page.component';
-import { MainPageComponent } from '@app/pages/main-page/main-page.component';
-import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
+import { AdminPageComponent } from '@app/pages/admin-page/admin-page.component';
+import { HomePageComponent } from '@app/pages/home-page/home-page.component';
+import { HostPageComponent } from '@app/pages/host-page/host-page.component';
+import { PlayerPageComponent } from '@app/pages/player-page/player-page.component';
 
 const routes: Routes = [
     { path: '', redirectTo: '/home', pathMatch: 'full' },
-    { path: 'home', component: MainPageComponent },
-    { path: 'game', component: GamePageComponent },
-    { path: 'material', component: MaterialPageComponent },
+    { path: 'home', component: HomePageComponent },
+    { path: 'admin', component: AdminPageComponent },
+    { path: 'player', component: PlayerPageComponent },
+    { path: 'host', component: HostPageComponent },
     { path: '**', redirectTo: '/home' },
 ];
 

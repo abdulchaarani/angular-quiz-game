@@ -20,8 +20,8 @@
                 <div class="circle">
                     <div id="timer-container">
                         <div id="timer">
-                            <!-- {{ timeLeft }} -->
-                            time
+                            <mat-progress-spinner [value]="computeTimerProgress()" mode="determinate"></mat-progress-spinner>
+                            {{ time }}
                         </div>
                     </div>
                 </div>
@@ -30,7 +30,7 @@
     </div>
     <div id="lower-question-area">
         <div id="choice-area">
-            <button class="hi">
+            <button class="answer">
                 <!-- *ngFor="let choice of currentGame.questions[currentQuestionIndex].choices" class="custom-button" (click)="checkAnswers()" -->
                 <!-- <span class="choice"> -->
                 <!-- {{ choice }} -->

@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Subject } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -8,7 +9,13 @@ export class TimeService {
     private interval: number | undefined;
     private readonly tick = 1000;
 
+    private timerFinished = new Subject<void>();
     private counter = 0;
+
+    get timerFinished$() {
+        return this.timerFinished.asObservable();
+    }
+
     get time() {
         return this.counter;
     }
@@ -23,6 +30,7 @@ export class TimeService {
             if (this.time > 0) {
                 this.time--;
             } else {
+                this.timerFinished.next();
                 this.stopTimer();
             }
         }, this.tick);

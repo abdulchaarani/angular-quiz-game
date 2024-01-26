@@ -1,0 +1,30 @@
+<div class="top-page">
+    <h2>Banque de questions</h2>
+    <!-- This div adds buttons that toggles sorting of the list of questions by lastModifiedDate  -->
+    <!-- To use: change sortByLastModification: 'ascending' to sortByLastModification: 'group.value' -->
+    <!-- <div class="toggle-sort">
+        <span>Sort by last modification: </span>
+        <mat-button-toggle-group #group="matButtonToggleGroup" name="sort order" aria-label="Date Sort">
+            <mat-button-toggle value="ascending">Newest</mat-button-toggle>
+            <mat-button-toggle value="descending">Oldest</mat-button-toggle>
+        </mat-button-toggle-group>
+    </div> -->
+</div>
+
+<mat-accordion class="bank-questions-list question-list">
+    <div cdkDropList class="" (cdkDropListDropped)="drop($event)">
+        <app-question-list-item
+            *ngFor="let question of questions | sortByLastModification: 'ascending'"
+            cdkDrag
+            [question]="question"
+            [isLastModifiedDateVisible]="true"
+        >
+        </app-question-list-item>
+    </div>
+
+    <div class="add-button-container">
+        <button class="add-question-button" mat-raised-button color="basic">
+            <mat-icon>add</mat-icon>
+        </button>
+    </div>
+</mat-accordion>

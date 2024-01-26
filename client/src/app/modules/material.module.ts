@@ -1,69 +1,64 @@
 import { NgModule } from '@angular/core';
 // import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
-// import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
-// import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 // import { MatChipsModule } from '@angular/material/chips';
 // import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
-// import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatFormFieldModule } from '@angular/material/form-field';
 // import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
-// import { MatInputModule } from '@angular/material/input';
+import { MatInputModule } from '@angular/material/input';
 // import { MatListModule } from '@angular/material/list';
-// import { MatMenuModule } from '@angular/material/menu';
+import { MatMenuModule } from '@angular/material/menu';
 // import { MatPaginatorModule } from '@angular/material/paginator';
 // import { MatProgressBarModule } from '@angular/material/progress-bar';
-// import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRadioModule } from '@angular/material/radio';
-// import { MatSelectModule } from '@angular/material/select';
+import { MatSelectModule } from '@angular/material/select';
 // import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-// import { MatSliderModule } from '@angular/material/slider';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatSortModule } from '@angular/material/sort';
+// import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatSliderModule } from '@angular/material/slider';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+// import { MatSortModule } from '@angular/material/sort';
 // import { MatStepperModule } from '@angular/material/stepper';
 // import { MatTableModule } from '@angular/material/table';
-import { MatTabsModule } from '@angular/material/tabs';
+// import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-// import { DragDropModule } from '@angular/cdk/drag-drop';
-import { MatSliderModule } from '@angular/material/slider';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
 
 const modules = [
     // MatAutocompleteModule,
-    MatFormFieldModule,
     MatButtonModule,
-    // MatButtonToggleModule,
+    MatButtonToggleModule,
     MatCardModule,
     MatCheckboxModule,
-    // MatCheckboxModule,
     // MatChipsModule,
     // MatDatepickerModule,
     MatDialogModule,
     MatExpansionModule,
-    // MatFormFieldModule,
+    MatFormFieldModule,
     // MatGridListModule,
     MatIconModule,
-    // MatInputModule,
+    MatInputModule,
     // MatListModule,
-    // MatMenuModule,
+    MatMenuModule,
     // MatPaginatorModule,
     // MatProgressBarModule,
-    // MatProgressSpinnerModule,
+    MatProgressSpinnerModule,
     MatRadioModule,
     MatSelectModule,
     // MatSidenavModule,
     MatSliderModule,
-    MatSlideToggleModule,
+    // MatSlideToggleModule,
     MatSnackBarModule,
-    MatSortModule,
-    MatTabsModule,
+    // MatSortModule,
+    // MatStepperModule,
+    // MatTableModule,
+    // MatTabsModule,
     MatToolbarModule,
     MatTooltipModule,
 ];
@@ -75,6 +70,6 @@ const modules = [
 @NgModule({
     imports: [...modules],
     exports: [...modules],
-    providers: [MatSnackBar],
+    providers: [],
 })
 export class AppMaterialModule {}

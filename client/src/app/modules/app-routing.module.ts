@@ -1,16 +1,22 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { GamePageComponent } from '@app/pages/game-page/game-page.component';
-import { MainPageComponent } from '@app/pages/main-page/main-page.component';
-import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
-import { CreateQuestionComponent } from '@app/pages/create-question/create-question.component';
+import { QuestionAreaComponent } from '@app/components/question-area/question-area.component';
+import { AdminPageComponent } from '@app/pages/admin-page/admin-page.component';
+import { AdminQuestionBankComponent } from '@app/pages/admin-page/admin-question-bank/admin-question-bank.component';
+import { AdminQuestionsListComponent } from '@app/pages/admin-page/admin-questions-list/admin-questions-list.component';
+import { HomePageComponent } from '@app/pages/home-page/home-page.component';
+import { HostPageComponent } from '@app/pages/host-page/host-page.component';
+import { PlayerPageComponent } from '@app/pages/player-page/player-page.component';
 
 const routes: Routes = [
-    { path: '', redirectTo: '/home', pathMatch: 'full' },
-    { path: 'home', component: MainPageComponent },
-    { path: 'game', component: GamePageComponent },
-    { path: 'material', component: MaterialPageComponent },
-    { path: 'createquestion', component: CreateQuestionComponent },
+       { path: '', redirectTo: '/home', pathMatch: 'full' },
+    { path: 'home', component: HomePageComponent },
+    { path: 'admin/questionbank', component: AdminQuestionBankComponent },
+    { path: 'admin/games', component: AdminPageComponent },
+    { path: 'admin/games/:id/questions', component: AdminQuestionsListComponent },
+    { path: 'host', component: HostPageComponent },
+    { path: 'player', component: PlayerPageComponent },
+    { path: 'play', component: QuestionAreaComponent },
     { path: '**', redirectTo: '/home' },
 ];
 

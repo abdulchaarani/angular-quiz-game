@@ -1,0 +1,32 @@
+<div class="top-page">
+    <h2>Liste de questions du jeu.</h2>
+</div>
+
+<div class="top-container">
+    <h3>
+        Description du jeu.
+    </h3>
+
+    <button mat-raised-button color="basic" routerLink="/admin/questionbank" id="admin-question-bank-button">
+        Banque de questions
+    </button>
+
+</div>
+
+<mat-slider min="10" max="60" step="5" value="10" discrete="thumblabel">
+    <input matSliderThumb>
+</mat-slider>
+
+<mat-accordion class="admin-questions-list question-list">
+    <div cdkDropList class="" (cdkDropListDropped)="drop($event)">
+        <app-question-list-item
+            *ngFor="let question of questions"
+            cdkDrag
+            [question]="question"
+            [isLastModifiedDateVisible]="true"
+        >
+        </app-question-list-item>
+    </div>
+</mat-accordion>
+
+

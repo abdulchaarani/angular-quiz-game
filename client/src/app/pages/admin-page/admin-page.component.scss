@@ -1,0 +1,20 @@
+#main-container {
+    padding: 1rem 8rem;
+}
+#buttons-container {
+    display: flex;
+    justify-content: space-between;
+}
+#new-game-buttons-container {
+    display: flex;
+    gap: 2rem;
+}
+#game-list-information-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.file-input {
+    display: none;
+}

@@ -20,6 +20,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 /**
@@ -54,9 +55,10 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
         MatSelectModule,
         ReactiveFormsModule,
         MatButtonModule,
+        MatSnackBar,
         MatSnackBarModule,
     ],
-    providers: [],
+    providers: [{ provide: MatSnackBar, useValue: {} }],
     bootstrap: [AppComponent],
 })
 export class AppModule {}

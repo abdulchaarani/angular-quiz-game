@@ -8,9 +8,6 @@ import { environment } from 'src/environments/environment';
     providedIn: 'root',
 })
 export class GamesService {
-    // TODO - IMPORTANT : Migrate to Backend by using HTTP requests instead here + Save games on a JSON file (required: import fs from 'fs')
-    // This Service should only be used to send the HTTP requests that will be handled by the Backend server
-    // The core logic of each function should remain similar, hence why it has been first implemented in the front-end
     private readonly BASE_URL: string = `${environment.serverUrl}/admin/games`;
     private CONTENT_JSON_HEADER = new HttpHeaders({
         'Content-Type': 'application/json',
@@ -32,10 +29,11 @@ export class GamesService {
         return this.http.patch(`${this.BASE_URL}/${id}`, {}).subscribe();
     }
 
-    uploadGame(gameStringified: String, isFromJsonUpload: boolean): void {
+    uploadGame(gameStringified: String, isFromJsonUpload: boolean) {
         if (isFromJsonUpload) {
             this.http.post<Game>(`${this.BASE_URL}/json`, gameStringified, { headers: this.CONTENT_JSON_HEADER }).subscribe();
         }
+        // TODO: Adapt route when creating a game from scratch
     }
 
     // Keep it in Front-end for now

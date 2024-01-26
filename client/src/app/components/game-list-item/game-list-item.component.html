@@ -2,7 +2,7 @@
     <mat-card-content id="game-card-content">
         <p id="game-title">{{ game.title }}</p>
         <p id="game-date">Dernière modification: {{ game.lastModification | date }}</p>
-        <div id="icons-container">
+        <div *ngIf="isAdminMode" id="icons-container">
             <button mat-icon-button (click)="toggleGameVisibility()">
                 <mat-icon *ngIf="game.isVisible">remove_red_eye</mat-icon>
                 <mat-icon *ngIf="!game.isVisible">visibility_off</mat-icon>

@@ -8,6 +8,7 @@ export class GamesService {
     private games: Game[];
     constructor(private readonly logger: Logger) {
         // private readonly logger: Logger, // @InjectModel(Game.name) public gameModel: Model<GameDocument>,
+        // TODO: Remove the populate functionality once MongoDB / FileSystem is ready
         this.games = [];
         this.start();
     }

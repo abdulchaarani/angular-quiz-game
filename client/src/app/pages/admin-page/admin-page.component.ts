@@ -18,7 +18,7 @@ export class AdminPageComponent implements OnInit {
     }
 
     getGames(): void {
-        this.gamesService.getGames().subscribe((games) => (this.games = games));
+        this.gamesService.getGames().subscribe((games: Game[]) => (this.games = [...games]));
     }
 
     onDeleteGameFromList(gameToDelete: Game) {
@@ -40,15 +40,14 @@ export class AdminPageComponent implements OnInit {
                 const newGameStringified = fileReader.result?.toString();
                 if (newGameStringified) {
                     this.gamesService.uploadGame(newGameStringified, true);
+
+                    // TODO: See if this is legal
                     const newGame = JSON.parse(newGameStringified);
                     newGame.isVisible = true;
                     this.games.push(newGame);
                 }
             };
             fileReader.readAsText(file);
-
-            // const upload$ = this.http.post('/admin/json-game', formData);
-            // upload$.subscribe();
         }
     }
 }

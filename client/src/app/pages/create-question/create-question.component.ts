@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Question } from '@app/interfaces/question';
 import { FormControl, Validators, FormBuilder, FormGroup } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+// import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
     selector: 'app-create-question',
@@ -35,12 +35,12 @@ export class CreateQuestionComponent {
         ],
         lastModification: '2018-11-13T20:20:39+00:00',
     };
-    private readonly snackBarDisplayTime = 2000;
-    private readonly minChoices = 2;
-    private readonly maxChoices = 4;
+    // private readonly snackBarDisplayTime = 2000;
+    // private readonly minChoices = 2;
+    // private readonly maxChoices = 4;
 
     constructor(
-        private snackBar: MatSnackBar,
+        // private snackBar: MatSnackBar,
         private fb: FormBuilder,
     ) {
         this.questionForm = this.fb.group({
@@ -54,32 +54,32 @@ export class CreateQuestionComponent {
         });
     }
 
-    addChoice() {
-        if (this.question.choices && this.question.choices?.length < this.maxChoices) {
-            this.question.choices?.push({ choice: '', isCorrect: false });
-        } else {
-            this.openSnackBar('4 choix est le maximum', this.snackBarDisplayTime);
-            return;
-        }
-    }
+    // addChoice() {
+    //     if (this.question.choices && this.question.choices?.length < this.maxChoices) {
+    //         this.question.choices?.push({ choice: '', isCorrect: false });
+    //     } else {
+    //         this.openSnackBar('4 choix est le maximum', this.snackBarDisplayTime);
+    //         return;
+    //     }
+    // }
 
-    removeChoice(index: number) {
-        if (this.question.choices && this.minChoices < this.question.choices?.length) this.question.choices?.splice(index, 1);
-        else {
-            this.openSnackBar('2 choix est le minimum', this.snackBarDisplayTime);
-            return;
-        }
-    }
+    // removeChoice(index: number) {
+    //     if (this.question.choices && this.minChoices < this.question.choices?.length) this.question.choices?.splice(index, 1);
+    //     else {
+    //         this.openSnackBar('2 choix est le minimum', this.snackBarDisplayTime);
+    //         return;
+    //     }
+    // }
 
-    submitForm() {
-        if (this.questionForm.valid) {
-            // this.saveQuestion();
-            this.openSnackBar('Question saved', this.snackBarDisplayTime);
-            this.resetForm();
-        } else {
-            this.openSnackBar('Please fill in all required fields.', this.snackBarDisplayTime);
-        }
-    }
+    // submitForm() {
+    //     if (this.questionForm.valid) {
+    //         // this.saveQuestion();
+    //         this.openSnackBar('Question saved', this.snackBarDisplayTime);
+    //         this.resetForm();
+    //     } else {
+    //         this.openSnackBar('Please fill in all required fields.', this.snackBarDisplayTime);
+    //     }
+    // }
 
     resetForm() {
         this.questionForm.reset({
@@ -93,9 +93,9 @@ export class CreateQuestionComponent {
         });
     }
 
-    openSnackBar(message: string, duration: number = 0) {
-        this.snackBar.open(message, undefined, {
-            duration,
-        });
-    }
+    // openSnackBar(message: string, duration: number = 0) {
+    //     this.snackBar.open(message, undefined, {
+    //         duration,
+    //     });
+    // }
 }

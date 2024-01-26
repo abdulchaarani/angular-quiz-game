@@ -7,16 +7,16 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { AppMaterialModule } from '@app/modules/material.module';
 import { AppComponent } from '@app/pages/app/app.component';
+import { PlayAreaComponent } from './components/play-area/play-area.component';
+import { QuestionListItemComponent } from './components/question-list-item/question-list-item.component';
+import { SidebarComponent } from './components/sidebar/sidebar.component';
+import { ClickStopPropagationDirective } from './directives/click-stop-propagation.directive';
 import { AdminPageComponent } from './pages/admin-page/admin-page.component';
+import { AdminQuestionBankComponent } from './pages/admin-page/admin-question-bank/admin-question-bank.component';
 import { HomePageComponent } from './pages/home-page/home-page.component';
 import { HostPageComponent } from './pages/host-page/host-page.component';
 import { PlayerPageComponent } from './pages/player-page/player-page.component';
-import { QuestionListItemComponent } from './components/question-list-item/question-list-item.component';
-import { AdminQuestionBankComponent } from './pages/admin-page/admin-question-bank/admin-question-bank.component';
-import { SortByLastModificationPipe } from './sort-by-last-modification.pipe';
-import { SidebarComponent } from './components/sidebar/sidebar.component';
-import { PlayAreaComponent } from './components/play-area/play-area.component';
-import { ClickStopPropagationDirective } from './click-stop-propagation.directive';
+import { SortByLastModificationPipe } from './pipes/sort-by-last-modification.pipe';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.

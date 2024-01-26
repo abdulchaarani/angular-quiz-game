@@ -16,6 +16,7 @@ export class QuestionAreaComponent implements OnInit {
     answers: Choice[];
 
     private readonly timeLimit = 60;
+    private readonly multiplicationFactor = 100;
 
     constructor(private readonly timeService: TimeService) {}
 
@@ -28,15 +29,15 @@ export class QuestionAreaComponent implements OnInit {
         this.timeService.startTimer(this.timeLimit);
 
         this.timeService.timerFinished$.subscribe(() => {
-            console.log('times up');
+            // console.log('times up');
         });
     }
 
     computeTimerProgress(): number {
-        return (this.timeService.time / this.timeLimit) * 100;
+        return (this.timeService.time / this.timeLimit) * this.multiplicationFactor;
     }
 
-    submit(): void {}
-    checkAnswers(): void {}
-    abandon(): void {}
+    // submit(): void {}
+    // checkAnswers(): void {}
+    // abandon(): void {}
 }

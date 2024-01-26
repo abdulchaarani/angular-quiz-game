@@ -1,4 +1,4 @@
 export interface Choice {
-    choice    : string;
-    isCorrect : boolean; 
+    choice: string;
+    isCorrect: boolean;
 }

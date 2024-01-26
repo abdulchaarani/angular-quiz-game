@@ -12,7 +12,7 @@ const routes: Routes = [
     { path: 'admin', component: AdminPageComponent },
     { path: 'player', component: PlayerPageComponent },
     { path: 'host', component: HostPageComponent },
-    { path: 'play', component: QuestionAreaComponent},
+    { path: 'play', component: QuestionAreaComponent },
     { path: '**', redirectTo: '/home' },
 ];
 

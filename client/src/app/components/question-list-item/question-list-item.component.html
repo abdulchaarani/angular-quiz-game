@@ -1,0 +1,12 @@
+<mat-expansion-panel class="example-headers-align" *ngIf="question">
+    <mat-expansion-panel-header>
+        <mat-panel-title> {{ question.description }} </mat-panel-title>
+        <mat-panel-description>
+            <p *ngIf="isLastModifiedDateVisible">Last modified: {{ question.lastModification | date }}</p>
+            <mat-icon>create</mat-icon>
+            <mat-icon>delete</mat-icon>
+            <p>{{ question.points }} points</p>
+        </mat-panel-description>
+    </mat-expansion-panel-header>
+    <p>{{ question.question }}</p>
+</mat-expansion-panel>

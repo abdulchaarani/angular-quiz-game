@@ -55,7 +55,7 @@ export class CourseController {
     @Post('/')
     async addCourse(@Body() courseDto: CreateCourseDto, @Res() response: Response) {
         try {
-            await this.coursesService.addCourse(courseDto);
+            this.coursesService.addCourse(courseDto);
             response.status(HttpStatus.CREATED).send();
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send(error.message);

@@ -1,0 +1,148 @@
+.question-area {
+    margin-top: 30px;
+}
+#upper-question-area {
+    position: relative;
+}
+#question-timer-area {
+    margin-top: 2%;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    position: relative;
+}
+
+#chat-exit {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+#lower-question-area {
+    margin-top: 2%;
+}
+#question {
+    background: #3f51b5;
+    color: #fafafa;
+    padding: 7% 7%;
+    border-radius: 10px;
+    margin: 0;
+    position: relative;
+    z-index: 1;
+    width: 400px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    overflow: hidden;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+#timer-area {
+    position: absolute;
+    top: -35px;
+    right: 48%;
+    z-index: 10;
+}
+
+#points {
+    font-size: 125%;
+    color: #777777;
+}
+#choice-area {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 5px;
+}
+
+.circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #b63d3d;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#submit-score-area {
+    margin-top: 1%;
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+#submitButton {
+    position: absolute;
+    right: 20px;
+}
+
+#exitButton,
+#submitButton,
+.answer {
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+#exitButton {
+    margin-right: 20px;
+}
+
+#exitButton:hover {
+    background: #cc3434;
+}
+
+#submitButton:hover {
+    background: #64b53f;
+}
+
+#exitButton:active,
+#submitButton:active {
+    transform: scale(0.97);
+}
+.answer:hover {
+    background: #c3c3c3;
+}
+
+.answer:active {
+    background: #c3c3c3;
+    transform: scale(0.99);
+}
+
+#chat-icon {
+    cursor: pointer;
+    margin-left: 20px;
+}
+
+#chat-icon:hover {
+    scale: 1.2;
+}
+
+.custom-button {
+    background: #fff;
+    border: 1px solid #d3d3d3;
+    padding: 10px 20px;
+    border-radius: 5px;
+    margin: 5px;
+    cursor: pointer;
+}
+
+.custom-button:hover {
+    background: #e9e9e9;
+}
+
+.answer {
+    padding: 50px;
+    width: 100%;
+    font-size: 150%;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+#score {
+    font-size: 125%;
+    color: #777777;
+}

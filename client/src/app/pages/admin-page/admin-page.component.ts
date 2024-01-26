@@ -30,9 +30,11 @@ export class AdminPageComponent implements OnInit {
 
     // TODO: Find actual type of event to remove the "any" (which is currently illegal)
     // TODO: See if the logic can be migrated to games.service.ts (Challenge: Returning the read game while managing fileReader)
-    onFileSelected(event: unknown) {
+    onFileSelected(event: Event) {
         // Reference: https://blog.angular-university.io/angular-file-upload/
-        const file: File = event.target.files[0];
+        // Reference: https://stackoverflow.com/questions/43176560/property-files-does-not-exist-on-type-eventtarget-error-in-typescript
+        const target = event.target as HTMLInputElement;
+        const file: File = (target.files as FileList)[0];
         if (file) {
             // Reference: https://stackoverflow.com/questions/47581687/read-a-file-and-parse-its-content
             const fileReader = new FileReader();

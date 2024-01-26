@@ -21,15 +21,19 @@
             <div class="input-container">
                 <input class="choicesInput" [(ngModel)]="choice.choice" name="choice{{ i }}" />
                 <input type="checkbox" color="primary" [(ngModel)]="choice.isCorrect" name="isCorrect{{ i }}" />
-
+<!--
                 <button class="delete-button" (click)="removeChoice(i)">
+
                     <i class="fas fa-trash"></i>
                 </button>
+                -->
             </div>
         </div>
     </div>
     <span class="add-button-container">
+        <!--
         <button mat-raised-button color="primary" class="add-button" type="button" (click)="addChoice()">Ajouter Choix</button>
+    -->
     </span>
 </div>
 <span class="submit-button-row">

@@ -3,7 +3,7 @@
     <div id="buttons-container">
         <div id="new-game-buttons-container">
             <!-- TODO: Add route to Create Game Page -->
-            <button mat-raised-button color="primary"><mat-icon>add</mat-icon>Créer un nouveau jeu</button>
+            <button mat-raised-button color="primary" routerLink="/admin/games/new/questions/"><mat-icon>add</mat-icon>Créer un nouveau jeu</button>
             <input type="file" accept="application/json" class="file-input" (change)="onFileSelected($event)" #fileUpload />
             <div class="file-upload">
                 <button mat-raised-button color="primary" class="upload-btn" (click)="fileUpload.click()">
@@ -11,7 +11,7 @@
                 </button>
             </div>
         </div>
-        <button mat-raised-button color="primary" routerLink="/admin/questionbank"><mat-icon>question_mark</mat-icon>Banque de questions</button>
+        <button mat-raised-button color="primary" routerLink="/admin/bank"><mat-icon>question_mark</mat-icon>Banque de questions</button>
     </div>
     <div class="games-container">
         <div id="game-list-information-container">

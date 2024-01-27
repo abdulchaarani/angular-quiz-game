@@ -11,13 +11,13 @@ import { PlayerPageComponent } from '@app/pages/player-page/player-page.componen
 const routes: Routes = [
     { path: '', redirectTo: '/home', pathMatch: 'full' },
     { path: 'home', component: HomePageComponent },
-    { path: 'admin/questionbank', component: AdminQuestionBankComponent },
+    { path: 'admin/bank', component: AdminQuestionBankComponent },
     { path: 'admin/games', component: AdminPageComponent },
     { path: 'admin/games/:id/questions', component: AdminQuestionsListComponent },
     { path: 'host', component: HostPageComponent },
     { path: 'player', component: PlayerPageComponent },
     { path: 'play', component: QuestionAreaComponent },
-    { path: '**', redirectTo: '/home' },
+    // { path: '**', redirectTo: '/home' },
 ];
 
 @NgModule({

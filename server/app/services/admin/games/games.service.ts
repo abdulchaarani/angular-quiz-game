@@ -29,7 +29,7 @@ export class GamesService {
                 description: 'HOOT HOOT',
                 duration: 60,
                 isVisible: true,
-                lastModification: new Date(2024, 1, 10),
+                lastModification: new Date(2024, 1, 2),
             },
             {
                 id: 1,
@@ -37,7 +37,7 @@ export class GamesService {
                 description: 'OOOOOH',
                 duration: 60,
                 isVisible: true,
-                lastModification: new Date(2024, 10, 1),
+                lastModification: new Date(2024, 2, 1),
             },
             {
                 id: 2,
@@ -45,7 +45,7 @@ export class GamesService {
                 description: 'WHO IS THAT POKEMON',
                 duration: 30,
                 isVisible: false,
-                lastModification: new Date(2023, 2, 24),
+                lastModification: new Date(2023, 2, 2),
             },
         ];
         this.logger.log('THIS ADDS DATA TO THE DATABASE, DO NOT USE OTHERWISE');

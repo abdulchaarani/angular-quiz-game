@@ -11,6 +11,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { QuestionController } from './controllers/question/question.controller';
 import { Game, gameSchema } from './model/database/game';
+import { Question, questionSchema } from './model/database/question';
 import { QuestionService } from './services/question/question.service';
 
 @Module({
@@ -25,6 +26,7 @@ import { QuestionService } from './services/question/question.service';
         }),
         MongooseModule.forFeature([{ name: Game.name, schema: gameSchema }]),
         MongooseModule.forFeature([{ name: Course.name, schema: courseSchema }]),
+        MongooseModule.forFeature([{ name: Question.name, schema: questionSchema }]),
     ],
     controllers: [DateController, ExampleController, QuestionController, GamesController],
     providers: [ChatGateway, DateService, ExampleService, Logger, QuestionService, GamesService],

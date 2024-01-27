@@ -1,43 +1,82 @@
-import { Injectable } from '@nestjs/common';
-// import * as fs from 'fs';
-import { readFileSync, writeFileSync } from 'fs';
-import { resolve } from 'path';
-import { Question } from '@app/model/database/question';
+import { Question, QuestionDocument } from '@app/model/database/question';
+import { CreateQuestionDto } from '@app/model/dto/question/question-dto';
+import { Injectable, Logger } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
-// import { CreateQuestionDto } from '@app/model/dto/question/question-dto';
 
 @Injectable()
 export class QuestionService {
-    jsonPath: string;
-
-    constructor() {
-        this.jsonPath = resolve(__dirname, '../../../../../assets/questions.json');
+    constructor(
+        @InjectModel(Question.name) public questionModel: Model<QuestionDocument>,
+        private readonly logger: Logger,
+    ) {
+        this.start();
     }
 
-    getAllQuestions() {
-        return readFileSync(this.jsonPath, 'utf8');
+    async start() {
+        if ((await this.questionModel.countDocuments()) === 0) {
+            await this.populateDB();
+        }
     }
 
-    getAllMultipleChoiceQuestions() {
-        const questions: Question[] = JSON.parse(readFileSync(this.jsonPath, 'utf8'));
-        return questions.filter((question) => question.type === 'QCM');
+    async populateDB(): Promise<void> {
+        const QUESTIONS: CreateQuestionDto[] = [
+            {
+                id: '100',
+                type: 'QCM',
+                description: 'Motifs sur ballon de soccer',
+                question: 'Combien de motifs blancs et noirs y a-t-il respectivement sur un ballon de soccer?',
+                points: 20,
+                choices: [
+                    {
+                        text: '30 blancs, 5 noirs',
+                        isCorrect: false,
+                    },
+                    {
+                        text: '20 blancs, 12 noirs',
+                        isCorrect: true,
+                    },
+                    {
+                        text: 'Cela varie',
+                        isCorrect: false,
+                    },
+                ],
+                lastModification: '2018-11-13T20:20:39+00:00',
+            },
+        ];
+        this.logger.log('THIS ADDS DATA TO THE DATABASE, DO NOT USE OTHERWISE');
+        await this.questionModel.insertMany(QUESTIONS);
+    }
+
+    async getAllQuestions(): Promise<Question[]> {
+        return await this.questionModel.find({});
+    }
+
+    async getAllMultipleChoiceQuestions(): Promise<Question[]> {
+        return await this.questionModel.find({ type: 'QCM' });
     }
 
     // TODO: validate question input + DTO
-    addQuestion(question: Question): boolean {
+    async addQuestion(question: CreateQuestionDto): Promise<void> {
         question.id = uuidv4();
-        const allQuestions: Question[] = JSON.parse(this.getAllQuestions());
-        allQuestions.push(question);
-        writeFileSync(this.jsonPath, JSON.stringify(allQuestions), 'utf8');
-        return true;
+        try {
+            await this.questionModel.create(question);
+        } catch (error) {
+            return Promise.reject(`Failed to insert question: ${error}`);
+        }
     }
 
-    deleteQuestion(questionId: string): boolean {
-        const allQuestions: Question[] = JSON.parse(this.getAllQuestions());
-        const previousQuestionAmount = allQuestions.length;
-        const filteredQuestions: Question[] = allQuestions.filter((question: Question) => question.id !== questionId);
-        if (previousQuestionAmount === filteredQuestions.length) return false;
-        writeFileSync(this.jsonPath, JSON.stringify(filteredQuestions), 'utf8');
-        return true;
+    async deleteQuestion(questionId: string): Promise<void> {
+        try {
+            const res = await this.questionModel.deleteOne({
+                id: questionId,
+            });
+            if (res.deletedCount === 0) {
+                return Promise.reject('Could not find game');
+            }
+        } catch (error) {
+            return Promise.reject(`Failed to delete game: ${error}`);
+        }
     }
 }

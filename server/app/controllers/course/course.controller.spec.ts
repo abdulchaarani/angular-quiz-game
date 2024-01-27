@@ -1,5 +1,12 @@
+import { Course } from '@app/model/database/course';
+import { CourseService } from '@app/services/course/course.service';
+import { HttpStatus } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+import { Response } from 'express';
+import { SinonStubbedInstance, createStubInstance } from 'sinon';
+import { CourseController } from './course.controller';
+
 describe('CourseController', () => {
-    /*
     let controller: CourseController;
     let courseService: SinonStubbedInstance<CourseService>;
 
@@ -17,13 +24,11 @@ describe('CourseController', () => {
 
         controller = module.get<CourseController>(CourseController);
     });
-    */
+
     it('should be defined', () => {
-        // expect(controller).toBeDefined();
-        expect(true).toBeTruthy();
+        expect(controller).toBeDefined();
     });
 
-    /*
     it('allCourses() should return all courses', async () => {
         const fakeCourses = [new Course(), new Course()];
         courseService.getAllCourses.resolves(fakeCourses);
@@ -221,5 +226,4 @@ describe('CourseController', () => {
 
         await controller.getCoursesByTeacher('', res);
     });
-    */
 });

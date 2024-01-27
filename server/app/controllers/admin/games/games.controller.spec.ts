@@ -1,9 +1,7 @@
-import { GamesController } from './games.controller';
-
 describe('GamesController', () => {
+    /*
     let controller: GamesController;
 
-    /*
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
             controllers: [GamesController],

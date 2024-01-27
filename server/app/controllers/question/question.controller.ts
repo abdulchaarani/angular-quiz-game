@@ -1,25 +1,33 @@
+import { Controller, Get, Post, Delete, Param, Body, HttpException, HttpStatus } from '@nestjs/common';
+import { QuestionService } from '@app/services/question/question.service';
+// import { CreateQuestionDto } from '@app/model/dto/question/question-dto';
 import { Question } from '@app/model/database/question';
-import { Controller, Get } from '@nestjs/common';
-import * as fs from 'fs';
-import * as path from 'path';
-
 @Controller('questions')
 export class QuestionController {
-    jsonPath: string;
+    constructor(private questionService: QuestionService) {}
 
-    constructor() {
-        this.jsonPath = path.resolve(__dirname, '../../../../../assets/questions.json');
-    }
+    // TODO: async try catch DB
 
     @Get('/')
-    findAll() {
-        return fs.readFileSync(this.jsonPath, 'utf8');
+    allQuestions() {
+        return this.questionService.getAllQuestions();
     }
 
     @Get('/qcm')
-    findMcq() {
-        const questions: Question[] = JSON.parse(fs.readFileSync(this.jsonPath, 'utf8'));
+    allMultipleChoiceQuestions() {
+        return this.questionService.getAllMultipleChoiceQuestions();
+    }
 
-        return questions.filter((question) => question.type === 'QCM');
+    @Post('/')
+    addQuestion(@Body() question: Question) {
+        this.questionService.addQuestion(question);
+    }
+
+    @Delete('/:questionId')
+    deleteQuestion(@Param('questionId') questionId: string) {
+        if (!questionId) throw new HttpException('Invalid request', HttpStatus.BAD_REQUEST);
+        if (!this.questionService.deleteQuestion(questionId)) {
+            throw new HttpException('Question not found', HttpStatus.NOT_FOUND);
+        }
     }
 }

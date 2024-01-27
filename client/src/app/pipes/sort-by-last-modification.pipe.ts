@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { Question } from './interfaces/question';
+import { Question } from '@app/interfaces/question';
 
 @Pipe({
     name: 'sortByLastModification',

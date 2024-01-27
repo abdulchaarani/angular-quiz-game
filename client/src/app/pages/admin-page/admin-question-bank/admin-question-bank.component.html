@@ -11,6 +11,13 @@
     </div> -->
 </div>
 
+<mat-card *ngIf="questions.length === 0" class="empty-bank-card">
+    <mat-card-content class="empty-bank-card">
+        <p><mat-icon>catching_pokemon</mat-icon> La banque de question est vide! <mat-icon>catching_pokemon</mat-icon></p>
+        <p>Cliquez sur <mat-icon>add</mat-icon> pour ajouter votre première question!</p>
+    </mat-card-content>
+</mat-card>
+
 <mat-accordion class="bank-questions-list question-list">
     <div cdkDropList class="" (cdkDropListDropped)="drop($event)">
         <app-question-list-item
@@ -18,13 +25,16 @@
             cdkDrag
             [question]="question"
             [isLastModifiedDateVisible]="true"
+            (deleteQuestionEvent)="deleteQuestion($event)"
         >
         </app-question-list-item>
     </div>
 
     <div class="add-button-container">
-        <button class="add-question-button" mat-raised-button color="basic">
+        <button class="add-question-button" mat-raised-button color="basic" (click)="addQuestion()">
             <mat-icon>add</mat-icon>
         </button>
     </div>
 </mat-accordion>
+
+<p>{{ response }}</p>

@@ -1,14 +1,13 @@
-
-
 describe('QuestionService', () => {
-    // let service: QuestionService;
+    //   let service: QuestionService;
 
-    // beforeEach(() => {
+    //   beforeEach(() => {
     //     TestBed.configureTestingModule({});
     //     service = TestBed.inject(QuestionService);
-    // });
+    //   });
 
     it('should be created', () => {
+        // expect(service).toBeTruthy();
         expect(true).toBeTruthy();
     });
 });

@@ -19,6 +19,8 @@ import { HomePageComponent } from './pages/home-page/home-page.component';
 import { HostPageComponent } from './pages/host-page/host-page.component';
 import { PlayerPageComponent } from './pages/player-page/player-page.component';
 import { QuestionAreaComponent } from './components/question-area/question-area.component';
+import { SortByLastModificationPipe } from './pipes/sort-by-last-modification.pipe';
+import { ClickStopPropagationDirective } from './directives/click-stop-propagation.directive';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -39,9 +41,20 @@ import { QuestionAreaComponent } from './components/question-area/question-area.
         AdminQuestionsListComponent,
         GameListItemComponent,
         QuestionAreaComponent,
-        CreateQuestionComponent
+        CreateQuestionComponent,
+        SortByLastModificationPipe,
+        ClickStopPropagationDirective,
     ],
-    imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule, DragDropModule, ReactiveFormsModule],
+    imports: [
+        AppMaterialModule,
+        AppRoutingModule,
+        BrowserAnimationsModule,
+        BrowserModule,
+        FormsModule,
+        HttpClientModule,
+        DragDropModule,
+        ReactiveFormsModule,
+    ],
     providers: [],
     bootstrap: [AppComponent],
 })

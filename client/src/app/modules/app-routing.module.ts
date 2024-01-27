@@ -9,7 +9,7 @@ import { HostPageComponent } from '@app/pages/host-page/host-page.component';
 import { PlayerPageComponent } from '@app/pages/player-page/player-page.component';
 
 const routes: Routes = [
-       { path: '', redirectTo: '/home', pathMatch: 'full' },
+    { path: '', redirectTo: '/home', pathMatch: 'full' },
     { path: 'home', component: HomePageComponent },
     { path: 'admin/questionbank', component: AdminQuestionBankComponent },
     { path: 'admin/games', component: AdminPageComponent },

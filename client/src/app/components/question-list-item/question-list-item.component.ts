@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { Question } from '@app/interfaces/question';
 
 @Component({
@@ -9,4 +9,9 @@ import { Question } from '@app/interfaces/question';
 export class QuestionListItemComponent {
     @Input() question: Question;
     @Input() isLastModifiedDateVisible: boolean;
+    @Output() deleteQuestionEvent = new EventEmitter<string>();
+
+    deleteQuestion() {
+        this.deleteQuestionEvent.emit(this.question.id);
+    }
 }

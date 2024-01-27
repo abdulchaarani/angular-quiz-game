@@ -20,6 +20,7 @@ export class GamesService {
         return this.http.get<Game[]>(`${this.baseUrl}`);
     }
 
+    // TODO: Case when id == "new"
     getGameById(id: number): Observable<Game> {
         return this.http.get<Game>(`${this.baseUrl}/${id}`);
     }

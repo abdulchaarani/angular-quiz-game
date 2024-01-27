@@ -1,26 +1,27 @@
-import { Game } from '@app/model/database/game';
+import { Game, GameDocument } from '@app/model/database/game';
 import { CreateGameDto } from '@app/model/dto/create-game.dto';
 import { Injectable, Logger } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class GamesService {
-    // TODO: Read JSON file or MongoDB
-    private games: Game[];
-    constructor(private readonly logger: Logger) {
-        // private readonly logger: Logger, // @InjectModel(Game.name) public gameModel: Model<GameDocument>,
-        // TODO: Remove the populate functionality once MongoDB / FileSystem is ready
-        this.games = [];
+    constructor(
+        @InjectModel(Game.name) public gameModel: Model<GameDocument>,
+        private readonly logger: Logger,
+    ) {
         this.start();
     }
 
-    start(): void {
-        if (this.games.length === 0) {
-            this.populateDB();
+    async start() {
+        if ((await this.gameModel.countDocuments()) === 0) {
+            await this.populateDB();
         }
     }
 
-    populateDB(): void {
-        const GAMES: Game[] = [
+    async populateDB(): Promise<void> {
+        // TODO: Add Questions
+        const GAMES: CreateGameDto[] = [
             {
                 id: 0,
                 title: 'Hoot Hoot',
@@ -46,40 +47,51 @@ export class GamesService {
                 lastModification: new Date(2023, 2, 24),
             },
         ];
-        this.games = GAMES;
+        this.logger.log('THIS ADDS DATA TO THE DATABASE, DO NOT USE OTHERWISE');
+        await this.gameModel.insertMany(GAMES);
     }
 
-    getAllGames(): Game[] {
-        return this.games; // TODO: Read from file or Mongo
+    async getAllGames(): Promise<Game[]> {
+        return await this.gameModel.find({});
     }
 
-    getGameById(id: number): Game {
-        return this.games.find((x) => x.id === id);
+    async getGameById(gameId: number): Promise<Game> {
+        return await this.gameModel.findOne({ id: gameId });
     }
 
-    addGame(newGame: CreateGameDto): void {
-        // TODO: Add verifications
-        this.games.push(newGame);
+    async addGame(newGame: CreateGameDto): Promise<void> {
+        // TODO: Add verifications in another function
+        try {
+            await this.gameModel.create(newGame);
+        } catch (error) {
+            return Promise.reject(`Failed to insert game: ${error}`);
+        }
     }
 
-    addGameFromJson(newGame: CreateGameDto): Game {
+    async addGameFromJson(newGame: CreateGameDto): Promise<Game> {
         // const newGame = JSON.parse(newGameStringified);
         newGame.isVisible = true;
-        this.addGame(newGame);
+        await this.addGame(newGame);
         return newGame;
     }
 
-    toggleGameVisibility(gameId: number): void {
-        const gameToToggleVisibility = this.getGameById(gameId);
+    async toggleGameVisibility(gameId: number): Promise<void> {
+        const gameToToggleVisibility = await this.getGameById(gameId);
         if (gameToToggleVisibility) {
             gameToToggleVisibility.isVisible = !gameToToggleVisibility.isVisible;
         }
     }
 
-    deleteGame(gameId: number): void {
-        const gameToDelete = this.getGameById(gameId);
-        if (gameToDelete) {
-            this.games = this.games.filter((x) => x.id !== gameId);
+    async deleteGame(gameId: number): Promise<void> {
+        try {
+            const res = await this.gameModel.deleteOne({
+                id: gameId,
+            });
+            if (res.deletedCount === 0) {
+                return Promise.reject('Could not find game');
+            }
+        } catch (error) {
+            return Promise.reject(`Failed to delete game: ${error}`);
         }
     }
 }

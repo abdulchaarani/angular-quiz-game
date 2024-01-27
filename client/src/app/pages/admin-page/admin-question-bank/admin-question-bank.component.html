@@ -14,7 +14,9 @@
 <div class="main-container">
     <h1 class="page-title">Banque de questions</h1>
     <div class="buttons-container">
-        <button id="add-question-button" mat-raised-button color="primary"><mat-icon>add</mat-icon>Ajouter une nouvelle question</button>
+        <button id="add-question-button" mat-raised-button color="primary" (click)="addQuestion()">
+            <mat-icon>add</mat-icon>Ajouter une nouvelle question
+        </button>
     </div>
     <div class="question-container container">
         <mat-card *ngIf="questions.length === 0" class="empty-bank-card">
@@ -31,6 +33,7 @@
                     cdkDrag
                     [question]="question"
                     [isLastModifiedDateVisible]="true"
+                    (deleteQuestionEvent)="deleteQuestion($event)"
                 >
                 </app-question-list-item>
             </div>

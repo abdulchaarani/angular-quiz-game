@@ -2,7 +2,7 @@ import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Component, OnInit } from '@angular/core';
 import { Question } from '@app/interfaces/question';
 import { QuestionService } from '@app/services/question.service';
-// import { HttpResponse } from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 // import { map } from 'rxjs/operators';
 
 @Component({
@@ -27,15 +27,15 @@ export class AdminQuestionBankComponent implements OnInit {
         this.questionService.getAllQuestions().subscribe((data: Question[]) => (this.questions = [...data]));
     }
 
-    // deleteQuestion(questionId: string) {
-    //     this.questionService.deleteQuestion(questionId).subscribe((response: HttpResponse<string>) => {
-    //         if (response.ok) this.questions = this.questions.filter((question: Question) => question.id !== questionId);
-    //     });
-    // }
+    deleteQuestion(questionId: string) {
+        this.questionService.deleteQuestion(questionId).subscribe((response: HttpResponse<string>) => {
+            if (response.ok) this.questions = this.questions.filter((question: Question) => question.id !== questionId);
+        });
+    }
 
-    // addQuestion() {
-    //     this.questionService.saveQuestion(this.questions[0]).subscribe((response: HttpResponse<string>) => {
-    //         this.response = response.statusText;
-    //     });
-    // }
+    addQuestion() {
+        this.questionService.saveQuestion(this.questions[0]).subscribe((response: HttpResponse<string>) => {
+            this.response = response.statusText;
+        });
+    }
 }

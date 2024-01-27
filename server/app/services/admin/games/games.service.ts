@@ -76,7 +76,7 @@ export class GamesService {
         return newGame;
     }
 
-    async modifyCourse(game: UpdateGameDto): Promise<void> {
+    async modifyGame(game: UpdateGameDto): Promise<void> {
         const filterQuery = { id: game.id };
         // Can also use replaceOne if we want to replace the entire object
         try {
@@ -93,7 +93,7 @@ export class GamesService {
         const gameToToggleVisibility = await this.getGameById(gameId);
         if (gameToToggleVisibility) {
             gameToToggleVisibility.isVisible = !gameToToggleVisibility.isVisible;
-            await this.modifyCourse(gameToToggleVisibility);
+            await this.modifyGame(gameToToggleVisibility);
         }
     }
 

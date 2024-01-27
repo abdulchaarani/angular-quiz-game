@@ -20,7 +20,9 @@ export class QuestionService {
     }
 
     saveQuestion(question: Question): Observable<HttpResponse<string>> {
-        return this.http.post(`${this.baseUrl}/${this.endpoint}`, question, { observe: 'response', responseType: 'text' });
+        return this.http
+            .post(`${this.baseUrl}/${this.endpoint}`, question, { observe: 'response', responseType: 'text' })
+            .pipe(catchError(this.handleError<HttpResponse<string>>('OH NO')));
     }
 
     // basicPost(message: Message): Observable<HttpResponse<string>> {

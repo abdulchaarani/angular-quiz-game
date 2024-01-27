@@ -2,6 +2,7 @@ import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Component, OnInit } from '@angular/core';
 import { Question } from '@app/interfaces/question';
 import { QuestionService } from '@app/question.service';
+import { HttpResponse } from '@angular/common/http';
 // import { map } from 'rxjs/operators';
 
 @Component({
@@ -14,6 +15,8 @@ export class AdminQuestionBankComponent implements OnInit {
 
     questions: Question[] = [];
 
+    response: string = '';
+
     constructor(private readonly questionService: QuestionService) {}
 
     drop(event: CdkDragDrop<Question[]>) {
@@ -22,5 +25,12 @@ export class AdminQuestionBankComponent implements OnInit {
 
     ngOnInit() {
         this.questionService.getAllQuestions().subscribe((data: Question[]) => (this.questions = [...data]));
+    }
+
+    save() {
+        this.questionService.saveQuestion(this.questions[0]).subscribe((data: HttpResponse<string>) => {
+            console.log(data);
+            this.response = data.statusText;
+        });
     }
 }

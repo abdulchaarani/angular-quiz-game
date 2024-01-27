@@ -1,5 +1,6 @@
 import { Game, GameDocument } from '@app/model/database/game';
-import { CreateGameDto } from '@app/model/dto/create-game.dto';
+import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
+import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -75,10 +76,24 @@ export class GamesService {
         return newGame;
     }
 
+    async modifyCourse(game: UpdateGameDto): Promise<void> {
+        const filterQuery = { id: game.id };
+        // Can also use replaceOne if we want to replace the entire object
+        try {
+            const res = await this.gameModel.updateOne(filterQuery, game);
+            if (res.matchedCount === 0) {
+                return Promise.reject('Could not find game');
+            }
+        } catch (error) {
+            return Promise.reject(`Failed to update document: ${error}`);
+        }
+    }
+
     async toggleGameVisibility(gameId: number): Promise<void> {
         const gameToToggleVisibility = await this.getGameById(gameId);
         if (gameToToggleVisibility) {
             gameToToggleVisibility.isVisible = !gameToToggleVisibility.isVisible;
+            await this.modifyCourse(gameToToggleVisibility);
         }
     }
 

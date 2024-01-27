@@ -1,35 +1,35 @@
-import { Prop } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsOptional, IsString } from 'class-validator';
 
-export class CreateGameDto {
+export class UpdateGameDto {
     @ApiProperty()
     @IsNumber()
-    @Prop({ required: true })
+    @IsOptional()
     id: number;
 
     @ApiProperty()
+    @IsOptional()
     @IsString()
-    @Prop({ required: true })
     title: string;
 
     @ApiProperty()
+    @IsOptional()
     @IsString()
-    @Prop({ required: true })
     description: string;
 
     @ApiProperty()
+    @IsOptional()
     @IsNumber()
-    @Prop({ required: true })
     duration: number;
 
     @ApiProperty()
+    @IsOptional()
     // @IsDate()
-    @Prop({ required: true })
     lastModification: Date;
 
     @ApiProperty()
     @IsOptional()
-    @Prop({ required: true })
     isVisible: boolean;
+
+    // TODO: Add Questions
 }

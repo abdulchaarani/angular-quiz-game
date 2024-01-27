@@ -1,4 +1,4 @@
-import { CreateGameDto } from '@app/model/dto/create-game.dto';
+import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { GamesService } from '@app/services/admin/games/games.service';
 import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Res } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';

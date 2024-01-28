@@ -1,38 +1,37 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Game } from '@app/interfaces/game';
 import { Observable } from 'rxjs';
-import { environment } from 'src/environments/environment';
+import { ApiService } from './api.service';
 
 @Injectable({
     providedIn: 'root',
 })
-export class GamesService {
-    private readonly baseUrl: string = `${environment.serverUrl}/admin/games`;
-    private contentJsonHeader = new HttpHeaders({
-        'Content-Type': 'application/json',
-    });
-
-    constructor(private http: HttpClient) {}
+export class GamesService extends ApiService<Game> {
+    constructor(http: HttpClient) {
+        super(http, 'admin/games');
+    }
 
     getGames(): Observable<Game[]> {
-        // TODO: Add pipes
-        return this.http.get<Game[]>(`${this.baseUrl}`);
+        return this.getAll();
     }
 
+    // TODO: change id to string for mongoDb integration?
     getGameById(id: number): Observable<Game> {
-        return this.http.get<Game>(`${this.baseUrl}/${id}`);
+        return this.getById(id.toString());
     }
 
-    // TODO: Return type
-    toggleGameVisibility(id: number) {
-        return this.http.patch(`${this.baseUrl}/${id}`, {}).subscribe();
+    toggleGameVisibility(id: number): Observable<HttpResponse<string>> {
+        return this.update(id.toString());
     }
 
-    uploadGame(gameStringified: string, isFromJsonUpload: boolean) {
-        if (isFromJsonUpload) {
-            this.http.post<Game>(`${this.baseUrl}/json`, gameStringified, { headers: this.contentJsonHeader }).subscribe();
-        }
+    deleteGame(id: number): Observable<HttpResponse<string>> {
+        return this.delete(id.toString());
+    }
+
+    uploadGame(newGame: Game) {
+        return this.add(newGame, 'json');
+
         // TODO: Adapt route when creating a game from scratch
     }
 
@@ -52,10 +51,5 @@ export class GamesService {
         downloadLink.click();
         window.URL.revokeObjectURL(url);
         downloadLink.remove();
-    }
-
-    // TODO: Return type
-    deleteGame(id: number) {
-        return this.http.delete(`${this.baseUrl}/${id}`).subscribe();
     }
 }

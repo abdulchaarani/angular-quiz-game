@@ -49,6 +49,13 @@ export class ApiService<T> {
             .pipe(catchError(this.handleError<HttpResponse<string>>('update')));
     }
 
+    // UNTESTED
+    replace(payload: T, endpoint: string): Observable<HttpResponse<string>> {
+        return this.http
+            .put(`${this.serverUrl}/${this.baseUrl}/${endpoint}`, payload, this.httpOptions)
+            .pipe(catchError(this.handleError<HttpResponse<string>>('update')));
+    }
+
     // TODO: Handle Error
     private handleError<E>(request: string, result?: E): (error: Error) => Observable<E> {
         return () => of(result as E);

@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Game } from '@app/interfaces/game';
 import { GamesService } from '@app/services/games.service';
+import { HttpResponse } from '@angular/common/http';
 
 @Component({
     selector: 'app-game-list-item',
@@ -10,13 +11,14 @@ import { GamesService } from '@app/services/games.service';
 export class GameListItemComponent {
     @Input() game: Game;
     @Input() isAdminMode: boolean;
-    @Output() deleteGameFromList: EventEmitter<Game> = new EventEmitter<Game>();
+    @Output() deleteGameFromList: EventEmitter<number> = new EventEmitter<number>();
 
     constructor(private gamesService: GamesService) {}
 
     toggleGameVisibility() {
-        this.gamesService.toggleGameVisibility(this.game);
-        // TODO: Update accordingly to changes on backend
+        this.gamesService.toggleGameVisibility(this.game.id).subscribe((response: HttpResponse<string>) => {
+            if (response.ok) this.game.isVisible = !this.game.isVisible;
+        });
         // Currently, the change can be triggered only once we refresh the page
     }
 
@@ -26,6 +28,6 @@ export class GameListItemComponent {
 
     deleteGame() {
         // Reference: https://stackoverflow.com/questions/43768024/delete-child-and-update-parent-list
-        this.deleteGameFromList.emit(this.game);
+        this.deleteGameFromList.emit(this.game.id);
     }
 }

@@ -45,7 +45,7 @@ describe('AdminQuestionBankComponent', () => {
         questionServiceSpy = jasmine.createSpyObj('QuestionService', ['getAllQuestions', 'deleteQuestion', 'saveQuestion']);
         questionServiceSpy.getAllQuestions.and.returnValue(of(mockQuestions));
         questionServiceSpy.deleteQuestion.and.returnValue(of(mockHttpResponse));
-        questionServiceSpy.saveQuestion.and.returnValue(of(mockHttpResponse));
+        questionServiceSpy.createQuestion.and.returnValue(of(mockHttpResponse));
 
         TestBed.configureTestingModule({
             declarations: [AdminQuestionBankComponent, SortByLastModificationPipe],
@@ -98,12 +98,12 @@ describe('AdminQuestionBankComponent', () => {
     it('should add a question', () => {
         component.addQuestion(newMockQuestion);
 
-        expect(questionServiceSpy.saveQuestion).toHaveBeenCalledWith(newMockQuestion);
+        expect(questionServiceSpy.createQuestion).toHaveBeenCalledWith(newMockQuestion);
         expect(component.questions.length).toBe(mockQuestions.length + 1);
     });
 
     it('should keep ordering by latest date after adding a question', () => {
-        questionServiceSpy.saveQuestion.and.returnValue(of(mockHttpResponse));
+        questionServiceSpy.createQuestion.and.returnValue(of(mockHttpResponse));
         component.addQuestion(newMockQuestion);
 
         expect(component.questions[0]).toEqual(newMockQuestion);

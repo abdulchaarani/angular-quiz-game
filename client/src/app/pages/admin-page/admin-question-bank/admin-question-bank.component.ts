@@ -43,7 +43,7 @@ export class AdminQuestionBankComponent implements OnInit {
     }
 
     addQuestion(newQuestion: Question = this.newQuestion) {
-        this.questionService.saveQuestion(newQuestion).subscribe((response: HttpResponse<string>) => {
+        this.questionService.createQuestion(newQuestion).subscribe((response: HttpResponse<string>) => {
             if (response.ok) this.questions.unshift(newQuestion);
         });
     }

@@ -4,7 +4,7 @@ import { MongooseModule, getConnectionToken, getModelToken } from '@nestjs/mongo
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection, Model } from 'mongoose';
-import { GamesService } from './games.service';
+import { GameService } from './game.service';
 
 const DELAY_BEFORE_CLOSING_CONNECTION = 200;
 const BASE_36 = 36;
@@ -46,8 +46,8 @@ const stringifyPublicValues = (game: Game): String => {
     });
 };
 
-describe('GamesService', () => {
-    let service: GamesService;
+describe('GameService', () => {
+    let service: GameService;
     let gameModel: Model<GameDocument>;
     let mongoServer: MongoMemoryServer;
     let connection: Connection;
@@ -63,10 +63,10 @@ describe('GamesService', () => {
                 }),
                 MongooseModule.forFeature([{ name: Game.name, schema: gameSchema }]),
             ],
-            providers: [GamesService, Logger],
+            providers: [GameService, Logger],
         }).compile();
 
-        service = module.get<GamesService>(GamesService);
+        service = module.get<GameService>(GameService);
         gameModel = module.get<Model<GameDocument>>(getModelToken(Game.name));
         connection = await module.get(getConnectionToken());
     });

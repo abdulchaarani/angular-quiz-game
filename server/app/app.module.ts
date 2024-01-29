@@ -1,9 +1,8 @@
-import { GamesController } from '@app/controllers/admin/games/games.controller';
 import { DateController } from '@app/controllers/date/date.controller';
 import { ExampleController } from '@app/controllers/example/example.controller';
+import { GameController } from '@app/controllers/game/game.controller';
 import { ChatGateway } from '@app/gateways/chat/chat.gateway';
 import { Course, courseSchema } from '@app/model/database/course';
-import { GamesService } from '@app/services/admin/games/games.service';
 import { DateService } from '@app/services/date/date.service';
 import { ExampleService } from '@app/services/example/example.service';
 import { Logger, Module } from '@nestjs/common';
@@ -12,6 +11,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { QuestionController } from './controllers/question/question.controller';
 import { Game, gameSchema } from './model/database/game';
 import { Question, questionSchema } from './model/database/question';
+import { GameService } from './services/game/game.service';
 import { QuestionService } from './services/question/question.service';
 
 @Module({
@@ -28,7 +28,7 @@ import { QuestionService } from './services/question/question.service';
         MongooseModule.forFeature([{ name: Course.name, schema: courseSchema }]),
         MongooseModule.forFeature([{ name: Question.name, schema: questionSchema }]),
     ],
-    controllers: [DateController, ExampleController, QuestionController, GamesController],
-    providers: [ChatGateway, DateService, ExampleService, Logger, QuestionService, GamesService],
+    controllers: [DateController, ExampleController, QuestionController, GameController],
+    providers: [ChatGateway, DateService, ExampleService, Logger, QuestionService, GameService],
 })
 export class AppModule {}

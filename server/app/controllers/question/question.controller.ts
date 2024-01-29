@@ -5,6 +5,7 @@ import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Res } fr
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 
+// Controller for Question Bank
 @ApiTags('questions')
 @Controller('questions')
 export class QuestionController {

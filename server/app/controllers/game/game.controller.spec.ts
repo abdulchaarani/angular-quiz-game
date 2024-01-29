@@ -1,28 +1,28 @@
 import { Game } from '@app/model/database/game';
-import { GamesService } from '@app/services/admin/games/games.service';
+import { GameService } from '@app/services/game/game.service';
 import { HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Response } from 'express';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
-import { GamesController } from './games.controller';
+import { GameController } from './game.controller';
 
 describe('GamesController', () => {
-    let controller: GamesController;
-    let gamesService: SinonStubbedInstance<GamesService>;
+    let controller: GameController;
+    let gameService: SinonStubbedInstance<GameService>;
 
     beforeEach(async () => {
-        gamesService = createStubInstance(GamesService);
+        gameService = createStubInstance(GameService);
         const module: TestingModule = await Test.createTestingModule({
-            controllers: [GamesController],
+            controllers: [GameController],
             providers: [
                 {
-                    provide: GamesService,
-                    useValue: gamesService,
+                    provide: GameService,
+                    useValue: gameService,
                 },
             ],
         }).compile();
 
-        controller = module.get<GamesController>(GamesController);
+        controller = module.get<GameController>(GameController);
     });
 
     it('should be defined', () => {
@@ -31,7 +31,7 @@ describe('GamesController', () => {
 
     it('allGames() should return all games', async () => {
         const fakeGames = [new Game(), new Game()];
-        gamesService.getAllGames.resolves(fakeGames);
+        gameService.getAllGames.resolves(fakeGames);
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.OK);
@@ -47,7 +47,7 @@ describe('GamesController', () => {
 
     it('gameById() should return the game with the corresponding ID', async () => {
         const fakeGame = new Game();
-        gamesService.getGameById.resolves(fakeGame);
+        gameService.getGameById.resolves(fakeGame);
 
         const res = {} as unknown as Response;
         res.status = (code) => {
@@ -63,7 +63,7 @@ describe('GamesController', () => {
     });
 
     it('gameById() should return NOT_FOUND when service is unable to fetch the game', async () => {
-        gamesService.getGameById.rejects();
+        gameService.getGameById.rejects();
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.NOT_FOUND);
@@ -75,7 +75,7 @@ describe('GamesController', () => {
     });
 
     it('addGame() should succeed if service is able to add the game', async () => {
-        gamesService.addGame.resolves();
+        gameService.addGame.resolves();
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.CREATED);
@@ -86,7 +86,7 @@ describe('GamesController', () => {
     });
 
     it('addGame() should return BAD_REQUEST when service is not able to find the course', async () => {
-        gamesService.addGame.rejects();
+        gameService.addGame.rejects();
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.BAD_REQUEST);
@@ -97,7 +97,7 @@ describe('GamesController', () => {
     });
 
     it('updateGame() should succeed if service is able to modify the game', async () => {
-        gamesService.updateGame.resolves();
+        gameService.updateGame.resolves();
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.OK);
@@ -110,7 +110,7 @@ describe('GamesController', () => {
     // TODO: Case when NOT_FOUND
 
     it('updateGame() should return BAD_REQUEST when service cannot modify the game', async () => {
-        gamesService.updateGame.rejects();
+        gameService.updateGame.rejects();
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.BAD_REQUEST);
@@ -121,7 +121,7 @@ describe('GamesController', () => {
     });
 
     it('deleteGame() should succeed if service is able to delete the game', async () => {
-        gamesService.deleteGame.resolves();
+        gameService.deleteGame.resolves();
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.NO_CONTENT);
@@ -132,7 +132,7 @@ describe('GamesController', () => {
     });
 
     it('deleteGame() should return NOT_FOUND when service cannot delete the game', async () => {
-        gamesService.deleteGame.rejects();
+        gameService.deleteGame.rejects();
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.NOT_FOUND);

@@ -1,4 +1,5 @@
 import { Game, GameDocument } from '@app/model/database/game';
+import { Question } from '@app/model/database/question';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 import { Injectable, Logger } from '@nestjs/common';
@@ -144,10 +145,49 @@ export class GamesService {
         return await this.gameModel.findOne({ id: gameId });
     }
 
+    // Move to QuestionService
+    isValidQuestion(question: Question): boolean {
+        // TODO: Detect if "similar" question exists (especially for questionbank)
+        const isValidChoicesNumber = question.choices.length >= 2 && question.choices.length <= 4;
+        const isValidPointsNumber = question.points >= 10 && question.points <= 100 && question.points % 10 === 0;
+        let isValidRightChoiceNumber = false;
+        let isValidWrongChoiceNumber = false;
+        // TODO: Improve "algorithm" efficiency and whitespace detection
+        question.choices.forEach((choice) => {
+            if (choice.isCorrect && choice.text !== '') {
+                isValidRightChoiceNumber = true;
+            } else if (!choice.isCorrect && choice.text !== ' ') {
+                isValidWrongChoiceNumber = true;
+            }
+        });
+        return isValidChoicesNumber && isValidPointsNumber && isValidRightChoiceNumber && isValidWrongChoiceNumber;
+    }
+
+    isValidGame(game: Game): boolean {
+        // TODO: Improve whitespace detection + Detect if "similar" game exists
+        const isValidTitle = game.title !== '';
+        const isValidDescription = game.description !== '';
+        const isValidDuration = game.duration >= 10 && game.duration <= 60;
+        const isValidQuestionsNumber = game.questions.length >= 1;
+        let areValidQuestions = true;
+        // TODO: Improve "algorithm" efficiency
+        game.questions.forEach((question) => {
+            if (!this.isValidQuestion(question)) {
+                areValidQuestions = false;
+            }
+        });
+        return isValidTitle && isValidDescription && isValidDuration && isValidQuestionsNumber && areValidQuestions;
+    }
+
+    // TODO: Update Date property function
+
     async addGame(newGame: CreateGameDto): Promise<void> {
-        // TODO: Add verifications in another function
         try {
-            await this.gameModel.create(newGame);
+            if (this.isValidGame(newGame)) {
+                await this.gameModel.create(newGame);
+            } else {
+                return Promise.reject(`Invalid game`);
+            }
         } catch (error) {
             return Promise.reject(`Failed to insert game: ${error}`);
         }
@@ -163,6 +203,9 @@ export class GamesService {
         const filterQuery = { id: game.id };
         // Can also use replaceOne if we want to replace the entire object
         try {
+            if (!this.isValidGame(game)) {
+                return Promise.reject('Invalid game');
+            }
             const res = await this.gameModel.updateOne(filterQuery, game);
             if (res.matchedCount === 0) {
                 return Promise.reject('Could not find game');

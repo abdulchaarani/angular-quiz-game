@@ -11,6 +11,12 @@ const DELAY_BEFORE_CLOSING_CONNECTION = 200;
 const BASE_36 = 36;
 const getRandomString = (): string => (Math.random() + 1).toString(BASE_36).substring(2);
 
+const stringifyPublicValues = (question: Question): String => {
+    return JSON.stringify(question, (key, value) => {
+        if (key !== '_id' && key !== '__v') return value;
+    });
+};
+
 const getFakeQuestion = (): Question => ({
     id: getRandomString(),
     type: 'QCM',
@@ -109,7 +115,8 @@ describe('QuestionService', () => {
     it('getQuestionById() should return Question with the corresponding ID', async () => {
         const question = getFakeQuestion();
         await questionModel.create(question);
-        expect(await service.getQuestionById(question.id)).toEqual(expect.objectContaining(question));
+        const returnedQuestion = await service.getQuestionById(question.id);
+        expect(stringifyPublicValues(returnedQuestion)).toEqual(stringifyPublicValues(question));
     });
 
     it('modifyQuestion() should fail if the corresponding question does not exist in the database', async () => {

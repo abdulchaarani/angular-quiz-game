@@ -1,6 +1,7 @@
-import { CreateQuestionDto } from '@app/model/dto/question/question-dto';
+import { CreateQuestionDto } from '@app/model/dto/question/create-question-dto';
+import { UpdateQuestionDto } from '@app/model/dto/question/update-question-dto';
 import { QuestionService } from '@app/services/question/question.service';
-import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Res } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 
@@ -20,7 +21,7 @@ export class QuestionController {
     }
 
     @Get('/qcm')
-    async sallMultipleChoiceQuestions(@Res() response: Response) {
+    async allMultipleChoiceQuestions(@Res() response: Response) {
         try {
             const allQuestions = await this.questionService.getAllMultipleChoiceQuestions();
             response.status(HttpStatus.OK).json(allQuestions);
@@ -36,6 +37,27 @@ export class QuestionController {
             response.status(HttpStatus.CREATED).send(JSON.stringify(question));
         } catch (error) {
             response.status(HttpStatus.BAD_REQUEST).send(error.message);
+        }
+    }
+
+    @Get('/:id')
+    async questionById(@Param('id') id: string, @Res() response: Response) {
+        try {
+            const question = await this.questionService.getQuestionById(id);
+            response.status(HttpStatus.OK).json(question);
+        } catch (error) {
+            response.status(HttpStatus.NOT_FOUND).send(error.message);
+        }
+    }
+
+    // TODO: Make a updateQuestionDto
+    @Patch('/:id')
+    async updateQuestion(@Body() updateQuestionDto: UpdateQuestionDto, @Res() response: Response) {
+        try {
+            await this.questionService.modifyQuestion(updateQuestionDto);
+            response.status(HttpStatus.OK).send();
+        } catch (error) {
+            response.status(HttpStatus.NOT_FOUND).send(error.message);
         }
     }
 

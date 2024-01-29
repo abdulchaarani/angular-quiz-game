@@ -7,10 +7,9 @@ import { Connection, Model } from 'mongoose';
 import { GamesService } from './games.service';
 
 const DELAY_BEFORE_CLOSING_CONNECTION = 200;
-// Reference: LOG2990 Course Service Test
 const BASE_36 = 36;
 const getRandomString = (): string => (Math.random() + 1).toString(BASE_36).substring(2);
-// TODO: Add a Mock for Questions
+// TODO: Add a Mock for Questions?
 const getFakeGame = (): Game => ({
     id: Math.random(),
     title: getRandomString(),
@@ -18,8 +17,34 @@ const getFakeGame = (): Game => ({
     lastModification: new Date(2024, 1, 1),
     duration: 30,
     isVisible: true,
-    questions: [],
+    questions: [
+        {
+            id: getRandomString(),
+            type: 'QCM',
+            description: getRandomString(),
+            question: getRandomString(),
+            points: 30,
+            choices: [
+                {
+                    text: getRandomString(),
+                    isCorrect: true,
+                },
+                {
+                    text: getRandomString(),
+                    isCorrect: false,
+                },
+            ],
+            lastModification: new Date(2024, 1, 1),
+        },
+    ],
 });
+
+// TODO: Remove duplicate code (also seen in question.service.spec.ts)
+const stringifyPublicValues = (game: Game): String => {
+    return JSON.stringify(game, (key, value) => {
+        if (key !== '_id' && key !== '__v') return value;
+    });
+};
 
 describe('GamesService', () => {
     let service: GamesService;
@@ -91,7 +116,8 @@ describe('GamesService', () => {
     it('getGameById() should return Game with the corresponding ID', async () => {
         const game = getFakeGame();
         await gameModel.create(game);
-        expect(await service.getGameById(game.id)).toEqual(expect.objectContaining(game));
+        const returnedGame = await service.getGameById(game.id);
+        expect(stringifyPublicValues(returnedGame)).toEqual(stringifyPublicValues(game));
     });
 
     it('modifyGame() should fail if the corresponding game does not exist in the database', async () => {

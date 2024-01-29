@@ -39,6 +39,7 @@ export class GamesController {
         }
     }
 
+    // TODO: General Patch as well?
     @Patch('/:id')
     async toggleGameVisibility(@Param('id') id: string, @Res() response: Response) {
         try {

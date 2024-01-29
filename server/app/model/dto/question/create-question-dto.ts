@@ -6,7 +6,7 @@ export class CreateQuestionDto {
     @ApiProperty()
     @IsString()
     @IsOptional()
-    id: string;
+    id?: string;
 
     @ApiProperty()
     @IsString()
@@ -25,8 +25,7 @@ export class CreateQuestionDto {
     points: number;
 
     @ApiProperty()
-    @IsOptional()
-    choices?: Choice[];
+    choices: Choice[];
 
     lastModification: Date;
 }

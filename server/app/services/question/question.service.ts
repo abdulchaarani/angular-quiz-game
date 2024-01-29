@@ -1,5 +1,6 @@
 import { Question, QuestionDocument } from '@app/model/database/question';
-import { CreateQuestionDto } from '@app/model/dto/question/question-dto';
+import { CreateQuestionDto } from '@app/model/dto/question/create-question-dto';
+import { UpdateQuestionDto } from '@app/model/dto/question/update-question-dto';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -123,7 +124,7 @@ export class QuestionService {
         }
     }
 
-    async modifyQuestion(question: CreateQuestionDto): Promise<void> {
+    async modifyQuestion(question: UpdateQuestionDto): Promise<void> {
         const filterQuery = { id: question.id };
         try {
             const res = await this.questionModel.updateOne(filterQuery, question);

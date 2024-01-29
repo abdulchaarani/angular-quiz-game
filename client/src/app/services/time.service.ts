@@ -1,19 +1,24 @@
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
 })
 export class TimeService {
     // TODO : Permettre plus qu'une minuterie à la fois
+    private timerFinished: BehaviorSubject<boolean>;
     private interval: number | undefined;
-    private readonly tick = 1000;
+    private tick;
+    private counter;
 
-    private timerFinished = new Subject<void>();
-    private counter = 0;
+    constructor() {
+        this.timerFinished = new BehaviorSubject<boolean>(false);
+        this.counter = 0;
+        this.tick = 1000;
+    }
 
     get timerFinished$() {
-        return this.timerFinished.asObservable();
+        return this.timerFinished;
     }
 
     get time() {
@@ -30,7 +35,6 @@ export class TimeService {
             if (this.time > 0) {
                 this.time--;
             } else {
-                this.timerFinished.next();
                 this.stopTimer();
             }
         }, this.tick);
@@ -39,5 +43,6 @@ export class TimeService {
     stopTimer() {
         clearInterval(this.interval);
         this.interval = undefined;
+        this.timerFinished.next(true);
     }
 }

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { TimeService } from '@app/services/time.service';
 // import { Question } from '@app/interfaces/question';
+import { Router } from '@angular/router';
 import { Choice } from '@app/interfaces/choice';
 import { Game } from '@app/interfaces/game';
 
@@ -16,10 +17,13 @@ export class QuestionAreaComponent implements OnInit {
     playerScore: number;
     answers: Choice[];
 
-    private readonly questionTimeLimit = 60;
+    private readonly questionTimeLimit = 3;
     private readonly multiplicationFactor = 100;
 
-    constructor(public timeService: TimeService) {
+    constructor(
+        public timeService: TimeService,
+        private router: Router,
+    ) {
         this.timeLimit = this.questionTimeLimit;
     }
 
@@ -29,6 +33,12 @@ export class QuestionAreaComponent implements OnInit {
 
     ngOnInit(): void {
         this.timeService.startTimer(this.timeLimit);
+
+        this.timeService.timerFinished$.subscribe((timerFinished) => {
+            if (timerFinished) {
+                this.router.navigate(['/home']); // TODO : navigate to gamelist page
+            }
+        });
     }
 
     computeTimerProgress(): number {

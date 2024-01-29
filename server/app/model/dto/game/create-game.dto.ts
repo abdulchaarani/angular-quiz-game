@@ -1,3 +1,4 @@
+import { Question } from '@app/model/database/question';
 import { Prop } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsOptional, IsString } from 'class-validator';
@@ -33,5 +34,7 @@ export class CreateGameDto {
     @Prop({ required: false })
     isVisible: boolean;
 
-    // TODO: Add Questions
+    @ApiProperty()
+    @Prop({ required: true })
+    questions: Question[];
 }

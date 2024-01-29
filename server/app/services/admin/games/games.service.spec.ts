@@ -18,6 +18,7 @@ const getFakeGame = (): Game => ({
     lastModification: new Date(2024, 1, 1),
     duration: 30,
     isVisible: true,
+    questions: [],
 });
 
 describe('GamesService', () => {

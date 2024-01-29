@@ -23,6 +23,9 @@ export class Question {
 
     @Prop({ type: [choiceSchema], default: [], required: true })
     choices: Choice[];
+
+    @Prop({ required: false })
+    lastModification: Date;
 }
 
 export const questionSchema = SchemaFactory.createForClass(Question);

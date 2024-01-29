@@ -30,6 +30,34 @@ export class GamesService {
                 duration: 60,
                 isVisible: true,
                 lastModification: new Date(2024, 1, 2),
+                questions: [
+                    {
+                        id: '2',
+                        type: 'QCM',
+                        description: 'Inspiration Leblanc',
+                        question: "Savez-vous de quel auteur Leblanc s'est inspiré ?",
+                        points: 60,
+                        choices: [
+                            {
+                                text: 'Gaston Leroux',
+                                isCorrect: false,
+                            },
+                            {
+                                text: 'Arthur Conan Doyle',
+                                isCorrect: true,
+                            },
+                            {
+                                text: 'Edgar Wallace',
+                                isCorrect: false,
+                            },
+                            {
+                                text: 'Agatha Christie',
+                                isCorrect: false,
+                            },
+                        ],
+                        lastModification: new Date(2024, 1, 2),
+                    },
+                ],
             },
             {
                 id: 1,
@@ -38,6 +66,34 @@ export class GamesService {
                 duration: 60,
                 isVisible: true,
                 lastModification: new Date(2024, 2, 1),
+                questions: [
+                    {
+                        id: '1',
+                        type: 'QCM',
+                        description: 'Outer Wilds',
+                        question: 'Parmi les choix suivants, lesquels sont des noms de planètes dans Outer Wilds ?',
+                        points: 20,
+                        choices: [
+                            {
+                                text: 'Sombronces',
+                                isCorrect: true,
+                            },
+                            {
+                                text: 'Léviathe',
+                                isCorrect: true,
+                            },
+                            {
+                                text: 'Cravité',
+                                isCorrect: true,
+                            },
+                            {
+                                text: 'La Lanterne',
+                                isCorrect: false,
+                            },
+                        ],
+                        lastModification: new Date(2024, 1, 1),
+                    },
+                ],
             },
             {
                 id: 2,
@@ -46,6 +102,34 @@ export class GamesService {
                 duration: 30,
                 isVisible: false,
                 lastModification: new Date(2023, 2, 2),
+                questions: [
+                    {
+                        id: '123',
+                        type: 'QCM',
+                        description: 'Psykokwak',
+                        question: 'Quelles sont les principales caractéristiques de Psykokwak ?',
+                        points: 50,
+                        choices: [
+                            {
+                                text: 'Il dit "coin coin"',
+                                isCorrect: false,
+                            },
+                            {
+                                text: 'Il est le Pokémon préféré de Junichi Masuda, directeur et compositeur des jeux Pokémon.',
+                                isCorrect: true,
+                            },
+                            {
+                                text: 'Il est jaune.',
+                                isCorrect: false,
+                            },
+                            {
+                                text: 'Il a toujours mal à la tête.',
+                                isCorrect: true,
+                            },
+                        ],
+                        lastModification: new Date(2023, 2, 3),
+                    },
+                ],
             },
         ];
         this.logger.log('THIS ADDS DATA TO THE DATABASE, DO NOT USE OTHERWISE');
@@ -70,7 +154,6 @@ export class GamesService {
     }
 
     async addGameFromJson(newGame: CreateGameDto): Promise<Game> {
-        // const newGame = JSON.parse(newGameStringified);
         newGame.isVisible = true;
         await this.addGame(newGame);
         return newGame;

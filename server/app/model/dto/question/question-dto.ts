@@ -25,11 +25,8 @@ export class CreateQuestionDto {
     points: number;
 
     @ApiProperty()
-    @IsString()
     @IsOptional()
     choices?: Choice[];
 
-    @ApiProperty()
-    @IsString()
-    lastModification: string;
+    lastModification: Date;
 }

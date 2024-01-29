@@ -23,7 +23,7 @@ export class QuestionService {
     async populateDB(): Promise<void> {
         const QUESTIONS: CreateQuestionDto[] = [
             {
-                id: '100',
+                id: '1',
                 type: 'QCM',
                 description: 'Motifs sur ballon de soccer',
                 question: 'Combien de motifs blancs et noirs y a-t-il respectivement sur un ballon de soccer?',
@@ -42,7 +42,59 @@ export class QuestionService {
                         isCorrect: false,
                     },
                 ],
-                lastModification: '2018-11-13T20:20:39+00:00',
+                lastModification: new Date(2024, 1, 2),
+            },
+            {
+                id: '2',
+                type: 'QCM',
+                description: 'Inspiration Leblanc',
+                question: "Savez-vous de quel auteur Leblanc s'est inspiré ?",
+                points: 60,
+                choices: [
+                    {
+                        text: 'Gaston Leroux',
+                        isCorrect: false,
+                    },
+                    {
+                        text: 'Arthur Conan Doyle',
+                        isCorrect: true,
+                    },
+                    {
+                        text: 'Edgar Wallace',
+                        isCorrect: false,
+                    },
+                    {
+                        text: 'Agatha Christie',
+                        isCorrect: false,
+                    },
+                ],
+                lastModification: new Date(2024, 1, 2),
+            },
+            {
+                id: '3',
+                type: 'QCM',
+                description: 'Outer Wilds',
+                question: 'Parmi les choix suivants, lesquels sont des noms de planètes dans Outer Wilds ?',
+                points: 20,
+                choices: [
+                    {
+                        text: 'Sombronces',
+                        isCorrect: true,
+                    },
+                    {
+                        text: 'Léviathe',
+                        isCorrect: true,
+                    },
+                    {
+                        text: 'Cravité',
+                        isCorrect: true,
+                    },
+                    {
+                        text: 'La Lanterne',
+                        isCorrect: false,
+                    },
+                ],
+                lastModification: new Date(2024, 1, 1),
             },
         ];
         this.logger.log('THIS ADDS DATA TO THE DATABASE, DO NOT USE OTHERWISE');

@@ -13,8 +13,8 @@
                 </h1>
             </div>
             <h1 id="question">
-                <!-- {{ currentGame.questions[currentQuestionIndex].question }} -->
-                question
+                {{ this.currentQuestion.question }}
+                <!-- question -->
             </h1>
             <div id="timer-area">
                 <div class="circle">
@@ -30,16 +30,7 @@
     </div>
     <div id="lower-question-area">
         <div id="choice-area">
-            <button class="answer">
-                <!-- *ngFor="let choice of currentGame.questions[currentQuestionIndex].choices" class="custom-button" (click)="checkAnswers()" -->
-                <!-- <span class="choice"> -->
-                <!-- {{ choice }} -->
-                hi
-                <!-- </span> -->
-            </button>
-            <button class="answer">hi</button>
-            <button class="answer">hi</button>
-            <button class="answer">hi</button>
+            <button *ngFor="let choice of currentQuestion.choices" class = "answer">{{ choice.choice }}</button>
         </div>
         <div id="submit-score-area">
             <div id="score-area">

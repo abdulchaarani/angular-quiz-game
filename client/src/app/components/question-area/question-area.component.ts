@@ -1,9 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { TimeService } from '@app/services/time.service';
-// import { Question } from '@app/interfaces/question';
-import { Router } from '@angular/router';
+import { Component, Input, OnInit } from '@angular/core';
 import { Choice } from '@app/interfaces/choice';
-import { Game } from '@app/interfaces/game';
+import { Question } from '@app/interfaces/question';
+import { TimeService } from '@app/services/time.service';
 
 @Component({
     selector: 'app-question-area',
@@ -11,8 +9,7 @@ import { Game } from '@app/interfaces/game';
     styleUrls: ['./question-area.component.scss'],
 })
 export class QuestionAreaComponent implements OnInit {
-    currentGame: Game;
-    currentQuestionIndex: number;
+    @Input() currentQuestion: Question;
     timeLimit: number;
     playerScore: number;
     answers: Choice[];
@@ -20,10 +17,7 @@ export class QuestionAreaComponent implements OnInit {
     private readonly questionTimeLimit = 3;
     private readonly multiplicationFactor = 100;
 
-    constructor(
-        public timeService: TimeService,
-        private router: Router,
-    ) {
+    constructor(public timeService: TimeService) {
         this.timeLimit = this.questionTimeLimit;
     }
 
@@ -36,12 +30,13 @@ export class QuestionAreaComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.timeService.startTimer(this.timeLimit);
+        // TEMP
 
         this.timeService.timerFinished$.subscribe((timerFinished) => {
             if (timerFinished) {
-                this.router.navigate(['/home']); // TODO : navigate to gamelist page
+                // this.router.navigate(['/home']); // TODO : navigate to gamelist page
                 // console.log(this.timeService.timerFinished$.value);
+                // console.log(this.questions);
             }
         });
     }

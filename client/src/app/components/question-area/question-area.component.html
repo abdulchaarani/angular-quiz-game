@@ -28,8 +28,8 @@
     </div>
     <div id="lower-question-area">
         <div id="choice-area">
-            <button *ngFor="let choice of currentQuestion.choices" class = "answer" (click)="checkAnswers(choice.isCorrect)">
-                {{ choice.choice }}
+            <button *ngFor="let choice of currentQuestion.choices; let i = index" class = "answer" (click)="checkAnswers(choice.isCorrect)">
+                {{ i + 1 }}. {{ choice.choice }}
             </button>
         </div>
         <div id="submit-score-area">

@@ -12,16 +12,11 @@ describe('QuestionAreaComponent', () => {
     // let timeServiceSpy: SpyObj<TimeService>;
 
     beforeEach(async () => {
-        // TestBed.configureTestingModule({
-        //     imports: [Router],
-        //     declarations: [QuestionAreaComponent],
-        // });
         fixture = TestBed.createComponent(QuestionAreaComponent);
         component = fixture.componentInstance;
         router = TestBed.inject(Router);
         fixture.detectChanges();
     });
-
     it('should create', () => {
         expect(component).toBeTruthy();
     });
@@ -35,16 +30,6 @@ describe('QuestionAreaComponent', () => {
         expect(spy).toHaveBeenCalled();
         expect(spy).toHaveBeenCalledWith(component['gameDuration']);
     }));
-
-    // // // TODO : figure this out...
-    // it('computeTimerProgress should return a percentage of time', fakeAsync(() => {
-    //     component.timerLimit = 100;
-    //     component.ngOnInit();
-    //     const expectedTime = 40;
-    //     tick(60000);
-    //     const computedTime = component.computeTimerProgress();
-    //     expect(computedTime).toBeCloseTo(expectedTime);
-    // }));
 
     it('Navigate to game list page when timer runs out', fakeAsync(() => {
         component.gameDuration = 3;

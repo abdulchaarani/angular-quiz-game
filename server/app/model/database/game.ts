@@ -28,7 +28,7 @@ export class Game {
     duration: number;
 
     @ApiProperty()
-    @Prop({ required: true })
+    @Prop({ required: true, default: true })
     isVisible: boolean;
 
     @Prop({ type: [questionSchema], default: [], required: true })

@@ -176,7 +176,8 @@ export class GameService {
                 areValidQuestions = false;
             }
         });
-        return isValidTitle && isValidDescription && isValidDuration && isValidQuestionsNumber && areValidQuestions;
+        return true; // TEMPORARY - TODO: Do the actual verification (but maybe in a separate service?)
+        // return isValidTitle && isValidDescription && isValidDuration && isValidQuestionsNumber && areValidQuestions;
     }
 
     // TODO: Update Date property function

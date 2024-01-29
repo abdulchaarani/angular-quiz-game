@@ -67,6 +67,7 @@ describe('QuestionService', () => {
         service = module.get<QuestionService>(QuestionService);
         questionModel = module.get<Model<QuestionDocument>>(getModelToken(Question.name));
         connection = await module.get(getConnectionToken());
+        await questionModel.deleteMany({});
     });
 
     afterEach((done) => {

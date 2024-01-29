@@ -69,6 +69,7 @@ describe('GameService', () => {
         service = module.get<GameService>(GameService);
         gameModel = module.get<Model<GameDocument>>(getModelToken(Game.name));
         connection = await module.get(getConnectionToken());
+        await gameModel.deleteMany({});
     });
 
     afterEach((done) => {

@@ -71,6 +71,7 @@ describe('QuestionService', () => {
 
     afterEach((done) => {
         setTimeout(async () => {
+            await questionModel.deleteMany({});
             await connection.close();
             await mongoServer.stop();
             done();

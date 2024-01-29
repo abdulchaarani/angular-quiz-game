@@ -12,25 +12,23 @@ import { Game } from '@app/interfaces/game';
 export class QuestionAreaComponent implements OnInit {
     currentGame: Game;
     currentQuestionIndex: number;
+    timeLimit: number;
     playerScore: number;
     answers: Choice[];
 
-    private readonly timeLimit = 60;
+    private readonly questionTimeLimit = 60;
     private readonly multiplicationFactor = 100;
 
-    constructor(private readonly timeService: TimeService) {}
+    constructor(public timeService: TimeService) {
+        this.timeLimit = this.questionTimeLimit;
+    }
 
     get time(): number {
         return this.timeService.time;
     }
 
-    // TODO : Timer
     ngOnInit(): void {
         this.timeService.startTimer(this.timeLimit);
-
-        this.timeService.timerFinished$.subscribe(() => {
-            // console.log('times up');
-        });
     }
 
     computeTimerProgress(): number {

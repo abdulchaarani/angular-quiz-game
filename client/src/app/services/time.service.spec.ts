@@ -70,4 +70,20 @@ describe('TimeService', () => {
         expect(service['interval']).toBeFalsy();
         discardPeriodicTasks();
     }));
+
+    it('stopTimer should set timerFinished to true', fakeAsync(() => {
+        expect(service['timerFinished']).toBeFalsy();
+        service.stopTimer();
+        expect(service['timerFinished']).toBeTruthy();
+    }));
+
+    it('startTimer should call stopTimer at the end of timer and set timerFinished to true', fakeAsync(() => {
+        const spy = spyOn(service, 'stopTimer').and.callThrough();
+        expect(service['timerFinished']).toBeFalsy();
+        service.startTimer(TIMEOUT);
+        tick((TIMEOUT + 1) * MS_SECOND); // un tick de plus que la limite
+        expect(spy).toHaveBeenCalled();
+        expect(service['timerFinished']).toBeTruthy();
+        discardPeriodicTasks();
+    }));
 });

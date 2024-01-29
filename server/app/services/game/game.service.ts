@@ -188,7 +188,7 @@ export class GameService {
             if (this.isValidGame(newGame)) {
                 await this.gameModel.create(newGame);
             } else {
-                return Promise.reject(`Invalid game`);
+                return Promise.reject('Invalid game');
             }
         } catch (error) {
             return Promise.reject(`Failed to insert game: ${error}`);

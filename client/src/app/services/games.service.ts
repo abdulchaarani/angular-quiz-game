@@ -33,7 +33,6 @@ export class GamesService {
 
     uploadGame(gameStringified: string, isFromJsonUpload: boolean) {
         if (isFromJsonUpload) {
-            console.log(gameStringified);
             this.http.post<Game>(`${this.baseUrl}`, gameStringified, { headers: this.contentJsonHeader }).subscribe();
         }
         // TODO: Adapt route when creating a game from scratch

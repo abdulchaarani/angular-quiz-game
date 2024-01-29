@@ -31,12 +31,17 @@ export class QuestionAreaComponent implements OnInit {
         return this.timeService.time;
     }
 
+    set timerLimit(time: number) {
+        this.timeLimit = time;
+    }
+
     ngOnInit(): void {
         this.timeService.startTimer(this.timeLimit);
 
         this.timeService.timerFinished$.subscribe((timerFinished) => {
             if (timerFinished) {
                 this.router.navigate(['/home']); // TODO : navigate to gamelist page
+                // console.log(this.timeService.timerFinished$.value);
             }
         });
     }

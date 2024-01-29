@@ -36,6 +36,7 @@ export class TimeService {
                 this.time--;
             } else {
                 this.stopTimer();
+                this.timerFinished.next(true);
             }
         }, this.tick);
     }
@@ -43,6 +44,5 @@ export class TimeService {
     stopTimer() {
         clearInterval(this.interval);
         this.interval = undefined;
-        this.timerFinished.next(true);
     }
 }

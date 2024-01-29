@@ -1,7 +1,7 @@
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 import { GameService } from '@app/services/game/game.service';
-import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Put, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Res } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 
@@ -41,7 +41,6 @@ export class GameController {
     }
 
     // TODO: If the point is to create a game if not found (and replace it if found), maybe use PUT instead?
-    @Put('/:id')
     @Patch('/:id')
     async updateGame(@Body() updateGameDto: UpdateGameDto, @Res() response: Response) {
         try {

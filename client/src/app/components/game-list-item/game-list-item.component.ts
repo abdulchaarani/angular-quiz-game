@@ -15,8 +15,7 @@ export class GameListItemComponent {
     constructor(private gamesService: GamesService) {}
 
     toggleGameVisibility() {
-        this.gamesService.toggleGameVisibility(this.game.id);
-        this.game.isVisible = !this.game.isVisible; // View logic; TODO -- Change so it's based on backend only
+        this.gamesService.toggleGameVisibility(this.game);
         // TODO: Update accordingly to changes on backend
         // Currently, the change can be triggered only once we refresh the page
     }

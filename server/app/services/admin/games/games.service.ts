@@ -168,7 +168,7 @@ export class GamesService {
                 return Promise.reject('Could not find game');
             }
         } catch (error) {
-            return Promise.reject(`Failed to update document: ${error}`);
+            return Promise.reject(`Failed to modify game: ${error}`);
         }
     }
 

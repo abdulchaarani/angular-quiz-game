@@ -109,13 +109,29 @@ export class QuestionService {
         return await this.questionModel.find({ type: 'QCM' });
     }
 
-    // TODO: validate question input + DTO
+    async getQuestionById(questionId: string): Promise<Question> {
+        return await this.questionModel.findOne({ id: questionId });
+    }
+
+    // TODO: validate question input
     async addQuestion(question: CreateQuestionDto): Promise<void> {
         question.id = uuidv4();
         try {
             await this.questionModel.create(question);
         } catch (error) {
             return Promise.reject(`Failed to insert question: ${error}`);
+        }
+    }
+
+    async modifyQuestion(question: CreateQuestionDto): Promise<void> {
+        const filterQuery = { id: question.id };
+        try {
+            const res = await this.questionModel.updateOne(filterQuery, question);
+            if (res.matchedCount === 0) {
+                return Promise.reject('Could not find question');
+            }
+        } catch (error) {
+            return Promise.reject(`Failed to modify document: ${error}`);
         }
     }
 

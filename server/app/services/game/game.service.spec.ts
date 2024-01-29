@@ -73,6 +73,7 @@ describe('GameService', () => {
 
     afterEach((done) => {
         setTimeout(async () => {
+            await gameModel.deleteMany({});
             await connection.close();
             await mongoServer.stop();
             done();

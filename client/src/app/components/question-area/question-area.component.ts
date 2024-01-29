@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { Choice } from '@app/interfaces/choice';
 import { Question } from '@app/interfaces/question';
 import { TimeService } from '@app/services/time.service';
@@ -8,41 +8,44 @@ import { TimeService } from '@app/services/time.service';
     templateUrl: './question-area.component.html',
     styleUrls: ['./question-area.component.scss'],
 })
-export class QuestionAreaComponent implements OnInit {
+export class QuestionAreaComponent implements OnInit, OnChanges {
     @Input() currentQuestion: Question;
-    timeLimit: number;
+    @Input() gameDuration: number;
     playerScore: number;
     answers: Choice[];
 
-    private readonly questionTimeLimit = 3;
     private readonly multiplicationFactor = 100;
 
-    constructor(public timeService: TimeService) {
-        this.timeLimit = this.questionTimeLimit;
-    }
+    constructor(public timeService: TimeService) {}
 
-    get time(): number {
+    get time() {
         return this.timeService.time;
     }
 
-    set timerLimit(time: number) {
-        this.timeLimit = time;
-    }
-
     ngOnInit(): void {
-        // TEMP
+        this.timeService.startTimer(this.gameDuration);
 
         this.timeService.timerFinished$.subscribe((timerFinished) => {
             if (timerFinished) {
                 // this.router.navigate(['/home']); // TODO : navigate to gamelist page
-                // console.log(this.timeService.timerFinished$.value);
-                // console.log(this.questions);
             }
         });
     }
 
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes.gameDuration) {
+            const newTimeLimit = changes.gameDuration.currentValue;
+            this.timeService.startTimer(newTimeLimit);
+        }
+
+        if (changes.currentQuestion) {
+            const newQuestion = changes.currentQuestion.currentValue;
+            this.currentQuestion = newQuestion;
+        }
+    }
+
     computeTimerProgress(): number {
-        return (this.timeService.time / this.timeLimit) * this.multiplicationFactor;
+        return (this.timeService.time / this.gameDuration) * this.multiplicationFactor;
     }
 
     // submit(): void {}

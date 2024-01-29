@@ -1,5 +1,5 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-<div class="question-area">
+<div class="question-area" *ngIf="currentQuestion">
     <div id="chat-exit">
         <i id="chat-icon" class="far fa-comment-alt fa-2x" style="color: rgb(81, 81, 81)"></i>
         <button id="exitButton">EXIT</button>
@@ -13,7 +13,7 @@
                 </h1>
             </div>
             <h1 id="question">
-                {{ this.currentQuestion.question }}
+                {{ this.currentQuestion!.question }}
                 <!-- question -->
             </h1>
             <div id="timer-area">

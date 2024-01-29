@@ -124,7 +124,7 @@ export class QuestionService {
         }
     }
 
-    async modifyQuestion(question: UpdateQuestionDto): Promise<void> {
+    async updateQuestion(question: UpdateQuestionDto): Promise<void> {
         const filterQuery = { id: question.id };
         try {
             const res = await this.questionModel.updateOne(filterQuery, question);
@@ -132,7 +132,7 @@ export class QuestionService {
                 return Promise.reject('Could not find question');
             }
         } catch (error) {
-            return Promise.reject(`Failed to modify document: ${error}`);
+            return Promise.reject(`Failed to update document: ${error}`);
         }
     }
 

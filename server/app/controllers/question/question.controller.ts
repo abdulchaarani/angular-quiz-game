@@ -20,6 +20,7 @@ export class QuestionController {
         }
     }
 
+    // TODO: Check if necessary
     @Get('/qcm')
     async allMultipleChoiceQuestions(@Res() response: Response) {
         try {
@@ -50,11 +51,10 @@ export class QuestionController {
         }
     }
 
-    // TODO: Make a updateQuestionDto
     @Patch('/:id')
     async updateQuestion(@Body() updateQuestionDto: UpdateQuestionDto, @Res() response: Response) {
         try {
-            await this.questionService.modifyQuestion(updateQuestionDto);
+            await this.questionService.updateQuestion(updateQuestionDto);
             response.status(HttpStatus.OK).send();
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send(error.message);

@@ -182,6 +182,7 @@ export class GamesService {
     // TODO: Update Date property function
 
     async addGame(newGame: CreateGameDto): Promise<void> {
+        newGame.isVisible = true;
         try {
             if (this.isValidGame(newGame)) {
                 await this.gameModel.create(newGame);
@@ -193,33 +194,24 @@ export class GamesService {
         }
     }
 
-    async addGameFromJson(newGame: CreateGameDto): Promise<Game> {
-        newGame.isVisible = true;
-        await this.addGame(newGame);
-        return newGame;
-    }
-
-    async modifyGame(game: UpdateGameDto): Promise<void> {
+    async updateGame(game: UpdateGameDto): Promise<void> {
         const filterQuery = { id: game.id };
         // Can also use replaceOne if we want to replace the entire object
+        // TODO: Case when someone edited a deleted game; we need to create a new game.
         try {
             if (!this.isValidGame(game)) {
                 return Promise.reject('Invalid game');
             }
             const res = await this.gameModel.updateOne(filterQuery, game);
             if (res.matchedCount === 0) {
-                return Promise.reject('Could not find game');
+                try {
+                    this.addGame(game);
+                } catch (error) {
+                    return Promise.reject('Could not find game');
+                }
             }
         } catch (error) {
             return Promise.reject(`Failed to modify game: ${error}`);
-        }
-    }
-
-    async toggleGameVisibility(gameId: number): Promise<void> {
-        const gameToToggleVisibility = await this.getGameById(gameId);
-        if (gameToToggleVisibility) {
-            gameToToggleVisibility.isVisible = !gameToToggleVisibility.isVisible;
-            await this.modifyGame(gameToToggleVisibility);
         }
     }
 

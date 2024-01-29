@@ -1,6 +1,7 @@
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
+import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 import { GamesService } from '@app/services/admin/games/games.service';
-import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Put, Res } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 
@@ -29,25 +30,26 @@ export class GamesController {
         }
     }
 
-    @Post('/json')
-    async addGameFromJson(@Body() createGameDto: CreateGameDto, @Res() response: Response) {
+    @Post('/')
+    async addGame(@Body() createGameDto: CreateGameDto, @Res() response: Response) {
         try {
-            const newGame = await this.gamesService.addGameFromJson(createGameDto);
+            const newGame = await this.gamesService.addGame(createGameDto);
             response.status(HttpStatus.CREATED).send(JSON.stringify(newGame));
         } catch (error) {
             response.status(HttpStatus.BAD_REQUEST).send(error.message);
         }
     }
 
-    // TODO: General Patch as well?
+    // TODO: If the point is to create a game if not found (and replace it if found), maybe use PUT instead?
+    @Put('/:id')
     @Patch('/:id')
-    async toggleGameVisibility(@Param('id') id: string, @Res() response: Response) {
+    async updateGame(@Body() updateGameDto: UpdateGameDto, @Res() response: Response) {
         try {
-            // TODO: Dto ?
-            await this.gamesService.toggleGameVisibility(parseInt(id));
+            await this.gamesService.updateGame(updateGameDto);
             response.status(HttpStatus.OK).send();
+            // TODO: HttpStatus.CREATED if new game
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send(error.message);
+            response.status(HttpStatus.BAD_REQUEST).send(error.message);
         }
     }
 

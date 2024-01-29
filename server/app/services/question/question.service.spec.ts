@@ -119,15 +119,15 @@ describe('QuestionService', () => {
         expect(stringifyPublicValues(returnedQuestion)).toEqual(stringifyPublicValues(question));
     });
 
-    it('modifyQuestion() should fail if the corresponding question does not exist in the database', async () => {
+    it('updateQuestion() should fail if the corresponding question does not exist in the database', async () => {
         const question = getFakeQuestion();
-        await expect(service.modifyQuestion(question)).rejects.toBeTruthy();
+        await expect(service.updateQuestion(question)).rejects.toBeTruthy();
     });
 
-    it('modifyQuestion() should fail if Mongo query failed', async () => {
+    it('updateQuestion() should fail if Mongo query failed', async () => {
         jest.spyOn(questionModel, 'updateOne').mockRejectedValue('');
         const question = getFakeQuestion();
-        await expect(service.modifyQuestion(question)).rejects.toBeTruthy();
+        await expect(service.updateQuestion(question)).rejects.toBeTruthy();
     });
 
     it('deleteQuestion() should delete the corresponding question', async () => {

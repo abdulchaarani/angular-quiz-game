@@ -33,7 +33,7 @@ describe('QuestionAreaComponent', () => {
         tick();
 
         expect(spy).toHaveBeenCalled();
-        expect(spy).toHaveBeenCalledWith(component['timeLimit']);
+        expect(spy).toHaveBeenCalledWith(component['gameDuration']);
     }));
 
     // // // TODO : figure this out...
@@ -47,8 +47,8 @@ describe('QuestionAreaComponent', () => {
     // }));
 
     it('Navigate to game list page when timer runs out', fakeAsync(() => {
-        component.timerLimit = 3;
-        tick(3001);
+        component.gameDuration = 3;
+        tick(3001); // TODO : remove 'magic' number
         // TODO : Change to game list page when it exists
         expect(router.url).toBe('/');
     }));

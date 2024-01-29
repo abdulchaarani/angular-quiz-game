@@ -11,7 +11,6 @@ import { TimeService } from '@app/services/time.service';
 export class QuestionAreaComponent implements OnInit, OnChanges {
     @Input() currentQuestion: Question;
     @Input() gameDuration: number;
-    playerScore: number;
     answers: Choice[];
 
     private readonly multiplicationFactor = 100;
@@ -49,6 +48,8 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     }
 
     // submit(): void {}
-    // checkAnswers(): void {}
+    checkAnswers(isCorrect?: boolean): void {
+        console.log(isCorrect);
+    }
     // abandon(): void {}
 }

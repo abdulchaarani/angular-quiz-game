@@ -8,13 +8,11 @@
         <div id="question-timer-area">
             <div id="points-area">
                 <h1 id="points">
-                    <!-- {{ currentGame.questions[currentQuestionIndex].points}} -->
-                    XX points
+                    {{ currentQuestion.points}} points
                 </h1>
             </div>
             <h1 id="question">
                 {{ this.currentQuestion!.question }}
-                <!-- question -->
             </h1>
             <div id="timer-area">
                 <div class="circle">
@@ -30,7 +28,9 @@
     </div>
     <div id="lower-question-area">
         <div id="choice-area">
-            <button *ngFor="let choice of currentQuestion.choices" class = "answer">{{ choice.choice }}</button>
+            <button *ngFor="let choice of currentQuestion.choices" class = "answer" (click)="checkAnswers(choice.isCorrect)">
+                {{ choice.choice }}
+            </button>
         </div>
         <div id="submit-score-area">
             <div id="score-area">

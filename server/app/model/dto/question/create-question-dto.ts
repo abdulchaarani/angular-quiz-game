@@ -1,7 +1,13 @@
+import { Choice } from '@app/model/database/choice';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateQuestionDto {
+    @ApiProperty()
+    @IsString()
+    @IsOptional()
+    id?: string;
+
     @ApiProperty()
     @IsString()
     type: string;
@@ -18,11 +24,8 @@ export class CreateQuestionDto {
     @IsNumber()
     points: number;
 
-    // @ApiProperty()
-    // @IsString()
-    // choices?: Choice[];
-
     @ApiProperty()
-    @IsString()
-    lastModification: string;
+    choices: Choice[];
+
+    lastModification: Date;
 }

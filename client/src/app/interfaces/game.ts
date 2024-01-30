@@ -6,6 +6,6 @@ export interface Game {
     description: string;
     lastModification: Date;
     duration: number;
-    isVisible: boolean;
+    isVisible?: boolean;
     questions: Question[];
 }

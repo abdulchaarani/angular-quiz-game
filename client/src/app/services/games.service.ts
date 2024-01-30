@@ -20,18 +20,20 @@ export class GamesService {
         return this.http.get<Game[]>(`${this.baseUrl}`);
     }
 
+    // TODO: Case when id == "new"
     getGameById(id: number): Observable<Game> {
         return this.http.get<Game>(`${this.baseUrl}/${id}`);
     }
 
     // TODO: Return type
-    toggleGameVisibility(id: number) {
-        return this.http.patch(`${this.baseUrl}/${id}`, {}).subscribe();
+    toggleGameVisibility(game: Game) {
+        game.isVisible = !game.isVisible; // View logic; TODO -- Change so it's based on backend only
+        return this.http.patch(`${this.baseUrl}/${game.id}`, JSON.stringify(game), { headers: this.contentJsonHeader }).subscribe();
     }
 
     uploadGame(gameStringified: string, isFromJsonUpload: boolean) {
         if (isFromJsonUpload) {
-            this.http.post<Game>(`${this.baseUrl}/json`, gameStringified, { headers: this.contentJsonHeader }).subscribe();
+            this.http.post<Game>(`${this.baseUrl}`, gameStringified, { headers: this.contentJsonHeader }).subscribe();
         }
         // TODO: Adapt route when creating a game from scratch
     }
@@ -39,7 +41,7 @@ export class GamesService {
     // Keep it in Front-end for now
     downloadGameAsJson(gameToStringify: Game): void {
         const stringifiedGame = JSON.stringify(gameToStringify, (key, value) => {
-            if (key !== 'isVisible') {
+            if (key !== 'isVisible' && key !== '_id' && key !== '__v') {
                 return value;
             }
         });

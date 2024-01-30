@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Document } from 'mongoose';
+import { Question, questionSchema } from './question';
 
 export type GameDocument = Game & Document;
 
@@ -27,8 +28,11 @@ export class Game {
     duration: number;
 
     @ApiProperty()
-    @Prop({ required: true })
+    @Prop({ required: true, default: true })
     isVisible: boolean;
+
+    @Prop({ type: [questionSchema], default: [], required: true })
+    questions: Question[];
 }
 
 export const gameSchema = SchemaFactory.createForClass(Game);

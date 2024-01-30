@@ -15,7 +15,7 @@ const routes: Routes = [
     { path: 'admin/bank', component: AdminQuestionBankComponent },
     { path: 'admin/games', component: AdminPageComponent },
     { path: 'admin/games/:id/questions', component: AdminQuestionsListComponent },
-    { path: 'admin/games/questioncreation', component: CreateQuestionComponent },
+    { path: 'admin/games/:id/questions/questioncreation', component: CreateQuestionComponent },
     { path: 'host', component: HostPageComponent },
     { path: 'player', component: PlayerPageComponent },
     { path: 'play', component: QuestionAreaComponent },

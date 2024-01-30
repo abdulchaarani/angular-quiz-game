@@ -13,6 +13,7 @@ import { Game, gameSchema } from './model/database/game';
 import { Question, questionSchema } from './model/database/question';
 import { GameService } from './services/game/game.service';
 import { QuestionService } from './services/question/question.service';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
     imports: [
@@ -27,6 +28,7 @@ import { QuestionService } from './services/question/question.service';
         MongooseModule.forFeature([{ name: Game.name, schema: gameSchema }]),
         MongooseModule.forFeature([{ name: Course.name, schema: courseSchema }]),
         MongooseModule.forFeature([{ name: Question.name, schema: questionSchema }]),
+        AuthModule,
     ],
     controllers: [DateController, ExampleController, QuestionController, GameController],
     providers: [ChatGateway, DateService, ExampleService, Logger, QuestionService, GameService],

@@ -45,6 +45,19 @@
     z-index: 10;
 }
 
+#timer {
+    position: relative;
+    display: inline-block;
+}
+
+#time-left {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #000000;
+    margin: 0;
+}
 #points {
     font-size: 125%;
     color: #777777;
@@ -59,7 +72,7 @@
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    background: #b63d3d;
+    background: #ffffff;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -94,11 +107,11 @@
 }
 
 #exitButton:hover {
-    background: #cc3434;
+    background: #c3c3c3;
 }
 
 #submitButton:hover {
-    background: #64b53f;
+    background: #c3c3c3;
 }
 
 #exitButton:active,

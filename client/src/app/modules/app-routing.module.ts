@@ -7,6 +7,7 @@ import { AdminQuestionsListComponent } from '@app/pages/admin-page/admin-questio
 import { HomePageComponent } from '@app/pages/home-page/home-page.component';
 import { HostPageComponent } from '@app/pages/host-page/host-page.component';
 import { PlayerPageComponent } from '@app/pages/player-page/player-page.component';
+import { CreateQuestionComponent } from '@app/pages/create-question/create-question.component';
 
 const routes: Routes = [
     { path: '', redirectTo: '/home', pathMatch: 'full' },
@@ -14,6 +15,7 @@ const routes: Routes = [
     { path: 'admin/bank', component: AdminQuestionBankComponent },
     { path: 'admin/games', component: AdminPageComponent },
     { path: 'admin/games/:id/questions', component: AdminQuestionsListComponent },
+    { path: 'admin/games/questioncreation', component: CreateQuestionComponent },
     { path: 'host', component: HostPageComponent },
     { path: 'player', component: PlayerPageComponent },
     { path: 'play', component: QuestionAreaComponent },

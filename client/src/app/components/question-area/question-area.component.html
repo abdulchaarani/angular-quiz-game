@@ -2,16 +2,14 @@
 <div class="question-area" *ngIf="currentQuestion">
     <div id="chat-exit">
         <div id="chat-area">
-            <i id="chat-icon" class="far fa-comment-alt fa-2x" style="color: rgb(81, 81, 81)"></i>
+            <i id="chat-icon" class="far fa-comment-alt fa-2x" style="color: rgb(81, 81, 81)" (click)="openChatDialog()"></i>
         </div>
         <button id="exitButton">QUITTER</button>
     </div>
     <div id="upper-question-area">
         <div id="question-timer-area">
             <div id="points-area">
-                <h1 id="points">
-                    {{ currentQuestion.points}} points
-                </h1>
+                <h1 id="points">{{ currentQuestion.points }} points</h1>
             </div>
             <h1 id="question">
                 {{ this.currentQuestion!.question }}
@@ -30,7 +28,12 @@
     </div>
     <div id="lower-question-area">
         <div id="choice-area">
-            <button *ngFor="let choice of currentQuestion.choices; let i = index" class = "answer" (click)="checkAnswers(choice.isCorrect)">
+            <button
+                *ngFor="let choice of currentQuestion.choices; let i = index"
+                class="answer"
+                [class.selected]="isSelected(choice)"
+                (click)="selectChoice(choice)"
+            >
                 {{ i + 1 }}. {{ choice.choice }}
             </button>
         </div>

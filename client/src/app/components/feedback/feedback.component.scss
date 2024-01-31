@@ -1,0 +1,58 @@
+body {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.circle {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.wrong-answer-circle {
+    background: #d44c4c;
+}
+
+.right-answer-circle {
+    background: #50d44c;
+}
+
+#icon {
+    color: rgb(255, 255, 255);
+    font-size: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: visible;
+}
+
+#right-answer,
+#wrong-answer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    flex-direction: column;
+}
+
+button {
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+    padding-left: 50px;
+    padding-right: 50px;
+}
+
+#score {
+    background: rgb(219, 219, 219);
+    position: absolute;
+    bottom: 0px;
+    padding: 5px;
+    text-align: center;
+    border-radius: 10%;
+}

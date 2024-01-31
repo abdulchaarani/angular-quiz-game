@@ -159,3 +159,9 @@
     font-size: 125%;
     color: #777777;
 }
+
+button.answer.selected {
+    background-color: #bebebe;
+    color: white;
+    transform: scale(0.96);
+}

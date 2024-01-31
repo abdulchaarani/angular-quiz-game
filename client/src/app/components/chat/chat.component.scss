@@ -1,0 +1,28 @@
+.chat-form {
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+    height: 100%;
+    margin: 1;
+}
+
+.chat-input-container {
+    position: relative;
+}
+
+.mat-form-field {
+    width: calc(100% - 48px);
+}
+
+input[matInput] {
+    width: 100%;
+}
+
+.chat-send-icon {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 24px;
+    cursor: pointer;
+}

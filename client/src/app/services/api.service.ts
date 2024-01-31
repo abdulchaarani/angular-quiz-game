@@ -1,9 +1,9 @@
 import { HttpClient, HttpResponse, HttpHeaders } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-
+// import { ApiConfig } from '@app/interfaces/api-config';
 @Injectable({
     providedIn: 'root',
 })
@@ -20,44 +20,45 @@ export class ApiService<T> {
 
     constructor(
         private readonly http: HttpClient,
-        @Inject(String) private baseUrl: string,
+        @Inject(String) private baseUrl: string, // @Inject(String) private config: ApiConfig = {},
     ) {}
 
-    getAll(endpoint: string = ''): Observable<T[]> {
+    protected getAll(endpoint: string = ''): Observable<T[]> {
         return this.http.get<T[]>(`${this.serverUrl}/${this.baseUrl}/${endpoint}`).pipe(catchError(this.handleError<T[]>('getAll')));
     }
 
-    getById(id: string, endpoint: string = '') {
+    protected getById(id: string, endpoint: string = '') {
         return this.http.get<T>(`${this.serverUrl}/${this.baseUrl}/${endpoint}/${id}`).pipe(catchError(this.handleError<T>('getById')));
     }
 
-    add(payload: T, endpoint: string = ''): Observable<HttpResponse<string>> {
+    protected add(payload: T, endpoint: string = ''): Observable<HttpResponse<string>> {
         return this.http
             .post(`${this.serverUrl}/${this.baseUrl}/${endpoint}`, payload, this.httpOptions)
             .pipe(catchError(this.handleError<HttpResponse<string>>('add')));
     }
 
-    delete(endpoint: string): Observable<HttpResponse<string>> {
+    protected delete(endpoint: string): Observable<HttpResponse<string>> {
         return this.http
             .delete(`${this.serverUrl}/${this.baseUrl}/${endpoint}`, this.httpOptions)
             .pipe(catchError(this.handleError<HttpResponse<string>>('delete')));
     }
 
-    update(endpoint: string): Observable<HttpResponse<string>> {
+    protected update(endpoint: string): Observable<HttpResponse<string>> {
         return this.http
             .patch(`${this.serverUrl}/${this.baseUrl}/${endpoint}`, null, this.httpOptions)
             .pipe(catchError(this.handleError<HttpResponse<string>>('update')));
     }
 
     // UNTESTED
-    replace(payload: T, endpoint: string): Observable<HttpResponse<string>> {
+    protected replace(payload: T, endpoint: string): Observable<HttpResponse<string>> {
         return this.http
             .put(`${this.serverUrl}/${this.baseUrl}/${endpoint}`, payload, this.httpOptions)
-            .pipe(catchError(this.handleError<HttpResponse<string>>('update')));
+            .pipe(catchError(this.handleError<HttpResponse<string>>('replace')));
     }
 
-    // TODO: Handle Error
-    private handleError<E>(request: string, result?: E): (error: Error) => Observable<E> {
-        return () => of(result as E);
+    protected handleError<E>(request: string): (error: Error) => Observable<E> {
+        return (error: Error) => {
+            return throwError(() => new Error(`Error occurred in ${request}\n ${error.message}`));
+        };
     }
 }

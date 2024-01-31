@@ -1,63 +1,62 @@
-<link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-    integrity="sha512-<your-integrity-hash>"
-/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-<your-integrity-hash>" />
+
 <div class="question-border">
-    <form [formGroup]="questionForm" class="question-form">
-        <mat-form-field class="example-full-width">
+    <form [formGroup]="questionForm" #questionSubmitted="ngForm" class="question-form" (ngSubmit)="submitForm(questionSubmitted)">
+        <mat-form-field class="full-width">
             <mat-label class="question-label">Question</mat-label>
-            <input class="questionInput" matInput formControlName="questionFormControl" placeholder="Entrez la question" />
+            <input class="questionInput" matInput formControlName="question" placeholder="Entrez la question" />
         </mat-form-field>
-    </form>
-    <div>
-        <label class="description-label">Description:</label>
-    </div>
 
-    <textarea class="description-input" [(ngModel)]="question.description" name="description"></textarea>
+        <div>
+            <label class="description-label">Description:</label>
+        </div>
 
-    <div id="choices">
-        <div class="choice" *ngFor="let choice of question.choices; let i = index">
-            <div class="input-container">
-                <input class="choicesInput" [(ngModel)]="choice.choice" name="choice{{ i }}" />
-                <input type="checkbox" color="primary" [(ngModel)]="choice.isCorrect" name="isCorrect{{ i }}" />
-<!--
-                <button class="delete-button" (click)="removeChoice(i)">
+        <textarea class="description-input" formControlName="description"></textarea>
 
-                    <i class="fas fa-trash"></i>
-                </button>
-                -->
+        <span class="submit-button-row">
+            <button mat-raised-button color="primary" class="submit-button" [disabled]="!questionForm.valid">Submit</button>
+        </span>
+
+        <span class="points-box-container">
+            <mat-form-field>
+                <mat-label class="points-box">Points</mat-label>
+                <mat-select formControlName="points">
+                    <mat-option *ngFor="let point of [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]" [value]="point">{{ point }}</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </span>
+
+        <div id="choices" formArrayName="choices">
+            <div class="choice" *ngFor="let choice of choices.controls; let i = index" [formGroupName]="i">
+                <div class="input-container">
+                    <input class="choicesInput" formControlName="choice" />
+
+                    <input type="checkbox" formControlName="isCorrect" />
+
+                    <button class="delete-button" (click)="removeChoice(i)">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
-    <span class="add-button-container">
-        <!--
-        <button mat-raised-button color="primary" class="add-button" type="button" (click)="addChoice()">Ajouter Choix</button>
-    -->
-    </span>
+
+        <span class="question-type">
+            <mat-form-field>
+              <mat-label>Type de Question</mat-label>
+              <mat-select formArrayName="types">
+                <mat-option *ngFor="let type of questionForm.get('types')?.value" [value]="type.type">{{ type.type}}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </span>
+
+        <span class="add-button-container">
+            <button mat-raised-button color="primary" class="add-button" type="button" (click)="addChoice()">Ajouter Choix</button>
+        </span>
+    </form>
 </div>
-<span class="submit-button-row">
-    <button mat-raised-button color="primary" class="submit-button">Submit</button>
-</span>
+
+<!-- 
 <span class="duplicate-button-row">
     <button mat-raised-button color="primary" class="duplicate-button">Duplicate</button>
 </span>
-
-
-<span class="points-box-container">
-    <mat-form-field>
-        <mat-label class="points-box">Points</mat-label>
-        <mat-select [(ngModel)]="question.points">
-            <mat-option *ngFor="let point of [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]" [value]="point"> {{ point }} </mat-option>
-        </mat-select>
-    </mat-form-field>
-</span>
-
-<span class="question-type">
-    <mat-form-field>
-        <mat-label>Type de Question</mat-label>
-        <mat-select [(ngModel)]="question.type">
-            <mat-option [value]="question.type">{{ question.type }}</mat-option>
-        </mat-select>
-    </mat-form-field>
-</span>
+-->

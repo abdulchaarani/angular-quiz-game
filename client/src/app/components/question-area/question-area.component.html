@@ -1,8 +1,10 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
 <div class="question-area" *ngIf="currentQuestion">
     <div id="chat-exit">
-        <i id="chat-icon" class="far fa-comment-alt fa-2x" style="color: rgb(81, 81, 81)"></i>
-        <button id="exitButton">EXIT</button>
+        <div id="chat-area">
+            <i id="chat-icon" class="far fa-comment-alt fa-2x" style="color: rgb(81, 81, 81)"></i>
+        </div>
+        <button id="exitButton">QUITTER</button>
     </div>
     <div id="upper-question-area">
         <div id="question-timer-area">
@@ -16,11 +18,11 @@
             </h1>
             <div id="timer-area">
                 <div class="circle">
-                    <div id="timer-container">
-                        <div id="timer">
-                            <mat-progress-spinner [value]="computeTimerProgress()" mode="determinate"></mat-progress-spinner>
+                    <div id="timer">
+                        <mat-progress-spinner [value]="computeTimerProgress()" mode="determinate" diameter="90"> </mat-progress-spinner>
+                        <h2 id="time-left">
                             {{ time }}
-                        </div>
+                        </h2>
                     </div>
                 </div>
             </div>
@@ -39,7 +41,7 @@
                     XX score
                 </h1>
             </div>
-            <button id="submitButton">SUBMIT</button>
+            <button id="submitButton">SOUMETTRE</button>
         </div>
     </div>
 </div>

@@ -10,7 +10,9 @@ export class QuestionController {
 
     @Get('/')
     allQuestions() {
-        return this.questionService.getAllQuestions();
+        const questions: string = this.questionService.getAllQuestions();
+        if (!questions) throw new HttpException('Question not found', HttpStatus.NOT_FOUND);
+        return questions;
     }
 
     @Get('/qcm')

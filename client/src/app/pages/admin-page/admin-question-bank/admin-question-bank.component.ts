@@ -2,8 +2,8 @@ import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Component, OnInit } from '@angular/core';
 import { Question } from '@app/interfaces/question';
 import { QuestionService } from '@app/services/question.service';
-import { HttpResponse } from '@angular/common/http';
-// import { map } from 'rxjs/operators';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { NotificationService } from '@app/services/notification.service';
 
 @Component({
     selector: 'app-admin-question-bank',
@@ -17,25 +17,34 @@ export class AdminQuestionBankComponent implements OnInit {
 
     response: string = '';
 
-    constructor(private readonly questionService: QuestionService) {}
+    constructor(
+        private readonly questionService: QuestionService,
+        private readonly notificationService: NotificationService,
+    ) {}
 
     drop(event: CdkDragDrop<Question[]>) {
         moveItemInArray(this.questions, event.previousIndex, event.currentIndex);
     }
 
     ngOnInit() {
-        this.questionService.getAllQuestions().subscribe((data: Question[]) => (this.questions = [...data]));
+        this.questionService.getAllQuestions().subscribe({
+            next: (data: Question[]) => (this.questions = [...data]),
+            error: (error: HttpErrorResponse) =>
+                this.notificationService.displayErrorMessage(`Failed to get all bank questions 😿 \n ${error.message}`),
+        });
     }
 
     deleteQuestion(questionId: string) {
-        this.questionService.deleteQuestion(questionId).subscribe((response: HttpResponse<string>) => {
-            if (response.ok) this.questions = this.questions.filter((question: Question) => question.id !== questionId);
+        this.questionService.deleteQuestion(questionId).subscribe({
+            next: () => (this.questions = this.questions.filter((question: Question) => question.id !== questionId)),
+            error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`Failed to delete question 😿 \n ${error.message}`),
         });
     }
 
     addQuestion() {
-        this.questionService.createQuestion(this.questions[0]).subscribe((response: HttpResponse<string>) => {
-            this.response = response.statusText;
+        this.questionService.createQuestion(this.questions[0]).subscribe({
+            next: (response: HttpResponse<string>) => (this.response = response.statusText),
+            error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`Failed to delete question 😿 \n ${error.message}`),
         });
     }
 }

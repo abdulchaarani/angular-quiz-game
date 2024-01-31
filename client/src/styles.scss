@@ -33,3 +33,15 @@ body {
     margin: 0;
     font-family: Roboto, 'Helvetica Neue', sans-serif;
 }
+
+.error-snackbar {
+    --mdc-snackbar-container-color: #cc0000;
+    --mat-snack-bar-button-color: white;
+    white-space: pre-wrap;
+}
+
+.success-snackbar {
+    --mdc-snackbar-container-color: #4bb543;
+    --mat-snack-bar-button-color: white;
+    white-space: pre-wrap;
+}

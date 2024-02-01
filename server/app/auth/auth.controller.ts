@@ -8,7 +8,7 @@ export class AuthController {
 
     @Post('/')
     signIn(@Body() signInDto: Record<string, any>, @Res() response: Response) {
-        this.authService.signIn(signInDto.username, signInDto.password);
+        // this.authService.signIn(signInDto.username, signInDto.password);
         if (this.authService.isValidPassword(signInDto.password)) {
             response.status(HttpStatus.OK).send();
         } else {

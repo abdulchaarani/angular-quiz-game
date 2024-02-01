@@ -8,19 +8,20 @@ import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { AppMaterialModule } from '@app/modules/material.module';
 import { AppComponent } from '@app/pages/app/app.component';
 import { CreateQuestionComponent } from '@app/pages/create-question/create-question.component';
+import { GameListItemComponent } from './components/game-list-item/game-list-item.component';
 import { PlayAreaComponent } from './components/play-area/play-area.component';
+import { QuestionAreaComponent } from './components/question-area/question-area.component';
 import { QuestionListItemComponent } from './components/question-list-item/question-list-item.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
-import { GameListItemComponent } from './components/game-list-item/game-list-item.component';
+import { ClickStopPropagationDirective } from './directives/click-stop-propagation.directive';
 import { AdminPageComponent } from './pages/admin-page/admin-page.component';
 import { AdminQuestionBankComponent } from './pages/admin-page/admin-question-bank/admin-question-bank.component';
 import { AdminQuestionsListComponent } from './pages/admin-page/admin-questions-list/admin-questions-list.component';
 import { HomePageComponent } from './pages/home-page/home-page.component';
 import { HostPageComponent } from './pages/host-page/host-page.component';
 import { PlayerPageComponent } from './pages/player-page/player-page.component';
-import { QuestionAreaComponent } from './components/question-area/question-area.component';
+import { WaitPageComponent } from './pages/wait-page/wait-page.component';
 import { SortByLastModificationPipe } from './pipes/sort-by-last-modification.pipe';
-import { ClickStopPropagationDirective } from './directives/click-stop-propagation.directive';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -44,6 +45,7 @@ import { ClickStopPropagationDirective } from './directives/click-stop-propagati
         CreateQuestionComponent,
         SortByLastModificationPipe,
         ClickStopPropagationDirective,
+        WaitPageComponent,
     ],
     imports: [
         AppMaterialModule,

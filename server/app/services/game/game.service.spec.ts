@@ -4,6 +4,7 @@ import { MongooseModule, getConnectionToken, getModelToken } from '@nestjs/mongo
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection, Model } from 'mongoose';
+import { GameValidationService } from '../game-validation/game-validation.service';
 import { GameService } from './game.service';
 
 const DELAY_BEFORE_CLOSING_CONNECTION = 200;
@@ -11,7 +12,7 @@ const BASE_36 = 36;
 const getRandomString = (): string => (Math.random() + 1).toString(BASE_36).substring(2);
 // TODO: Add a Mock for Questions?
 const getFakeGame = (): Game => ({
-    id: Math.random(),
+    id: getRandomString(),
     title: getRandomString(),
     description: getRandomString(),
     lastModification: new Date(2024, 1, 1),
@@ -63,7 +64,7 @@ describe('GameService', () => {
                 }),
                 MongooseModule.forFeature([{ name: Game.name, schema: gameSchema }]),
             ],
-            providers: [GameService, Logger],
+            providers: [GameService, Logger, GameValidationService],
         }).compile();
 
         service = module.get<GameService>(GameService);

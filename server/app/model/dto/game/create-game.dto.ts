@@ -5,9 +5,9 @@ import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateGameDto {
     @ApiProperty()
-    @IsNumber()
+    @IsString()
     @IsOptional()
-    id: number;
+    id: string;
 
     @ApiProperty()
     @IsString()

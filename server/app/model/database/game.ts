@@ -9,7 +9,7 @@ export type GameDocument = Game & Document;
 export class Game {
     @ApiProperty()
     @Prop({ required: true })
-    id: number;
+    id: string;
 
     @ApiProperty()
     @Prop({ required: true })

@@ -23,7 +23,7 @@ export class GameController {
     @Get('/:id')
     async gameById(@Param('id') id: string, @Res() response: Response) {
         try {
-            const game = await this.gameService.getGameById(parseInt(id));
+            const game = await this.gameService.getGameById(id);
             response.status(HttpStatus.OK).json(game);
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send(error.message);
@@ -55,7 +55,7 @@ export class GameController {
     @Delete('/:id')
     async deleteGame(@Param('id') id: string, @Res() response: Response) {
         try {
-            await this.gameService.deleteGame(parseInt(id));
+            await this.gameService.deleteGame(id);
             response.status(HttpStatus.NO_CONTENT).send();
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send(error.message);

@@ -21,6 +21,7 @@ import { AdminQuestionsListComponent } from './pages/admin-page/admin-questions-
 import { HomePageComponent } from './pages/home-page/home-page.component';
 import { HostPageComponent } from './pages/host-page/host-page.component';
 import { PlayerPageComponent } from './pages/player-page/player-page.component';
+import { WaitPageComponent } from './pages/wait-page/wait-page.component';
 import { SortByLastModificationPipe } from './pipes/sort-by-last-modification.pipe';
 /**
  * Main module that is used in main.ts.
@@ -45,6 +46,7 @@ import { SortByLastModificationPipe } from './pipes/sort-by-last-modification.pi
         CreateQuestionComponent,
         SortByLastModificationPipe,
         ClickStopPropagationDirective,
+        WaitPageComponent,
         DialogAdminPasswordComponent,
     ],
     imports: [

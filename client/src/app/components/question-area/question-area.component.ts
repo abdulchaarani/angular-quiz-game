@@ -16,6 +16,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
 
     answers: Choice[];
     selectedAnswers: Choice[] = [];
+    isSelectionEnabled: boolean = true;
 
     private readonly multiplicationFactor = 100;
 
@@ -34,6 +35,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         this.timeService.timerFinished$.subscribe((timerFinished) => {
             if (timerFinished) {
                 // this.router.navigate(['/home']); // TODO : navigate to gamelist page
+                this.checkAnswers();
             }
         });
     }
@@ -55,19 +57,40 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     }
 
     // submit(): void {}
-    checkAnswers(isCorrect?: boolean): void {
+    checkAnswers(): boolean {
+        let isCorrect = false;
+        for (const answer of this.selectedAnswers) {
+            if (answer.isCorrect) {
+                isCorrect = true;
+            } else {
+                isCorrect = false;
+                break;
+            }
+        }
+
         console.log(isCorrect);
+        return isCorrect;
+    }
+
+    submitAnswers(): void {
+        this.timeService.stopTimer();
+        this.isSelectionEnabled = false;
+        this.checkAnswers();
     }
     // abandon(): void {}
 
     selectChoice(choice: Choice): void {
-        if (!this.selectedAnswers.includes(choice)) {
-            this.selectedAnswers.push(choice);
-            console.log(this.selectedAnswers);
-        } else {
-            this.selectedAnswers = this.selectedAnswers.filter((answer) => answer !== choice);
-            console.log(this.selectedAnswers);
-        }
+        this.timeService.timerFinished$.subscribe((timerFinished) => {
+            if (!timerFinished && this.isSelectionEnabled) {
+                if (!this.selectedAnswers.includes(choice)) {
+                    this.selectedAnswers.push(choice);
+                    console.log(this.selectedAnswers);
+                } else {
+                    this.selectedAnswers = this.selectedAnswers.filter((answer) => answer !== choice);
+                    console.log(this.selectedAnswers);
+                }
+            }
+        });
     }
 
     isSelected(choice: Choice): boolean {

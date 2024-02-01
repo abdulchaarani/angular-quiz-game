@@ -1,4 +1,4 @@
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+// import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Component, OnInit } from '@angular/core';
 import { Question } from '@app/interfaces/question';
 import { QuestionService } from '@app/services/question.service';
@@ -17,11 +17,20 @@ export class AdminQuestionBankComponent implements OnInit {
 
     response: string = '';
 
+    newQuestion: Question = {
+        id: 'X',
+        type: 'QCM',
+        description: 'Capitale du Canada',
+        question: 'Quelle est la capitale du canada?',
+        points: 20,
+        lastModification: '2024-01-26T14:21:19+00:00',
+    };
+
     constructor(private readonly questionService: QuestionService) {}
 
-    drop(event: CdkDragDrop<Question[]>) {
-        moveItemInArray(this.questions, event.previousIndex, event.currentIndex);
-    }
+    // drop(event: CdkDragDrop<Question[]>) {
+    //     moveItemInArray(this.questions, event.previousIndex, event.currentIndex);
+    // }
 
     ngOnInit() {
         this.questionService.getAllQuestions().subscribe((data: Question[]) => (this.questions = [...data]));
@@ -33,9 +42,9 @@ export class AdminQuestionBankComponent implements OnInit {
         });
     }
 
-    addQuestion() {
-        this.questionService.saveQuestion(this.questions[0]).subscribe((response: HttpResponse<string>) => {
-            this.response = response.statusText;
+    addQuestion(newQuestion: Question = this.newQuestion) {
+        this.questionService.saveQuestion(newQuestion).subscribe((response: HttpResponse<string>) => {
+            if (response.ok) this.questions.unshift(newQuestion);
         });
     }
 }

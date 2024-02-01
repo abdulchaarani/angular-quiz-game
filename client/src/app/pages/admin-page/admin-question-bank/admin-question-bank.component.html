@@ -1,40 +1,51 @@
-<div class="top-page">
-    <h2>Banque de questions</h2>
-    <!-- This div adds buttons that toggles sorting of the list of questions by lastModifiedDate  -->
-    <!-- To use: change sortByLastModification: 'ascending' to sortByLastModification: 'group.value' -->
-    <!-- <div class="toggle-sort">
+<!-- <div class="top-page"> -->
+<!-- This div adds buttons that toggles sorting of the list of questions by lastModifiedDate  -->
+<!-- To use: change sortByLastModification: 'ascending' to sortByLastModification: 'group.value' -->
+<!-- add 'sortByLastModification' pipe to ngFor loop-->
+<!-- <div class="toggle-sort">
         <span>Sort by last modification: </span>
         <mat-button-toggle-group #group="matButtonToggleGroup" name="sort order" aria-label="Date Sort">
             <mat-button-toggle value="ascending">Newest</mat-button-toggle>
             <mat-button-toggle value="descending">Oldest</mat-button-toggle>
         </mat-button-toggle-group>
     </div> -->
-</div>
+<!-- </div> -->
 
-<mat-card *ngIf="questions.length === 0" class="empty-bank-card">
-    <mat-card-content class="empty-bank-card">
-        <p><mat-icon>catching_pokemon</mat-icon> La banque de question est vide! <mat-icon>catching_pokemon</mat-icon></p>
-        <p>Cliquez sur <mat-icon>add</mat-icon> pour ajouter votre première question!</p>
-    </mat-card-content>
-</mat-card>
-
-<mat-accordion class="bank-questions-list question-list">
-    <div cdkDropList class="" (cdkDropListDropped)="drop($event)">
-        <app-question-list-item
-            *ngFor="let question of questions | sortByLastModification: 'ascending'"
-            cdkDrag
-            [question]="question"
-            [isLastModifiedDateVisible]="true"
-            (deleteQuestionEvent)="deleteQuestion($event)"
-        >
-        </app-question-list-item>
-    </div>
-
-    <div class="add-button-container">
-        <button class="add-question-button" mat-raised-button color="basic" (click)="addQuestion()">
-            <mat-icon>add</mat-icon>
+<div class="main-container">
+    <h1 class="page-title">Banque de questions</h1>
+    <div class="buttons-container">
+        <button id="add-question-button" mat-raised-button color="primary" (click)="addQuestion()">
+            <mat-icon>add</mat-icon>Ajouter une nouvelle question
         </button>
     </div>
-</mat-accordion>
+    <div class="question-container container">
+        <mat-card *ngIf="questions.length === 0" class="empty-bank-card">
+            <mat-card-content class="empty-bank-card">
+                <p><mat-icon>catching_pokemon</mat-icon> La banque de question est vide! <mat-icon>catching_pokemon</mat-icon></p>
+                <p>Cliquez sur <mat-icon>add</mat-icon> pour ajouter votre première question!</p>
+            </mat-card-content>
+        </mat-card>
 
-<p>{{ response }}</p>
+        <mat-accordion class="bank-questions-list question-list">
+            <!-- <div cdkDropList class="" (cdkDropListDropped)="drop($event)"> -->
+            <!-- cdkDrag -->
+            <div>
+                <app-question-list-item
+                    *ngFor="let question of questions | sortByLastModification: 'ascending'"
+                    [question]="question"
+                    [isLastModifiedDateVisible]="true"
+                    (deleteQuestionEvent)="deleteQuestion($event)"
+                >
+                </app-question-list-item>
+            </div>
+
+            <!-- <div class="add-button-container">
+                <button class="add-question-button" mat-raised-button color="basic">
+                    <mat-icon>add</mat-icon>
+                </button>
+            </div> -->
+        </mat-accordion>
+
+        <p>{{ response }}</p>
+    </div>
+</div>

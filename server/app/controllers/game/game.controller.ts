@@ -1,7 +1,7 @@
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 import { GameService } from '@app/services/game/game.service';
-import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Put, Res } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 
@@ -23,7 +23,7 @@ export class GameController {
     @Get('/:id')
     async gameById(@Param('id') id: string, @Res() response: Response) {
         try {
-            const game = await this.gameService.getGameById(parseInt(id));
+            const game = await this.gameService.getGameById(id);
             response.status(HttpStatus.OK).json(game);
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send(error.message);
@@ -40,13 +40,22 @@ export class GameController {
         }
     }
 
-    // TODO: If the point is to create a game if not found (and replace it if found), maybe use PUT instead?
+    // Toggle Visibility doesn't change date
     @Patch('/:id')
     async updateGame(@Body() updateGameDto: UpdateGameDto, @Res() response: Response) {
         try {
-            await this.gameService.updateGame(updateGameDto);
+            await this.gameService.updateGame(updateGameDto, false);
             response.status(HttpStatus.OK).send();
-            // TODO: HttpStatus.CREATED if new game
+        } catch (error) {
+            response.status(HttpStatus.BAD_REQUEST).send(error.message);
+        }
+    }
+
+    @Put('/:id')
+    async upsertGame(@Body() updateGameDto: UpdateGameDto, @Res() response: Response) {
+        try {
+            await this.gameService.updateGame(updateGameDto, true);
+            response.status(HttpStatus.OK).send();
         } catch (error) {
             response.status(HttpStatus.BAD_REQUEST).send(error.message);
         }
@@ -55,7 +64,7 @@ export class GameController {
     @Delete('/:id')
     async deleteGame(@Param('id') id: string, @Res() response: Response) {
         try {
-            await this.gameService.deleteGame(parseInt(id));
+            await this.gameService.deleteGame(id);
             response.status(HttpStatus.NO_CONTENT).send();
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send(error.message);

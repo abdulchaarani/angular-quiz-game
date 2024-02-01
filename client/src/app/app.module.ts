@@ -8,6 +8,7 @@ import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { AppMaterialModule } from '@app/modules/material.module';
 import { AppComponent } from '@app/pages/app/app.component';
 import { CreateQuestionComponent } from '@app/pages/create-question/create-question.component';
+import { DialogAdminPasswordComponent } from './components/dialog-admin-password/dialog-admin-password.component';
 import { GameListItemComponent } from './components/game-list-item/game-list-item.component';
 import { PlayAreaComponent } from './components/play-area/play-area.component';
 import { QuestionAreaComponent } from './components/question-area/question-area.component';
@@ -46,6 +47,7 @@ import { SortByLastModificationPipe } from './pipes/sort-by-last-modification.pi
         SortByLastModificationPipe,
         ClickStopPropagationDirective,
         WaitPageComponent,
+        DialogAdminPasswordComponent,
     ],
     imports: [
         AppMaterialModule,

@@ -116,6 +116,7 @@ export class QuestionService {
 
     // TODO: validate question input
     async addQuestion(question: CreateQuestionDto): Promise<void> {
+        // TODO: Detect if "similar" question exists (especially for questionbank)
         question.id = uuidv4();
         try {
             await this.questionModel.create(question);

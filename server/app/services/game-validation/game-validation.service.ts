@@ -4,37 +4,62 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class GameValidationService {
-    // Move to QuestionService
-    isValidQuestion(question: Question): boolean {
-        // TODO: Detect if "similar" question exists (especially for questionbank)
-        const isValidChoicesNumber = question.choices.length >= 2 && question.choices.length <= 4;
-        const isValidPointsNumber = question.points >= 10 && question.points <= 100 && question.points % 10 === 0;
+    isValidString(text: string): boolean {
+        return text && text.trim() !== '';
+    }
+
+    isValidChoicesRatio(question: Question): boolean {
         let isValidRightChoiceNumber = false;
         let isValidWrongChoiceNumber = false;
         // TODO: Improve "algorithm" efficiency and whitespace detection
         question.choices.forEach((choice) => {
-            if (choice.isCorrect && choice.text !== '') {
+            if (choice.isCorrect && this.isValidString(choice.text)) {
                 isValidRightChoiceNumber = true;
-            } else if (!choice.isCorrect && choice.text !== ' ') {
+            } else if (!choice.isCorrect && this.isValidString(choice.text)) {
                 isValidWrongChoiceNumber = true;
             }
         });
-        return isValidChoicesNumber && isValidPointsNumber && isValidRightChoiceNumber && isValidWrongChoiceNumber;
+        return isValidRightChoiceNumber && isValidWrongChoiceNumber;
+    }
+
+    isValidRange(quantity: number, min: number, max: number, step?: number) {
+        if (step) {
+            return quantity >= min && quantity <= max && quantity % step === 0;
+        } else {
+            return quantity >= min && quantity <= max;
+        }
+    }
+
+    isValidQuestion(question: Question): boolean {
+        const MINIMUM_CHOICES_NUMBER = 2;
+        const MAXIMUM_CHOICES_NUMBER = 4;
+        const MINIMUM_POINTS = 10;
+        const MAXIMUM_POINTS = 100;
+        const STEP_POINTS = 10;
+        const isValidChoicesNumber = this.isValidRange(question.choices.length, MINIMUM_CHOICES_NUMBER, MAXIMUM_CHOICES_NUMBER);
+        const isValidPointsNumber = this.isValidRange(question.points, MINIMUM_POINTS, MAXIMUM_POINTS, STEP_POINTS);
+        return isValidChoicesNumber && isValidPointsNumber && this.isValidChoicesRatio(question);
+    }
+
+    isValidQuestionsList(questions: Question[]) {
+        questions.forEach((question) => {
+            if (!this.isValidQuestion(question)) {
+                return false;
+            }
+        });
+        return true;
     }
 
     isValidGame(game: Game): boolean {
-        // TODO: Improve whitespace detection + Detect if "similar" game exists
-        const isValidTitle = game.title !== '';
-        const isValidDescription = game.description !== '';
-        const isValidDuration = game.duration >= 10 && game.duration <= 60;
-        const isValidQuestionsNumber = game.questions.length >= 1;
-        let areValidQuestions = true;
-        // TODO: Improve "algorithm" efficiency
-        game.questions.forEach((question) => {
-            if (!this.isValidQuestion(question)) {
-                areValidQuestions = false;
-            }
-        });
-        return isValidTitle && isValidDescription && isValidDuration && isValidQuestionsNumber && areValidQuestions;
+        const MINIMUM_DURATION = 10;
+        const MAXIMUM_DURATION = 60;
+        const MINIMUM_QUESTIONS_NUMBER = 1;
+        const isValidTitle = this.isValidString(game.title);
+        const isValidDescription = this.isValidString(game.description);
+        const isValidDuration = this.isValidRange(game.duration, MINIMUM_DURATION, MAXIMUM_DURATION);
+        const isValidQuestionsNumber = game.questions.length >= MINIMUM_QUESTIONS_NUMBER;
+        const isValidQuestionsList = this.isValidQuestionsList(game.questions);
+
+        return isValidTitle && isValidDescription && isValidDuration && isValidQuestionsNumber && isValidQuestionsList;
     }
 }

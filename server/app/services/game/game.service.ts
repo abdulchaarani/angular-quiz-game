@@ -146,10 +146,8 @@ export class GameService {
         return await this.gameModel.findOne({ id: gameId });
     }
 
-    // TODO: Update Date property function
-
     async addGame(newGame: CreateGameDto): Promise<void> {
-        // TODO: Generate ID + Update LastModification
+        // TODO: Check if game with same name exists
         newGame.id = uuidv4();
         newGame.isVisible = true;
         newGame.lastModification = new Date();
@@ -173,6 +171,8 @@ export class GameService {
             if (!this.validation.isValidGame(game)) {
                 return Promise.reject('Invalid game');
             }
+            game.lastModification = new Date();
+            game.isVisible = false;
             const res = await this.gameModel.updateOne(filterQuery, game);
             if (res.matchedCount === 0) {
                 try {

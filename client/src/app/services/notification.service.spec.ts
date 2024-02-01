@@ -1,43 +1,49 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
-import { HarnessLoader } from '@angular/cdk/testing';
+import { TestBed } from '@angular/core/testing';
+import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { MatSnackBarHarness } from '@angular/material/snack-bar/testing';
 import { NotificationService } from './notification.service';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
 
-describe('SnackBarHarnessExample', () => {
-    let fixture: ComponentFixture<NotificationService>;
-    let loader: HarnessLoader;
+describe('NotificationService', () => {
+    let service: NotificationService;
+    let snackBar: MatSnackBar;
+
     beforeEach(() => {
         TestBed.configureTestingModule({
             imports: [MatSnackBarModule, NoopAnimationsModule],
-            declarations: [NotificationService],
-        }).compileComponents();
-        fixture = TestBed.createComponent(NotificationService);
-        fixture.detectChanges();
-        loader = TestbedHarnessEnvironment.documentRootLoader(fixture);
+            providers: [NotificationService, MatSnackBar],
+        });
+
+        service = TestBed.inject(NotificationService);
+        snackBar = TestBed.inject(MatSnackBar);
     });
 
-    it('should load a simple success message snackbar', async () => {
-        const snackBarRef = fixture.componentInstance.displaySuccessMessage('SUCCESS!');
-        let snackBars = await loader.getAllHarnesses(MatSnackBarHarness);
-
-        expect(snackBars.length).toBe(1);
-
-        snackBarRef.dismiss();
-        snackBars = await loader.getAllHarnesses(MatSnackBarHarness);
-        expect(snackBars.length).toBe(0);
+    it('should be created', () => {
+        expect(service).toBeTruthy();
     });
 
-    it('should load a simple failure message snackbar', async () => {
-        const snackBarRef = fixture.componentInstance.displaySuccessMessage('FAILURE!');
-        let snackBars = await loader.getAllHarnesses(MatSnackBarHarness);
+    it('should display a simple error snackbar', () => {
+        const errorMessage = 'FAILURE :(';
 
-        expect(snackBars.length).toBe(1);
+        spyOn(snackBar, 'open');
 
-        snackBarRef.dismiss();
-        snackBars = await loader.getAllHarnesses(MatSnackBarHarness);
-        expect(snackBars.length).toBe(0);
+        service.displayErrorMessage(errorMessage);
+
+        expect(snackBar.open).toHaveBeenCalledWith(errorMessage, '✖', {
+            duration: 5000,
+            panelClass: ['error-snackbar'],
+        });
+    });
+
+    it('should display a simple success snackbar', () => {
+        const successMessage = 'SUCCESS :)';
+
+        spyOn(snackBar, 'open');
+
+        service.displaySuccessMessage(successMessage);
+
+        expect(snackBar.open).toHaveBeenCalledWith(successMessage, '✔', {
+            duration: 5000,
+            panelClass: ['success-snackbar'],
+        });
     });
 });

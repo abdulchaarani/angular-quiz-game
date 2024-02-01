@@ -36,7 +36,6 @@ body, html {
     gap : 10px;
 }
 
-
 .list {
     display: flex;
     flex-direction: column;
@@ -53,4 +52,8 @@ body, html {
 button {
     width : 10vw;
     height: 5vh;
+}
+
+app-game-list-item {
+    padding: 1px;
 }

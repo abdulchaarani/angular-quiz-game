@@ -22,6 +22,7 @@ export class GameValidationService {
         return isValidRightChoiceNumber && isValidWrongChoiceNumber;
     }
 
+    // TODO: Case if someone mistakes min > max (??)
     isValidRange(quantity: number, min: number, max: number, step?: number) {
         if (step) {
             return quantity >= min && quantity <= max && quantity % step === 0;
@@ -38,15 +39,16 @@ export class GameValidationService {
         const STEP_POINTS = 10;
         const isValidChoicesNumber = this.isValidRange(question.choices.length, MINIMUM_CHOICES_NUMBER, MAXIMUM_CHOICES_NUMBER);
         const isValidPointsNumber = this.isValidRange(question.points, MINIMUM_POINTS, MAXIMUM_POINTS, STEP_POINTS);
-        return isValidChoicesNumber && isValidPointsNumber && this.isValidChoicesRatio(question);
+        const isValidQuestionName = this.isValidString(question.question);
+        return isValidQuestionName && isValidChoicesNumber && isValidPointsNumber && this.isValidChoicesRatio(question);
     }
 
     isValidQuestionsList(questions: Question[]) {
-        questions.forEach((question) => {
-            if (!this.isValidQuestion(question)) {
+        for (let i = 0; i < questions.length; i++) {
+            if (!this.isValidQuestion(questions[i])) {
                 return false;
             }
-        });
+        }
         return true;
     }
 

@@ -4,17 +4,19 @@ import { MongooseModule, getConnectionToken, getModelToken } from '@nestjs/mongo
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection, Model } from 'mongoose';
+import { GameValidationService } from '../game-validation/game-validation.service';
 import { GameService } from './game.service';
 
 const DELAY_BEFORE_CLOSING_CONNECTION = 200;
 const BASE_36 = 36;
+const YEAR = 2024;
 const getRandomString = (): string => (Math.random() + 1).toString(BASE_36).substring(2);
 // TODO: Add a Mock for Questions?
 const getFakeGame = (): Game => ({
-    id: Math.random(),
+    id: getRandomString(),
     title: getRandomString(),
     description: getRandomString(),
-    lastModification: new Date(2024, 1, 1),
+    lastModification: new Date(YEAR, 1, 1),
     duration: 30,
     isVisible: true,
     questions: [
@@ -34,13 +36,13 @@ const getFakeGame = (): Game => ({
                     isCorrect: false,
                 },
             ],
-            lastModification: new Date(2024, 1, 1),
+            lastModification: new Date(YEAR, 1, 1),
         },
     ],
 });
 
 // TODO: Remove duplicate code (also seen in question.service.spec.ts)
-const stringifyPublicValues = (game: Game): String => {
+const stringifyPublicValues = (game: Game): string => {
     return JSON.stringify(game, (key, value) => {
         if (key !== '_id' && key !== '__v') return value;
     });
@@ -63,7 +65,7 @@ describe('GameService', () => {
                 }),
                 MongooseModule.forFeature([{ name: Game.name, schema: gameSchema }]),
             ],
-            providers: [GameService, Logger],
+            providers: [GameService, Logger, GameValidationService],
         }).compile();
 
         service = module.get<GameService>(GameService);
@@ -122,19 +124,18 @@ describe('GameService', () => {
         expect(stringifyPublicValues(returnedGame)).toEqual(stringifyPublicValues(game));
     });
 
-    // TODO: Replace this by the expected behavior when game is deleted while patching it: Create the new game
-    /*
     it('updateGame() should fail if the corresponding game does not exist in the database', async () => {
         const game = getFakeGame();
-        await expect(service.updateGame(game)).rejects.toBeTruthy();
+        await expect(service.updateGame(game, false)).rejects.toBeTruthy();
     });
-    */
 
     it('updateGame() should fail if Mongo query failed', async () => {
         jest.spyOn(gameModel, 'updateOne').mockRejectedValue('');
         const game = getFakeGame();
-        await expect(service.updateGame(game)).rejects.toBeTruthy();
+        await expect(service.updateGame(game, false)).rejects.toBeTruthy();
     });
+
+    // TODO: Unit tests with upsert(): updateGame(game, true)
 
     it('deleteGame() should delete the corresponding game', async () => {
         await gameModel.deleteMany({});
@@ -155,7 +156,9 @@ describe('GameService', () => {
         const game = getFakeGame();
         await expect(service.deleteGame(game.id)).rejects.toBeTruthy();
     });
+    // TODO: Add isVisible = false + id and date?
     it('addGame() should add the game to the database', async () => {
+        jest.mock('uuid', () => ({ v4: () => '123456789' }));
         await gameModel.deleteMany({});
         const game = getFakeGame();
         await service.addGame({ ...game }); // TODO: See if it requires adjustements

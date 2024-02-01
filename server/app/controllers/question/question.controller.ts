@@ -21,7 +21,7 @@ export class QuestionController {
         }
     }
 
-    // TODO: Check if necessary
+    // TODO: Delete unecessary routes
     @Get('/qcm')
     async allMultipleChoiceQuestions(@Res() response: Response) {
         try {

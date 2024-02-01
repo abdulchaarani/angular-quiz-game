@@ -7,6 +7,6 @@ import { Component, Input } from '@angular/core';
 })
 export class FeedbackComponent {
     @Input() isCorrect: boolean;
-    @Input() score: number;
-    @Input() bonus: string;
+    // @Input() score: number;
+    // @Input() bonus: string;
 }

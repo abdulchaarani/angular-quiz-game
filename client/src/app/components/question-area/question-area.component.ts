@@ -17,6 +17,8 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     answers: Choice[];
     selectedAnswers: Choice[] = [];
     isSelectionEnabled: boolean = true;
+    showFeedback: boolean = false;
+    isCorrect: boolean = false;
 
     private readonly multiplicationFactor = 100;
 
@@ -36,6 +38,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
             if (timerFinished) {
                 // this.router.navigate(['/home']); // TODO : navigate to gamelist page
                 this.checkAnswers();
+                this.showFeedback = true;
             }
         });
     }
@@ -57,25 +60,25 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     }
 
     // submit(): void {}
-    checkAnswers(): boolean {
-        let isCorrect = false;
+    checkAnswers(): void {
         for (const answer of this.selectedAnswers) {
             if (answer.isCorrect) {
-                isCorrect = true;
+                this.isCorrect = true;
             } else {
-                isCorrect = false;
+                this.isCorrect = false;
                 break;
             }
         }
-
-        console.log(isCorrect);
-        return isCorrect;
     }
 
     submitAnswers(): void {
-        this.timeService.stopTimer();
         this.isSelectionEnabled = false;
-        this.checkAnswers();
+        this.timeService.timerFinished$.subscribe((timerFinished) => {
+            if (timerFinished) {
+                this.checkAnswers();
+                this.showFeedback = true;
+            }
+        });
     }
     // abandon(): void {}
 
@@ -84,10 +87,8 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
             if (!timerFinished && this.isSelectionEnabled) {
                 if (!this.selectedAnswers.includes(choice)) {
                     this.selectedAnswers.push(choice);
-                    console.log(this.selectedAnswers);
                 } else {
                     this.selectedAnswers = this.selectedAnswers.filter((answer) => answer !== choice);
-                    console.log(this.selectedAnswers);
                 }
             }
         });

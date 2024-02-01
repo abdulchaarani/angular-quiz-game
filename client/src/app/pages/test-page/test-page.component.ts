@@ -26,7 +26,7 @@ export class TestPageComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.gameService.getGameById(1).subscribe((data: Game) => {
+        this.gameService.getGameById(2).subscribe((data: Game) => {
             this.currentGame = data;
         });
 

@@ -2,9 +2,9 @@ import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/cor
 import { MatDialog } from '@angular/material/dialog';
 import { Choice } from '@app/interfaces/choice';
 import { Question } from '@app/interfaces/question';
+import { GameEventService } from '@app/services/game-event.service';
 import { TimeService } from '@app/services/time.service';
 import { ChatComponent } from '../chat/chat.component';
-
 @Component({
     selector: 'app-question-area',
     templateUrl: './question-area.component.html',
@@ -25,6 +25,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     constructor(
         public timeService: TimeService,
         public dialog: MatDialog,
+        private gameEventService: GameEventService,
     ) {}
 
     get time() {
@@ -105,5 +106,12 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
             width: '50%',
             height: '50%',
         });
+    }
+
+    //exit-game(): void {}
+    exitGame(): void {}
+
+    onNextButtonClick(): void {
+        this.gameEventService.advanceQuestion();
     }
 }

@@ -52,5 +52,5 @@
 </div>
 <div *ngIf="showFeedback">
     <app-feedback id="feedback" *ngIf="showFeedback" [isCorrect]="isCorrect"></app-feedback>
-    <button mat-raised-button *ngIf="showFeedback" id="nextButton">Suivant</button>
+    <button mat-raised-button *ngIf="showFeedback" id="nextButton" (click)="onNextButtonClick()">SUIVANT</button>
 </div>

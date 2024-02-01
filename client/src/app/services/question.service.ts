@@ -1,10 +1,10 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 // import { Message } from '@common/message';
+import { Question } from '@app/interfaces/question';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { Question } from '@app/interfaces/question';
 
 @Injectable({
     providedIn: 'root',

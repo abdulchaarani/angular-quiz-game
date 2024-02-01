@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-
+import { MatDialogModule } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { QuestionAreaComponent } from './question-area.component';
 
@@ -9,9 +9,15 @@ describe('QuestionAreaComponent', () => {
     let component: QuestionAreaComponent;
     let fixture: ComponentFixture<QuestionAreaComponent>;
     let router: Router;
+    const TIMEOUT = 3001;
     // let timeServiceSpy: SpyObj<TimeService>;
 
     beforeEach(async () => {
+        TestBed.configureTestingModule({
+            declarations: [QuestionAreaComponent],
+            imports: [MatDialogModule],
+        });
+
         fixture = TestBed.createComponent(QuestionAreaComponent);
         component = fixture.componentInstance;
         router = TestBed.inject(Router);
@@ -33,7 +39,7 @@ describe('QuestionAreaComponent', () => {
 
     it('Navigate to game list page when timer runs out', fakeAsync(() => {
         component.gameDuration = 3;
-        tick(3001); // TODO : remove 'magic' number
+        tick(TIMEOUT); // TODO : remove 'magic' number
         // TODO : Change to game list page when it exists
         expect(router.url).toBe('/');
     }));

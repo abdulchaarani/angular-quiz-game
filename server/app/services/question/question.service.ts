@@ -106,6 +106,11 @@ export class QuestionService {
         return await this.questionModel.find({});
     }
 
+    //
+    async getQuestionByName(name: string): Promise<Question> {
+        return await this.questionModel.findOne({ question: name });
+    }
+
     async getAllMultipleChoiceQuestions(): Promise<Question[]> {
         return await this.questionModel.find({ type: 'QCM' });
     }
@@ -114,10 +119,13 @@ export class QuestionService {
         return await this.questionModel.findOne({ id: questionId });
     }
 
-    // TODO: validate question input
     async addQuestion(question: CreateQuestionDto): Promise<void> {
-        // TODO: Detect if "similar" question exists (especially for questionbank)
+        // TODO: Unit-test for when a question already exists
+        if (await this.getQuestionByName(question.question)) {
+            return Promise.reject('Question already exists in bank.');
+        }
         question.id = uuidv4();
+        question.lastModification = new Date();
         try {
             await this.questionModel.create(question);
         } catch (error) {
@@ -128,6 +136,7 @@ export class QuestionService {
     async updateQuestion(question: UpdateQuestionDto): Promise<void> {
         const filterQuery = { id: question.id };
         try {
+            question.lastModification = new Date();
             const res = await this.questionModel.updateOne(filterQuery, question);
             if (res.matchedCount === 0) {
                 return Promise.reject('Could not find question');

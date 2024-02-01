@@ -146,10 +146,17 @@ export class GameService {
         return await this.gameModel.findOne({ id: gameId });
     }
 
+    async getGameByTitle(gameTitle: string): Promise<Game> {
+        return await this.gameModel.findOne({ title: gameTitle });
+    }
+
     async addGame(newGame: CreateGameDto): Promise<void> {
-        // TODO: Check if game with same name exists
+        // TODO: Add unit test for when a game already exists.
+        if (await this.getGameByTitle(newGame.title)) {
+            return Promise.reject('Game with the same title already exists.');
+        }
         newGame.id = uuidv4();
-        newGame.isVisible = true;
+        newGame.isVisible = false;
         newGame.lastModification = new Date();
         try {
             if (this.validation.isValidGame(newGame)) {
@@ -162,23 +169,26 @@ export class GameService {
         }
     }
 
-    async updateGame(game: UpdateGameDto): Promise<void> {
+    async updateGame(game: UpdateGameDto, upsert: boolean): Promise<void> {
         // TODO: Update LastModification if not ToggleVisibility
         const filterQuery = { id: game.id };
-        // Can also use replaceOne if we want to replace the entire object
-        // TODO: When someone edited a deleted game, we need to create a new game.
         try {
             if (!this.validation.isValidGame(game)) {
                 return Promise.reject('Invalid game');
             }
-            game.lastModification = new Date();
-            game.isVisible = false;
-            const res = await this.gameModel.updateOne(filterQuery, game);
-            if (res.matchedCount === 0) {
-                try {
-                    this.addGame(game);
-                } catch (error) {
-                    return Promise.reject('Could not find game');
+            if (upsert) {
+                // PUT
+                game.isVisible = false;
+                game.lastModification = new Date();
+                const res = await this.gameModel.findOneAndUpdate(filterQuery, game, {
+                    new: true,
+                    upsert: true,
+                });
+            } else {
+                // PATCH
+                const res = await this.gameModel.updateOne(filterQuery, game);
+                if (res.matchedCount === 0) {
+                    return Promise.reject('Game not found');
                 }
             }
         } catch (error) {

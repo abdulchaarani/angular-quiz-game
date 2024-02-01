@@ -123,19 +123,18 @@ describe('GameService', () => {
         expect(stringifyPublicValues(returnedGame)).toEqual(stringifyPublicValues(game));
     });
 
-    // TODO: Replace this by the expected behavior when game is deleted while patching it: Create the new game
-    /*
     it('updateGame() should fail if the corresponding game does not exist in the database', async () => {
         const game = getFakeGame();
-        await expect(service.updateGame(game)).rejects.toBeTruthy();
+        await expect(service.updateGame(game, false)).rejects.toBeTruthy();
     });
-    */
 
     it('updateGame() should fail if Mongo query failed', async () => {
         jest.spyOn(gameModel, 'updateOne').mockRejectedValue('');
         const game = getFakeGame();
-        await expect(service.updateGame(game)).rejects.toBeTruthy();
+        await expect(service.updateGame(game, false)).rejects.toBeTruthy();
     });
+
+    // TODO: Unit tests with upsert(): updateGame(game, true)
 
     it('deleteGame() should delete the corresponding game', async () => {
         await gameModel.deleteMany({});
@@ -156,6 +155,7 @@ describe('GameService', () => {
         const game = getFakeGame();
         await expect(service.deleteGame(game.id)).rejects.toBeTruthy();
     });
+    // TODO: Add isVisible = false + id and date?
     it('addGame() should add the game to the database', async () => {
         jest.mock('uuid', () => ({ v4: () => '123456789' }));
         await gameModel.deleteMany({});

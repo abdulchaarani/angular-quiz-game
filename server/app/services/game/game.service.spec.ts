@@ -9,13 +9,14 @@ import { GameService } from './game.service';
 
 const DELAY_BEFORE_CLOSING_CONNECTION = 200;
 const BASE_36 = 36;
+const YEAR = 2024;
 const getRandomString = (): string => (Math.random() + 1).toString(BASE_36).substring(2);
 // TODO: Add a Mock for Questions?
 const getFakeGame = (): Game => ({
     id: getRandomString(),
     title: getRandomString(),
     description: getRandomString(),
-    lastModification: new Date(2024, 1, 1),
+    lastModification: new Date(YEAR, 1, 1),
     duration: 30,
     isVisible: true,
     questions: [
@@ -35,13 +36,13 @@ const getFakeGame = (): Game => ({
                     isCorrect: false,
                 },
             ],
-            lastModification: new Date(2024, 1, 1),
+            lastModification: new Date(YEAR, 1, 1),
         },
     ],
 });
 
 // TODO: Remove duplicate code (also seen in question.service.spec.ts)
-const stringifyPublicValues = (game: Game): String => {
+const stringifyPublicValues = (game: Game): string => {
     return JSON.stringify(game, (key, value) => {
         if (key !== '_id' && key !== '__v') return value;
     });

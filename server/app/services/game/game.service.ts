@@ -7,6 +7,8 @@ import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { GameValidationService } from '../game-validation/game-validation.service';
 
+const YEAR = 2024; // TODO: Document with all CONSTS
+
 @Injectable()
 export class GameService {
     constructor(
@@ -31,7 +33,7 @@ export class GameService {
                 description: 'HOOT HOOT',
                 duration: 60,
                 isVisible: true,
-                lastModification: new Date(2024, 1, 2),
+                lastModification: new Date(YEAR, 1, 1),
                 questions: [
                     {
                         id: '2',
@@ -57,7 +59,7 @@ export class GameService {
                                 isCorrect: false,
                             },
                         ],
-                        lastModification: new Date(2024, 1, 2),
+                        lastModification: new Date(YEAR, 1, 1),
                     },
                 ],
             },
@@ -67,7 +69,7 @@ export class GameService {
                 description: 'OOOOOH',
                 duration: 60,
                 isVisible: true,
-                lastModification: new Date(2024, 2, 1),
+                lastModification: new Date(YEAR, 1, 1),
                 questions: [
                     {
                         id: '1',
@@ -93,7 +95,7 @@ export class GameService {
                                 isCorrect: false,
                             },
                         ],
-                        lastModification: new Date(2024, 1, 1),
+                        lastModification: new Date(YEAR, 1, 1),
                     },
                 ],
             },
@@ -103,7 +105,7 @@ export class GameService {
                 description: 'WHO IS THAT POKEMON',
                 duration: 30,
                 isVisible: false,
-                lastModification: new Date(2023, 2, 2),
+                lastModification: new Date(YEAR, 1, 1),
                 questions: [
                     {
                         id: '123',
@@ -129,7 +131,7 @@ export class GameService {
                                 isCorrect: true,
                             },
                         ],
-                        lastModification: new Date(2023, 2, 3),
+                        lastModification: new Date(YEAR, 1, 1),
                     },
                 ],
             },

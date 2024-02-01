@@ -157,6 +157,7 @@ describe('GameService', () => {
         await expect(service.deleteGame(game.id)).rejects.toBeTruthy();
     });
     it('addGame() should add the game to the database', async () => {
+        jest.mock('uuid', () => ({ v4: () => '123456789' }));
         await gameModel.deleteMany({});
         const game = getFakeGame();
         await service.addGame({ ...game }); // TODO: See if it requires adjustements

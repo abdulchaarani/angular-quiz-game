@@ -4,6 +4,7 @@ import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { v4 as uuidv4 } from 'uuid';
 import { GameValidationService } from '../game-validation/game-validation.service';
 
 @Injectable()
@@ -149,9 +150,9 @@ export class GameService {
 
     async addGame(newGame: CreateGameDto): Promise<void> {
         // TODO: Generate ID + Update LastModification
-        // newGame.id = uuidv4();
+        newGame.id = uuidv4();
         newGame.isVisible = true;
-        // newGame.lastModification = new Date();
+        newGame.lastModification = new Date();
         try {
             if (this.validation.isValidGame(newGame)) {
                 await this.gameModel.create(newGame);

@@ -7,7 +7,7 @@ import { Connection, Model } from 'mongoose';
 import { QuestionService } from './question.service';
 
 // TODO: See if it's possible to fix repeated code (see questions.service.specs.ts)
-const DELAY_BEFORE_CLOSING_CONNECTION = 200;
+const DELAY_BEFORE_CLOSING_CONNECTION = 1000;
 const BASE_36 = 36;
 const getRandomString = (): string => (Math.random() + 1).toString(BASE_36).substring(2);
 

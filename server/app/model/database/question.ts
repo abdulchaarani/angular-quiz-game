@@ -13,7 +13,10 @@ export class Question {
     type: string;
 
     @Prop({ required: true })
-    text: string;
+    description: string;
+
+    @Prop({ required: true })
+    question: string;
 
     @Prop({ required: true })
     points: number;
@@ -21,8 +24,8 @@ export class Question {
     @Prop({ type: [choiceSchema], default: [], required: true })
     choices: Choice[];
 
-    @Prop({ required: true })
-    _id?: string;
+    @Prop({ required: false })
+    lastModification: Date;
 }
 
-export const courseSchema = SchemaFactory.createForClass(Question);
+export const questionSchema = SchemaFactory.createForClass(Question);

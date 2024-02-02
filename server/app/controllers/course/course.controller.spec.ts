@@ -19,10 +19,9 @@ describe('CourseController', () => {
     });
     */
     it('should be defined', () => {
-        // expect(controller).toBeDefined();
         expect(true).toBeTruthy();
+        // expect(controller).toBeDefined();
     });
-
     /*
     it('allCourses() should return all courses', async () => {
         const fakeCourses = [new Course(), new Course()];

@@ -2,15 +2,25 @@
     <mat-expansion-panel-header>
         <mat-panel-title> {{ question.description }} </mat-panel-title>
         <mat-panel-description>
-            <p *ngIf="isLastModifiedDateVisible">Dernière modification: {{ question.lastModification | date }}</p>
-            <button mat-icon-button color="primary" aria-label="Example icon button with a menu icon" appClickStopPropagation>
-                <mat-icon>create</mat-icon>
-            </button>
-            <button mat-icon-button color="warn" aria-label="Example icon button with a menu icon" appClickStopPropagation (click)="deleteQuestion()">
-                <mat-icon>delete</mat-icon>
-            </button>
             <p>{{ question.points }} points</p>
+            <p *ngIf="isLastModifiedDateVisible">Dernière modification: {{ question.lastModification | date }}</p>
+            <div class="buttons-container">
+                <button mat-icon-button color="primary" aria-label="Example icon button with a menu icon" appClickStopPropagation>
+                    <mat-icon>create</mat-icon>
+                </button>
+                <button
+                    mat-icon-button
+                    color="warn"
+                    aria-label="Example icon button with a menu icon"
+                    appClickStopPropagation
+                    (click)="deleteQuestion()"
+                >
+                    <mat-icon>delete</mat-icon>
+                </button>
+            </div>
         </mat-panel-description>
     </mat-expansion-panel-header>
     <p>{{ question.question }}</p>
+    <!-- TODO Integrate properly: *ngIf = editableMode, [property]="property" -->
+    <app-create-question *ngIf="isEditable"></app-create-question>
 </mat-expansion-panel>

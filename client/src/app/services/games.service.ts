@@ -1,45 +1,41 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Game } from '@app/interfaces/game';
 import { Observable } from 'rxjs';
-import { environment } from 'src/environments/environment';
+import { ApiService } from './api.service';
 
 @Injectable({
     providedIn: 'root',
 })
-export class GamesService {
-    private readonly baseUrl: string = `${environment.serverUrl}/admin/games`;
-    private contentJsonHeader = new HttpHeaders({
-        'Content-Type': 'application/json',
-    });
-
-    constructor(private http: HttpClient) {}
+export class GamesService extends ApiService<Game> {
+    constructor(http: HttpClient) {
+        super(http, 'admin/games');
+    }
 
     getGames(): Observable<Game[]> {
-        // TODO: Add pipes
-        return this.http.get<Game[]>(`${this.baseUrl}`);
+        return this.getAll();
     }
-
     getGameById(id: number): Observable<Game> {
-        return this.http.get<Game>(`${this.baseUrl}/${id}`);
+        return this.getById(id.toString());
     }
 
-    // TODO: Return type
-    toggleGameVisibility(id: number) {
-        return this.http.patch(`${this.baseUrl}/${id}`, {}).subscribe();
+    toggleGameVisibility(game: Game): Observable<HttpResponse<string>> {
+        game.isVisible = !game.isVisible;
+        return this.update(game, game.id.toString());
     }
 
-    uploadGame(gameStringified: string, isFromJsonUpload: boolean) {
-        if (isFromJsonUpload) {
-            this.http.post<Game>(`${this.baseUrl}/json`, gameStringified, { headers: this.contentJsonHeader }).subscribe();
-        }
-        // TODO: Adapt route when creating a game from scratch
+    deleteGame(id: number): Observable<HttpResponse<string>> {
+        return this.delete(id.toString());
+    }
+
+    uploadGame(newGame: Game) {
+        return this.add(newGame, 'json');
     }
 
     // Keep it in Front-end for now
     downloadGameAsJson(gameToStringify: Game): void {
         const stringifiedGame = JSON.stringify(gameToStringify, (key, value) => {
-            if (key !== 'isVisible') {
+            if (key !== 'isVisible' && key !== '_id' && key !== '__v') {
                 return value;
             }
         });
@@ -52,10 +48,5 @@ export class GamesService {
         downloadLink.click();
         window.URL.revokeObjectURL(url);
         downloadLink.remove();
-    }
-
-    // TODO: Return type
-    deleteGame(id: number) {
-        return this.http.delete(`${this.baseUrl}/${id}`).subscribe();
     }
 }

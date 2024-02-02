@@ -35,7 +35,7 @@ export class AdminQuestionBankComponent implements OnInit {
 
     addQuestion() {
         this.questionService.saveQuestion(this.questions[0]).subscribe((response: HttpResponse<string>) => {
-            this.response = response.statusText;
+            this.response = response?.statusText; // undefined 
         });
     }
 }

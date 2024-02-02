@@ -16,9 +16,7 @@ export class QuestionListItemComponent {
     response: string = '';
 
     constructor(private readonly questionService: QuestionService) {}
-
-    // At least one answer must be true, and another one false.
-
+    
     questions: Question[] = [];
 
     deleteQuestion() {
@@ -29,9 +27,10 @@ export class QuestionListItemComponent {
         this.questionService.saveQuestion(this.questions[0]).subscribe((response: HttpResponse<string>) => {
             this.response = response.statusText;
         });
+
     }
 
-    onPointsChanged(newPoints: number) {
+    onPointsChanged(newPoints: number) { // to update the pts, will probably remove since it's not used 
         this.questions[0].points = newPoints;
     }
 }

@@ -3,7 +3,8 @@ import { Question } from '@app/interfaces/question';
 import { FormControl, Validators, FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { QuestionService } from '@app/services/question.service';
-// import { HttpResponse } from '@angular/common/http';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+//import { HttpResponse } from '@angular/common/http';
 
 @Component({
     selector: 'app-create-question',
@@ -28,26 +29,31 @@ export class CreateQuestionComponent {
 
     // References: https://stackoverflow.com/questions/49782253/angular-reactive-form
 
+    // In the question: add lastmodified and lastadded
+
     constructor(
         private snackBar: MatSnackBar,
         private fb: FormBuilder,
         private questionService: QuestionService, // Solution for the choicesGroup was inspired from here:
-        // https://stackoverflow.com/questions/53362983/angular-reactiveforms-nested-formgroup-within-formarray-no-control-found?rq=3
-    ) {
+    ) // https://stackoverflow.com/questions/53362983/angular-reactiveforms-nested-formgroup-within-formarray-no-control-found?rq=3
+    {
         this.questionForm = this.fb.group({
             question: ['', Validators.required],
             description: ['', Validators.required],
-            points: [''], // add required later on
-            types: this.fb.array([{ type: 'QCM' }, { type: 'QRL' }]),
+            points: ['', Validators.required], 
+            types: ['QCM'],
+
             choices: this.fb.array(
                 [
                     this.fb.group({
                         choice: ['', Validators.required],
                         isCorrect: [true, Validators.required],
+                        number: ['', Validators.required],
                     }),
                     this.fb.group({
                         choice: ['', Validators.required],
                         isCorrect: [false, Validators.required],
+                        number: ['', Validators.required],
                     }),
                 ],
                 // { validators: [this.validateChoicesLength] }, // should pass a reference only
@@ -58,9 +64,11 @@ export class CreateQuestionComponent {
     buildChoices(): FormGroup {
         return this.fb.group({
             choice: ['', Validators.required],
-            isCorrect: [false],
+            isCorrect: [false, Validators.required],
+            number: ['', Validators.required],
         });
     }
+
     /*
     validateChoicesLength(control: AbstractControl): ValidationErrors | null {
         const choices = (control.get('choices') as FormArray)?.controls;
@@ -88,8 +96,10 @@ export class CreateQuestionComponent {
         console.log('length', choices.length);
 
         if (choices.length < this.maxChoices) {
-            // this.choices.push({ choice: [''], isCorrect: [false] });
             this.choices.push(this.buildChoices());
+        }else {
+            this.openSnackBar('4 choix est le maximum', this.snackBarDisplayTime);
+            return;
         }
     }
 
@@ -114,19 +124,22 @@ export class CreateQuestionComponent {
         }
     }
 
+    drop(event: CdkDragDrop<this>) {
+        //const choices = this.questionForm.get('choices') as FormArray;
+        moveItemInArray(this.questionForm.value['choices'], event.previousIndex, event.currentIndex);
+    }
+
     onSubmit() {
-        console.log('sumbitted', this.questionForm.value);
         if (this.questionForm.valid) {
             console.warn('Qst Submitted');
             // this.saveQuestion();
             // this.openSnackBar('Question saved', this.snackBarDisplayTime);
 
             const newQuestion: Question = this.questionForm.value;
-
             this.questionService.saveQuestion(newQuestion).subscribe(() => {
-                console.log(newQuestion);
+                console.log('sumbitted', newQuestion);
                 this.openSnackBar('Question Sauvergadée', this.snackBarDisplayTime);
-                this.resetForm();
+                //this.resetForm();
             });
             this.resetForm();
         }
@@ -138,15 +151,15 @@ export class CreateQuestionComponent {
 
     // https://angular.io/api/forms/FormControl
     resetForm() {
-        this.questionForm.reset({
-            questionFormControl: '',
-            description: '',
-            points: 0,
-            choices: [
-                { choice: '', isCorrect: true },
-                { choice: '', isCorrect: true },
-            ],
-        });
+        // this.questionForm.reset({
+        //     questionFormControl: '',
+        //     description: '',
+        //     points: 0,
+        //     choices: [
+        //         { choice: '', isCorrect: true },
+        //         { choice: '', isCorrect: true },
+        //     ],
+        // });
     }
 
     openSnackBar(message: string, duration: number = 0) {

@@ -19,8 +19,8 @@ export class HostPageComponent implements OnInit {
 
     ngOnInit(): void {
         this.gameService.getGames().subscribe((data: Game[]) => {
-            // this.games = data.filter((game) => game.isVisible);
-            this.games = [...data];
+            this.games = data.filter((game) => game.isVisible);
+            // this.games = [...data];
         });
     }
 

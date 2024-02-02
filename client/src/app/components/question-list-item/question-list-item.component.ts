@@ -8,6 +8,7 @@ import { Question } from '@app/interfaces/question';
 })
 export class QuestionListItemComponent {
     @Input() question: Question;
+    @Input() index: number;
     @Input() isLastModifiedDateVisible: boolean;
     @Input() isEditable: boolean;
     @Output() deleteQuestionEvent = new EventEmitter<string>();

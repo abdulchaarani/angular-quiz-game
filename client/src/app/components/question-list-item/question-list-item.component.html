@@ -1,6 +1,6 @@
 <mat-expansion-panel class="example-headers-align" *ngIf="question">
     <mat-expansion-panel-header>
-        <mat-panel-title> {{ question.description }} </mat-panel-title>
+        <mat-panel-title> {{ index }} {{ question.description }} </mat-panel-title>
         <mat-panel-description>
             <p>{{ question.points }} points</p>
             <p *ngIf="isLastModifiedDateVisible">Dernière modification: {{ question.lastModification | date }}</p>

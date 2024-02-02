@@ -1,5 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { Question } from '@app/interfaces/question';
+// import { QuestionService } from '@app/services/question.service';
+// import { HttpResponse } from '@angular/common/http';
 
 @Component({
     selector: 'app-question-list-item',
@@ -13,7 +15,20 @@ export class QuestionListItemComponent {
     @Input() isEditable: boolean;
     @Output() deleteQuestionEvent = new EventEmitter<string>();
 
+    response: string = '';
+
+    questions: Question[] = [];
+    // constructor(private readonly questionService: QuestionService) {}
+
     deleteQuestion() {
         this.deleteQuestionEvent.emit(this.question.id);
+    }
+
+    addQuestion() {
+        console.log('addQuestion');
+    }
+
+    onPointsChanged(newPoints: number) {
+        console.log(`Points changed: ${newPoints}`);
     }
 }

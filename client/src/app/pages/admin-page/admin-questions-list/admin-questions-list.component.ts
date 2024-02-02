@@ -4,7 +4,7 @@ import { Question } from '@app/interfaces/question';
 import { Game } from '@app/interfaces/game';
 import { QuestionService } from '@app/services/question.service';
 import { HttpResponse } from '@angular/common/http';
-// import { GamesCreationService } from '@app/services/games-creation.service';
+import { GamesCreationService } from '@app/services/games-creation.service';
 
 @Component({
     selector: 'app-admin-questions-list',
@@ -24,8 +24,10 @@ export class AdminQuestionsListComponent implements OnInit {
 
     response: string = '';
 
-    // private readonly gamesCreationService: GamesCreationService,
-    constructor(private readonly questionService: QuestionService) {}
+    constructor(
+        private readonly questionService: QuestionService,
+        private readonly gamesCreationService: GamesCreationService,
+    ) {}
 
     drop(event: CdkDragDrop<Question[]>) {
         moveItemInArray(this.game.questions, event.previousIndex, event.currentIndex);
@@ -59,6 +61,6 @@ export class AdminQuestionsListComponent implements OnInit {
     }
 
     saveGame() {
-        // this.gamesCreationService.sendModifiedGame(this.game);
+        this.gamesCreationService.sendModifiedGame(this.game);
     }
 }

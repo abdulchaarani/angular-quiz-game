@@ -13,4 +13,12 @@
         </mat-panel-description>
     </mat-expansion-panel-header>
     <p>{{ question.question }}</p>
+    
+    <app-create-question (pointsChanged)="onPointsChanged($event)"> </app-create-question>
 </mat-expansion-panel>
+
+<div class="add-button-container">
+    <button class="add-question-button" mat-raised-button color="basic" (click)="addQuestion()">
+        <mat-icon>add</mat-icon>
+    </button>
+</div>

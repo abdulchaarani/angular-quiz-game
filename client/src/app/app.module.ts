@@ -21,6 +21,7 @@ import { PlayerPageComponent } from './pages/player-page/player-page.component';
 import { QuestionAreaComponent } from './components/question-area/question-area.component';
 import { SortByLastModificationPipe } from './pipes/sort-by-last-modification.pipe';
 import { ClickStopPropagationDirective } from './directives/click-stop-propagation.directive';
+import { FormControlPipe } from './pipes/form-control.pipe';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -44,6 +45,7 @@ import { ClickStopPropagationDirective } from './directives/click-stop-propagati
         CreateQuestionComponent,
         SortByLastModificationPipe,
         ClickStopPropagationDirective,
+        FormControlPipe,
     ],
     imports: [
         AppMaterialModule,

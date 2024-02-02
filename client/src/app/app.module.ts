@@ -8,6 +8,8 @@ import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { AppMaterialModule } from '@app/modules/material.module';
 import { AppComponent } from '@app/pages/app/app.component';
 import { CreateQuestionComponent } from '@app/pages/create-question/create-question.component';
+import { ChatComponent } from './components/chat/chat.component';
+import { FeedbackComponent } from './components/feedback/feedback.component';
 import { DialogAdminPasswordComponent } from './components/dialog-admin-password/dialog-admin-password.component';
 import { GameListItemComponent } from './components/game-list-item/game-list-item.component';
 import { PlayAreaComponent } from './components/play-area/play-area.component';
@@ -21,6 +23,7 @@ import { AdminQuestionsListComponent } from './pages/admin-page/admin-questions-
 import { HomePageComponent } from './pages/home-page/home-page.component';
 import { HostPageComponent } from './pages/host-page/host-page.component';
 import { PlayerPageComponent } from './pages/player-page/player-page.component';
+import { TestPageComponent } from './pages/test-page/test-page.component';
 import { WaitPageComponent } from './pages/wait-page/wait-page.component';
 import { SortByLastModificationPipe } from './pipes/sort-by-last-modification.pipe';
 /**
@@ -46,6 +49,9 @@ import { SortByLastModificationPipe } from './pipes/sort-by-last-modification.pi
         CreateQuestionComponent,
         SortByLastModificationPipe,
         ClickStopPropagationDirective,
+        TestPageComponent,
+        ChatComponent,
+        FeedbackComponent,
         WaitPageComponent,
         DialogAdminPasswordComponent,
     ],

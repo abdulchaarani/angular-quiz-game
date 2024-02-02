@@ -7,6 +7,7 @@ import { AdminQuestionsListComponent } from '@app/pages/admin-page/admin-questio
 import { HomePageComponent } from '@app/pages/home-page/home-page.component';
 import { HostPageComponent } from '@app/pages/host-page/host-page.component';
 import { PlayerPageComponent } from '@app/pages/player-page/player-page.component';
+import { TestPageComponent } from '@app/pages/test-page/test-page.component';
 import { WaitPageComponent } from '@app/pages/wait-page/wait-page.component';
 
 const routes: Routes = [
@@ -17,9 +18,10 @@ const routes: Routes = [
     { path: 'admin/games/:id/questions', component: AdminQuestionsListComponent },
     { path: 'host', component: HostPageComponent },
     { path: 'player', component: PlayerPageComponent },
+    { path: 'play', component: TestPageComponent },
+    { path: '**', redirectTo: '/home' },
     { path: 'testing-room', component: QuestionAreaComponent },
     { path: 'waiting-room', component: WaitPageComponent },
-    // { path: '**', redirectTo: '/home' },
 ];
 
 @NgModule({

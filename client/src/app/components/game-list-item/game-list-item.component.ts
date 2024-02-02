@@ -10,7 +10,7 @@ import { GamesService } from '@app/services/games.service';
 export class GameListItemComponent {
     @Input() game: Game;
     @Input() isAdminMode: boolean;
-    @Output() deleteGameFromList: EventEmitter<number> = new EventEmitter<number>();
+    @Output() deleteGameFromList: EventEmitter<string> = new EventEmitter<string>();
 
     constructor(private gamesService: GamesService) {}
 

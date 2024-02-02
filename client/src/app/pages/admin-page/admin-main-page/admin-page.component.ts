@@ -1,7 +1,7 @@
+import { HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Game } from '@app/interfaces/game';
 import { GamesService } from '@app/services/games.service';
-import { HttpResponse } from '@angular/common/http';
 
 @Component({
     selector: 'app-admin-page',
@@ -22,7 +22,7 @@ export class AdminPageComponent implements OnInit {
         this.gamesService.getGames().subscribe((games: Game[]) => (this.games = [...games]));
     }
 
-    onDeleteGameFromList(gameToDeleteId: number) {
+    onDeleteGameFromList(gameToDeleteId: string) {
         this.gamesService.deleteGame(gameToDeleteId).subscribe((response: HttpResponse<string>) => {
             if (response.ok) this.games = this.games.filter((x) => x.id !== gameToDeleteId);
         });

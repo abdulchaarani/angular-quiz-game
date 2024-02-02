@@ -17,7 +17,7 @@ export class TestPageComponent implements OnInit {
 
     Games: Game[] = [
         {
-            id: 1,
+            id: '1',
             title: 'Questionnaire sur le JS',
             description: 'Questions de pratique sur le langage JavaScript',
             duration: 5,
@@ -75,17 +75,17 @@ export class TestPageComponent implements OnInit {
     currentQuestion: Question = this.currentGame.questions[0];
     currentQuestionIndex: number = 0;
     constructor(
-        // private gameService: GamesService,
+        private gameService: GamesService,
         private gameEventService: GameEventService, // private questionService: QuestionService,
     ) {
         this.currentQuestionIndex = 0;
     }
 
     ngOnInit(): void {
-        // this.gameService.getGameById(1).subscribe((data: Game) => {
-        //     this.currentGame = data;
-        //     console.log(this.currentGame.questions);
-        // });
+        this.gameService.getGameById('4addad76-0de7-4447-8f4f-ea7a018948a2').subscribe((data: Game) => {
+            this.currentGame = data;
+            console.log(this.currentGame.questions);
+        });
 
         console.log(this.currentGame);
         this.questions = this.currentGame.questions;

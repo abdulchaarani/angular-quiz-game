@@ -1,7 +1,7 @@
 import { Question } from './question';
 
 export interface Game {
-    id: number;
+    id: string;
     title: string;
     description: string;
     lastModification: string;

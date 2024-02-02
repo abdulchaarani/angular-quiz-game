@@ -16,10 +16,9 @@ export class GameListItemComponent {
     constructor(private gamesService: GamesService) {}
 
     toggleGameVisibility() {
-        this.gamesService.toggleGameVisibility(this.game.id).subscribe((response: HttpResponse<string>) => {
+        this.gamesService.toggleGameVisibility(this.game).subscribe((response: HttpResponse<string>) => {
             if (response.ok) this.game.isVisible = !this.game.isVisible;
         });
-        // Currently, the change can be triggered only once we refresh the page
     }
 
     downloadGameAsJson() {

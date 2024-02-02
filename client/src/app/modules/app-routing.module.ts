@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { QuestionAreaComponent } from '@app/components/question-area/question-area.component';
-import { AdminPageComponent } from '@app/pages/admin-page/admin-page.component';
+import { AdminPageComponent } from '@app/pages/admin-page/admin-main-page/admin-page.component';
 import { AdminQuestionBankComponent } from '@app/pages/admin-page/admin-question-bank/admin-question-bank.component';
 import { AdminQuestionsListComponent } from '@app/pages/admin-page/admin-questions-list/admin-questions-list.component';
 import { HomePageComponent } from '@app/pages/home-page/home-page.component';

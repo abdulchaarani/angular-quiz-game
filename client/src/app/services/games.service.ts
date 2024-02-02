@@ -19,8 +19,8 @@ export class GamesService extends ApiService<Game> {
         return this.getById(id.toString());
     }
 
-    toggleGameVisibility(id: number): Observable<HttpResponse<string>> {
-        return this.update(id.toString());
+    toggleGameVisibility(game: Game): Observable<HttpResponse<string>> {
+        return this.update(game, game.id.toString());
     }
 
     deleteGame(id: number): Observable<HttpResponse<string>> {

@@ -22,5 +22,5 @@
     </mat-expansion-panel-header>
     <p>{{ question.question }}</p>
     <!-- TODO Integrate properly: *ngIf = editableMode, [property]="property" -->
-    <app-create-question></app-create-question>
+    <app-create-question *ngIf="isEditable"></app-create-question>
 </mat-expansion-panel>

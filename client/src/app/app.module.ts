@@ -15,7 +15,7 @@ import { QuestionAreaComponent } from './components/question-area/question-area.
 import { QuestionListItemComponent } from './components/question-list-item/question-list-item.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { ClickStopPropagationDirective } from './directives/click-stop-propagation.directive';
-import { AdminPageComponent } from './pages/admin-page/admin-page.component';
+import { AdminPageComponent } from './pages/admin-page/admin-main-page/admin-page.component';
 import { AdminQuestionBankComponent } from './pages/admin-page/admin-question-bank/admin-question-bank.component';
 import { AdminQuestionsListComponent } from './pages/admin-page/admin-questions-list/admin-questions-list.component';
 import { HomePageComponent } from './pages/home-page/home-page.component';

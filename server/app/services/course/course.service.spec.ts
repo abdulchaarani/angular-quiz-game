@@ -67,7 +67,7 @@ describe('CourseService', () => {
     });
 });
 
-const DELAY_BEFORE_CLOSING_CONNECTION = 200;
+const DELAY_BEFORE_CLOSING_CONNECTION = 1000;
 
 describe('CourseServiceEndToEnd', () => {
     let service: CourseService;

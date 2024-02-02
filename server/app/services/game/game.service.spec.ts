@@ -7,7 +7,7 @@ import { Connection, Model } from 'mongoose';
 import { GameValidationService } from '../game-validation/game-validation.service';
 import { GameService } from './game.service';
 
-const DELAY_BEFORE_CLOSING_CONNECTION = 200;
+const DELAY_BEFORE_CLOSING_CONNECTION = 1000;
 const BASE_36 = 36;
 const YEAR = 2024;
 const getRandomString = (): string => (Math.random() + 1).toString(BASE_36).substring(2);

@@ -50,10 +50,10 @@ export class AdminQuestionBankComponent implements OnInit {
         });
     }
 
-    addQuestion() {
-        this.questionService.createQuestion(this.newQuestion).subscribe({
+    addQuestion(newQuestion: Question = this.newQuestion) {
+        this.questionService.createQuestion(newQuestion).subscribe({
             next: () => {
-                this.questions.unshift(this.newQuestion);
+                this.questions.unshift(newQuestion);
                 this.notificationService.displaySuccessMessage('Question ajoutée avec succès! 😺');
             },
             error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`Failed to delete question 😿 \n ${error.message}`),

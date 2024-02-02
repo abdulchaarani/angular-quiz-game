@@ -42,7 +42,7 @@ describe('AdminQuestionBankComponent', () => {
     };
 
     beforeEach(() => {
-        questionServiceSpy = jasmine.createSpyObj('QuestionService', ['getAllQuestions', 'deleteQuestion', 'saveQuestion']);
+        questionServiceSpy = jasmine.createSpyObj('QuestionService', ['getAllQuestions', 'deleteQuestion', 'createQuestion']);
         questionServiceSpy.getAllQuestions.and.returnValue(of(mockQuestions));
         questionServiceSpy.deleteQuestion.and.returnValue(of(mockHttpResponse));
         questionServiceSpy.createQuestion.and.returnValue(of(mockHttpResponse));

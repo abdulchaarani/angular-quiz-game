@@ -5,7 +5,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
-import { GameValidationService } from '../game-validation/game-validation.service';
+import { GameValidationService } from '@app/services/game-validation/game-validation.service';
 
 const YEAR = 2024; // TODO: Document with all CONSTS
 
@@ -145,7 +145,12 @@ export class GameService {
     }
 
     async getGameById(gameId: string): Promise<Game> {
-        return await this.gameModel.findOne({ id: gameId });
+        const game = await this.gameModel.findOne({ id: gameId });
+        if (!game) {
+            return Promise.reject(`Le jeu avec le id: ${gameId} n'existe pas`);
+        } else {
+            return game;
+        }
     }
 
     async getGameByTitle(gameTitle: string): Promise<Game> {

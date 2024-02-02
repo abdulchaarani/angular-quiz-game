@@ -19,6 +19,10 @@ export class QuestionService extends ApiService<Question> {
         return this.add(question);
     }
 
+    // onQuestionAdded(): Observable<Question> {
+    //     return this.addQuestionSubject.asObservable();
+    // }
+
     deleteQuestion(questionId: string): Observable<HttpResponse<string>> {
         return this.delete(questionId);
     }

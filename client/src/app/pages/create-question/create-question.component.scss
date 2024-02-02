@@ -11,7 +11,7 @@
     margin-bottom: 20px;
 }
 
-.example-full-width {
+.full-width {
     margin-top: 5%;
     margin-left: 5%;
     width: 80%;
@@ -87,15 +87,27 @@
 
 .points-box-container {
     position: absolute;
-    top: 25%;
+    top: 30%;
+    height: 10%;
+    width: 10%;
+    margin-left: 70%;
+
+}
+
+.question-type {
+    position: absolute;
+    top: 15%;
     border-left: 2px #333;
-    margin-left: 73%;
+    margin-left: 70%;
+    margin-top: 0%;
+    height: 10%;
+    width: 10%;
 }
 
 .checkbox-container{
     width:10px;
-
 }
+
 .timer-container {
     position: absolute;
     top: 15%;
@@ -103,40 +115,40 @@
     margin-left: 73%;
 }
 
-.question-type {
-    position: absolute;
-    top: 5%;
-    border-left: 2px #333;
-    margin-left: 73%;
-    margin-top: 0%;
-    height: 10%;
-    width: 10%;
-}
 
 .question-border {
     margin-left: 15%;
-    height: 150%;
+    //height: 100%;
+    height:500px;
     width: 70%;
     background-color: #f5f4f4;
 }
 
 .add-button-container {
     position: absolute;
-    top: 95%;
+    top: 90%;
     left: 75%;
+
 }
 
 .add-button {
-    width: 150px;
-    height: 50px; 
+    width: 80px;
+    height: 30px; 
     font-size: 18px;
+    margin-bottom: 10px;
 }
 
-.submit-button {
-    bottom: 55%;
-    left: 90%;
+.submit-button-row{
+    bottom: 60%;
+    left: 83.3%;
     font-size: 18px;
     padding: 10px 20px;
+
+}
+.submit-button {
+    width: 100px;
+    height: 30px; 
+    font-size: 18px;
 }
 
 .duplicate-button {
@@ -146,10 +158,21 @@
     padding: 10px 20px;
 }
 
-.delete-button{
-    height:20px;
+.choicesNb{
+    text-align: center;
     position: relative;
+    width: 30px;
+    left:1%;
+    height: 40px; 
+    //padding: 10px; 
+    box-sizing: border-box; 
+    border-radius: 5px;
 }
+
+// .delete-button{
+//     height:20px;
+//     position: relative;
+// }
 
 // .choice {
 //     display:flex;

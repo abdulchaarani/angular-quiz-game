@@ -17,6 +17,7 @@ export class AdminQuestionBankComponent implements OnInit {
 
     response: string = '';
 
+
     constructor(private readonly questionService: QuestionService) {}
 
     drop(event: CdkDragDrop<Question[]>) {
@@ -38,4 +39,6 @@ export class AdminQuestionBankComponent implements OnInit {
             this.response = response.statusText;
         });
     }
+
+
 }

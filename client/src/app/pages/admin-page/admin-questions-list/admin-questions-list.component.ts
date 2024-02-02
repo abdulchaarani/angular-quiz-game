@@ -2,7 +2,7 @@ import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Component } from '@angular/core';
 import { Question } from '@app/interfaces/question';
 import { QuestionService } from '@app/services/question.service';
-//import { QuestionListItemComponent } from '@app/components/question-list-item/question-list-item.component';
+// import { QuestionListItemComponent } from '@app/components/question-list-item/question-list-item.component';
 
 // import { CreateQuestionComponent } from '@app/pages/create-question/create-question.component';
 
@@ -12,14 +12,12 @@ import { QuestionService } from '@app/services/question.service';
     styleUrls: ['./admin-questions-list.component.scss'],
 })
 export class AdminQuestionsListComponent {
-
-
     response: string = '';
 
     constructor(private readonly questionService: QuestionService) {
         this.questionService.onQuestionAdded().subscribe((newQuestion: Question) => {
             this.questions.push(newQuestion);
-            console.log("newquestion",newQuestion);
+            console.log('newquestion', newQuestion);
         });
     }
 
@@ -44,15 +42,9 @@ export class AdminQuestionsListComponent {
             points: 15,
             lastModification: '2019-01-27T10:11:33+00:00',
         },
-
     ];
-
-
-
 
     drop(event: CdkDragDrop<Question[]>) {
         moveItemInArray(this.questions, event.previousIndex, event.currentIndex);
     }
-
-    
 }

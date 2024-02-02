@@ -1,10 +1,9 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { Question } from '@app/interfaces/question';
-import { FormControl, Validators, FormBuilder, FormGroup, FormArray} from '@angular/forms';
+import { FormControl, Validators, FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { QuestionService } from '@app/services/question.service';
 // import { HttpResponse } from '@angular/common/http';
-
 
 @Component({
     selector: 'app-create-question',
@@ -14,15 +13,13 @@ import { QuestionService } from '@app/services/question.service';
 export class CreateQuestionComponent {
     questionFormControl = new FormControl('', [Validators.required]);
     questionForm: FormGroup;
-    @Output() pointsChanged: EventEmitter<number> = new EventEmitter<number>(); 
-
+    @Output() pointsChanged: EventEmitter<number> = new EventEmitter<number>();
 
     // Reference for forms: https://stackblitz.com/edit/angular-nested-formarray-dynamic-forms?file=src%2Fapp%2Fapp.component.html
 
     // references for above code: https://stackoverflow.com/questions/67834802/template-error-type-abstractcontrol-is-not-assignable-to-type-formcontrol
 
-    ngOnInit(): void {
-    }
+    ngOnInit(): void {}
 
     response: string = '';
     private readonly snackBarDisplayTime = 2000;
@@ -34,11 +31,9 @@ export class CreateQuestionComponent {
     constructor(
         private snackBar: MatSnackBar,
         private fb: FormBuilder,
-        private questionService: QuestionService,
-    ) // Solution for the choicesGroup was inspired from here:
-    // https://stackoverflow.com/questions/53362983/angular-reactiveforms-nested-formgroup-within-formarray-no-control-found?rq=3
-
-    {
+        private questionService: QuestionService, // Solution for the choicesGroup was inspired from here:
+        // https://stackoverflow.com/questions/53362983/angular-reactiveforms-nested-formgroup-within-formarray-no-control-found?rq=3
+    ) {
         this.questionForm = this.fb.group({
             question: ['', Validators.required],
             description: ['', Validators.required],
@@ -55,7 +50,7 @@ export class CreateQuestionComponent {
                         isCorrect: [false, Validators.required],
                     }),
                 ],
-                //{ validators: [this.validateChoicesLength] }, // should pass a reference only
+                // { validators: [this.validateChoicesLength] }, // should pass a reference only
             ),
         });
     }
@@ -93,7 +88,7 @@ export class CreateQuestionComponent {
         console.log('length', choices.length);
 
         if (choices.length < this.maxChoices) {
-            //this.choices.push({ choice: [''], isCorrect: [false] });
+            // this.choices.push({ choice: [''], isCorrect: [false] });
             this.choices.push(this.buildChoices());
         }
     }
@@ -124,21 +119,18 @@ export class CreateQuestionComponent {
         if (this.questionForm.valid) {
             console.warn('Qst Submitted');
             // this.saveQuestion();
-            //this.openSnackBar('Question saved', this.snackBarDisplayTime);
+            // this.openSnackBar('Question saved', this.snackBarDisplayTime);
 
             const newQuestion: Question = this.questionForm.value;
 
-            this.questionService.saveQuestion(newQuestion).subscribe(
-                () => {
-                    console.log(newQuestion);
-                    this.openSnackBar('Question Sauvergadée', this.snackBarDisplayTime);
-                    this.resetForm();
-                }
-            )
+            this.questionService.saveQuestion(newQuestion).subscribe(() => {
+                console.log(newQuestion);
+                this.openSnackBar('Question Sauvergadée', this.snackBarDisplayTime);
+                this.resetForm();
+            });
             this.resetForm();
         }
     }
-
 
     getControls() {
         return (this.questionForm.get('controlName') as FormArray).controls;

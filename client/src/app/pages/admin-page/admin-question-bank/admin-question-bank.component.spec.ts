@@ -6,11 +6,13 @@ import { Question } from '@app/interfaces/question';
 import { of } from 'rxjs';
 import { SortByLastModificationPipe } from '@app/pipes/sort-by-last-modification.pipe';
 import { HttpResponse } from '@angular/common/http';
+import { NotificationService } from '@app/services/notification.service';
 
 describe('AdminQuestionBankComponent', () => {
     let component: AdminQuestionBankComponent;
     let fixture: ComponentFixture<AdminQuestionBankComponent>;
     let questionServiceSpy: jasmine.SpyObj<QuestionService>;
+    let notificationServiceSpy: jasmine.SpyObj<NotificationService>;
 
     const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK' });
     const mockQuestions: Question[] = [
@@ -43,13 +45,17 @@ describe('AdminQuestionBankComponent', () => {
 
     beforeEach(() => {
         questionServiceSpy = jasmine.createSpyObj('QuestionService', ['getAllQuestions', 'deleteQuestion', 'createQuestion']);
+        notificationServiceSpy = jasmine.createSpyObj('NotificationService', ['displayErrorMessage', 'displaySuccessMessage']);
         questionServiceSpy.getAllQuestions.and.returnValue(of(mockQuestions));
         questionServiceSpy.deleteQuestion.and.returnValue(of(mockHttpResponse));
         questionServiceSpy.createQuestion.and.returnValue(of(mockHttpResponse));
 
         TestBed.configureTestingModule({
             declarations: [AdminQuestionBankComponent, SortByLastModificationPipe],
-            providers: [{ provide: QuestionService, useValue: questionServiceSpy }],
+            providers: [
+                { provide: QuestionService, useValue: questionServiceSpy },
+                { provide: NotificationService, useValue: notificationServiceSpy },
+            ],
         });
         fixture = TestBed.createComponent(AdminQuestionBankComponent);
         component = fixture.componentInstance;

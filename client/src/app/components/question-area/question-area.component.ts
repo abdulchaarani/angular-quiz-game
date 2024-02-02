@@ -1,10 +1,11 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, HostListener, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Choice } from '@app/interfaces/choice';
 import { Question } from '@app/interfaces/question';
 import { GameEventService } from '@app/services/game-event.service';
 import { TimeService } from '@app/services/time.service';
 import { ChatComponent } from '../chat/chat.component';
+
 @Component({
     selector: 'app-question-area',
     templateUrl: './question-area.component.html',
@@ -19,6 +20,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     isSelectionEnabled: boolean = true;
     showFeedback: boolean = false;
     isCorrect: boolean = false;
+    playerScore: number = 0;
 
     private readonly multiplicationFactor = 100;
 
@@ -37,9 +39,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
 
         this.timeService.timerFinished$.subscribe((timerFinished) => {
             if (timerFinished) {
-                // this.router.navigate(['/home']); // TODO : navigate to gamelist page
                 this.checkAnswers();
-                this.showFeedback = true;
             }
         });
     }
@@ -70,6 +70,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
                 break;
             }
         }
+        this.showFeedback = true;
     }
 
     submitAnswers(): void {
@@ -77,22 +78,19 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         this.timeService.timerFinished$.subscribe((timerFinished) => {
             if (timerFinished) {
                 this.checkAnswers();
-                this.showFeedback = true;
             }
         });
     }
     // abandon(): void {}
 
     selectChoice(choice: Choice): void {
-        this.timeService.timerFinished$.subscribe((timerFinished) => {
-            if (!timerFinished && this.isSelectionEnabled) {
-                if (!this.selectedAnswers.includes(choice)) {
-                    this.selectedAnswers.push(choice);
-                } else {
-                    this.selectedAnswers = this.selectedAnswers.filter((answer) => answer !== choice);
-                }
+        if (this.isSelectionEnabled) {
+            if (!this.selectedAnswers.includes(choice)) {
+                this.selectedAnswers.push(choice);
+            } else {
+                this.selectedAnswers = this.selectedAnswers.filter((answer) => answer !== choice);
             }
-        });
+        }
     }
 
     isSelected(choice: Choice): boolean {
@@ -112,6 +110,43 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     exitGame(): void {}
 
     onNextButtonClick(): void {
+        if (this.isCorrect) {
+            this.playerScore += this.currentQuestion.points;
+        }
+        this.resetStateForNewQuestion();
         this.gameEventService.advanceQuestion();
+        this.timeService.stopTimer();
+        this.timeService.startTimer(this.gameDuration);
+    }
+
+    resetStateForNewQuestion(): void {
+        this.isSelectionEnabled = true;
+        this.selectedAnswers = [];
+        this.isCorrect = false;
+        this.showFeedback = false;
+    }
+
+    @HostListener('document:keydown', ['$event'])
+    handleKeyboardEvent(event: KeyboardEvent) {
+        if (event.key === 'Enter' && this.isSelectionEnabled) {
+            this.submitAnswers();
+        } else {
+            const numKey = parseInt(event.key);
+            if (numKey >= 1 && numKey <= (this.currentQuestion.choices?.length || 0)) {
+                this.toggleChoice(numKey - 1);
+            }
+        }
+    }
+
+    toggleChoice(index: number): void {
+        if (!this.isSelectionEnabled) return;
+        if (!this.currentQuestion || !this.currentQuestion.choices) return;
+
+        const choice = this.currentQuestion.choices[index];
+        if (this.selectedAnswers.includes(choice)) {
+            this.selectedAnswers = this.selectedAnswers.filter((c) => c !== choice);
+        } else {
+            this.selectedAnswers.push(choice);
+        }
     }
 }

@@ -4,7 +4,7 @@ export interface Game {
     id: number;
     title: string;
     description: string;
-    lastModification: Date;
+    lastModification: string;
     duration: number;
     isVisible: boolean;
     questions: Question[];

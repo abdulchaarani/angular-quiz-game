@@ -44,5 +44,6 @@ export class TimeService {
     stopTimer() {
         clearInterval(this.interval);
         this.interval = undefined;
+        this.timerFinished.next(false);
     }
 }

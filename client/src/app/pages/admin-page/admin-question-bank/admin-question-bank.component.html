@@ -34,6 +34,7 @@
                     *ngFor="let question of questions | sortByLastModification: 'ascending'"
                     [question]="question"
                     [isLastModifiedDateVisible]="true"
+                    [isEditable]="false"
                     (deleteQuestionEvent)="deleteQuestion($event)"
                 >
                 </app-question-list-item>

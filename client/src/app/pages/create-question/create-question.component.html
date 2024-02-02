@@ -1,7 +1,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-<your-integrity-hash>" />
 
 <div class="question-border">
-    <form [formGroup]="questionForm" #questionSubmitted="ngForm" class="question-form" (ngSubmit)="submitForm(questionSubmitted)">
+    <form [formGroup]="questionForm" class="question-form" (ngSubmit)="onSubmit()">
         <mat-form-field class="full-width">
             <mat-label class="question-label">Question</mat-label>
             <input class="questionInput" matInput formControlName="question" placeholder="Entrez la question" />
@@ -13,10 +13,6 @@
 
         <textarea class="description-input" formControlName="description"></textarea>
 
-        <span class="submit-button-row">
-            <button mat-raised-button color="primary" class="submit-button" [disabled]="!questionForm.valid">Submit</button>
-        </span>
-
         <span class="points-box-container">
             <mat-form-field>
                 <mat-label class="points-box">Points</mat-label>
@@ -25,37 +21,46 @@
                 </mat-select>
             </mat-form-field>
         </span>
+        <!--formControlName="choice" 
+        formControlName="isCorrect"  -->
 
-        <div id="choices" formArrayName="choices">
-            <div class="choice" *ngFor="let choice of choices.controls; let i = index" [formGroupName]="i">
-                <div class="input-container">
-                    <input class="choicesInput" formControlName="choice" />
+        <span class="submit-button-row">
+            <button mat-raised-button color="primary" type = "submit" class="submit-button" [disabled]="!questionForm.valid">Submit</button>
+        </span>
 
-                    <input type="checkbox" formControlName="isCorrect" />
+        <div formArrayName="choices" class="choice" *ngFor="let choice of choices.controls; let i = index">
+            <div class="input-container" [formGroupName]= "i">
+                <input class="choicesInput" formControlName ="choice" />
+                <input type="checkbox" formControlName="isCorrect" />
+                <button  mat-raised-button color="primary" type = "button" class="delete-button" (click)="removeChoice(i)">
+                    <i class="fas fa-trash"></i>
+                </button>
 
-                    <button class="delete-button" (click)="removeChoice(i)">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
             </div>
         </div>
 
         <span class="question-type">
             <mat-form-field>
-              <mat-label>Type de Question</mat-label>
-              <mat-select formArrayName="types">
-                <mat-option *ngFor="let type of questionForm.get('types')?.value" [value]="type.type">{{ type.type}}</mat-option>
-              </mat-select>
+                <mat-label>Type de Question</mat-label>
+                <mat-select formArrayName="types">
+                    <mat-option *ngFor="let type of questionForm.get('types')?.value" [value]="type">{{ type }}</mat-option>
+                </mat-select>
             </mat-form-field>
-          </span>
+        </span>
 
         <span class="add-button-container">
             <button mat-raised-button color="primary" class="add-button" type="button" (click)="addChoice()">Ajouter Choix</button>
         </span>
+
     </form>
 </div>
 
 <!-- 
+    formGroupName="choicesGroup"
+
+                        *ngIf="$any(questionForm)?.choices?.controls"
+                    [formControl]="$any(questionForm).choices.controls[i].get('isCorrect')"
+
 <span class="duplicate-button-row">
     <button mat-raised-button color="primary" class="duplicate-button">Duplicate</button>
 </span>

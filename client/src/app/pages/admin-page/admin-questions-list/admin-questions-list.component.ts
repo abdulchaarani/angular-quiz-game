@@ -13,7 +13,7 @@ import { GamesCreationService } from '@app/services/games-creation.service';
 })
 export class AdminQuestionsListComponent implements OnInit {
     game: Game = {
-        id: 1,
+        id: '1',
         title: 'Test',
         description: 'Test',
         lastModification: '2024-02-02T01:20:39.439+00:00',

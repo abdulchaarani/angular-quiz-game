@@ -29,7 +29,7 @@ export class GamesService extends ApiService<Game> {
     }
 
     uploadGame(newGame: Game) {
-        return this.add(newGame, 'json');
+        return this.add(newGame, '');
     }
 
     // Keep it in Front-end for now

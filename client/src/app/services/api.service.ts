@@ -26,7 +26,7 @@ export class ApiService<T> {
     protected getAll(endpoint: string = ''): Observable<T[]> {
         return this.http.get<T[]>(`${this.serverUrl}/${this.baseUrl}/${endpoint}`).pipe(catchError(this.handleError<T[]>('getAll')));
     }
-
+    // get (avec bool all)
     protected getById(id: string, endpoint: string = '') {
         return this.http.get<T>(`${this.serverUrl}/${this.baseUrl}/${endpoint}/${id}`).pipe(catchError(this.handleError<T>('getById')));
     }
@@ -49,7 +49,7 @@ export class ApiService<T> {
             .pipe(catchError(this.handleError<HttpResponse<string>>('update')));
     }
 
-    // UNTESTED
+    // put
     protected replace(payload: T, endpoint: string): Observable<HttpResponse<string>> {
         return this.http
             .put(`${this.serverUrl}/${this.baseUrl}/${endpoint}`, payload, this.httpOptions)

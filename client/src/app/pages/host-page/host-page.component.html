@@ -7,7 +7,7 @@
                 *cdkVirtualFor="let game of games"
                 [game]="game"
                 [isAdminMode]="false"
-                (click)="selectGame(game)"
+                (click)="loadSelectedGame(game)"
             ></app-game-list-item>
         </cdk-virtual-scroll-viewport>
     </div>

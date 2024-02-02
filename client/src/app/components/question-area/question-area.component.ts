@@ -35,6 +35,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     }
 
     ngOnInit(): void {
+        this.timeService.stopTimer();
         this.timeService.startTimer(this.gameDuration);
 
         this.timeService.timerFinished$.subscribe((timerFinished) => {

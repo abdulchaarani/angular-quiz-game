@@ -1,8 +1,8 @@
 import { Component, EventEmitter, Output } from '@angular/core';
-// import { Question } from '@app/interfaces/question';
+import { Question } from '@app/interfaces/question';
 import { FormControl, Validators, FormBuilder, FormGroup, FormArray} from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-// import { QuestionService } from '@app/services/question.service';
+import { QuestionService } from '@app/services/question.service';
 // import { HttpResponse } from '@angular/common/http';
 
 
@@ -34,6 +34,7 @@ export class CreateQuestionComponent {
     constructor(
         private snackBar: MatSnackBar,
         private fb: FormBuilder,
+        private questionService: QuestionService,
     ) // Solution for the choicesGroup was inspired from here:
     // https://stackoverflow.com/questions/53362983/angular-reactiveforms-nested-formgroup-within-formarray-no-control-found?rq=3
 
@@ -124,6 +125,16 @@ export class CreateQuestionComponent {
             console.warn('Qst Submitted');
             // this.saveQuestion();
             //this.openSnackBar('Question saved', this.snackBarDisplayTime);
+
+            const newQuestion: Question = this.questionForm.value;
+
+            this.questionService.saveQuestion(newQuestion).subscribe(
+                () => {
+                    console.log(newQuestion);
+                    this.openSnackBar('Question Sauvergadée', this.snackBarDisplayTime);
+                    this.resetForm();
+                }
+            )
             this.resetForm();
         }
     }

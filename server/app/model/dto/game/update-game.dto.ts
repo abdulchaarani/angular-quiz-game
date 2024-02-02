@@ -4,8 +4,8 @@ import { IsNumber, IsString } from 'class-validator';
 
 export class UpdateGameDto {
     @ApiProperty()
-    @IsNumber()
-    id: number;
+    @IsString()
+    id: string;
 
     @ApiProperty()
     @IsString()

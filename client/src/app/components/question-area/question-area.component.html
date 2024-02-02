@@ -1,54 +1,56 @@
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-<div class="question-area">
-    <div id="chat-exit">
-        <i id="chat-icon" class="far fa-comment-alt fa-2x" style="color: rgb(81, 81, 81)"></i>
-        <button id="exitButton">EXIT</button>
-    </div>
-    <div id="upper-question-area">
-        <div id="question-timer-area">
-            <div id="points-area">
-                <h1 id="points">
-                    <!-- {{ currentGame.questions[currentQuestionIndex].points}} -->
-                    XX points
-                </h1>
+<div *ngIf="!showFeedback">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <div class="question-area" *ngIf="currentQuestion">
+        <div id="chat-exit">
+            <div id="chat-area">
+                <i id="chat-icon" class="far fa-comment-alt fa-2x" style="color: rgb(81, 81, 81)" (click)="openChatDialog()"></i>
             </div>
-            <h1 id="question">
-                <!-- {{ currentGame.questions[currentQuestionIndex].question }} -->
-                question
-            </h1>
-            <div id="timer-area">
-                <div class="circle">
-                    <div id="timer-container">
+            <button id="exitButton" routerLink="/host">QUITTER</button>
+        </div>
+        <div id="upper-question-area">
+            <div id="question-timer-area">
+                <div id="points-area">
+                    <h1 id="points">{{ currentQuestion.points }} points</h1>
+                </div>
+                <h1 id="question">
+                    {{ this.currentQuestion!.question }}
+                </h1>
+                <div id="timer-area">
+                    <div class="circle">
                         <div id="timer">
-                            <mat-progress-spinner [value]="computeTimerProgress()" mode="determinate"></mat-progress-spinner>
-                            {{ time }}
+                            <mat-progress-spinner [value]="computeTimerProgress()" mode="determinate" diameter="90"> </mat-progress-spinner>
+                            <h2 id="time-left">
+                                {{ time }}
+                            </h2>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div id="lower-question-area">
-        <div id="choice-area">
-            <button class="answer">
-                <!-- *ngFor="let choice of currentGame.questions[currentQuestionIndex].choices" class="custom-button" (click)="checkAnswers()" -->
-                <!-- <span class="choice"> -->
-                <!-- {{ choice }} -->
-                hi
-                <!-- </span> -->
-            </button>
-            <button class="answer">hi</button>
-            <button class="answer">hi</button>
-            <button class="answer">hi</button>
-        </div>
-        <div id="submit-score-area">
-            <div id="score-area">
-                <h1 id="score">
-                    <!-- {{ playerScore}} -->
-                    XX score
-                </h1>
+        <div id="lower-question-area">
+            <div id="choice-area">
+                <button
+                    *ngFor="let choice of currentQuestion.choices; let i = index"
+                    class="answer"
+                    [class.selected]="isSelected(choice)"
+                    (click)="selectChoice(choice)"
+                >
+                    {{ i + 1 }}. {{ choice.choice }}
+                </button>
             </div>
-            <button id="submitButton">SUBMIT</button>
+            <div id="submit-score-area">
+                <div id="score-area">
+                    <h1 id="score">
+                        SCORE :
+                        {{ playerScore }}
+                    </h1>
+                </div>
+                <button id="submitButton" *ngIf="isSelectionEnabled" (click)="submitAnswers()">SOUMETTRE</button>
+            </div>
         </div>
     </div>
+</div>
+<div *ngIf="showFeedback">
+    <app-feedback id="feedback" *ngIf="showFeedback" [isCorrect]="isCorrect"></app-feedback>
+    <button mat-raised-button *ngIf="showFeedback" id="nextButton" (click)="onNextButtonClick()">SUIVANT</button>
 </div>

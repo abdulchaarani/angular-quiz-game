@@ -10,7 +10,9 @@ import { HttpResponse } from '@angular/common/http';
 })
 export class QuestionListItemComponent {
     @Input() question: Question;
+    @Input() index: number;
     @Input() isLastModifiedDateVisible: boolean;
+    @Input() isEditable: boolean;
     @Output() deleteQuestionEvent = new EventEmitter<string>();
 
     response: string = '';

@@ -1,0 +1,13 @@
+<body>
+    <div [id]="isCorrect ? 'right-answer' : 'wrong-answer'">
+        <div class="circle" [ngClass]="{ 'right-answer-circle': isCorrect, 'wrong-answer-circle': !isCorrect }">
+            <mat-icon id="icon">{{ isCorrect ? 'check' : 'clear' }}</mat-icon>
+        </div>
+        <h1>{{ isCorrect ? 'Bonne réponse!' : 'Mauvaise réponse' }}</h1>
+    </div>
+    <!-- <h1 id="score">
+        xx points
+         {{score}} points
+    </h1> -->
+    <!-- <button mat-raised-button>Suivant</button> -->
+</body>

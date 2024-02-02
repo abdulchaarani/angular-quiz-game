@@ -70,4 +70,11 @@ describe('TimeService', () => {
         expect(service['interval']).toBeFalsy();
         discardPeriodicTasks();
     }));
+
+    it('stopTimer should set timerFinished to true', fakeAsync(() => {
+        expect(service.timerFinished$.value).toBeFalsy();
+        service.startTimer(TIMEOUT);
+        tick((TIMEOUT + 1) * MS_SECOND);
+        expect(service.timerFinished$.value).toBeTruthy();
+    }));
 });

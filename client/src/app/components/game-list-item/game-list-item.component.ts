@@ -10,14 +10,13 @@ import { GamesService } from '@app/services/games.service';
 export class GameListItemComponent {
     @Input() game: Game;
     @Input() isAdminMode: boolean;
-    @Output() deleteGameFromList: EventEmitter<Game> = new EventEmitter<Game>();
+    @Output() deleteGameFromList: EventEmitter<number> = new EventEmitter<number>();
 
     constructor(private gamesService: GamesService) {}
 
+    // TODO notify errors
     toggleGameVisibility() {
-        this.gamesService.toggleGameVisibility(this.game);
-        // TODO: Update accordingly to changes on backend
-        // Currently, the change can be triggered only once we refresh the page
+        this.gamesService.toggleGameVisibility(this.game).subscribe();
     }
 
     downloadGameAsJson() {
@@ -26,6 +25,6 @@ export class GameListItemComponent {
 
     deleteGame() {
         // Reference: https://stackoverflow.com/questions/43768024/delete-child-and-update-parent-list
-        this.deleteGameFromList.emit(this.game);
+        this.deleteGameFromList.emit(this.game.id);
     }
 }

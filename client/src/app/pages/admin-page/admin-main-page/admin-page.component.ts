@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Game } from '@app/interfaces/game';
 import { GamesService } from '@app/services/games.service';
+import { HttpResponse } from '@angular/common/http';
 
 @Component({
     selector: 'app-admin-page',
@@ -21,11 +22,10 @@ export class AdminPageComponent implements OnInit {
         this.gamesService.getGames().subscribe((games: Game[]) => (this.games = [...games]));
     }
 
-    onDeleteGameFromList(gameToDelete: Game) {
-        if (gameToDelete) {
-            this.games = this.games.filter((x) => x.id !== gameToDelete.id); // TODO: Check if it's "legal" for the correction
-            this.gamesService.deleteGame(gameToDelete.id);
-        }
+    onDeleteGameFromList(gameToDeleteId: number) {
+        this.gamesService.deleteGame(gameToDeleteId).subscribe((response: HttpResponse<string>) => {
+            if (response.ok) this.games = this.games.filter((x) => x.id !== gameToDeleteId);
+        });
     }
 
     // TODO: Find actual type of event to remove the "any" (which is currently illegal)
@@ -41,12 +41,13 @@ export class AdminPageComponent implements OnInit {
             fileReader.onload = () => {
                 const newGameStringified = fileReader.result?.toString();
                 if (newGameStringified) {
-                    this.gamesService.uploadGame(newGameStringified, true);
-
-                    // TODO: See if this is legal
                     const newGame = JSON.parse(newGameStringified);
-                    newGame.isVisible = true;
-                    this.games.push(newGame);
+                    this.gamesService.uploadGame(newGame).subscribe((response: HttpResponse<string>) => {
+                        if (response.ok) {
+                            newGame.isVisible = true;
+                            this.games.push(newGame);
+                        }
+                    });
                 }
             };
             fileReader.readAsText(file);

@@ -1,15 +1,19 @@
 import { Game, GameDocument } from '@app/model/database/game';
-import { Question } from '@app/model/database/question';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { v4 as uuidv4 } from 'uuid';
+import { GameValidationService } from '../game-validation/game-validation.service';
+
+const YEAR = 2024; // TODO: Document with all CONSTS
 
 @Injectable()
 export class GameService {
     constructor(
         @InjectModel(Game.name) public gameModel: Model<GameDocument>,
+        private validation: GameValidationService,
         private readonly logger: Logger,
     ) {
         this.start();
@@ -22,15 +26,14 @@ export class GameService {
     }
 
     async populateDB(): Promise<void> {
-        // TODO: Add Questions
         const GAMES: CreateGameDto[] = [
             {
-                id: 0,
+                id: '0',
                 title: 'Hoot Hoot',
                 description: 'HOOT HOOT',
                 duration: 60,
                 isVisible: true,
-                lastModification: new Date(2024, 1, 2),
+                lastModification: new Date(YEAR, 1, 1),
                 questions: [
                     {
                         id: '2',
@@ -56,17 +59,17 @@ export class GameService {
                                 isCorrect: false,
                             },
                         ],
-                        lastModification: new Date(2024, 1, 2),
+                        lastModification: new Date(YEAR, 1, 1),
                     },
                 ],
             },
             {
-                id: 1,
+                id: '1',
                 title: 'Lune quantique',
                 description: 'OOOOOH',
                 duration: 60,
                 isVisible: true,
-                lastModification: new Date(2024, 2, 1),
+                lastModification: new Date(YEAR, 1, 1),
                 questions: [
                     {
                         id: '1',
@@ -92,17 +95,17 @@ export class GameService {
                                 isCorrect: false,
                             },
                         ],
-                        lastModification: new Date(2024, 1, 1),
+                        lastModification: new Date(YEAR, 1, 1),
                     },
                 ],
             },
             {
-                id: 2,
+                id: '2',
                 title: 'Pokemon Quiz',
                 description: 'WHO IS THAT POKEMON',
                 duration: 30,
                 isVisible: false,
-                lastModification: new Date(2023, 2, 2),
+                lastModification: new Date(YEAR, 1, 1),
                 questions: [
                     {
                         id: '123',
@@ -128,7 +131,7 @@ export class GameService {
                                 isCorrect: true,
                             },
                         ],
-                        lastModification: new Date(2023, 2, 3),
+                        lastModification: new Date(YEAR, 1, 1),
                     },
                 ],
             },
@@ -141,51 +144,24 @@ export class GameService {
         return await this.gameModel.find({});
     }
 
-    async getGameById(gameId: number): Promise<Game> {
+    async getGameById(gameId: string): Promise<Game> {
         return await this.gameModel.findOne({ id: gameId });
     }
 
-    // Move to QuestionService
-    isValidQuestion(question: Question): boolean {
-        // TODO: Detect if "similar" question exists (especially for questionbank)
-        const isValidChoicesNumber = question.choices.length >= 2 && question.choices.length <= 4;
-        const isValidPointsNumber = question.points >= 10 && question.points <= 100 && question.points % 10 === 0;
-        let isValidRightChoiceNumber = false;
-        let isValidWrongChoiceNumber = false;
-        // TODO: Improve "algorithm" efficiency and whitespace detection
-        question.choices.forEach((choice) => {
-            if (choice.isCorrect && choice.text !== '') {
-                isValidRightChoiceNumber = true;
-            } else if (!choice.isCorrect && choice.text !== ' ') {
-                isValidWrongChoiceNumber = true;
-            }
-        });
-        return isValidChoicesNumber && isValidPointsNumber && isValidRightChoiceNumber && isValidWrongChoiceNumber;
+    async getGameByTitle(gameTitle: string): Promise<Game> {
+        return await this.gameModel.findOne({ title: gameTitle });
     }
-
-    isValidGame(game: Game): boolean {
-        // TODO: Improve whitespace detection + Detect if "similar" game exists
-        const isValidTitle = game.title !== '';
-        const isValidDescription = game.description !== '';
-        const isValidDuration = game.duration >= 10 && game.duration <= 60;
-        const isValidQuestionsNumber = game.questions.length >= 1;
-        let areValidQuestions = true;
-        // TODO: Improve "algorithm" efficiency
-        game.questions.forEach((question) => {
-            if (!this.isValidQuestion(question)) {
-                areValidQuestions = false;
-            }
-        });
-        return true; // TEMPORARY - TODO: Do the actual verification (but maybe in a separate service?)
-        // return isValidTitle && isValidDescription && isValidDuration && isValidQuestionsNumber && areValidQuestions;
-    }
-
-    // TODO: Update Date property function
 
     async addGame(newGame: CreateGameDto): Promise<void> {
-        newGame.isVisible = true;
+        // TODO: Add unit test for when a game already exists.
+        if (await this.getGameByTitle(newGame.title)) {
+            return Promise.reject('Game with the same title already exists.');
+        }
+        newGame.id = uuidv4();
+        newGame.isVisible = false;
+        newGame.lastModification = new Date();
         try {
-            if (this.isValidGame(newGame)) {
+            if (this.validation.isValidGame(newGame)) {
                 await this.gameModel.create(newGame);
             } else {
                 return Promise.reject('Invalid game');
@@ -195,20 +171,26 @@ export class GameService {
         }
     }
 
-    async updateGame(game: UpdateGameDto): Promise<void> {
+    async updateGame(game: UpdateGameDto, upsert: boolean): Promise<void> {
+        // TODO: Update LastModification if not ToggleVisibility
         const filterQuery = { id: game.id };
-        // Can also use replaceOne if we want to replace the entire object
-        // TODO: Case when someone edited a deleted game; we need to create a new game.
         try {
-            if (!this.isValidGame(game)) {
+            if (!this.validation.isValidGame(game)) {
                 return Promise.reject('Invalid game');
             }
-            const res = await this.gameModel.updateOne(filterQuery, game);
-            if (res.matchedCount === 0) {
-                try {
-                    this.addGame(game);
-                } catch (error) {
-                    return Promise.reject('Could not find game');
+            if (upsert) {
+                // PUT
+                game.isVisible = false;
+                game.lastModification = new Date();
+                const res = await this.gameModel.findOneAndUpdate(filterQuery, game, {
+                    new: true,
+                    upsert: true,
+                });
+            } else {
+                // PATCH
+                const res = await this.gameModel.updateOne(filterQuery, game);
+                if (res.matchedCount === 0) {
+                    return Promise.reject('Game not found');
                 }
             }
         } catch (error) {
@@ -216,7 +198,7 @@ export class GameService {
         }
     }
 
-    async deleteGame(gameId: number): Promise<void> {
+    async deleteGame(gameId: string): Promise<void> {
         try {
             const res = await this.gameModel.deleteOne({
                 id: gameId,

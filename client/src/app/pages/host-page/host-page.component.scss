@@ -1,0 +1,60 @@
+body,
+html {
+    height: 100%;
+    margin: 0;
+}
+
+#host-page {
+    display: flex;
+    height: 100vh;
+    gap: 25px;
+}
+
+#game-list-container,
+#game-details-container {
+    margin-bottom: 70px;
+    flex: 1;
+    overflow-y: auto;
+
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 20px;
+}
+
+#game-list-container {
+    margin-left: 50px;
+}
+
+#game-details-container {
+    margin-right: 50px;
+    display: flex;
+    flex-direction: column;
+}
+
+#game-details {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+#buttons-container {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    padding: 25px;
+}
+
+button {
+    width: 10vw;
+    height: 5vh;
+}
+
+app-game-list-item {
+    padding: 1px;
+}

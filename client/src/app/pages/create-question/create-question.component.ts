@@ -22,21 +22,6 @@ export class CreateQuestionComponent {
     // references for above code: https://stackoverflow.com/questions/67834802/template-error-type-abstractcontrol-is-not-assignable-to-type-formcontrol
 
     ngOnInit(): void {
-        // should refresh all the questions ?
-        // this.questionService.getAllQuestions().subscribe((data: Question[]) => (this.questions = [...data]));
-        // this.questionFormControl.valueChanges.subscribe((value) => {
-        //     if (value) {
-        //         const temporaryQuestion: Question = {
-        //             type: 'QCM',
-        //             description: '',
-        //             question: value,
-        //             points: 0,
-        //             choices: [],
-        //             lastModification: '2018-11-13T20:20:39+00:00',
-        //         };
-        //         this.questions = [temporaryQuestion, ...this.questions];
-        //     }
-        // });
     }
 
     response: string = '';

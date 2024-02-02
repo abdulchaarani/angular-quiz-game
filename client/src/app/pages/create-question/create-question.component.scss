@@ -87,9 +87,12 @@
 
 .points-box-container {
     position: absolute;
-    top: 25%;
+    top: 10%;
     border-left: 2px #333;
     margin-left: 73%;
+    margin-top: 0%;
+    height: 10%;
+    width: 10%;
 }
 
 .checkbox-container{
@@ -132,11 +135,17 @@
     font-size: 18px;
 }
 
-.submit-button {
-    bottom: 55%;
-    left: 90%;
+.submit-button-row{
+    bottom: 60%;
+    left: 83.3%;
     font-size: 18px;
     padding: 10px 20px;
+
+}
+.submit-button {
+    width: 100px;
+    height: 30px; 
+    font-size: 18px;
 }
 
 .duplicate-button {
@@ -146,10 +155,10 @@
     padding: 10px 20px;
 }
 
-.delete-button{
-    height:20px;
-    position: relative;
-}
+// .delete-button{
+//     height:20px;
+//     position: relative;
+// }
 
 // .choice {
 //     display:flex;

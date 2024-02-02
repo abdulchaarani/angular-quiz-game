@@ -1,5 +1,5 @@
 <mat-card class id="game-card">
-    <mat-card-content id="game-card-content">
+    <mat-card-content id="game-card-content" [ngClass]="isAdminMode ? '' : 'clickable-item'">
         <p id="game-title">{{ game.title }}</p>
         <p id="game-date">Dernière modification: {{ game.lastModification | date }}</p>
         <div *ngIf="isAdminMode" id="icons-container">

@@ -5,22 +5,47 @@
 <div class="top-container">
     <h3>Description du jeu.</h3>
 
-    <button mat-raised-button color="basic" routerLink="/admin/questionbank" id="admin-question-bank-button">Banque de questions</button>
+    <button mat-raised-button color="basic" routerLink="/admin/games/:id/questionbank" id="admin-question-bank-button">Banque de questions</button>
 </div>
 
-<mat-slider min="10" max="60" step="5" value="10" discrete="thumblabel">
-    <input matSliderThumb />
-</mat-slider>
+<mat-card class="time-slider">
+    <mat-card-content>
+        <h2>Timer</h2>
+        <mat-slider min="10" max="60" step="5" value="10" discrete="thumblabel">
+            <input matSliderThumb (input)="changeDuration($event)" />
+        </mat-slider>
+    </mat-card-content>
+</mat-card>
+
+<mat-card *ngIf="game.questions.length === 0" class="empty-questions-list">
+    <mat-card-content class="empty-questions-list">
+        <p><mat-icon>catching_pokemon</mat-icon> La liste de questions de ce jeu est vide! <mat-icon>catching_pokemon</mat-icon></p>
+        <p>Cliquez sur <mat-icon>add</mat-icon> pour ajouter votre première question!</p>
+    </mat-card-content>
+</mat-card>
 
 <mat-accordion class="admin-questions-list question-list">
     <div cdkDropList class="" (cdkDropListDropped)="drop($event)">
-        <app-question-list-item
-            *ngFor="let question of questions"
-            cdkDrag
-            [question]="question"
-            [isLastModifiedDateVisible]="true"
-            [isEditable]="true"
-        >
-        </app-question-list-item>
+        <div cdkDropList class="questions-list" (cdkDropListDropped)="drop($event)">
+            <app-question-list-item
+                *ngFor="let question of game.questions"
+                [index]="game.questions.indexOf(question) + 1"
+                cdkDrag
+                [question]="question"
+                [isEditable]="true"
+                [isLastModifiedDateVisible]="true"
+                (deleteQuestionEvent)="deleteQuestion($event)"
+            >
+            </app-question-list-item>
+        </div>
+        <div class="add-button-container">
+            <button class="add-question-button" mat-raised-button color="basic" id="admin-create-question-button" (click)="addNewGame()">
+                <mat-icon>add</mat-icon>
+            </button>
+        </div>
     </div>
 </mat-accordion>
+
+<button class="submit-button" mat-raised-button color="basic" (click)="saveGame()">
+    <mat-icon>done</mat-icon>
+</button>

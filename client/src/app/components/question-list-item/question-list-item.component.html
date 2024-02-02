@@ -1,6 +1,6 @@
 <mat-expansion-panel class="example-headers-align" *ngIf="question">
     <mat-expansion-panel-header>
-        <mat-panel-title> {{ question.description }} </mat-panel-title>
+        <mat-panel-title> {{ index }} {{ question.description }} </mat-panel-title>
         <mat-panel-description>
             <p>{{ question.points }} points</p>
             <p *ngIf="isLastModifiedDateVisible">Dernière modification: {{ question.lastModification | date }}</p>
@@ -21,6 +21,5 @@
         </mat-panel-description>
     </mat-expansion-panel-header>
     <p>{{ question.question }}</p>
-    <!-- TODO Integrate properly: *ngIf = editableMode, [property]="property" -->
-    <app-create-question *ngIf="isEditable"></app-create-question>
+    <app-create-question *ngIf="isEditable" (pointsChanged)="onPointsChanged($event)"></app-create-question>
 </mat-expansion-panel>

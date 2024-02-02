@@ -9,12 +9,14 @@ import { HostPageComponent } from './host-page.component';
 describe('HostPageComponent', () => {
     let component: HostPageComponent;
     let fixture: ComponentFixture<HostPageComponent>;
+    // let mockGameService: jasmine.SpyObj<GamesService>;
     const invisibleGame = { isVisible: false } as Game;
     const realGame = { isVisible: true } as Game;
     const deletedError = "Le jeu sélectionné n'existe plus";
     const invisibleError = "Le jeu sélectionné n'est plus visible";
 
     beforeEach(() => {
+        // mockGameService = jasmine.createSpyObj(['getGameById']);
         TestBed.configureTestingModule({
             declarations: [HostPageComponent],
             imports: [HttpClientTestingModule, BrowserAnimationsModule],
@@ -70,8 +72,12 @@ describe('HostPageComponent', () => {
     it('should open snackbar when selecting a deleted game and call loadGames()', fakeAsync(() => {
         spyOn(component.snackBar, 'open').and.callThrough();
         spyOn(component, 'loadGames');
+        const test = spyOn(component, 'loadSelectedGame').and.returnValue(undefined);
+
+        // expect(mockGameService).toHaveBeenCalled();
 
         component.selectGame(undefined);
+
         tick();
         expect(component.snackBar.open).toHaveBeenCalledWith(deletedError, 'Actualiser');
 

@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { Question } from '@app/interfaces/question';
-import { QuestionService } from '@app/services/question.service';
-import { HttpResponse } from '@angular/common/http';
+// import { QuestionService } from '@app/services/question.service';
+// import { HttpResponse } from '@angular/common/http';
 
 @Component({
     selector: 'app-question-list-item',
@@ -17,22 +17,18 @@ export class QuestionListItemComponent {
 
     response: string = '';
 
-    constructor(private readonly questionService: QuestionService) {}
-    
     questions: Question[] = [];
+    // constructor(private readonly questionService: QuestionService) {}
 
     deleteQuestion() {
         this.deleteQuestionEvent.emit(this.question.id);
     }
 
     addQuestion() {
-        this.questionService.saveQuestion(this.questions[0]).subscribe((response: HttpResponse<string>) => {
-            this.response = response.statusText;
-        });
-
+        console.log('addQuestion');
     }
 
-    onPointsChanged(newPoints: number) { // to update the pts, will probably remove since it's not used 
-        this.questions[0].points = newPoints;
+    onPointsChanged(newPoints: number) {
+        console.log(`Points changed: ${newPoints}`);
     }
 }

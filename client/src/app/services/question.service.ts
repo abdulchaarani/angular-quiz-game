@@ -19,17 +19,9 @@ export class QuestionService extends ApiService<Question> {
         return this.add(question);
     }
 
-    onQuestionAdded(): Observable<Question> {
-        return this.addQuestionSubject.asObservable();
-    }
-
-    modifyQuestion(question: Question): Observable<HttpResponse<string>> {
-        this.saveQuestion(question);
-        
-        return this.http
-            .patch(`${this.baseUrl}/${this.endpoint}`, question, { observe: 'response', responseType: 'text' })
-            .pipe(catchError(this.handleError<HttpResponse<string>>('modifyQuestion')));
-    }
+    // onQuestionAdded(): Observable<Question> {
+    //     return this.addQuestionSubject.asObservable();
+    // }
 
     deleteQuestion(questionId: string): Observable<HttpResponse<string>> {
         return this.delete(questionId);

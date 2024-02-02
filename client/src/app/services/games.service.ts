@@ -20,6 +20,7 @@ export class GamesService extends ApiService<Game> {
     }
 
     toggleGameVisibility(game: Game): Observable<HttpResponse<string>> {
+        game.isVisible = !game.isVisible;
         return this.update(game, game.id.toString());
     }
 

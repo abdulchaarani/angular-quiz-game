@@ -1,7 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Game } from '@app/interfaces/game';
 import { GamesService } from '@app/services/games.service';
-import { HttpResponse } from '@angular/common/http';
 
 @Component({
     selector: 'app-game-list-item',
@@ -15,10 +14,9 @@ export class GameListItemComponent {
 
     constructor(private gamesService: GamesService) {}
 
+    // TODO notify errors
     toggleGameVisibility() {
-        this.gamesService.toggleGameVisibility(this.game).subscribe((response: HttpResponse<string>) => {
-            if (response.ok) this.game.isVisible = !this.game.isVisible;
-        });
+        this.gamesService.toggleGameVisibility(this.game).subscribe();
     }
 
     downloadGameAsJson() {

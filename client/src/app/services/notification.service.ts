@@ -21,6 +21,10 @@ export class NotificationService {
         });
     }
 
+    displayErrorMessageAction(errorMessage: string, action: string): MatSnackBarRef<TextOnlySnackBar> {
+        return this.openSnackBar(errorMessage, action);
+    }
+
     private openSnackBar(message: string, action: string, options?: MatSnackBarConfig): MatSnackBarRef<TextOnlySnackBar> {
         return this.snackBar.open(message, action, options);
     }

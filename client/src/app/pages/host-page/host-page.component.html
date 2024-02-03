@@ -15,7 +15,7 @@
     <div id="game-details-container">
         <h2>Détails du jeu</h2>
         <cdk-virtual-scroll-viewport itemSize="50" style="height: 100vh">
-            <div id="game-details" *ngIf="selectedGame; else elseBlock">
+            <div id="game-details" *ngIf="gameIsValid; else elseBlock">
                 <div class="list">
                     <strong>Description du jeu :</strong>
                     <span id="game-description">{{ selectedGame.description }}</span>

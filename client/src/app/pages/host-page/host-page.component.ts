@@ -28,7 +28,7 @@ export class HostPageComponent implements OnInit {
         });
     }
 
-    loadGames(): void {
+    loadAllGames(): void {
         this.gameService.getGames().subscribe((data: Game[]) => {
             this.games = data.filter((game) => game.isVisible);
         });
@@ -36,36 +36,26 @@ export class HostPageComponent implements OnInit {
 
     loadSelectedGame(selectedGame: Game): void {
         this.gameService.getGameById(selectedGame.id).subscribe({
-            next: (data: Game) => (this.selectedGame = data),
+            next: (data: Game) => {
+                this.selectedGame = data;
+                this.selectGame(this.selectedGame);
+            },
             error: () => {
                 const snackBarRef = this.notificationService.displayErrorMessageAction("Le jeu sélectionné n'existe plus", 'Actualiser');
-                // const snackBarRef = this.snackBar.open("Le jeu sélectionné n'existe plus", 'Actualiser');
                 snackBarRef.onAction().subscribe(() => {
-                    this.loadGames();
+                    this.loadAllGames();
                 });
             },
         });
     }
 
     selectGame(selectedGame: Game): void {
-        this.loadSelectedGame(selectedGame);
-        try {
-            if (this.selectedGame.isVisible === false) {
-                throw new Error("Le jeu sélectionné n'est plus visible");
-            } else {
-                this.gameIsValid = true;
-            }
-        } catch (error) {
-            let errorMessage;
-            if (error instanceof Error) {
-                errorMessage = error.message;
-            } else {
-                errorMessage = String(error);
-            }
-
-            const snackBarRef = this.snackBar.open(errorMessage, 'Actualiser');
+        if (selectedGame.isVisible) {
+            this.gameIsValid = true;
+        } else {
+            const snackBarRef = this.snackBar.open("Le jeu sélectionné n'est plus visible", 'Actualiser');
             snackBarRef.onAction().subscribe(() => {
-                this.loadGames();
+                this.loadAllGames();
             });
         }
     }

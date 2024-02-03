@@ -3,6 +3,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Game } from '@app/interfaces/game';
 import { GamesService } from '@app/services/games.service';
 import { NotificationService } from '@app/services/notification.service';
+import { NotificationService } from '@app/services/notification.service';
 
 @Component({
     selector: 'app-host-page',

@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { Game } from '@app/interfaces/game';
 import { GamesService } from '@app/services/games.service';
 import { NotificationService } from '@app/services/notification.service';
@@ -17,18 +16,15 @@ export class HostPageComponent implements OnInit {
     constructor(
         private gameService: GamesService,
         private notificationService: NotificationService,
-        public snackBar: MatSnackBar,
     ) {
         this.gameIsValid = false;
     }
 
     ngOnInit(): void {
-        this.gameService.getGames().subscribe((data: Game[]) => {
-            this.games = data.filter((game) => game.isVisible);
-        });
+        this.reloadAllGames();
     }
 
-    loadAllGames(): void {
+    reloadAllGames(): void {
         this.gameService.getGames().subscribe((data: Game[]) => {
             this.games = data.filter((game) => game.isVisible);
         });
@@ -38,24 +34,24 @@ export class HostPageComponent implements OnInit {
         this.gameService.getGameById(selectedGame.id).subscribe({
             next: (data: Game) => {
                 this.selectedGame = data;
-                this.selectGame(this.selectedGame);
+                this.validateGame(this.selectedGame);
             },
             error: () => {
                 const snackBarRef = this.notificationService.displayErrorMessageAction("Le jeu sélectionné n'existe plus", 'Actualiser');
                 snackBarRef.onAction().subscribe(() => {
-                    this.loadAllGames();
+                    this.reloadAllGames();
                 });
             },
         });
     }
 
-    selectGame(selectedGame: Game): void {
+    validateGame(selectedGame: Game): void {
         if (selectedGame.isVisible) {
             this.gameIsValid = true;
         } else {
-            const snackBarRef = this.snackBar.open("Le jeu sélectionné n'est plus visible", 'Actualiser');
+            const snackBarRef = this.notificationService.displayErrorMessageAction("Le jeu sélectionné n'est plus visible", 'Actualiser');
             snackBarRef.onAction().subscribe(() => {
-                this.loadAllGames();
+                this.reloadAllGames();
             });
         }
     }

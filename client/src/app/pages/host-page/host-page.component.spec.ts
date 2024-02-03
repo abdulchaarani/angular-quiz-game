@@ -1,21 +1,20 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, flush, tick } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { GamesService } from '@app/services/games.service';
-// import { NotificationService } from '@app/services/notification.service';
 
 import { Game } from '@app/interfaces/game';
-import { of } from 'rxjs';
+import { NotificationService } from '@app/services/notification.service';
+import { of, throwError } from 'rxjs';
 import { HostPageComponent } from './host-page.component';
 
 describe('HostPageComponent', () => {
     let component: HostPageComponent;
     let fixture: ComponentFixture<HostPageComponent>;
     let gameService: GamesService;
-    // let notificationService: NotificationService;
-    // let mockGameService: jasmine.SpyObj<GamesService>;
-    // const invisibleGame = { isVisible: false } as Game;
+    let notificationService: NotificationService;
+    const invisibleGame = { isVisible: false } as Game;
     const fakeGame: Game = {
         id: '0',
         title: 'title',
@@ -35,20 +34,19 @@ describe('HostPageComponent', () => {
             },
         ],
     };
-    // });
-    // const deletedError = "Le jeu sélectionné n'existe plus";
-    // const invisibleError = "Le jeu sélectionné n'est plus visible";
+    const deletedError = "Le jeu sélectionné n'existe plus";
+    const invisibleError = "Le jeu sélectionné n'est plus visible";
+    const action = 'Actualiser';
 
     beforeEach(() => {
-        // mockGameService = jasmine.createSpyObj(['getGameById']);
         TestBed.configureTestingModule({
             declarations: [HostPageComponent],
             imports: [HttpClientTestingModule, BrowserAnimationsModule],
-            providers: [MatSnackBar, GamesService],
+            providers: [MatSnackBar, GamesService, NotificationService],
         });
         fixture = TestBed.createComponent(HostPageComponent);
         gameService = TestBed.inject(GamesService);
-        // notificationService = TestBed.inject(NotificationService);
+        notificationService = TestBed.inject(NotificationService);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
@@ -57,80 +55,74 @@ describe('HostPageComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should load games', () => {
+    it('should load games on init', () => {
         expect(component.games).toBeDefined();
     });
 
-    it('should load selected game', fakeAsync(() => {
-        spyOn(gameService, 'getGameById').and.returnValue(of(fakeGame));
-
-        component.loadSelectedGame(fakeGame);
-        tick();
-        expect(component.selectedGame).toEqual(fakeGame);
-    }));
-
-    // it('should load only visible games', () => {
-    //     component.ngOnInit();
-    //     const games = component.games;
-
-    //     const isNotVisible = games.some((game) => !game.isVisible);
-
-    //     expect(isNotVisible).toBeFalsy();
-    // });
-
-    it('games loaded from loadGames() should not contain invisible games', () => {
-        component.loadAllGames();
+    it('should load only visible games on init', () => {
+        component.ngOnInit();
         const games = component.games;
-
         const isNotVisible = games.some((game) => !game.isVisible);
-
         expect(isNotVisible).toBeFalsy();
     });
 
-    // it('should open snackbar when selecting an invisible game and call loadGames()', fakeAsync(() => {
-    //     spyOn(component.snackBar, 'open').and.callThrough();
-    //     spyOn(component, 'loadGames');
+    it('should load a visible selected game', fakeAsync(() => {
+        const spy = spyOn(component, 'validateGame').and.callThrough();
+        spyOn(gameService, 'getGameById').and.returnValue(of(fakeGame));
+        component.loadSelectedGame(fakeGame);
+        tick();
+        expect(component.selectedGame).toEqual(fakeGame);
+        expect(spy).toHaveBeenCalledWith(fakeGame);
+        expect(component.gameIsValid).toBeTruthy();
+        flush();
+    }));
 
-    //     component.selectGame(invisibleGame);
-    //     tick();
-    //     expect(component.snackBar.open).toHaveBeenCalledWith(invisibleError, 'Actualiser');
+    it('should not load an invisible selected game', fakeAsync(() => {
+        spyOn(gameService, 'getGameById').and.returnValue(of(invisibleGame));
+        const spy = spyOn(component, 'validateGame');
+        component.loadSelectedGame(invisibleGame);
+        tick();
+        expect(spy).toHaveBeenCalledWith(invisibleGame);
+        expect(component.gameIsValid).toBeFalsy();
+        flush();
+    }));
 
-    //     const snackBarRef = component.snackBar.open(invisibleError, 'Actualiser');
-    //     expect(snackBarRef.onAction).toBeTruthy();
+    it('should not load a deleted selected game', fakeAsync(() => {
+        spyOn(gameService, 'getGameById').and.returnValue(throwError(() => new Error('error')));
+        const spy = spyOn(component, 'validateGame');
+        component.loadSelectedGame({ id: '' } as Game);
+        tick();
+        expect(spy).not.toHaveBeenCalled();
+        expect(component.gameIsValid).toBeFalsy();
+        flush();
+    }));
 
-    //     snackBarRef.onAction()?.subscribe(() => {
-    //         expect(component.loadGames).toHaveBeenCalled();
-    //     });
-    // }));
+    it('should open a snackbar when selecting an invisible game', fakeAsync(() => {
+        const notificationSpy = spyOn(notificationService, 'displayErrorMessageAction').and.callThrough();
+        component.validateGame(invisibleGame);
+        tick();
+        expect(notificationSpy).toHaveBeenCalledWith(invisibleError, action);
+        flush();
+    }));
 
-    // it('should open snackbar when selecting a deleted game and call loadGames()', fakeAsync(() => {
-    //     spyOn(component.snackBar, 'open').and.callThrough();
-    //     spyOn(component, 'loadGames');
-    //     const test = spyOn(component, 'loadSelectedGame').and.returnValue(undefined);
+    it('should open a snackbar when selecting a deleted game', fakeAsync(() => {
+        const notificationSpy = spyOn(notificationService, 'displayErrorMessageAction').and.callThrough();
+        spyOn(gameService, 'getGameById').and.returnValue(throwError(() => new Error('error')));
+        component.loadSelectedGame({ id: '' } as Game);
+        expect(notificationSpy).toHaveBeenCalledWith(deletedError, action);
+        flush();
+    }));
 
-    //     // expect(mockGameService).toHaveBeenCalled();
-
-    //     component.selectGame(undefined);
-
-    //     tick();
-    //     expect(component.snackBar.open).toHaveBeenCalledWith(deletedError, 'Actualiser');
-
-    //     const snackBarRef = component.snackBar.open(deletedError, 'Actualiser');
-    //     expect(snackBarRef.onAction).toBeTruthy();
-
-    //     snackBarRef.onAction()?.subscribe(() => {
-    //         expect(component.loadGames).toHaveBeenCalled();
-    //     });
-    // }));
-
-    // it('should select game without errors if game is visible and defined', fakeAsync(() => {
-    //     spyOn(component.snackBar, 'open').and.callThrough();
-    //     spyOn(component, 'loadGames');
-
-    //     component.selectGame(realGame);
-    //     tick();
-    //     expect(component.snackBar.open).not.toHaveBeenCalledWith(deletedError, 'Actualiser');
-    //     expect(component.snackBar.open).not.toHaveBeenCalledWith(invisibleError, 'Actualiser');
-    //     expect(component.loadGames).not.toHaveBeenCalled();
-    // }));
+    it('should select game without errors if game is visible and defined. No snackbars should open', fakeAsync(() => {
+        const spy = spyOn(component, 'validateGame').and.callThrough();
+        const notificationSpy = spyOn(notificationService, 'displayErrorMessageAction').and.callThrough();
+        spyOn(gameService, 'getGameById').and.returnValue(of(fakeGame));
+        component.loadSelectedGame(fakeGame);
+        tick();
+        expect(component.selectedGame).toEqual(fakeGame);
+        expect(spy).toHaveBeenCalledWith(fakeGame);
+        expect(component.gameIsValid).toBeTruthy();
+        expect(notificationSpy).not.toHaveBeenCalled();
+        flush();
+    }));
 });

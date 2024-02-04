@@ -9,7 +9,6 @@ describe('QuestionListItemComponent', () => {
     const mockQuestion: Question = {
         id: '1',
         type: 'QCM',
-        description: 'Motifs sur ballon de soccer',
         text: 'Combien de motifs blancs et noirs y a-t-il respectivement sur un ballon de soccer?',
         points: 20,
         lastModification: new Date().toString(),
@@ -35,8 +34,7 @@ describe('QuestionListItemComponent', () => {
 
         const dom = fixture.nativeElement;
 
-        expect(dom.textContent).toContain(mockQuestion.description);
-        expect(dom.textContent).toContain(mockQuestion.question);
+        expect(dom.textContent).toContain(mockQuestion.text);
         expect(dom.textContent).toContain(mockQuestion.points);
     });
 

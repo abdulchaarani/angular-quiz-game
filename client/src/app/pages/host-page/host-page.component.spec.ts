@@ -26,8 +26,7 @@ describe('HostPageComponent', () => {
             {
                 id: 'getRandomString',
                 type: 'QCM',
-                description: 'getRandomString',
-                question: 'getRandomString',
+                text: 'getRandomString',
                 points: 30,
                 choices: [],
                 lastModification: ' new Date(YEAR, 1, 1)',

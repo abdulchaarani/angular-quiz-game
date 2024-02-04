@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { GamesService } from './games.service';
 import { Game } from '@app/interfaces/game';
 import { Question } from '@app/interfaces/question';
+import { GamesService } from './games.service';
 
 @Injectable({
     providedIn: 'root',
@@ -13,7 +13,7 @@ export class GamesCreationService extends GamesService {
             id: '0',
             title,
             description,
-            lastModification: '2024-02-02T01:20:39.439+00:00',
+            lastModification: new Date().toString(),
             duration,
             isVisible: true,
             questions: [],

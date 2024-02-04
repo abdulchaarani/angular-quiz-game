@@ -13,11 +13,7 @@ export class UpdateQuestionDto {
 
     @ApiProperty()
     @IsString()
-    description: string;
-
-    @ApiProperty()
-    @IsString()
-    question: string;
+    text: string;
 
     @ApiProperty()
     @IsNumber()

@@ -14,11 +14,7 @@ export class CreateQuestionDto {
 
     @ApiProperty()
     @IsString()
-    description: string;
-
-    @ApiProperty()
-    @IsString()
-    question: string;
+    text: string;
 
     @ApiProperty()
     @IsNumber()

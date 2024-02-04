@@ -26,8 +26,7 @@ export class QuestionService {
             {
                 id: '1',
                 type: 'QCM',
-                description: 'Motifs sur ballon de soccer',
-                question: 'Combien de motifs blancs et noirs y a-t-il respectivement sur un ballon de soccer?',
+                text: 'Combien de motifs blancs et noirs y a-t-il respectivement sur un ballon de soccer?',
                 points: 20,
                 choices: [
                     {
@@ -48,8 +47,7 @@ export class QuestionService {
             {
                 id: '2',
                 type: 'QCM',
-                description: 'Inspiration Leblanc',
-                question: "Savez-vous de quel auteur Leblanc s'est inspiré ?",
+                text: "Savez-vous de quel auteur Leblanc s'est inspiré ?",
                 points: 60,
                 choices: [
                     {
@@ -74,8 +72,7 @@ export class QuestionService {
             {
                 id: '3',
                 type: 'QCM',
-                description: 'Outer Wilds',
-                question: 'Parmi les choix suivants, lesquels sont des noms de planètes dans Outer Wilds ?',
+                text: 'Parmi les choix suivants, lesquels sont des noms de planètes dans Outer Wilds ?',
                 points: 20,
                 choices: [
                     {
@@ -121,7 +118,7 @@ export class QuestionService {
 
     async addQuestion(question: CreateQuestionDto): Promise<void> {
         // TODO: Unit-test for when a question already exists
-        if (await this.getQuestionByName(question.question)) {
+        if (await this.getQuestionByName(question.text)) {
             return Promise.reject('Question already exists in bank.');
         }
         question.id = uuidv4();

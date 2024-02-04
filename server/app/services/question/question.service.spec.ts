@@ -20,8 +20,7 @@ const stringifyPublicValues = (question: Question): string => {
 const getFakeQuestion = (): Question => ({
     id: getRandomString(),
     type: 'QCM',
-    description: getRandomString(),
-    question: getRandomString(),
+    text: getRandomString(),
     points: 50,
     choices: [
         {

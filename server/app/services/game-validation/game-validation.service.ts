@@ -39,7 +39,7 @@ export class GameValidationService {
         const STEP_POINTS = 10;
         const isValidChoicesNumber = this.isValidRange(question.choices.length, MINIMUM_CHOICES_NUMBER, MAXIMUM_CHOICES_NUMBER);
         const isValidPointsNumber = this.isValidRange(question.points, MINIMUM_POINTS, MAXIMUM_POINTS, STEP_POINTS);
-        const isValidQuestionName = this.isValidString(question.question);
+        const isValidQuestionName = this.isValidString(question.text);
         return isValidQuestionName && isValidChoicesNumber && isValidPointsNumber && this.isValidChoicesRatio(question);
     }
 

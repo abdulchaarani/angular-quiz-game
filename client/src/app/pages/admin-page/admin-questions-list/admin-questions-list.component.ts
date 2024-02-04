@@ -1,10 +1,10 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Component, OnInit } from '@angular/core';
-import { Question } from '@app/interfaces/question';
-import { Game } from '@app/interfaces/game';
-import { QuestionService } from '@app/services/question.service';
 import { HttpResponse } from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
+import { Game } from '@app/interfaces/game';
+import { Question } from '@app/interfaces/question';
 import { GamesCreationService } from '@app/services/games-creation.service';
+import { QuestionService } from '@app/services/question.service';
 
 @Component({
     selector: 'app-admin-questions-list',
@@ -51,8 +51,7 @@ export class AdminQuestionsListComponent implements OnInit {
         const newQuestion: Question = {
             id: '',
             type: 'QCM',
-            description: 'Description',
-            question: 'Quelle est la question?',
+            text: 'Quelle est la question?',
             points: 20,
             lastModification: '2024-01-26T14:21:19+00:00',
         };

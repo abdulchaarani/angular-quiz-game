@@ -13,7 +13,7 @@
                     <h1 id="points">{{ currentQuestion.points }} points</h1>
                 </div>
                 <h1 id="question">
-                    {{ this.currentQuestion!.question }}
+                    {{ this.currentQuestion!.text }}
                 </h1>
                 <div id="timer-area">
                     <div class="circle">
@@ -35,7 +35,7 @@
                     [class.selected]="isSelected(choice)"
                     (click)="selectChoice(choice)"
                 >
-                    {{ i + 1 }}. {{ choice.choice }}
+                    {{ i + 1 }}. {{ choice.text }}
                 </button>
             </div>
             <div id="submit-score-area">

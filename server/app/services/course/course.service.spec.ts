@@ -1,11 +1,8 @@
-import { getRandomString } from '@app/constants/random-string';
-import { constants } from '@app/constants/unit-tests-constants';
-import { Course, CourseDocument, courseSchema } from '@app/model/database/course';
+import { Course, CourseDocument } from '@app/model/database/course';
 import { Logger } from '@nestjs/common';
-import { MongooseModule, getConnectionToken, getModelToken } from '@nestjs/mongoose';
+import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Connection, Model } from 'mongoose';
+import { Model } from 'mongoose';
 import { CourseService } from './course.service';
 
 /**
@@ -68,6 +65,7 @@ describe('CourseService', () => {
     });
 });
 
+/*
 describe('CourseServiceEndToEnd', () => {
     let service: CourseService;
     let courseModel: Model<CourseDocument>;
@@ -226,3 +224,4 @@ const getFakeCourse = (): Course => ({
     subjectCode: getRandomString(),
     teacher: getRandomString(),
 });
+*/

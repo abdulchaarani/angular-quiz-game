@@ -26,24 +26,23 @@ export class TestPageComponent implements OnInit {
             questions: [
                 {
                     type: 'QCM',
-                    description: 'Parmi les mots suivants, lesquels sont des mots clés réservés en JS?',
-                    question: 'Parmi les mots suivants, lesquels sont des mots clés réservés en JS?',
+                    text: 'Parmi les mots suivants, lesquels sont des mots clés réservés en JS?',
                     points: 20,
                     choices: [
                         {
-                            choice: 'var',
+                            text: 'var',
                             isCorrect: true,
                         },
                         {
-                            choice: 'self',
+                            text: 'self',
                             isCorrect: false,
                         },
                         {
-                            choice: 'this',
+                            text: 'this',
                             isCorrect: true,
                         },
                         {
-                            choice: 'int',
+                            text: 'int',
                             isCorrect: false,
                         },
                     ],
@@ -52,16 +51,15 @@ export class TestPageComponent implements OnInit {
 
                 {
                     type: 'QCM',
-                    description: 'Parmi les mots suivants, lesquels sont des mots clés réservés en JS?',
-                    question: 'Parmi les mots suivants, lesquels sont des mots clés réservés en JS?',
+                    text: 'Parmi les mots suivants, lesquels sont des mots clés réservés en JS?',
                     points: 20,
                     choices: [
                         {
-                            choice: 'Non',
+                            text: 'Non',
                             isCorrect: true,
                         },
                         {
-                            choice: 'Oui',
+                            text: 'Oui',
                             isCorrect: false,
                         },
                     ],

@@ -1,12 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { AdminQuestionBankComponent } from './admin-question-bank.component';
-import { QuestionService } from '@app/services/question.service';
 import { Question } from '@app/interfaces/question';
+import { QuestionService } from '@app/services/question.service';
+import { AdminQuestionBankComponent } from './admin-question-bank.component';
 
-import { of } from 'rxjs';
-import { SortByLastModificationPipe } from '@app/pipes/sort-by-last-modification.pipe';
 import { HttpResponse } from '@angular/common/http';
+import { SortByLastModificationPipe } from '@app/pipes/sort-by-last-modification.pipe';
 import { NotificationService } from '@app/services/notification.service';
+import { of } from 'rxjs';
 
 describe('AdminQuestionBankComponent', () => {
     let component: AdminQuestionBankComponent;
@@ -19,16 +19,14 @@ describe('AdminQuestionBankComponent', () => {
         {
             id: '1',
             type: 'QCM',
-            description: 'Motifs sur ballon de soccer',
-            question: 'Combien de motifs blancs et noirs y a-t-il respectivement sur un ballon de soccer?',
+            text: 'Combien de motifs blancs et noirs y a-t-il respectivement sur un ballon de soccer?',
             points: 20,
             lastModification: '2018-11-13T20:20:39+00:00',
         },
         {
             id: '2',
             type: 'QCM',
-            description: "Ratio d'argent",
-            question: "Le ratio d'or est de 1:1.618, mais connaissez-vous le ratio d'argent?",
+            text: "Le ratio d'or est de 1:1.618, mais connaissez-vous le ratio d'argent?",
             points: 40,
             lastModification: '2024-01-20T14:17:39+00:00',
         },
@@ -37,8 +35,7 @@ describe('AdminQuestionBankComponent', () => {
     const newMockQuestion: Question = {
         id: 'X',
         type: 'QCM',
-        description: 'Capitale du Canada',
-        question: 'Quelle est la capitale du canada?',
+        text: 'Quelle est la capitale du canada?',
         points: 20,
         lastModification: '2024-01-26T14:21:19+00:00',
     };

@@ -6,17 +6,14 @@ export type QuestionDocument = Question & Document;
 
 @Schema()
 export class Question {
-    @Prop({ required: true })
+    @Prop({ required: false })
     id: string;
 
     @Prop({ required: true })
     type: string;
 
     @Prop({ required: true })
-    description: string;
-
-    @Prop({ required: true })
-    question: string;
+    text: string;
 
     @Prop({ required: true })
     points: number;

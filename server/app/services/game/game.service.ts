@@ -1,11 +1,11 @@
 import { Game, GameDocument } from '@app/model/database/game';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
+import { GameValidationService } from '@app/services/game-validation/game-validation.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
-import { GameValidationService } from '@app/services/game-validation/game-validation.service';
 
 const YEAR = 2024; // TODO: Document with all CONSTS
 
@@ -38,8 +38,7 @@ export class GameService {
                     {
                         id: '2',
                         type: 'QCM',
-                        description: 'Inspiration Leblanc',
-                        question: "Savez-vous de quel auteur Leblanc s'est inspiré ?",
+                        text: "Savez-vous de quel auteur Leblanc s'est inspiré ?",
                         points: 60,
                         choices: [
                             {
@@ -74,8 +73,7 @@ export class GameService {
                     {
                         id: '1',
                         type: 'QCM',
-                        description: 'Outer Wilds',
-                        question: 'Parmi les choix suivants, lesquels sont des noms de planètes dans Outer Wilds ?',
+                        text: 'Parmi les choix suivants, lesquels sont des noms de planètes dans Outer Wilds ?',
                         points: 20,
                         choices: [
                             {
@@ -110,8 +108,7 @@ export class GameService {
                     {
                         id: '123',
                         type: 'QCM',
-                        description: 'Psykokwak',
-                        question: 'Quelles sont les principales caractéristiques de Psykokwak ?',
+                        text: 'Quelles sont les principales caractéristiques de Psykokwak ?',
                         points: 50,
                         choices: [
                             {
@@ -128,6 +125,31 @@ export class GameService {
                             },
                             {
                                 text: 'Il a toujours mal à la tête.',
+                                isCorrect: true,
+                            },
+                        ],
+                        lastModification: new Date(YEAR, 1, 1),
+                    },
+                    {
+                        id: '343wepfisajd',
+                        type: 'QCM',
+                        text: 'Quelles sont les principales caractéristiques de Shroomish ?',
+                        points: 50,
+                        choices: [
+                            {
+                                text: 'Il dit "wawa"',
+                                isCorrect: false,
+                            },
+                            {
+                                text: 'Il est de type plante.',
+                                isCorrect: true,
+                            },
+                            {
+                                text: 'Il se montre docile.',
+                                isCorrect: false,
+                            },
+                            {
+                                text: 'Il semble un peu grognon..',
                                 isCorrect: true,
                             },
                         ],

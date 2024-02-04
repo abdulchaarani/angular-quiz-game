@@ -23,8 +23,7 @@ const getFakeGame = (): Game => ({
         {
             id: getRandomString(),
             type: 'QCM',
-            description: getRandomString(),
-            question: getRandomString(),
+            text: getRandomString(),
             points: 30,
             choices: [
                 {

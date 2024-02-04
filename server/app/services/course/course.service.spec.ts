@@ -1,11 +1,12 @@
+import { getRandomString } from '@app/constants/random-string';
+import { constants } from '@app/constants/unit-tests-constants';
+import { Course, CourseDocument, courseSchema } from '@app/model/database/course';
 import { Logger } from '@nestjs/common';
+import { MongooseModule, getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection, Model } from 'mongoose';
 import { CourseService } from './course.service';
-
-import { Course, CourseDocument, courseSchema } from '@app/model/database/course';
-import { MongooseModule, getConnectionToken, getModelToken } from '@nestjs/mongoose';
 
 /**
  * There is two way to test the service :
@@ -67,8 +68,6 @@ describe('CourseService', () => {
     });
 });
 
-const DELAY_BEFORE_CLOSING_CONNECTION = 1000;
-
 describe('CourseServiceEndToEnd', () => {
     let service: CourseService;
     let courseModel: Model<CourseDocument>;
@@ -104,7 +103,7 @@ describe('CourseServiceEndToEnd', () => {
             await connection.close();
             await mongoServer.stop();
             done();
-        }, DELAY_BEFORE_CLOSING_CONNECTION);
+        }, constants.DELAY_BEFORE_CLOSING_CONNECTION);
     });
 
     it('should be defined', () => {
@@ -227,6 +226,3 @@ const getFakeCourse = (): Course => ({
     subjectCode: getRandomString(),
     teacher: getRandomString(),
 });
-
-const BASE_36 = 36;
-const getRandomString = (): string => (Math.random() + 1).toString(BASE_36).substring(2);

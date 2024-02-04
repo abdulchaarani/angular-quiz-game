@@ -55,7 +55,8 @@ export class AdminQuestionBankComponent implements OnInit {
                 this.questions.unshift(newQuestion);
                 this.notificationService.displaySuccessMessage('Question ajoutée avec succès! 😺');
             },
-            error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`Failed to delete question 😿 \n ${error.message}`),
+            error: (error: HttpErrorResponse) =>
+                this.notificationService.displayErrorMessage(`La question n'a pas pu être supprimée. 😿 \n ${error.message}`),
         });
     }
 }

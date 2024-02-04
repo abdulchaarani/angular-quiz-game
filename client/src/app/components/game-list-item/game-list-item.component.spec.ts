@@ -1,6 +1,7 @@
 import { HttpClientModule } from '@angular/common/http';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 import { By } from '@angular/platform-browser';
 import { GamesService } from '@app/services/games.service';
 import { of } from 'rxjs';
@@ -11,36 +12,6 @@ describe('GameListItemComponent', () => {
     let component: GameListItemComponent;
     let fixture: ComponentFixture<GameListItemComponent>;
     let gamesServiceSpy: SpyObj<GamesService>;
-
-    const BASE_36 = 36;
-    const getRandomString = (): string => (Math.random() + 1).toString(BASE_36).substring(2);
-    const mockGame = {
-        id: getRandomString(),
-        title: getRandomString(),
-        description: getRandomString(),
-        lastModification: new Date().toLocaleString(),
-        duration: 30,
-        isVisible: true,
-        questions: [
-            {
-                id: getRandomString(),
-                type: 'QCM',
-                text: getRandomString(),
-                points: 30,
-                choices: [
-                    {
-                        text: getRandomString(),
-                        isCorrect: true,
-                    },
-                    {
-                        text: getRandomString(),
-                        isCorrect: false,
-                    },
-                ],
-                lastModification: new Date().toLocaleString(),
-            },
-        ],
-    };
 
     beforeEach(waitForAsync(() => {
         gamesServiceSpy = jasmine.createSpyObj('GamesService', [
@@ -55,7 +26,7 @@ describe('GameListItemComponent', () => {
         gamesServiceSpy.toggleGameVisibility.and.returnValue(of());
 
         TestBed.configureTestingModule({
-            imports: [MatCardModule, HttpClientModule],
+            imports: [MatCardModule, HttpClientModule, MatIconModule],
             declarations: [GameListItemComponent],
             providers: [{ provide: GamesService, useValue: gamesServiceSpy }],
         }).compileComponents();
@@ -124,3 +95,33 @@ describe('GameListItemComponent', () => {
         expect(gamesServiceSpy.downloadGameAsJson).not.toHaveBeenCalled();
     });
 });
+
+const BASE_36 = 36;
+const getRandomString = (): string => (Math.random() + 1).toString(BASE_36).substring(2);
+const mockGame = {
+    id: getRandomString(),
+    title: getRandomString(),
+    description: getRandomString(),
+    lastModification: new Date().toLocaleString(),
+    duration: 30,
+    isVisible: true,
+    questions: [
+        {
+            id: getRandomString(),
+            type: 'QCM',
+            text: getRandomString(),
+            points: 30,
+            choices: [
+                {
+                    text: getRandomString(),
+                    isCorrect: true,
+                },
+                {
+                    text: getRandomString(),
+                    isCorrect: false,
+                },
+            ],
+            lastModification: new Date().toLocaleString(),
+        },
+    ],
+};

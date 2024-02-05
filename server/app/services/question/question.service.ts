@@ -6,6 +6,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
+import { GameValidationService } from '../game-validation/game-validation.service';
 
 // TODO: Add Validation Service
 @Injectable()
@@ -13,6 +14,7 @@ export class QuestionService {
     constructor(
         @InjectModel(Question.name) public questionModel: Model<QuestionDocument>,
         private readonly logger: Logger,
+        private validation: GameValidationService,
     ) {
         this.start();
     }
@@ -48,14 +50,18 @@ export class QuestionService {
     async addQuestion(question: CreateQuestionDto): Promise<void> {
         // TODO: Unit-test for when a question already exists
         if (await this.getQuestionByName(question.text)) {
-            return Promise.reject('Question already exists in bank.');
+            return Promise.reject('La question existe déjà dans la banque.');
         }
         question.id = uuidv4();
         question.lastModification = new Date();
+        const errorMessages = this.validation.findQuestionErrors(question);
+        if (errorMessages.length !== 0) {
+            return Promise.reject(`La question est invalide:\n${errorMessages}`);
+        }
         try {
             await this.questionModel.create(question);
         } catch (error) {
-            return Promise.reject(`Failed to insert question: ${error}`);
+            return Promise.reject(`La question n'a pas pu être ajoutée.: ${error}`);
         }
     }
 

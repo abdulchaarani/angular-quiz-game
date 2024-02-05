@@ -1,5 +1,5 @@
 import { Game } from '@app/model/database/game';
-import { Question } from '@app/model/database/question';
+import { CreateQuestionDto } from '@app/model/dto/question/create-question-dto';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -8,7 +8,7 @@ export class GameValidationService {
         return text && text.trim() !== '';
     }
 
-    isValidChoicesRatio(question: Question): boolean {
+    isValidChoicesRatio(question: CreateQuestionDto): boolean {
         let isValidRightChoiceNumber = false;
         let isValidWrongChoiceNumber = false;
         question.choices.forEach((choice) => {
@@ -31,7 +31,7 @@ export class GameValidationService {
     }
 
     // TODO: Remove
-    isValidQuestion(question: Question): boolean {
+    isValidQuestion(question: CreateQuestionDto): boolean {
         const MINIMUM_CHOICES_NUMBER = 2;
         const MAXIMUM_CHOICES_NUMBER = 4;
         const MINIMUM_POINTS = 10;
@@ -44,7 +44,7 @@ export class GameValidationService {
     }
 
     // TODO: Remove
-    isValidQuestionsList(questions: Question[]) {
+    isValidQuestionsList(questions: CreateQuestionDto[]) {
         for (let i = 0; i < questions.length; i++) {
             if (!this.isValidQuestion(questions[i])) {
                 return false;
@@ -69,7 +69,7 @@ export class GameValidationService {
 
     // REFACTORISATION
 
-    findQuestionErrors(question: Question): string[] {
+    findQuestionErrors(question: CreateQuestionDto): string[] {
         const errorMessages: string[] = [];
         const MINIMUM_CHOICES_NUMBER = 2;
         const MAXIMUM_CHOICES_NUMBER = 4;

@@ -94,11 +94,11 @@ export class GameService {
     }
 
     async upsertGame(game: UpdateGameDto): Promise<void> {
-        // TODO: Update LastModification if not ToggleVisibility
         const filterQuery = { id: game.id };
         try {
-            if (!this.validation.isValidGame(game)) {
-                return Promise.reject('Le jeu est invalide.');
+            const errorMessages = this.validation.findGameErrors(game);
+            if (errorMessages.length !== 0) {
+                return Promise.reject(`Le jeu est invalide:\n${errorMessages}`);
             }
             game = this.updateDateAndVisibility(game);
 

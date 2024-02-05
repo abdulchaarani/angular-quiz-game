@@ -48,7 +48,7 @@ export class GameController {
             await this.gameService.toggleGameVisibility(id);
             response.status(HttpStatus.OK).send();
         } catch (error) {
-            response.status(HttpStatus.BAD_REQUEST).send(error.message);
+            response.status(HttpStatus.NOT_FOUND).send(error.message);
         }
     }
 

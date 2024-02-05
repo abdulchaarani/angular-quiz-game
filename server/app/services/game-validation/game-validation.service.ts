@@ -16,6 +16,7 @@ import {
     QUESTION_EMPTY_TEXT_ERROR_MESSAGE,
     STEP_POINTS,
 } from '@app/constants/game-validation-constants';
+import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question-dto';
 import { Injectable } from '@nestjs/common';
@@ -29,7 +30,7 @@ export class GameValidationService {
     isValidChoicesRatio(question: CreateQuestionDto): boolean {
         let isValidRightChoiceNumber = false;
         let isValidWrongChoiceNumber = false;
-        question.choices.forEach((choice) => {
+        question.choices.forEach((choice: Choice) => {
             if (choice.isCorrect && this.isValidString(choice.text)) {
                 isValidRightChoiceNumber = true;
             } else if (!choice.isCorrect && this.isValidString(choice.text)) {
@@ -90,10 +91,10 @@ export class GameValidationService {
         if (!isValidQuestionsNumber) {
             errorMessages.push(GAME_QUESTIONS_NUMBER_ERROR_MESSAGE);
         }
-        game.questions.forEach((question, index) => {
+        game.questions.forEach((question: CreateQuestionDto, index: number) => {
             const questionErrorMessages = this.findQuestionErrors(question);
             if (questionErrorMessages.length !== 0) {
-                errorMessages.push(`La question ${index} est invalide.`);
+                errorMessages.push(`La question ${index + 1} est invalide:`);
                 questionErrorMessages.forEach((message) => errorMessages.push(message));
             }
         });

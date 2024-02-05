@@ -5,14 +5,16 @@
 <div class="top-container">
     <h3>Description du jeu.</h3>
 
-    <button mat-raised-button color="basic" routerLink="/admin/games/:id/questionbank" id="admin-question-bank-button">Banque de questions</button>
+    <button mat-raised-button color="basic" routerLink="/admin/games/{{ game.id }}/questionbank" id="admin-question-bank-button">Banque de questions</button>
 </div>
 
 <mat-card class="time-slider">
     <mat-card-content>
         <h2>Timer</h2>
-        <mat-slider min="10" max="60" step="5" value="10" discrete="thumblabel">
-            <input matSliderThumb (input)="changeDuration($event)" />
+        <mat-slider min="10" max="60" step="5" discrete="thumblabel">
+            <input matSliderThumb
+            [(ngModel)]="game.duration"
+            (input)="changeDuration($event)" />
         </mat-slider>
     </mat-card-content>
 </mat-card>

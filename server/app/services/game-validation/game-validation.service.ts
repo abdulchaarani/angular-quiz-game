@@ -1,21 +1,4 @@
-import {
-    CHOICES_NUMBER_ERROR_MESSAGE,
-    CHOICES_RATIO_ERROR_MESSAGE,
-    GAME_DURATION_ERROR_MESSAGE,
-    GAME_EMPTY_DESCRIPTION_ERROR_MESSAGE,
-    GAME_EMPTY_TITLE_ERROR_MESSAGE,
-    GAME_QUESTIONS_NUMBER_ERROR_MESSAGE,
-    MAXIMUM_CHOICES_NUMBER,
-    MAXIMUM_DURATION,
-    MAXIMUM_POINTS,
-    MINIMUM_CHOICES_NUMBER,
-    MINIMUM_DURATION,
-    MINIMUM_POINTS,
-    MINIMUM_QUESTIONS_NUMBER,
-    POINTS_ERROR_MESSAGE,
-    QUESTION_EMPTY_TEXT_ERROR_MESSAGE,
-    STEP_POINTS,
-} from '@app/constants/game-validation-constants';
+import { constants } from '@app/constants/game-validation-constants';
 import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question-dto';
@@ -53,21 +36,21 @@ export class GameValidationService {
     findQuestionErrors(question: CreateQuestionDto): string[] {
         const errorMessages: string[] = [];
 
-        const isValidChoicesNumber = this.isValidRange(question.choices.length, MINIMUM_CHOICES_NUMBER, MAXIMUM_CHOICES_NUMBER);
-        const isValidPointsNumber = this.isValidRange(question.points, MINIMUM_POINTS, MAXIMUM_POINTS, STEP_POINTS);
+        const isValidChoicesNumber = this.isValidRange(question.choices.length, constants.MINIMUM_CHOICES_NUMBER, constants.MAXIMUM_CHOICES_NUMBER);
+        const isValidPointsNumber = this.isValidRange(question.points, constants.MINIMUM_POINTS, constants.MAXIMUM_POINTS, constants.STEP_POINTS);
         const isValidQuestionName = this.isValidString(question.text);
         const isValidQuestionRatio = this.isValidChoicesRatio(question);
         if (!isValidChoicesNumber) {
-            errorMessages.push(CHOICES_NUMBER_ERROR_MESSAGE);
+            errorMessages.push(constants.CHOICES_NUMBER_ERROR_MESSAGE);
         }
         if (!isValidPointsNumber) {
-            errorMessages.push(POINTS_ERROR_MESSAGE);
+            errorMessages.push(constants.POINTS_ERROR_MESSAGE);
         }
         if (!isValidQuestionName) {
-            errorMessages.push(QUESTION_EMPTY_TEXT_ERROR_MESSAGE);
+            errorMessages.push(constants.QUESTION_EMPTY_TEXT_ERROR_MESSAGE);
         }
         if (!isValidQuestionRatio) {
-            errorMessages.push(CHOICES_RATIO_ERROR_MESSAGE);
+            errorMessages.push(constants.CHOICES_RATIO_ERROR_MESSAGE);
         }
         return errorMessages;
     }
@@ -76,20 +59,20 @@ export class GameValidationService {
         const errorMessages: string[] = [];
         const isValidTitle = this.isValidString(game.title);
         const isValidDescription = this.isValidString(game.description);
-        const isValidDuration = this.isValidRange(game.duration, MINIMUM_DURATION, MAXIMUM_DURATION);
-        const isValidQuestionsNumber = game.questions.length >= MINIMUM_QUESTIONS_NUMBER;
+        const isValidDuration = this.isValidRange(game.duration, constants.MINIMUM_DURATION, constants.MAXIMUM_DURATION);
+        const isValidQuestionsNumber = game.questions.length >= constants.MINIMUM_QUESTIONS_NUMBER;
 
         if (!isValidTitle) {
-            errorMessages.push(GAME_EMPTY_TITLE_ERROR_MESSAGE);
+            errorMessages.push(constants.GAME_EMPTY_TITLE_ERROR_MESSAGE);
         }
         if (!isValidDescription) {
-            errorMessages.push(GAME_EMPTY_DESCRIPTION_ERROR_MESSAGE);
+            errorMessages.push(constants.GAME_EMPTY_DESCRIPTION_ERROR_MESSAGE);
         }
         if (!isValidDuration) {
-            errorMessages.push(GAME_DURATION_ERROR_MESSAGE);
+            errorMessages.push(constants.GAME_DURATION_ERROR_MESSAGE);
         }
         if (!isValidQuestionsNumber) {
-            errorMessages.push(GAME_QUESTIONS_NUMBER_ERROR_MESSAGE);
+            errorMessages.push(constants.GAME_QUESTIONS_NUMBER_ERROR_MESSAGE);
         }
         game.questions.forEach((question: CreateQuestionDto, index: number) => {
             const questionErrorMessages = this.findQuestionErrors(question);

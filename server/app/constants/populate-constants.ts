@@ -154,7 +154,7 @@ const QUESTIONS_TO_POPULATE: CreateQuestionDto[] = [
                 isCorrect: false,
             },
         ],
-        lastModification: new Date(2024, 1, 2),
+        lastModification: new Date(),
     },
     {
         id: '2',
@@ -179,7 +179,7 @@ const QUESTIONS_TO_POPULATE: CreateQuestionDto[] = [
                 isCorrect: false,
             },
         ],
-        lastModification: new Date(2024, 1, 2),
+        lastModification: new Date(),
     },
     {
         id: '3',
@@ -204,7 +204,7 @@ const QUESTIONS_TO_POPULATE: CreateQuestionDto[] = [
                 isCorrect: false,
             },
         ],
-        lastModification: new Date(2024, 1, 1),
+        lastModification: new Date(),
     },
 ];
 export { GAMES_TO_POPULATE, QUESTIONS_TO_POPULATE };

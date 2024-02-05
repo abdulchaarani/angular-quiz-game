@@ -1,36 +1,19 @@
-const MINIMUM_CHOICES_NUMBER = 2;
-const MAXIMUM_CHOICES_NUMBER = 4;
-const MINIMUM_POINTS = 10;
-const MAXIMUM_POINTS = 100;
-const STEP_POINTS = 10;
-const MINIMUM_DURATION = 10;
-const MAXIMUM_DURATION = 60;
-const MINIMUM_QUESTIONS_NUMBER = 1;
-
-const CHOICES_NUMBER_ERROR_MESSAGE = `Il doit y avoir entre ${MINIMUM_CHOICES_NUMBER} et ${MAXIMUM_CHOICES_NUMBER} choix dans la question.`;
-const POINTS_ERROR_MESSAGE = `Le nombre de points doit être entre ${MINIMUM_POINTS} et ${MAXIMUM_POINTS} tout en étant divisible par ${STEP_POINTS}`;
-const QUESTION_EMPTY_TEXT_ERROR_MESSAGE = 'Le texte de la question ne doit pas être vide.';
-const CHOICES_RATIO_ERROR_MESSAGE = 'Il doit y avoir au moins un choix valide et un choix invalide.';
-const GAME_EMPTY_TITLE_ERROR_MESSAGE = 'Le titre du jeu est vide.';
-const GAME_EMPTY_DESCRIPTION_ERROR_MESSAGE = 'La description du jeu est vide.';
-const GAME_DURATION_ERROR_MESSAGE = 'La durée doit être entre 10 et 60 secondes.';
-const GAME_QUESTIONS_NUMBER_ERROR_MESSAGE = 'Le jeu doit avoir au moins une question.';
+const minimumChoicesNumber = 2;
+const maximumChoicesNumber = 4;
+const minimumPoints = 10;
+const maximumPoints = 100;
+const stepPoints = 10;
+const minimumDuration = 10;
+const maximumDuration = 60;
+const minimumQuestionsNumber = 1;
 
 export const constants = {
-    MINIMUM_CHOICES_NUMBER,
-    MAXIMUM_CHOICES_NUMBER,
-    MINIMUM_POINTS,
-    MAXIMUM_POINTS,
-    STEP_POINTS,
-    MINIMUM_DURATION,
-    MAXIMUM_DURATION,
-    MINIMUM_QUESTIONS_NUMBER,
-    CHOICES_NUMBER_ERROR_MESSAGE,
-    POINTS_ERROR_MESSAGE,
-    QUESTION_EMPTY_TEXT_ERROR_MESSAGE,
-    GAME_EMPTY_DESCRIPTION_ERROR_MESSAGE,
-    GAME_DURATION_ERROR_MESSAGE,
-    GAME_QUESTIONS_NUMBER_ERROR_MESSAGE,
-    CHOICES_RATIO_ERROR_MESSAGE,
-    GAME_EMPTY_TITLE_ERROR_MESSAGE,
+    minimumChoicesNumber,
+    maximumChoicesNumber,
+    minimumPoints,
+    maximumPoints,
+    stepPoints,
+    minimumDuration,
+    maximumDuration,
+    minimumQuestionsNumber,
 };

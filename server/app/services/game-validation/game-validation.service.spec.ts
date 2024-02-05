@@ -1,3 +1,4 @@
+import { errorMessage } from '@app/constants/game-error-messages';
 import { constants } from '@app/constants/game-validation-constants';
 import { getRandomString } from '@app/constants/random-string';
 import { Game } from '@app/model/database/game';
@@ -70,37 +71,37 @@ describe('GameValidationService', () => {
         const validateStringSpy = jest.spyOn(service, 'isValidString').mockImplementation(() => true);
         const ratioSpy = jest.spyOn(service, 'isValidChoicesRatio').mockImplementation(() => true);
         expect(service.findQuestionErrors(MOCK_QUESTION)).toEqual([]);
-        expect(rangeSpy).toHaveBeenCalledWith(MOCK_QUESTION.choices.length, constants.MINIMUM_CHOICES_NUMBER, constants.MAXIMUM_CHOICES_NUMBER);
-        expect(rangeSpy).toHaveBeenCalledWith(MOCK_QUESTION.points, constants.MINIMUM_POINTS, constants.MAXIMUM_POINTS, constants.STEP_POINTS);
+        expect(rangeSpy).toHaveBeenCalledWith(MOCK_QUESTION.choices.length, constants.minimumChoicesNumber, constants.maximumChoicesNumber);
+        expect(rangeSpy).toHaveBeenCalledWith(MOCK_QUESTION.points, constants.minimumPoints, constants.maximumPoints, constants.stepPoints);
         expect(validateStringSpy).toHaveBeenCalledWith(MOCK_QUESTION.text);
         expect(ratioSpy).toHaveBeenCalledWith(MOCK_QUESTION);
     });
 
-    it('findQuestionErrors() should return an array containing CHOICES_NUMBER_ERROR_MESSAGE if the number of choices is invalid', () => {
+    it('findQuestionErrors() should return an array containing errorMessage.choicesNumber if the number of choices is invalid', () => {
         const rangeSpy = jest.spyOn(service, 'isValidRange').mockImplementation(() => false);
         const foundErrors = service.findQuestionErrors(MOCK_QUESTION);
-        expect(foundErrors.find((message: string) => message === constants.CHOICES_NUMBER_ERROR_MESSAGE)).toBeTruthy();
-        expect(rangeSpy).toHaveBeenCalledWith(MOCK_QUESTION.choices.length, constants.MINIMUM_CHOICES_NUMBER, constants.MAXIMUM_CHOICES_NUMBER);
+        expect(foundErrors.find((message: string) => message === errorMessage.choicesNumber)).toBeTruthy();
+        expect(rangeSpy).toHaveBeenCalledWith(MOCK_QUESTION.choices.length, constants.minimumChoicesNumber, constants.maximumChoicesNumber);
     });
 
-    it('findQuestionErrors() should return an array containing POINTS_ERROR_MESSAGE if the number of points is invalid', () => {
+    it('findQuestionErrors() should return an array containing errorMessage.points if the number of points is invalid', () => {
         const rangeSpy = jest.spyOn(service, 'isValidRange').mockImplementation(() => false);
         const foundErrors = service.findQuestionErrors(MOCK_QUESTION);
-        expect(foundErrors.find((message: string) => message === constants.POINTS_ERROR_MESSAGE)).toBeTruthy();
-        expect(rangeSpy).toHaveBeenCalledWith(MOCK_QUESTION.points, constants.MINIMUM_POINTS, constants.MAXIMUM_POINTS, constants.STEP_POINTS);
+        expect(foundErrors.find((message: string) => message === errorMessage.points)).toBeTruthy();
+        expect(rangeSpy).toHaveBeenCalledWith(MOCK_QUESTION.points, constants.minimumPoints, constants.maximumPoints, constants.stepPoints);
     });
 
-    it('findQuestionErrors() should return an array containing QUESTION_EMPTY_TEXT_ERROR_MESSAGE if the question text is empty', () => {
+    it('findQuestionErrors() should return an array containing errorMessage.questionEmptyText if the question text is empty', () => {
         const validateStringSpy = jest.spyOn(service, 'isValidString').mockImplementation(() => false);
         const foundErrors = service.findQuestionErrors(MOCK_QUESTION);
-        expect(foundErrors.find((message: string) => message === constants.QUESTION_EMPTY_TEXT_ERROR_MESSAGE)).toBeTruthy();
+        expect(foundErrors.find((message: string) => message === errorMessage.questionEmptyText)).toBeTruthy();
         expect(validateStringSpy).toHaveBeenCalledWith(MOCK_QUESTION.text);
     });
 
-    it('findQuestionErrors() should return an array containing CHOICES_RATIO_ERROR_MESSAGE if the choices ratio is invalid', () => {
+    it('findQuestionErrors() should return an array containing errorMessage.choicesRatio if the choices ratio is invalid', () => {
         const ratioSpy = jest.spyOn(service, 'isValidChoicesRatio').mockImplementation(() => false);
         const foundErrors = service.findQuestionErrors(MOCK_QUESTION);
-        expect(foundErrors.find((message: string) => message === constants.CHOICES_RATIO_ERROR_MESSAGE)).toBeTruthy();
+        expect(foundErrors.find((message: string) => message === errorMessage.choicesRatio)).toBeTruthy();
         expect(ratioSpy).toHaveBeenCalledWith(MOCK_QUESTION);
     });
 
@@ -109,13 +110,13 @@ describe('GameValidationService', () => {
         const validateStringSpy = jest.spyOn(service, 'isValidString').mockImplementation(() => false);
         const ratioSpy = jest.spyOn(service, 'isValidChoicesRatio').mockImplementation(() => false);
         expect(service.findQuestionErrors(MOCK_QUESTION)).toEqual([
-            constants.CHOICES_NUMBER_ERROR_MESSAGE,
-            constants.POINTS_ERROR_MESSAGE,
-            constants.QUESTION_EMPTY_TEXT_ERROR_MESSAGE,
-            constants.CHOICES_RATIO_ERROR_MESSAGE,
+            errorMessage.choicesNumber,
+            errorMessage.points,
+            errorMessage.questionEmptyText,
+            errorMessage.choicesRatio,
         ]);
-        expect(rangeSpy).toHaveBeenCalledWith(MOCK_QUESTION.choices.length, constants.MINIMUM_CHOICES_NUMBER, constants.MAXIMUM_CHOICES_NUMBER);
-        expect(rangeSpy).toHaveBeenCalledWith(MOCK_QUESTION.points, constants.MINIMUM_POINTS, constants.MAXIMUM_POINTS, constants.STEP_POINTS);
+        expect(rangeSpy).toHaveBeenCalledWith(MOCK_QUESTION.choices.length, constants.minimumChoicesNumber, constants.maximumChoicesNumber);
+        expect(rangeSpy).toHaveBeenCalledWith(MOCK_QUESTION.points, constants.minimumPoints, constants.maximumPoints, constants.stepPoints);
         expect(validateStringSpy).toHaveBeenCalledWith(MOCK_QUESTION.text);
         expect(ratioSpy).toHaveBeenCalledWith(MOCK_QUESTION);
     });
@@ -127,40 +128,40 @@ describe('GameValidationService', () => {
         expect(service.findGameErrors(MOCK_GAME)).toEqual([]);
         expect(validateStringSpy).toHaveBeenCalledWith(MOCK_GAME.title);
         expect(validateStringSpy).toHaveBeenCalledWith(MOCK_GAME.description);
-        expect(rangeSpy).toHaveBeenCalledWith(MOCK_GAME.duration, constants.MINIMUM_DURATION, constants.MAXIMUM_DURATION);
+        expect(rangeSpy).toHaveBeenCalledWith(MOCK_GAME.duration, constants.minimumDuration, constants.maximumDuration);
         expect(validateQuestionSpy).toHaveBeenCalledTimes(MOCK_GAME.questions.length);
     });
 
-    it('findGameErrors() should return an array containing GAME_EMPTY_TITLE_ERROR_MESSAGE if title is empty', () => {
+    it('findGameErrors() should return an array containing errorMessage.gameEmptyTitle if title is empty', () => {
         const validateStringSpy = jest.spyOn(service, 'isValidString').mockImplementation(() => false);
         const foundErrors = service.findGameErrors(MOCK_GAME);
-        expect(foundErrors.find((message: string) => message === constants.GAME_EMPTY_TITLE_ERROR_MESSAGE));
+        expect(foundErrors.find((message: string) => message === errorMessage.gameEmptyTitle));
         expect(validateStringSpy).toHaveBeenCalledWith(MOCK_GAME.title);
     });
 
-    it('findGameErrors() should return an array containing GAME_EMPTY_DESCRIPTION_ERROR_MESSAGE if description is empty', () => {
+    it('findGameErrors() should return an array containing errorMessage.gameEmptyDescription if description is empty', () => {
         const validateStringSpy = jest.spyOn(service, 'isValidString').mockImplementation(() => false);
         const foundErrors = service.findGameErrors(MOCK_GAME);
-        expect(foundErrors.find((message: string) => message === constants.GAME_EMPTY_DESCRIPTION_ERROR_MESSAGE));
+        expect(foundErrors.find((message: string) => message === errorMessage.gameEmptyDescription));
         expect(validateStringSpy).toHaveBeenCalledWith(MOCK_GAME.description);
     });
 
-    it('findGameErrors() should return an array containing GAME_DURATION_ERROR_MESSAGE if duration is invalid', () => {
+    it('findGameErrors() should return an array containing errorMessage.gameDuration if duration is invalid', () => {
         const rangeSpy = jest.spyOn(service, 'isValidRange').mockImplementation(() => false);
         const foundErrors = service.findGameErrors(MOCK_GAME);
-        expect(foundErrors.find((message: string) => message === constants.GAME_DURATION_ERROR_MESSAGE));
-        expect(rangeSpy).toHaveBeenCalledWith(MOCK_GAME.duration, constants.MINIMUM_DURATION, constants.MAXIMUM_DURATION);
+        expect(foundErrors.find((message: string) => message === errorMessage.gameDuration));
+        expect(rangeSpy).toHaveBeenCalledWith(MOCK_GAME.duration, constants.minimumDuration, constants.maximumDuration);
     });
 
-    it('findGameErrors() should return an array containing GAME_QUESTIONS_NUMBER_ERROR_MESSAGE if it contains no question', () => {
+    it('findGameErrors() should return an array containing errorMessage.gameQuestionsNumber if it contains no question', () => {
         const testNoQuestionGame = MOCK_GAME;
         testNoQuestionGame.questions = [];
         const foundErrors = service.findGameErrors(MOCK_GAME);
-        expect(foundErrors.find((message: string) => message === constants.GAME_QUESTIONS_NUMBER_ERROR_MESSAGE));
+        expect(foundErrors.find((message: string) => message === errorMessage.gameQuestionsNumber));
     });
 
     it('findGameErrors() should return an array containing all errors from invalid questions', () => {
-        const validateQuestionSpy = jest.spyOn(service, 'findQuestionErrors').mockImplementation(() => [constants.QUESTION_EMPTY_TEXT_ERROR_MESSAGE]);
+        const validateQuestionSpy = jest.spyOn(service, 'findQuestionErrors').mockImplementation(() => [errorMessage.questionEmptyText]);
 
         const invalidQuestionsGame = MOCK_GAME;
         invalidQuestionsGame.questions = [];
@@ -175,9 +176,9 @@ describe('GameValidationService', () => {
 
         expect(foundErrors).toEqual([
             firstQuestionErrorMessage,
-            constants.QUESTION_EMPTY_TEXT_ERROR_MESSAGE,
+            errorMessage.questionEmptyText,
             secondQuestionErrorMessage,
-            constants.QUESTION_EMPTY_TEXT_ERROR_MESSAGE,
+            errorMessage.questionEmptyText,
         ]);
         expect(validateQuestionSpy).toHaveBeenCalledTimes(invalidQuestionsGame.questions.length);
     });
@@ -187,13 +188,13 @@ describe('GameValidationService', () => {
         const validateStringSpy = jest.spyOn(service, 'isValidString').mockImplementation(() => false);
         const validateQuestionSpy = jest.spyOn(service, 'findQuestionErrors').mockImplementation(() => []);
         expect(service.findGameErrors(MOCK_GAME)).toEqual([
-            constants.GAME_EMPTY_TITLE_ERROR_MESSAGE,
-            constants.GAME_EMPTY_DESCRIPTION_ERROR_MESSAGE,
-            constants.GAME_DURATION_ERROR_MESSAGE,
+            errorMessage.gameEmptyTitle,
+            errorMessage.gameEmptyDescription,
+            errorMessage.gameDuration,
         ]);
         expect(validateStringSpy).toHaveBeenCalledWith(MOCK_GAME.title);
         expect(validateStringSpy).toHaveBeenCalledWith(MOCK_GAME.description);
-        expect(rangeSpy).toHaveBeenCalledWith(MOCK_GAME.duration, constants.MINIMUM_DURATION, constants.MAXIMUM_DURATION);
+        expect(rangeSpy).toHaveBeenCalledWith(MOCK_GAME.duration, constants.minimumDuration, constants.maximumDuration);
         expect(validateQuestionSpy).toHaveBeenCalledTimes(MOCK_GAME.questions.length);
     });
 });

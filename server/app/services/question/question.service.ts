@@ -2,11 +2,11 @@ import { QUESTIONS_TO_POPULATE } from '@app/constants/populate-constants';
 import { Question, QuestionDocument } from '@app/model/database/question';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question-dto';
 import { UpdateQuestionDto } from '@app/model/dto/question/update-question-dto';
+import { GameValidationService } from '@app/services/game-validation/game-validation.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
-import { GameValidationService } from '../game-validation/game-validation.service';
 
 // TODO: Add Validation Service
 @Injectable()

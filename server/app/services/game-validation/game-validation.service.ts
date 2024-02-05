@@ -1,3 +1,4 @@
+import { errorMessage } from '@app/constants/game-error-messages';
 import { constants } from '@app/constants/game-validation-constants';
 import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
@@ -36,21 +37,21 @@ export class GameValidationService {
     findQuestionErrors(question: CreateQuestionDto): string[] {
         const errorMessages: string[] = [];
 
-        const isValidChoicesNumber = this.isValidRange(question.choices.length, constants.MINIMUM_CHOICES_NUMBER, constants.MAXIMUM_CHOICES_NUMBER);
-        const isValidPointsNumber = this.isValidRange(question.points, constants.MINIMUM_POINTS, constants.MAXIMUM_POINTS, constants.STEP_POINTS);
+        const isValidChoicesNumber = this.isValidRange(question.choices.length, constants.minimumChoicesNumber, constants.maximumChoicesNumber);
+        const isValidPointsNumber = this.isValidRange(question.points, constants.minimumPoints, constants.maximumPoints, constants.stepPoints);
         const isValidQuestionName = this.isValidString(question.text);
         const isValidQuestionRatio = this.isValidChoicesRatio(question);
         if (!isValidChoicesNumber) {
-            errorMessages.push(constants.CHOICES_NUMBER_ERROR_MESSAGE);
+            errorMessages.push(errorMessage.choicesNumber);
         }
         if (!isValidPointsNumber) {
-            errorMessages.push(constants.POINTS_ERROR_MESSAGE);
+            errorMessages.push(errorMessage.points);
         }
         if (!isValidQuestionName) {
-            errorMessages.push(constants.QUESTION_EMPTY_TEXT_ERROR_MESSAGE);
+            errorMessages.push(errorMessage.questionEmptyText);
         }
         if (!isValidQuestionRatio) {
-            errorMessages.push(constants.CHOICES_RATIO_ERROR_MESSAGE);
+            errorMessages.push(errorMessage.choicesRatio);
         }
         return errorMessages;
     }
@@ -59,20 +60,20 @@ export class GameValidationService {
         const errorMessages: string[] = [];
         const isValidTitle = this.isValidString(game.title);
         const isValidDescription = this.isValidString(game.description);
-        const isValidDuration = this.isValidRange(game.duration, constants.MINIMUM_DURATION, constants.MAXIMUM_DURATION);
-        const isValidQuestionsNumber = game.questions.length >= constants.MINIMUM_QUESTIONS_NUMBER;
+        const isValidDuration = this.isValidRange(game.duration, constants.minimumDuration, constants.maximumDuration);
+        const isValidQuestionsNumber = game.questions.length >= constants.minimumQuestionsNumber;
 
         if (!isValidTitle) {
-            errorMessages.push(constants.GAME_EMPTY_TITLE_ERROR_MESSAGE);
+            errorMessages.push(errorMessage.gameEmptyTitle);
         }
         if (!isValidDescription) {
-            errorMessages.push(constants.GAME_EMPTY_DESCRIPTION_ERROR_MESSAGE);
+            errorMessages.push(errorMessage.gameEmptyDescription);
         }
         if (!isValidDuration) {
-            errorMessages.push(constants.GAME_DURATION_ERROR_MESSAGE);
+            errorMessages.push(errorMessage.gameDuration);
         }
         if (!isValidQuestionsNumber) {
-            errorMessages.push(constants.GAME_QUESTIONS_NUMBER_ERROR_MESSAGE);
+            errorMessages.push(errorMessage.gameQuestionsNumber);
         }
         game.questions.forEach((question: CreateQuestionDto, index: number) => {
             const questionErrorMessages = this.findQuestionErrors(question);

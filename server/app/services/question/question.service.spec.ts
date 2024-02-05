@@ -1,10 +1,10 @@
 import { getRandomString } from '@app/constants/random-string';
 import { Question, QuestionDocument } from '@app/model/database/question';
+import { GameValidationService } from '@app/services/game-validation/game-validation.service';
 import { Logger } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Model } from 'mongoose';
-import { GameValidationService } from '../game-validation/game-validation.service';
 import { QuestionService } from './question.service';
 const stringifyPublicValues = (question: Question): string => {
     return JSON.stringify(question, (key, value) => {
@@ -34,7 +34,7 @@ const getFakeQuestion = (): Question => ({
             isCorrect: false,
         },
     ],
-    lastModification: new Date(2024, 1, 1),
+    lastModification: new Date(),
 });
 // TODO: Complete the base tests
 describe('QuestionService', () => {
@@ -97,6 +97,7 @@ describe('QuestionService', () => {
     it('updateQuestion() should fail if the corresponding question does not exist in the database', async () => {
         const mockQuestion = getFakeQuestion();
         const spyFindOne = jest.spyOn(questionModel, 'findOne').mockRejectedValue('');
+        expect(spyFindOne).toBeCalled();
         await expect(service.updateQuestion(mockQuestion)).rejects.toBeTruthy();
     });
     // TODO: Unit tests with upsert(): updateQuestion(question, true)
@@ -157,7 +158,7 @@ describe('QuestionServiceE2E', () => {
             await connection.close();
             await mongoServer.stop();
             done();
-        }, constants.DELAY_BEFORE_CLOSING_CONNECTION);
+        }, DELAY_BEFORE_CLOSING_CONNECTION);
     });
     it('should be defined', () => {
         expect(service).toBeDefined();

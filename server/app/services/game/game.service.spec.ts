@@ -1,10 +1,10 @@
 import { getRandomString } from '@app/constants/random-string';
 import { Game, GameDocument } from '@app/model/database/game';
+import { GameValidationService } from '@app/services/game-validation/game-validation.service';
 import { Logger } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Model } from 'mongoose';
-import { GameValidationService } from '../game-validation/game-validation.service';
 import { GameService } from './game.service';
 
 // TODO: Add tests for the add from JSON
@@ -110,7 +110,7 @@ describe('GameService', () => {
     });
     // TODO: Fix this test
     it('toggleGameVisibility() should fail if the corresponding game does not exist in the database', async () => {
-        const mockGame = getFakeGame();
+        // const mockGame = getFakeGame();
         const spyFindOne = jest.spyOn(gameModel, 'findOne').mockRejectedValue('');
         // await expect(service.toggleGameVisibility(mockGame.id)).rejects.toBeTruthy();
         expect(spyFindOne).not.toHaveBeenCalled();
@@ -173,7 +173,7 @@ describe('GameServiceE2E', () => {
             await connection.close();
             await mongoServer.stop();
             done();
-        }, constants.DELAY_BEFORE_CLOSING_CONNECTION);
+        }, DELAY_BEFORE_CLOSING_CONNECTION);
     });
     it('should be defined', () => {
         expect(service).toBeDefined();

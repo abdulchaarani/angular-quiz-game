@@ -102,7 +102,7 @@ export class GameService {
             }
             game = this.updateDateAndVisibility(game);
 
-            const res = await this.gameModel.findOneAndUpdate(filterQuery, game, {
+            await this.gameModel.findOneAndUpdate(filterQuery, game, {
                 new: true,
                 upsert: true,
             });
@@ -124,11 +124,12 @@ export class GameService {
         }
     }
 
-    // TODO: Match Method -- Add Body which would contain list of choices + Tests
+    // TODO: Match Method -- Add Body which would contain list of choices + Tests (Deactivated temporarily)
+    /*
     async validatePlayerChoice(gameId: string, questionId: string): Promise<boolean> {
         try {
             const game = await this.getGameById(gameId);
-            const question = game.questions.find((question) => question.id === questionId);
+            const question = game.questions.find((currentQuestion) => currentQuestion.id === questionId);
             for (let i = 0; i < question.choices.length; i++) {
                 // TODO: If question.choices[i] !== listChoices, pouet pouet
                 continue;
@@ -138,4 +139,5 @@ export class GameService {
             return Promise.reject('Le jeu est introuvable.');
         }
     }
+    */
 }

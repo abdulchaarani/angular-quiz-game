@@ -1,3 +1,4 @@
+import { QUESTIONS_TO_POPULATE } from '@app/constants/populate-constants';
 import { Question, QuestionDocument } from '@app/model/database/question';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question-dto';
 import { UpdateQuestionDto } from '@app/model/dto/question/update-question-dto';
@@ -6,6 +7,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 
+// TODO: Add Validation Service
 @Injectable()
 export class QuestionService {
     constructor(
@@ -22,81 +24,8 @@ export class QuestionService {
     }
 
     async populateDB(): Promise<void> {
-        const QUESTIONS: CreateQuestionDto[] = [
-            {
-                id: '1',
-                type: 'QCM',
-                text: 'Combien de motifs blancs et noirs y a-t-il respectivement sur un ballon de soccer?',
-                points: 20,
-                choices: [
-                    {
-                        text: '30 blancs, 5 noirs',
-                        isCorrect: false,
-                    },
-                    {
-                        text: '20 blancs, 12 noirs',
-                        isCorrect: true,
-                    },
-                    {
-                        text: 'Cela varie',
-                        isCorrect: false,
-                    },
-                ],
-                lastModification: new Date(2024, 1, 2),
-            },
-            {
-                id: '2',
-                type: 'QCM',
-                text: "Savez-vous de quel auteur Leblanc s'est inspiré ?",
-                points: 60,
-                choices: [
-                    {
-                        text: 'Gaston Leroux',
-                        isCorrect: false,
-                    },
-                    {
-                        text: 'Arthur Conan Doyle',
-                        isCorrect: true,
-                    },
-                    {
-                        text: 'Edgar Wallace',
-                        isCorrect: false,
-                    },
-                    {
-                        text: 'Agatha Christie',
-                        isCorrect: false,
-                    },
-                ],
-                lastModification: new Date(2024, 1, 2),
-            },
-            {
-                id: '3',
-                type: 'QCM',
-                text: 'Parmi les choix suivants, lesquels sont des noms de planètes dans Outer Wilds ?',
-                points: 20,
-                choices: [
-                    {
-                        text: 'Sombronces',
-                        isCorrect: true,
-                    },
-                    {
-                        text: 'Léviathe',
-                        isCorrect: true,
-                    },
-                    {
-                        text: 'Cravité',
-                        isCorrect: true,
-                    },
-                    {
-                        text: 'La Lanterne',
-                        isCorrect: false,
-                    },
-                ],
-                lastModification: new Date(2024, 1, 1),
-            },
-        ];
         this.logger.log('THIS ADDS DATA TO THE DATABASE, DO NOT USE OTHERWISE');
-        await this.questionModel.insertMany(QUESTIONS);
+        await this.questionModel.insertMany(QUESTIONS_TO_POPULATE);
     }
 
     async getAllQuestions(): Promise<Question[]> {

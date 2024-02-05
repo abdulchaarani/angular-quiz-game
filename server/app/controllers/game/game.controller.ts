@@ -37,7 +37,7 @@ export class GameController {
             const newGame = await this.gameService.addGame(createGameDto);
             response.status(HttpStatus.CREATED).send(JSON.stringify(newGame));
         } catch (error) {
-            response.status(HttpStatus.BAD_REQUEST).send(error.message);
+            response.status(HttpStatus.BAD_REQUEST).send(error);
         }
     }
 

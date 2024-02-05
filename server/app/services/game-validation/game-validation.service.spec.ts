@@ -153,7 +153,7 @@ describe('GameValidationService', () => {
     });
 
     it('findGameErrors() should return an array containing GAME_QUESTIONS_NUMBER_ERROR_MESSAGE if it contains no question', () => {
-        let testNoQuestionGame = MOCK_GAME;
+        const testNoQuestionGame = MOCK_GAME;
         testNoQuestionGame.questions = [];
         const foundErrors = service.findGameErrors(MOCK_GAME);
         expect(foundErrors.find((message: string) => message === constants.GAME_QUESTIONS_NUMBER_ERROR_MESSAGE));
@@ -162,7 +162,7 @@ describe('GameValidationService', () => {
     it('findGameErrors() should return an array containing all errors from invalid questions', () => {
         const validateQuestionSpy = jest.spyOn(service, 'findQuestionErrors').mockImplementation(() => [constants.QUESTION_EMPTY_TEXT_ERROR_MESSAGE]);
 
-        let invalidQuestionsGame = MOCK_GAME;
+        const invalidQuestionsGame = MOCK_GAME;
         invalidQuestionsGame.questions = [];
         for (let i = 0; i < 2; i++) {
             invalidQuestionsGame.questions.push(MOCK_QUESTION);

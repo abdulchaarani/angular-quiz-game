@@ -85,7 +85,7 @@ export class GameService {
 
     async toggleGameVisibility(gameId: string): Promise<void> {
         const filterQuery = { id: gameId };
-        let gameToToggleVisibility = await this.getGameById(gameId);
+        const gameToToggleVisibility = await this.getGameById(gameId);
         gameToToggleVisibility.isVisible = !gameToToggleVisibility.isVisible;
         const res = await this.gameModel.updateOne(filterQuery, gameToToggleVisibility);
         if (res.matchedCount === 0) {

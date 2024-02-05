@@ -75,10 +75,10 @@ export class QuestionService {
             }
             const res = await this.questionModel.updateOne(filterQuery, question);
             if (res.matchedCount === 0) {
-                return Promise.reject('Could not find question');
+                return Promise.reject('La question est introuvable.');
             }
         } catch (error) {
-            return Promise.reject(`Failed to update document: ${error}`);
+            return Promise.reject(`La question n'a pas été mise à jour: ${error}`);
         }
     }
 
@@ -88,10 +88,10 @@ export class QuestionService {
                 id: questionId,
             });
             if (res.deletedCount === 0) {
-                return Promise.reject('Could not find game');
+                return Promise.reject('La question est introuvable.');
             }
         } catch (error) {
-            return Promise.reject(`Failed to delete game: ${error}`);
+            return Promise.reject(`La question n'a pas pu être supprimée: ${error}`);
         }
     }
 }

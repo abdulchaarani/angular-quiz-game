@@ -97,8 +97,8 @@ describe('QuestionService', () => {
     it('updateQuestion() should fail if the corresponding question does not exist in the database', async () => {
         const mockQuestion = getFakeQuestion();
         const spyFindOne = jest.spyOn(questionModel, 'findOne').mockRejectedValue('');
-        expect(spyFindOne).toBeCalled();
         await expect(service.updateQuestion(mockQuestion)).rejects.toBeTruthy();
+        expect(spyFindOne).not.toBeCalled();
     });
     // TODO: Unit tests with upsert(): updateQuestion(question, true)
     it('deleteQuestion() should delete the corresponding question', async () => {

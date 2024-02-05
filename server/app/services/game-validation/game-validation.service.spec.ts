@@ -33,12 +33,11 @@ describe('GameValidationService', () => {
         expect(service.isValidString(validStringWithSpace)).toBeTruthy();
     });
 
-    it('isValidRange() should return true if the quantity is in the range and respects step if passed as parameter, else false', () => {
+    it('isValidRange() should return true only if the quantity is in the range', () => {
         const minimum = -5;
         const maximum = 5;
         const validTestNumber = 4;
         const invalidStepNumber = 3;
-        const step = 2;
         const inferiorTestNumber = -10;
         const superiorTestNumber = 10;
 
@@ -49,14 +48,6 @@ describe('GameValidationService', () => {
         expect(service.isValidRange(superiorTestNumber, minimum, maximum)).toBeFalsy();
         expect(service.isValidRange(minimum, minimum, maximum)).toBeTruthy();
         expect(service.isValidRange(maximum, minimum, maximum)).toBeTruthy();
-
-        // With Step:
-        expect(service.isValidRange(validTestNumber, minimum, maximum, step)).toBeTruthy();
-        expect(service.isValidRange(invalidStepNumber, minimum, maximum, step)).toBeFalsy();
-        expect(service.isValidRange(inferiorTestNumber, minimum, maximum, step)).toBeFalsy();
-        expect(service.isValidRange(superiorTestNumber, minimum, maximum, step)).toBeFalsy();
-        expect(service.isValidRange(minimum, minimum, maximum, step)).toBeFalsy();
-        expect(service.isValidRange(maximum, minimum, maximum, step)).toBeFalsy();
     });
 
     it('isValidChoicesRatio() should return true only if there is at least one good choice and one wrong choice', () => {
@@ -72,7 +63,7 @@ describe('GameValidationService', () => {
         const ratioSpy = jest.spyOn(service, 'isValidChoicesRatio').mockImplementation(() => true);
         expect(service.findQuestionErrors(MOCK_QUESTION)).toEqual([]);
         expect(rangeSpy).toHaveBeenCalledWith(MOCK_QUESTION.choices.length, constants.minimumChoicesNumber, constants.maximumChoicesNumber);
-        expect(rangeSpy).toHaveBeenCalledWith(MOCK_QUESTION.points, constants.minimumPoints, constants.maximumPoints, constants.stepPoints);
+        expect(rangeSpy).toHaveBeenCalledWith(MOCK_QUESTION.points, constants.minimumPoints, constants.maximumPoints);
         expect(validateStringSpy).toHaveBeenCalledWith(MOCK_QUESTION.text);
         expect(ratioSpy).toHaveBeenCalledWith(MOCK_QUESTION);
     });
@@ -84,11 +75,18 @@ describe('GameValidationService', () => {
         expect(rangeSpy).toHaveBeenCalledWith(MOCK_QUESTION.choices.length, constants.minimumChoicesNumber, constants.maximumChoicesNumber);
     });
 
-    it('findQuestionErrors() should return an array containing errorMessage.points if the number of points is invalid', () => {
+    it('findQuestionErrors() should return an array containing errorMessage.points if the number of points is not in correct range', () => {
         const rangeSpy = jest.spyOn(service, 'isValidRange').mockImplementation(() => false);
         const foundErrors = service.findQuestionErrors(MOCK_QUESTION);
         expect(foundErrors.find((message: string) => message === errorMessage.points)).toBeTruthy();
-        expect(rangeSpy).toHaveBeenCalledWith(MOCK_QUESTION.points, constants.minimumPoints, constants.maximumPoints, constants.stepPoints);
+        expect(rangeSpy).toHaveBeenCalledWith(MOCK_QUESTION.points, constants.minimumPoints, constants.maximumPoints);
+    });
+
+    it('findQuestionErrors() should return array containing errorMessage.points if number of points is not correct multiple', () => {
+        const testWrongPointsQuestion = MOCK_QUESTION;
+        testWrongPointsQuestion.points = 55;
+        const foundErrors = service.findQuestionErrors(testWrongPointsQuestion);
+        expect(foundErrors.find((message: string) => message === errorMessage.points)).toBeTruthy();
     });
 
     it('findQuestionErrors() should return an array containing errorMessage.questionEmptyText if the question text is empty', () => {
@@ -116,7 +114,7 @@ describe('GameValidationService', () => {
             errorMessage.choicesRatio,
         ]);
         expect(rangeSpy).toHaveBeenCalledWith(MOCK_QUESTION.choices.length, constants.minimumChoicesNumber, constants.maximumChoicesNumber);
-        expect(rangeSpy).toHaveBeenCalledWith(MOCK_QUESTION.points, constants.minimumPoints, constants.maximumPoints, constants.stepPoints);
+        expect(rangeSpy).toHaveBeenCalledWith(MOCK_QUESTION.points, constants.minimumPoints, constants.maximumPoints);
         expect(validateStringSpy).toHaveBeenCalledWith(MOCK_QUESTION.text);
         expect(ratioSpy).toHaveBeenCalledWith(MOCK_QUESTION);
     });

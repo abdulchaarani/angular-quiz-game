@@ -24,27 +24,24 @@ export class GameValidationService {
         return isValidRightChoiceNumber && isValidWrongChoiceNumber;
     }
 
-    isValidRange(quantity: number, firstBound: number, secondBound: number, step?: number) {
+    isValidRange(quantity: number, firstBound: number, secondBound: number) {
         const min = Math.min(firstBound, secondBound);
         const max = Math.max(firstBound, secondBound);
-        if (step) {
-            return quantity >= min && quantity <= max && quantity % step === 0;
-        } else {
-            return quantity >= min && quantity <= max;
-        }
+        return quantity >= min && quantity <= max;
     }
 
     findQuestionErrors(question: CreateQuestionDto): string[] {
         const errorMessages: string[] = [];
 
         const isValidChoicesNumber = this.isValidRange(question.choices.length, constants.minimumChoicesNumber, constants.maximumChoicesNumber);
-        const isValidPointsNumber = this.isValidRange(question.points, constants.minimumPoints, constants.maximumPoints, constants.stepPoints);
+        const isValidPointsRange = this.isValidRange(question.points, constants.minimumPoints, constants.maximumPoints);
+        const isValidPointsMultiple = question.points % constants.stepPoints === 0;
         const isValidQuestionName = this.isValidString(question.text);
         const isValidQuestionRatio = this.isValidChoicesRatio(question);
         if (!isValidChoicesNumber) {
             errorMessages.push(errorMessage.choicesNumber);
         }
-        if (!isValidPointsNumber) {
+        if (!isValidPointsRange || !isValidPointsMultiple) {
             errorMessages.push(errorMessage.points);
         }
         if (!isValidQuestionName) {

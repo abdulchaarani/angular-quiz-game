@@ -69,6 +69,10 @@ export class QuestionService {
         const filterQuery = { id: question.id };
         try {
             question.lastModification = new Date();
+            const errorMessages = this.validation.findQuestionErrors(question);
+            if (errorMessages.length !== 0) {
+                return Promise.reject(`La question est invalide:\n${errorMessages}`);
+            }
             const res = await this.questionModel.updateOne(filterQuery, question);
             if (res.matchedCount === 0) {
                 return Promise.reject('Could not find question');

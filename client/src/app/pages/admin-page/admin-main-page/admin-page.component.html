@@ -2,7 +2,6 @@
     <h1>Administration des Jeux</h1>
     <div id="buttons-container">
         <div id="new-game-buttons-container">
-            <!-- TODO: Add route to Create Game Page -->
             <button mat-raised-button color="primary" routerLink="/admin/games/new/questions/"><mat-icon>add</mat-icon>Créer un nouveau jeu</button>
             <input type="file" accept="application/json" class="file-input" (change)="onFileSelected($event)" #fileUpload />
             <div class="file-upload">
@@ -16,13 +15,6 @@
     <div class="games-container">
         <div id="game-list-information-container">
             <h2>Liste des jeux existants</h2>
-            <div>
-                <span>Trier selon: </span>
-                <mat-button-toggle-group #group="matButtonToggleGroup" name="sort order" aria-label="Date Sort">
-                    <mat-button-toggle value="ascending">Le plus récent</mat-button-toggle>
-                    <mat-button-toggle value="descending">Le plus ancien</mat-button-toggle>
-                </mat-button-toggle-group>
-            </div>
         </div>
         <app-game-list-item *ngFor="let game of games" [game]="game" (deleteGameFromList)="onDeleteGameFromList($event)" [isAdminMode]="true">
         </app-game-list-item>

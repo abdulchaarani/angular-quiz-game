@@ -1,0 +1,3 @@
+const DELAY_BEFORE_CLOSING_CONNECTION = 1000;
+
+export const constants = { DELAY_BEFORE_CLOSING_CONNECTION };

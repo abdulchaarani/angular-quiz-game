@@ -1,20 +1,105 @@
+import { HttpClient, HttpHandler, HttpResponse } from '@angular/common/http';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { Game } from '@app/interfaces/game';
+import { GamesService } from '@app/services/games.service';
+import { NotificationService } from '@app/services/notification.service';
+import { of } from 'rxjs';
+import { AdminPageComponent } from './admin-page.component';
+import SpyObj = jasmine.SpyObj;
+
 describe('AdminPageComponent', () => {
-    /*
     let component: AdminPageComponent;
     let fixture: ComponentFixture<AdminPageComponent>;
+    let gamesServiceSpy: SpyObj<GamesService>;
+    let notificationServiceSpy: SpyObj<NotificationService>;
+    const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK' });
 
-    beforeEach(() => {
+    beforeEach(waitForAsync(() => {
+        gamesServiceSpy = jasmine.createSpyObj('GamesService', [
+            'getGames',
+            'getGameById',
+            'toggleGameVisibility',
+            'deleteGame',
+            'uploadGame',
+            'downloadGameAsJson',
+        ]);
+        notificationServiceSpy = jasmine.createSpyObj('NotificationService', ['displayErrorMessage', 'displaySuccessMessage']);
+
+        gamesServiceSpy.getGames.and.returnValue(of(mockGames));
+        gamesServiceSpy.uploadGame.and.returnValue(of(mockHttpResponse));
+        gamesServiceSpy.deleteGame.and.returnValue(of(mockHttpResponse));
+
         TestBed.configureTestingModule({
             declarations: [AdminPageComponent],
-            providers: [HttpClient, GamesService, HttpHandler],
-        });
+            providers: [
+                HttpClient,
+                HttpHandler,
+                { provide: GamesService, useValue: gamesServiceSpy },
+                { provide: NotificationService, useValue: notificationServiceSpy },
+            ],
+        }).compileComponents();
+    }));
+
+    beforeEach(() => {
         fixture = TestBed.createComponent(AdminPageComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
-    */
+
+    // TODO: Add tests for JSON upload
+
     it('should create', () => {
-        expect(true).toBeTruthy();
-        // expect(component).toBeTruthy();
+        expect(component).toBeTruthy();
+    });
+
+    it('should fetch games after initialiation', () => {
+        expect(component.games.length).toEqual(mockGames.length);
+    });
+
+    it('should be able to delete a game from the list', () => {
+        const gameToDeleteId = component.games[0].id;
+        component.onDeleteGameFromList(gameToDeleteId);
+
+        expect(gamesServiceSpy.deleteGame).toHaveBeenCalledWith(gameToDeleteId);
+        expect(component.games.length).toBe(mockGames.length - 1);
+    });
+
+    it('should be able to add a game', () => {
+        component.addGame(newMockGame);
+
+        expect(gamesServiceSpy.uploadGame).toHaveBeenCalledWith(newMockGame);
+        expect(component.games.length).toBe(mockGames.length + 1);
     });
 });
+
+const BASE_36 = 36;
+const getRandomString = (): string => (Math.random() + 1).toString(BASE_36).substring(2);
+const getFakeGame = (): Game => ({
+    id: getRandomString(),
+    title: getRandomString(),
+    description: getRandomString(),
+    lastModification: new Date().toLocaleString(),
+    duration: 30,
+    isVisible: true,
+    questions: [
+        {
+            id: getRandomString(),
+            type: 'QCM',
+            text: getRandomString(),
+            points: 30,
+            choices: [
+                {
+                    text: getRandomString(),
+                    isCorrect: true,
+                },
+                {
+                    text: getRandomString(),
+                    isCorrect: false,
+                },
+            ],
+            lastModification: new Date().toLocaleString(),
+        },
+    ],
+});
+const mockGames = [getFakeGame(), getFakeGame()];
+const newMockGame = getFakeGame();

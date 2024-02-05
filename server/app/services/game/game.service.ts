@@ -179,7 +179,7 @@ export class GameService {
         return await this.gameModel.findOne({ title: gameTitle });
     }
 
-    async addGame(newGame: CreateGameDto): Promise<void> {
+    async addGame(newGame: CreateGameDto): Promise<Game> {
         // TODO: Add unit test for when a game already exists.
         if (await this.getGameByTitle(newGame.title)) {
             return Promise.reject('Game with the same title already exists.');
@@ -190,6 +190,7 @@ export class GameService {
         try {
             if (this.validation.isValidGame(newGame)) {
                 await this.gameModel.create(newGame);
+                return newGame;
             } else {
                 return Promise.reject('Invalid game');
             }

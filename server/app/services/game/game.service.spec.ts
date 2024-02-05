@@ -1,3 +1,5 @@
+import { getRandomString } from '@app/constants/random-string';
+import { constants } from '@app/constants/unit-tests-constants';
 import { Game, GameDocument, gameSchema } from '@app/model/database/game';
 import { Logger } from '@nestjs/common';
 import { MongooseModule, getConnectionToken, getModelToken } from '@nestjs/mongoose';
@@ -7,16 +9,12 @@ import { Connection, Model } from 'mongoose';
 import { GameValidationService } from '../game-validation/game-validation.service';
 import { GameService } from './game.service';
 
-const DELAY_BEFORE_CLOSING_CONNECTION = 1000;
-const BASE_36 = 36;
-const YEAR = 2024;
-const getRandomString = (): string => (Math.random() + 1).toString(BASE_36).substring(2);
 // TODO: Add a Mock for Questions?
 const getFakeGame = (): Game => ({
     id: getRandomString(),
     title: getRandomString(),
     description: getRandomString(),
-    lastModification: new Date(YEAR, 1, 1),
+    lastModification: new Date(),
     duration: 30,
     isVisible: true,
     questions: [
@@ -35,7 +33,7 @@ const getFakeGame = (): Game => ({
                     isCorrect: false,
                 },
             ],
-            lastModification: new Date(YEAR, 1, 1),
+            lastModification: new Date(),
         },
     ],
 });
@@ -79,7 +77,7 @@ describe('GameService', () => {
             await connection.close();
             await mongoServer.stop();
             done();
-        }, DELAY_BEFORE_CLOSING_CONNECTION);
+        }, constants.DELAY_BEFORE_CLOSING_CONNECTION);
     });
 
     it('should be defined', () => {

@@ -9,22 +9,27 @@ import { GamesService } from '@app/services/games.service';
 })
 export class GameListItemComponent {
     @Input() game: Game;
-    @Input() isAdminMode: boolean;
+    @Input() isAdminMode: boolean; // TODO: Base itself from the URL instead? (must start by admin...)
     @Output() deleteGameFromList: EventEmitter<string> = new EventEmitter<string>();
 
     constructor(private gamesService: GamesService) {}
 
     // TODO notify errors
     toggleGameVisibility() {
-        this.gamesService.toggleGameVisibility(this.game).subscribe();
+        if (this.isAdminMode) {
+            this.gamesService.toggleGameVisibility(this.game).subscribe();
+        }
     }
 
     downloadGameAsJson() {
-        this.gamesService.downloadGameAsJson(this.game);
+        if (this.isAdminMode) {
+            this.gamesService.downloadGameAsJson(this.game);
+        }
     }
 
     deleteGame() {
-        // Reference: https://stackoverflow.com/questions/43768024/delete-child-and-update-parent-list
-        this.deleteGameFromList.emit(this.game.id);
+        if (this.isAdminMode) {
+            this.deleteGameFromList.emit(this.game.id);
+        }
     }
 }

@@ -32,7 +32,6 @@ export class GamesService extends ApiService<Game> {
         return this.add(newGame, '');
     }
 
-    // Keep it in Front-end for now
     downloadGameAsJson(gameToStringify: Game): void {
         const stringifiedGame = JSON.stringify(gameToStringify, (key, value) => {
             if (key !== 'isVisible' && key !== '_id' && key !== '__v') {

@@ -169,7 +169,7 @@ export class GameService {
     async getGameById(gameId: string): Promise<Game> {
         const game = await this.gameModel.findOne({ id: gameId });
         if (!game) {
-            return Promise.reject(`Le jeu avec le id: ${gameId} n'existe pas`);
+            return Promise.reject(`Le jeu avec le id: ${gameId} n'a pas été trouvé.`);
         } else {
             return game;
         }
@@ -182,7 +182,7 @@ export class GameService {
     async addGame(newGame: CreateGameDto): Promise<Game> {
         // TODO: Add unit test for when a game already exists.
         if (await this.getGameByTitle(newGame.title)) {
-            return Promise.reject('Game with the same title already exists.');
+            return Promise.reject('Un jeu du même titre existe déjà.');
         }
         newGame.id = uuidv4();
         newGame.isVisible = false;
@@ -192,35 +192,37 @@ export class GameService {
                 await this.gameModel.create(newGame);
                 return newGame;
             } else {
-                return Promise.reject('Invalid game');
+                return Promise.reject('Le jeu est invalide.');
             }
         } catch (error) {
-            return Promise.reject(`Failed to insert game: ${error}`);
+            return Promise.reject(`Le jeu n'a pas pu être ajouté: ${error}`);
         }
     }
 
-    async updateGame(game: UpdateGameDto, upsert: boolean): Promise<void> {
+    async toggleGameVisibility(gameId: string): Promise<void> {
+        const filterQuery = { id: gameId };
+        let gameToToggleVisibility = await this.getGameById(gameId);
+        gameToToggleVisibility.isVisible = !gameToToggleVisibility.isVisible;
+        const res = await this.gameModel.updateOne(filterQuery, gameToToggleVisibility);
+        if (res.matchedCount === 0) {
+            return Promise.reject('Le jeu est introuvable.');
+        }
+    }
+
+    async upsertGame(game: UpdateGameDto): Promise<void> {
         // TODO: Update LastModification if not ToggleVisibility
         const filterQuery = { id: game.id };
         try {
             if (!this.validation.isValidGame(game)) {
                 return Promise.reject('Invalid game');
             }
-            if (upsert) {
-                // PUT
-                game.isVisible = false;
-                game.lastModification = new Date();
-                const res = await this.gameModel.findOneAndUpdate(filterQuery, game, {
-                    new: true,
-                    upsert: true,
-                });
-            } else {
-                // PATCH
-                const res = await this.gameModel.updateOne(filterQuery, game);
-                if (res.matchedCount === 0) {
-                    return Promise.reject('Game not found');
-                }
-            }
+            // PUT
+            game.isVisible = false;
+            game.lastModification = new Date();
+            const res = await this.gameModel.findOneAndUpdate(filterQuery, game, {
+                new: true,
+                upsert: true,
+            });
         } catch (error) {
             return Promise.reject(`Failed to modify game: ${error}`);
         }

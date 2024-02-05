@@ -1,4 +1,4 @@
-import { HttpClient, HttpResponse, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -43,9 +43,9 @@ export class ApiService<T> {
             .pipe(catchError(this.handleError<HttpResponse<string>>('delete')));
     }
 
-    protected update(payload: T, endpoint: string): Observable<HttpResponse<string>> {
+    protected update(endpoint: string): Observable<HttpResponse<string>> {
         return this.http
-            .patch(`${this.serverUrl}/${this.baseUrl}/${endpoint}`, payload, this.httpOptions)
+            .patch(`${this.serverUrl}/${this.baseUrl}/${endpoint}`, {}, this.httpOptions)
             .pipe(catchError(this.handleError<HttpResponse<string>>('update')));
     }
 

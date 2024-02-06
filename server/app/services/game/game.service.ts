@@ -2,6 +2,7 @@ import { GAMES_TO_POPULATE } from '@app/constants/populate-constants';
 import { Game, GameDocument } from '@app/model/database/game';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
+import { CreateQuestionDto } from '@app/model/dto/question/create-question-dto';
 import { GameValidationService } from '@app/services/game-validation/game-validation.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -121,6 +122,33 @@ export class GameService {
             }
         } catch (error) {
             return Promise.reject(`Le jeu n'a pas pu être supprimé: ${error}`);
+        }
+    }
+
+    // TODO - Unit test
+    async addQuestionToGame(gameId: string, question: CreateQuestionDto): Promise<void> {
+        try {
+            const errorMessages = this.validation.findQuestionErrors(question);
+            if (errorMessages.length !== 0) {
+                return Promise.reject(`La question est invalide: ${errorMessages}`);
+            }
+
+            const game = await this.getGameById(gameId);
+
+            if (game.questions.find((currentQuestion) => currentQuestion.text === question.text)) {
+                return Promise.reject('Une question avec le même texte existe déjà dans le jeu.');
+            }
+
+            question.id = uuidv4();
+            question.lastModification = new Date();
+            game.questions.push(question);
+            try {
+                await this.upsertGame(game);
+            } catch (error) {
+                return Promise.reject(error);
+            }
+        } catch (error) {
+            return Promise.reject(`La question n'a pas pu être ajoutée au jeu: ${error}`);
         }
     }
 

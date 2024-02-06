@@ -6,7 +6,7 @@ export class CreateQuestionDto {
     @ApiProperty()
     @IsString()
     @IsOptional()
-    id?: string;
+    id: string;
 
     @ApiProperty()
     @IsString()

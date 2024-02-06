@@ -1,5 +1,6 @@
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
+import { CreateQuestionDto } from '@app/model/dto/question/create-question-dto';
 import { GameService } from '@app/services/game/game.service';
 import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Put, Res } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
@@ -36,6 +37,16 @@ export class GameController {
         try {
             const newGame = await this.gameService.addGame(createGameDto);
             response.status(HttpStatus.CREATED).send(JSON.stringify(newGame));
+        } catch (error) {
+            response.status(HttpStatus.BAD_REQUEST).send(error);
+        }
+    }
+
+    @Post('/:gameId/new-question')
+    async addQuestionToGame(@Param('gameId') gameId: string, @Body() createQuestionDto: CreateQuestionDto, @Res() response: Response) {
+        try {
+            const newQuestion = await this.gameService.addQuestionToGame(gameId, createQuestionDto);
+            response.status(HttpStatus.CREATED).send(JSON.stringify(newQuestion));
         } catch (error) {
             response.status(HttpStatus.BAD_REQUEST).send(error);
         }

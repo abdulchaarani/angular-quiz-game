@@ -32,10 +32,6 @@ export class GamesService extends ApiService<Game> {
         return this.add(newGame, '');
     }
 
-    replaceGame(updatedGame: Game, id:string): Observable<HttpResponse<string>> {
-        return this.replace(updatedGame, id);
-    }
-
     downloadGameAsJson(gameToStringify: Game): void {
         const stringifiedGame = JSON.stringify(gameToStringify, (key, value) => {
             if (key !== 'isVisible' && key !== '_id' && key !== '__v') {

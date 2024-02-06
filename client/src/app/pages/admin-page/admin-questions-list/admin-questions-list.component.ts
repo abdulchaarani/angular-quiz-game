@@ -38,7 +38,6 @@ export class AdminQuestionsListComponent implements OnInit {
             this.gamesService.getGameById(id).subscribe((game: Game) => {
                 this.game = game;
             });
-            this.questionService.getAllQuestions().subscribe((data: Question[]) => (this.game.questions = [...data]));    
           });
     }
 
@@ -65,9 +64,6 @@ export class AdminQuestionsListComponent implements OnInit {
     }
 
     saveGame() {
-        this.gamesService.replaceGame(this.game, this.game.id).subscribe((response: HttpResponse<string>) => {
-            if (response.ok) this.response = 'Game saved';
-            console.log(this.response);
-        });
+        console.log(this.game);
     }
 }

@@ -5,7 +5,7 @@ import { Game } from '@app/interfaces/game';
 import { Question } from '@app/interfaces/question';
 // import { GamesCreationService } from '@app/services/games-creation.service';
 import { GamesService } from '@app/services/games.service';
-import { QuestionService } from '@app/services/question.service';
+// import { QuestionService } from '@app/services/question.service';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
@@ -19,7 +19,7 @@ export class AdminQuestionsListComponent implements OnInit {
     response: string = '';
 
     constructor(
-        private readonly questionService: QuestionService,
+        // private readonly questionService: QuestionService,
         // private readonly gamesCreationService: GamesCreationService,
         private readonly gamesService: GamesService,
         private route: ActivatedRoute
@@ -27,6 +27,8 @@ export class AdminQuestionsListComponent implements OnInit {
     }
 
     game: Game;
+
+    isValid: boolean = false;
 
     drop(event: CdkDragDrop<Question[]>) {
         moveItemInArray(this.game.questions, event.previousIndex, event.currentIndex);
@@ -37,18 +39,20 @@ export class AdminQuestionsListComponent implements OnInit {
             const id = params['id']; 
             this.gamesService.getGameById(id).subscribe((game: Game) => {
                 this.game = game;
+                this.isValid = true;
             });
           });
     }
-
+    
     changeDuration(event: Event) {
         this.game.duration = Number((event.target as HTMLInputElement).value);
     }
 
     deleteQuestion(questionId: string) {
-        this.questionService.deleteQuestion(questionId).subscribe((response: HttpResponse<string>) => {
-            if (response.ok) this.game.questions = this.game.questions.filter((question: Question) => question.id !== questionId);
-        });
+        if (questionId === '' || questionId === undefined) {
+            return;
+        }
+        this.game.questions = this.game.questions.filter((question: Question) => question.id !== questionId);
     }
 
     addNewGame() {
@@ -57,13 +61,19 @@ export class AdminQuestionsListComponent implements OnInit {
             type: 'QCM',
             text: 'Quelle est la question?',
             points: 20,
-            lastModification: '2024-01-26T14:21:19+00:00',
+            lastModification: '2024-01-26T14:21:19+00:',
         };
 
         this.game.questions.push(newQuestion);
     }
 
     saveGame() {
-        console.log(this.game);
+        this.gamesService.replaceGame(this.game).subscribe((response: HttpResponse<string>) => {
+            if (response.ok) {
+                this.response = 'Game saved';
+            } else {
+                this.response = 'Error';
+            }
+        });
     }
 }

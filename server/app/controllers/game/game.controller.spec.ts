@@ -96,28 +96,48 @@ describe('GamesController', () => {
         await controller.addGame(new Game(), res);
     });
 
-    it('updateGame() should succeed if service is able to modify the game', async () => {
-        gameService.updateGame.resolves();
+    it('toggleGameVisibility() should succeed if service is able to modify the game', async () => {
+        gameService.toggleGameVisibility.resolves();
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.OK);
             return res;
         };
         res.send = () => res;
-        await controller.updateGame(new Game(), res);
+        await controller.toggleGameVisibility('', res);
     });
 
-    // TODO: Case when NOT_FOUND
+    it('toggleGameVisibility() should return NOT_FOUND when service cannot modify the game', async () => {
+        gameService.toggleGameVisibility.rejects();
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.NOT_FOUND);
+            return res;
+        };
+        res.send = () => res;
+        await controller.toggleGameVisibility('', res);
+    });
 
-    it('updateGame() should return BAD_REQUEST when service cannot modify the game', async () => {
-        gameService.updateGame.rejects();
+    it('upsertGame() should succeed if service is able to modify the game', async () => {
+        gameService.upsertGame.resolves();
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.OK);
+            return res;
+        };
+        res.send = () => res;
+        await controller.upsertGame(new Game(), res);
+    });
+
+    it('upsertGame() should return BAD_REQUEST when service cannot modify the game', async () => {
+        gameService.upsertGame.rejects();
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.BAD_REQUEST);
             return res;
         };
         res.send = () => res;
-        await controller.updateGame(new Game(), res);
+        await controller.upsertGame(new Game(), res);
     });
 
     it('deleteGame() should succeed if service is able to delete the game', async () => {

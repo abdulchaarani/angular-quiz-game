@@ -8,13 +8,13 @@ import { ExampleService } from '@app/services/example/example.service';
 import { Logger, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { AuthModule } from './auth/auth.module';
 import { QuestionController } from './controllers/question/question.controller';
 import { Game, gameSchema } from './model/database/game';
 import { Question, questionSchema } from './model/database/question';
 import { GameValidationService } from './services/game-validation/game-validation.service';
 import { GameService } from './services/game/game.service';
 import { QuestionService } from './services/question/question.service';
-import { AuthModule } from './auth/auth.module';
 
 @Module({
     imports: [

@@ -38,7 +38,7 @@ export class QuestionController {
             const question = await this.questionService.addQuestion(questionDto);
             response.status(HttpStatus.CREATED).send(JSON.stringify(question));
         } catch (error) {
-            response.status(HttpStatus.BAD_REQUEST).send(error.message);
+            response.status(HttpStatus.BAD_REQUEST).send(error);
         }
     }
 
@@ -58,7 +58,7 @@ export class QuestionController {
             await this.questionService.updateQuestion(updateQuestionDto);
             response.status(HttpStatus.OK).send();
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send(error.message);
+            response.status(HttpStatus.NOT_FOUND).send(error);
         }
     }
 

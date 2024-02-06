@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class AuthService {
-    constructor() {} // private jwtService: JwtService,
+    // constructor() {} // private jwtService: JwtService,
 
     private readonly password = 'log2990-305';
 

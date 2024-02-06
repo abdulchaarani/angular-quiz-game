@@ -101,7 +101,7 @@ describe('CourseServiceEndToEnd', () => {
             await connection.close();
             await mongoServer.stop();
             done();
-        }, constants.DELAY_BEFORE_CLOSING_CONNECTION);
+        }, DELAY_BEFORE_CLOSING_CONNECTION);
     });
 
     it('should be defined', () => {

@@ -10,7 +10,7 @@ export class GamesCreationService extends GamesService {
     game: Game;
     createGame(title: string, description: string, duration: number): void {
         this.game = {
-            id: "",
+            id: '',
             title,
             description,
             lastModification: new Date().toString(),

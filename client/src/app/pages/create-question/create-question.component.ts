@@ -2,11 +2,11 @@ import { Component, EventEmitter, Output, Input, OnInit, OnChanges, SimpleChange
 import { Question } from '@app/interfaces/question';
 import { FormControl, Validators, FormBuilder, FormGroup, FormArray, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
- import { QuestionService } from '@app/services/question.service';
+import { QuestionService } from '@app/services/question.service';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-//import { HttpResponse } from '@angular/common/http';
-//import { ApiService } from '@app/services/api.service';
-//import { v4 as uuidv4 } from 'uuid';
+// import { HttpResponse } from '@angular/common/http';
+// import { ApiService } from '@app/services/api.service';
+// import { v4 as uuidv4 } from 'uuid';
 
 @Component({
     selector: 'app-create-question',
@@ -16,19 +16,19 @@ import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 export class CreateQuestionComponent implements OnInit, OnChanges {
     questionFormControl = new FormControl('', [Validators.required]);
     questionForm: FormGroup;
-    @Input() question: Question; 
+    @Input() question: Question;
     @Output() pointsChanged: EventEmitter<number> = new EventEmitter<number>();
     @Output() createQuestionEvent: EventEmitter<Question> = new EventEmitter<Question>();
 
     private readonly snackBarDisplayTime = 2000;
     private readonly minChoices = 2;
     private readonly maxChoices = 4;
-    //private apiService: ApiService<Question>;
+    // private apiService: ApiService<Question>;
 
     // Reference for forms: https://stackblitz.com/edit/angular-nested-formarray-dynamic-forms?file=src%2Fapp%2Fapp.component.html
     // references for above code: https://stackoverflow.com/questions/67834802/template-error-type-abstractcontrol-is-not-assignable-to-type-formcontrol
 
-    //ngOnInit(): void {}
+    // ngOnInit(): void {}
     ngOnInit(): void {
         this.initializeForm();
         this.questionForm.valueChanges.subscribe((formValue) => {
@@ -36,29 +36,28 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
             this.question.points = formValue.points;
             this.question.lastModification = new Date().toLocaleDateString();
             this.question.choices = formValue.choices;
-          });
-      }
-    
-      ngOnChanges(changes: SimpleChanges): void {
-        if (changes.question && this.question) {
-          this.initializeForm();
-        }
-      }
-    
-      private initializeForm(): void {
-        this.questionForm.patchValue({
-          text: this.question.text,
-          points: this.question.points,
-          types: this.question.type,
-          choices: (this.question.choices),
-          
         });
-      }
+    }
 
-      getChoices(choices : []){
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes.question && this.question) {
+            this.initializeForm();
+        }
+    }
+
+    private initializeForm(): void {
+        this.questionForm.patchValue({
+            text: this.question.text,
+            points: this.question.points,
+            types: this.question.type,
+            choices: this.question.choices,
+        });
+    }
+
+    getChoices(choices: []) {
         const choicesArray = this.questionForm.get('choices') as FormArray;
-        choicesArray.clear(); 
-      
+        choicesArray.clear();
+
         // this.question.choices.forEach((choice) => {
         //   choicesArray.push(
         //     this.fb.group({
@@ -67,10 +66,7 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
         //     })
         //   );
         // });
-      }
-      
-
-
+    }
 
     response: string = '';
 
@@ -81,7 +77,7 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     constructor(
         private snackBar: MatSnackBar,
         private fb: FormBuilder,
-     private questionService: QuestionService, // Solution for the choicesGroup was inspired from here:
+        private questionService: QuestionService, // Solution for the choicesGroup was inspired from here:
     ) // https://stackoverflow.com/questions/53362983/angular-reactiveforms-nested-formgroup-within-formarray-no-control-found?rq=3
     {
         this.questionForm = this.fb.group({
@@ -161,9 +157,9 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     addChoice() {
         const choices = this.questionForm.get('choices') as FormArray;
 
-        //const choicess = (control.get('choices') as FormArray)?.controls;
+        // const choicess = (control.get('choices') as FormArray)?.controls;
         // console.log('length', choices.length);
-        //console.log('choices', choices.value);
+        // console.log('choices', choices.value);
         // console.log('choices', choices.value[0].isCorrect);
 
         if (choices.length < this.maxChoices) {
@@ -196,18 +192,17 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     }
 
     drop(event: CdkDragDrop<this>) {
-        //const choices = this.questionForm.get('choices') as FormArray;
+        // const choices = this.questionForm.get('choices') as FormArray;
         moveItemInArray(this.choices.controls, event.previousIndex, event.currentIndex);
         this.updateChoiceNumbers();
     }
 
-    onSubmitQuestionBank(){
-        if(this.questionForm.valid){
+    onSubmitQuestionBank() {
+        if (this.questionForm.valid) {
             const newQuestion: Question = this.questionForm.value;
             console.log(newQuestion);
         }
     }
-
 
     onSubmit() {
         // POST
@@ -217,12 +212,11 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
             // this.saveQuestion();
             // this.openSnackBar('Question saved', this.snackBarDisplayTime);
 
-           // when you create a question send a post ! and then a put ! 
+            // when you create a question send a post ! and then a put !
 
+            // for post: check if the form is empty or the text is : c'est quoi votre qeustion?
 
-            // for post: check if the form is empty or the text is : c'est quoi votre qeustion? 
-
-            // for put: check if the form is full. 
+            // for put: check if the form is full.
 
             const newQuestion: Question = this.questionForm.value;
             newQuestion.lastModification = new Date().toLocaleString();
@@ -230,21 +224,19 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
 
             this.questionService.createQuestion(newQuestion).subscribe(() => {
                 this.createQuestionEvent.emit(newQuestion);
-            //     this.resetForm();
+                //     this.resetForm();
+            });
 
-         });
-
-            //this.questionService.createQuestion(newQuestion);
-            //this.createQuestionEvent.emit(newQuestion);
-            //this.apiService.getbyId();
-            //this.getbyId();
+            // this.questionService.createQuestion(newQuestion);
+            // this.createQuestionEvent.emit(newQuestion);
+            // this.apiService.getbyId();
+            // this.getbyId();
         }
         //     console.log('sumbitted', newQuestion);
         //     this.openSnackBar('Question Sauvergadée', this.snackBarDisplayTime);
         //     //this.resetForm();
         // });
     }
-
 
     getControls() {
         return (this.questionForm.get('controlName') as FormArray).controls;

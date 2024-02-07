@@ -1,18 +1,19 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { AdminQuestionsListComponent } from './admin-questions-list.component'; 
+import { AdminQuestionsListComponent } from './admin-questions-list.component';
 import { GamesService } from '@app/services/games.service';
 import { HttpClientModule } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
+import { Game } from '@app/interfaces/game';
 
 describe('AdminQuestionsListComponent', () => {
     let component: AdminQuestionsListComponent;
     let fixture: ComponentFixture<AdminQuestionsListComponent>;
     let gamesServiceSpy: jasmine.SpyObj<GamesService>;
-    
-    const mockGame = {
+
+    const mockGame: Game = {
         id: '1',
-        description : 'Test game',
+        description: 'Test game',
         title: 'Test game',
         duration: 10,
         lastModification: '2018-11-13T20:20:39+00:00',
@@ -33,10 +34,10 @@ describe('AdminQuestionsListComponent', () => {
             },
         ],
     };
-    
+
     beforeEach(() => {
         const route = {
-            params: of({id: '1'})
+            params: of({ id: '1' }),
         };
         gamesServiceSpy = jasmine.createSpyObj('GamesService', [
             'getGames',
@@ -45,16 +46,20 @@ describe('AdminQuestionsListComponent', () => {
             'deleteGame',
             'uploadGame',
             'downloadGameAsJson',
+            'replaceGame',
         ]);
         TestBed.configureTestingModule({
             imports: [HttpClientModule],
             declarations: [AdminQuestionsListComponent],
-            providers: [{ provide: GamesService, useValue: gamesServiceSpy },
-                        { provide: ActivatedRoute, useValue: route }],
+            providers: [
+                { provide: GamesService, useValue: gamesServiceSpy },
+                { provide: ActivatedRoute, useValue: route },
+            ],
         });
         fixture = TestBed.createComponent(AdminQuestionsListComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
+        component.game = mockGame;
     });
 
     it('should create', () => {
@@ -65,8 +70,22 @@ describe('AdminQuestionsListComponent', () => {
         expect(gamesServiceSpy.getGameById).toHaveBeenCalled();
     });
 
+    it('should be able to change duration', () => {
+        const event: unknown = { target: { value: '20' } };
+        component.changeDuration(event);
+        expect(component.game.duration).toEqual(20);
+    });
+
     it('should be able to delete a question from the list', () => {
-        component.game = mockGame;
+        const questionToDeleteId = component.game.questions[0]?.id;
+        if (questionToDeleteId) {
+            component.deleteQuestion(questionToDeleteId);
+        }
+        expect(component.game.questions.length).toBe(mockGame.questions.length);
+    });
+
+    it('should not be able to delete a question if there is only one question', () => {
+        component.game.questions = [mockGame.questions[0]];
         const questionToDeleteId = component.game.questions[0]?.id;
         if (questionToDeleteId) {
             component.deleteQuestion(questionToDeleteId);
@@ -74,18 +93,16 @@ describe('AdminQuestionsListComponent', () => {
         expect(component.game.questions.length).toBe(1);
     });
 
-    it('should be able to change duration', () => { 
-        component.game = mockGame;
-        const event: any = {target: {value: '20'}};
-        component.changeDuration(event);
-        expect(component.game.duration).toEqual(20);
+    it('should not be able to delete a question if the id is null', () => {
+        component.game.questions[0].id = '';
+        const questionToDeleteId = component.game.questions[0]?.id;
+        component.deleteQuestion(questionToDeleteId);
+        expect(component.game.questions.length).toBe(mockGame.questions.length);
     });
 
     it('should be able to add a new question', () => {
-        component.game = mockGame;
-        let gameLength = component.game.questions.length;
+        const gameLength = component.game.questions.length;
         component.addNewGame();
         expect(component.game.questions.length).toBe(gameLength + 1);
     });
-
 });

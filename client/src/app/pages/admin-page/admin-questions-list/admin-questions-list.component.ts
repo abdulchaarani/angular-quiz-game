@@ -1,5 +1,5 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { HttpResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Game } from '@app/interfaces/game';
 import { Question } from '@app/interfaces/question';
@@ -14,42 +14,39 @@ import { ActivatedRoute } from '@angular/router';
     styleUrls: ['./admin-questions-list.component.scss'],
 })
 export class AdminQuestionsListComponent implements OnInit {
-    
-
     response: string = '';
 
     constructor(
         // private readonly questionService: QuestionService,
         // private readonly gamesCreationService: GamesCreationService,
         private readonly gamesService: GamesService,
-        private route: ActivatedRoute
-    ) {
-    }
+        private route: ActivatedRoute,
+    ) {}
 
     game: Game;
 
     isValid: boolean = false;
 
-    drop(event: CdkDragDrop<Question[]>) {
-        moveItemInArray(this.game.questions, event.previousIndex, event.currentIndex);
-    }
-
     ngOnInit() {
-        this.route.params.subscribe(params => {
-            const id = params['id']; 
+        this.route.params.subscribe((params) => {
+            const id = params['id'];
             this.gamesService.getGameById(id).subscribe((game: Game) => {
                 this.game = game;
                 this.isValid = true;
             });
-          });
+        });
     }
-    
+
+    drop(event: CdkDragDrop<Question[]>) {
+        moveItemInArray(this.game.questions, event.previousIndex, event.currentIndex);
+    }
+
     changeDuration(event: Event) {
         this.game.duration = Number((event.target as HTMLInputElement).value);
     }
 
     deleteQuestion(questionId: string) {
-        if (questionId === '' || questionId === undefined) {
+        if (this.game.questions.length === 1 || this.game.id === null) {
             return;
         }
         this.game.questions = this.game.questions.filter((question: Question) => question.id !== questionId);
@@ -69,11 +66,12 @@ export class AdminQuestionsListComponent implements OnInit {
 
     saveGame() {
         this.gamesService.replaceGame(this.game).subscribe((response: HttpResponse<string>) => {
-            if (response.ok) {
+            () => {
                 this.response = 'Game saved';
-            } else {
-                this.response = 'Error';
-            }
+            };
+            (error: HttpErrorResponse) => {
+                this.response = 'Game not saved';
+            };
         });
     }
 }

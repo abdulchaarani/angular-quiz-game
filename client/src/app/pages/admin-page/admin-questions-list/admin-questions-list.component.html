@@ -39,9 +39,12 @@
             </app-question-list-item>
         </div>
         <div class="add-button-container">
-            <button class="add-question-button" mat-raised-button color="basic" id="admin-create-question-button" (click)="addNewGame()">
+            <!--  <button class="add-question-button" mat-raised-button color="basic" id="admin-create-question-button" (click)="addNewQuestion()"> -->
+            <button class="add-question-button" mat-raised-button color="basic" (click)="openDialog()" id="admin-create-question-button">
                 <mat-icon>add</mat-icon>
+                <app-create-question *ngIf="dialogState" (createQuestionEvent)="addNewQuestion($event)"></app-create-question>
             </button>
+            
         </div>
     </div>
 </mat-accordion>

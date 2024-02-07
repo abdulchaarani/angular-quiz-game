@@ -71,7 +71,7 @@ describe('AdminQuestionsListComponent', () => {
     });
 
     it('should be able to change duration', () => {
-        const event: unknown = { target: { value: '20' } };
+        const event: any = { target: { value: '20' } };
         component.changeDuration(event);
         expect(component.game.duration).toEqual(20);
     });

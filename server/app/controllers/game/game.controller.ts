@@ -42,11 +42,12 @@ export class GameController {
         }
     }
 
-    @Post('/:gameId/new-question')
-    async addQuestionToGame(@Param('gameId') gameId: string, @Body() createQuestionDto: CreateQuestionDto, @Res() response: Response) {
+    // TODO: Unit test
+    @Post('/validate-question/')
+    async validateQuestion(@Body() createQuestionDto: CreateQuestionDto, @Res() response: Response) {
         try {
-            const newQuestion = await this.gameService.addQuestionToGame(gameId, createQuestionDto);
-            response.status(HttpStatus.CREATED).send(JSON.stringify(newQuestion));
+            const questionToValidate = await this.gameService.validateQuestion(createQuestionDto);
+            response.status(HttpStatus.OK).send(JSON.stringify(questionToValidate));
         } catch (error) {
             response.status(HttpStatus.BAD_REQUEST).send(error);
         }

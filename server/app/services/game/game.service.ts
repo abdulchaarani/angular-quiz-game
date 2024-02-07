@@ -34,6 +34,11 @@ export class GameService {
         return await this.gameModel.find({});
     }
 
+    // TODO: Test
+    async getAllVisibleGames(): Promise<Game[]> {
+        return await this.gameModel.find({ isVisible: true });
+    }
+
     async getGameById(gameId: string): Promise<Game> {
         const game = await this.gameModel.findOne({ id: gameId });
         if (!game) {
@@ -45,6 +50,15 @@ export class GameService {
 
     async getGameByTitle(gameTitle: string): Promise<Game> {
         return await this.gameModel.findOne({ title: gameTitle });
+    }
+
+    // TODO: Test and maybe refactor to separate service?
+    async getChoices(gameId: string, questionId: string) {
+        const game = await this.getGameById(gameId);
+        const question = game.questions.find((currentQuestion) => {
+            return currentQuestion.id === questionId;
+        });
+        return question.choices;
     }
 
     // TODO: Test
@@ -126,46 +140,31 @@ export class GameService {
     }
 
     // TODO - Unit test
-    async addQuestionToGame(gameId: string, question: CreateQuestionDto): Promise<void> {
+    async validateQuestion(question: CreateQuestionDto): Promise<void> {
         try {
             const errorMessages = this.validation.findQuestionErrors(question);
             if (errorMessages.length !== 0) {
                 return Promise.reject(`La question est invalide: ${errorMessages}`);
             }
-
-            const game = await this.getGameById(gameId);
-
-            if (game.questions.find((currentQuestion) => currentQuestion.text === question.text)) {
-                return Promise.reject('Une question avec le même texte existe déjà dans le jeu.');
-            }
-
-            question.id = uuidv4();
-            question.lastModification = new Date();
-            game.questions.push(question);
-            try {
-                await this.upsertGame(game);
-            } catch (error) {
-                return Promise.reject(error);
-            }
         } catch (error) {
-            return Promise.reject(`La question n'a pas pu être ajoutée au jeu: ${error}`);
+            return Promise.reject(`Erreur: ${error}`);
         }
     }
 
-    // TODO: Match Method -- Add Body which would contain list of choices + Tests (Deactivated temporarily)
-    /*
-    async validatePlayerChoice(gameId: string, questionId: string): Promise<boolean> {
+    // TODO: Tests + Possible Refactor
+    async validatePlayerChoice(gameId: string, questionId: string, selectedChoices: string[]): Promise<boolean> {
         try {
             const game = await this.getGameById(gameId);
             const question = game.questions.find((currentQuestion) => currentQuestion.id === questionId);
-            for (let i = 0; i < question.choices.length; i++) {
-                // TODO: If question.choices[i] !== listChoices, pouet pouet
-                continue;
-            }
-            return true;
+            const expectedChoices: string[] = [];
+            question.choices.forEach((choice) => {
+                if (choice.isCorrect) {
+                    expectedChoices.push(choice.text);
+                }
+            });
+            return expectedChoices.sort().toString() === selectedChoices.sort().toString();
         } catch (error) {
             return Promise.reject('Le jeu est introuvable.');
         }
     }
-    */
 }

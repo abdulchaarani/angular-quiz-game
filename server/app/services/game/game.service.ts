@@ -126,29 +126,14 @@ export class GameService {
     }
 
     // TODO - Unit test
-    async addQuestionToGame(gameId: string, question: CreateQuestionDto): Promise<void> {
+    async validateQuestion(question: CreateQuestionDto): Promise<void> {
         try {
             const errorMessages = this.validation.findQuestionErrors(question);
             if (errorMessages.length !== 0) {
                 return Promise.reject(`La question est invalide: ${errorMessages}`);
             }
-
-            const game = await this.getGameById(gameId);
-
-            if (game.questions.find((currentQuestion) => currentQuestion.text === question.text)) {
-                return Promise.reject('Une question avec le même texte existe déjà dans le jeu.');
-            }
-
-            question.id = uuidv4();
-            question.lastModification = new Date();
-            game.questions.push(question);
-            try {
-                await this.upsertGame(game);
-            } catch (error) {
-                return Promise.reject(error);
-            }
         } catch (error) {
-            return Promise.reject(`La question n'a pas pu être ajoutée au jeu: ${error}`);
+            return Promise.reject(`Erreur: ${error}`);
         }
     }
 

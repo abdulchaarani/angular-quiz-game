@@ -1,14 +1,14 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { HttpResponse } from '@angular/common/http';
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { Component, OnInit , EventEmitter, Output} from '@angular/core';
 import { Game } from '@app/interfaces/game';
 import { Question } from '@app/interfaces/question';
 import { CreateQuestionComponent } from '@app/pages/create-question/create-question.component';
-import { GamesCreationService } from '@app/services/games-creation.service';
-import { QuestionService } from '@app/services/question.service';
-import { MatDialog } from '@angular/material/dialog';
+// import { GamesCreationService } from '@app/services/games-creation.service';
 import { GamesService } from '@app/services/games.service';
-// import { ActivatedRoute } from '@angular/router';
+// import { QuestionService } from '@app/services/question.service';
+import { ActivatedRoute } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
     selector: 'app-admin-questions-list',
@@ -19,70 +19,59 @@ export class AdminQuestionsListComponent implements OnInit {
     dialogState: boolean = false;
 
     @Output() createQuestionEvent: EventEmitter<Question> = new EventEmitter<Question>();
-    game: Game = {
-        id: '1',
-        title: 'Test',
-        description: 'Test',
-        lastModification: '2024-02-02T01:20:39.439+00:00',
-        duration: 10,
-        isVisible: true,
-        questions: [],
-    };
-
+    game: Game ;
     response: string = '';
 
     constructor(
-        //public dialogRef: MatDialogRef<CreateQuestionComponent>,
-
         public dialog: MatDialog,
-        private readonly questionService: QuestionService,
-        private readonly gamesCreationService: GamesCreationService,
         private readonly gamesService: GamesService,
-    ) // private route: ActivatedRoute,
+        private route: ActivatedRoute,
+    ) 
 
     {}
-
     drop(event: CdkDragDrop<Question[]>) {
         moveItemInArray(this.game.questions, event.previousIndex, event.currentIndex);
-    }
-
-    ngOnInit() {
-        this.questionService.getAllQuestions().subscribe((data: Question[]) => (this.game.questions = [...data]));
     }
 
     changeDuration(event: Event) {
         this.game.duration = Number((event.target as HTMLInputElement).value);
     }
 
+
+    isValid: boolean = false;
+
+    ngOnInit() {
+        this.route.params.subscribe((params) => {
+            const id = params['id'];
+            this.gamesService.getGameById(id).subscribe((game: Game) => {
+                this.game = game;
+                this.isValid = true;
+            });
+        });
+    }
+
     deleteQuestion(questionId: string) {
-        this.questionService.deleteQuestion(questionId).subscribe((response: HttpResponse<string>) => {
-            if (response.ok) this.game.questions = this.game.questions.filter((question: Question) => question.id !== questionId);
+        if (this.game.questions.length === 1 || this.game.id === null) {
+            return;
+        }
+        this.game.questions = this.game.questions.filter((question: Question) => question.id !== questionId);
+    }
+
+    saveGame() {
+        console.log(this.game.questions);
+        this.gamesService.replaceGame(this.game).subscribe((response: HttpResponse<string>) => {
+            () => {
+                this.response = 'Game saved';
+            };
+            (error: HttpErrorResponse) => {
+                this.response = 'Game not saved';
+            };
         });
     }
 
     addNewQuestion(newQuestion: Question) {
-        // this.questionService.add()
-
-        // const newQuestion: Question = {
-        //     id: '',
-        //     type: 'QCM',
-        //     text: 'Quelle est la question?',
-        //     points: 20,
-        //     lastModification: '2024-01-26T14:21:19+00:00',
-        // };21q    
-
-        // this.questionService.addQuestion(newQuestion).subscribe((response: HttpResponse<string>) => {
-        //     if (response.ok) this.game.questions.push(newQuestion);
-        // });
-
-        this.gamesService.verifyGame(this.game);
-        //this.createQuestionEvent.emit(newQuestion);
+        console.log("new", newQuestion);
         this.game.questions.push(newQuestion);
-        //this.gamesService.verifyGame(this.game);
-    }
-
-    saveGame() {
-        this.gamesCreationService.sendModifiedGame(this.game);
     }
 
     toggleCreateQuestion() {
@@ -93,28 +82,12 @@ export class AdminQuestionsListComponent implements OnInit {
 
     // https://stackoverflow.com/questions/47592364/usage-of-mat-dialog-close
     openDialog() {
-        //this.toggleCreateQuestion();
-        //this.dialogState = !this.dialogState;
-        // if (!this.dialogState) {
-        //     this.toggleCreateQuestion();
-        // }
-
         if (!this.dialogState) {
             this.dialogRef = this.dialog.open(CreateQuestionComponent, {
                 height: '70%',
                 width: '100%',
             });
-
-            // this.dialogRef.afterClosed().subscribe((newQuestion: Question) => {
-            //     if (newQuestion) {
-            //         this.addNewQuestion(newQuestion);
-            //     }
-            //     // Set dialogState to false when the dialog is closed
-            //     this.dialogState = false;
-            // });
-
             this.dialogRef.componentInstance.createQuestionEvent.subscribe((newQuestion: Question) => {
-                //this.onNoClick());
                 if (newQuestion) {
                     this.addNewQuestion(newQuestion);
                     this.dialogRef.close();
@@ -124,30 +97,4 @@ export class AdminQuestionsListComponent implements OnInit {
             });
         }
     }
-
-    onQuestionCreated(newQuestion: Question) {
-        console.log('created', newQuestion);
-        this.game.questions.push(newQuestion);
-
-        this.gamesService.addQuestionToGame(this.game.id, newQuestion).subscribe((response: HttpResponse<string>) => {
-            if (response.ok) {
-                this.response = 'Questionsaved';
-            } else {
-                this.response = 'Error';
-            }
-        });
-    }
-
-    //  #createQuestionComponent (questionCreated)="onQuestionCreated($event)">
-    //onNoClick(): void {
-    //     var cn = confirm('Les modifications seront perdues, voulez-vous quitter?');
-    //     console.log(cn);
-    //      if(cn){
-    //   this.dialog.closeAll();
-    //      } else{
-    //         this.openDialog();
-    //      }
-
-    // };
-
 }

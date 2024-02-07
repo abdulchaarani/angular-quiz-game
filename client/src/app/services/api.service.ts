@@ -1,5 +1,6 @@
-import { HttpClient, HttpResponse, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
+import { Question } from '@app/interfaces/question';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
@@ -37,15 +38,22 @@ export class ApiService<T> {
             .pipe(catchError(this.handleError<HttpResponse<string>>('add')));
     }
 
+    protected addQuestion(payload: Question, endpoint: string = ''): Observable<HttpResponse<string>> {
+        return this.http
+            .post(`${this.serverUrl}/${this.baseUrl}/${endpoint}`, payload, this.httpOptions)
+            .pipe(catchError(this.handleError<HttpResponse<string>>('add')));
+    }
+
+
     protected delete(endpoint: string): Observable<HttpResponse<string>> {
         return this.http
             .delete(`${this.serverUrl}/${this.baseUrl}/${endpoint}`, this.httpOptions)
             .pipe(catchError(this.handleError<HttpResponse<string>>('delete')));
     }
 
-    protected update(payload: T, endpoint: string): Observable<HttpResponse<string>> {
+    protected update(endpoint: string): Observable<HttpResponse<string>> {
         return this.http
-            .patch(`${this.serverUrl}/${this.baseUrl}/${endpoint}`, payload, this.httpOptions)
+            .patch(`${this.serverUrl}/${this.baseUrl}/${endpoint}`, {}, this.httpOptions)
             .pipe(catchError(this.handleError<HttpResponse<string>>('update')));
     }
 

@@ -1,10 +1,12 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Component, OnInit } from '@angular/core';
-import { Question } from '@app/interfaces/question';
-import { Game } from '@app/interfaces/game';
-import { QuestionService } from '@app/services/question.service';
 import { HttpResponse } from '@angular/common/http';
-// import { GamesCreationService } from '@app/services/games-creation.service';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Game } from '@app/interfaces/game';
+import { Question } from '@app/interfaces/question';
+import { CreateQuestionComponent } from '@app/pages/create-question/create-question.component';
+import { GamesCreationService } from '@app/services/games-creation.service';
+import { QuestionService } from '@app/services/question.service';
+import { MatDialog} from '@angular/material/dialog';
 
 @Component({
     selector: 'app-admin-questions-list',
@@ -12,8 +14,11 @@ import { HttpResponse } from '@angular/common/http';
     styleUrls: ['./admin-questions-list.component.scss'],
 })
 export class AdminQuestionsListComponent implements OnInit {
+    dialogState: boolean = false;
+
+    @Output() createQuestionEvent: EventEmitter<Question> = new EventEmitter<Question>();
     game: Game = {
-        id: 1,
+        id: '1',
         title: 'Test',
         description: 'Test',
         lastModification: '2024-02-02T01:20:39.439+00:00',
@@ -24,8 +29,13 @@ export class AdminQuestionsListComponent implements OnInit {
 
     response: string = '';
 
-    // private readonly gamesCreationService: GamesCreationService,
-    constructor(private readonly questionService: QuestionService) {}
+    constructor(
+       //public dialogRef: MatDialogRef<CreateQuestionComponent>,
+        
+       public dialog: MatDialog,
+        private readonly questionService: QuestionService,
+        private readonly gamesCreationService: GamesCreationService,
+    ) {}
 
     drop(event: CdkDragDrop<Question[]>) {
         moveItemInArray(this.game.questions, event.previousIndex, event.currentIndex);
@@ -45,20 +55,64 @@ export class AdminQuestionsListComponent implements OnInit {
         });
     }
 
-    addNewGame() {
-        const newQuestion: Question = {
-            id: '',
-            type: 'QCM',
-            description: 'Description',
-            question: 'Quelle est la question?',
-            points: 20,
-            lastModification: '2024-01-26T14:21:19+00:00',
-        };
+    addNewQuestion(newQuestion: Question) {
 
+        this.questionService.addQuestion(newQuestion).subscribe((response: HttpResponse<string> )=> {
+            if(response.ok) this.game.questions.push(newQuestion);
+
+        });
+        //this.createQuestionEvent.emit(newQuestion);
         this.game.questions.push(newQuestion);
     }
 
+
     saveGame() {
-        // this.gamesCreationService.sendModifiedGame(this.game);
+        this.gamesCreationService.sendModifiedGame(this.game);
+    }
+
+    toggleCreateQuestion() {
+        this.dialogState = !this.dialogState; 
+    }
+
+    dialogRef: any;
+
+
+    // https://stackoverflow.com/questions/47592364/usage-of-mat-dialog-close
+    openDialog() {
+        //this.toggleCreateQuestion();
+        //this.dialogState = !this.dialogState;
+        // if (!this.dialogState) {
+        //     this.toggleCreateQuestion();
+        // }
+
+        if (!this.dialogState) {
+            this.dialogRef = this.dialog.open(CreateQuestionComponent, {
+                height: '70%',
+                width: '100%'
+            });
+  
+        // this.dialogRef.afterClosed().subscribe((newQuestion: Question) => {
+        //     if (newQuestion) {
+        //         this.addNewQuestion(newQuestion);
+        //     }
+        //     // Set dialogState to false when the dialog is closed
+        //     this.dialogState = false;
+        // });
+
+        this.dialogRef.componentInstance.createQuestionEvent.subscribe((newQuestion: Question) => {
+            //this.onNoClick());
+            if (newQuestion) {
+                this.addNewQuestion(newQuestion);
+                this.dialogRef.close();
+            }
+
+            this.dialogState = false;
+    });
+}
+    }
+
+    onQuestionCreated(newQuestion: Question) {
+        console.log("created", newQuestion);
+        this.game.questions.push(newQuestion);
     }
 }

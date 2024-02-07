@@ -101,7 +101,7 @@ describe('GamesController', () => {
         gameService.validateQuestion.resolves();
         const res = {} as unknown as Response;
         res.status = (code) => {
-            expect(code).toEqual(HttpStatus.CREATED);
+            expect(code).toEqual(HttpStatus.OK);
             return res;
         };
         res.send = () => res;

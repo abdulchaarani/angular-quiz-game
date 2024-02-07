@@ -34,6 +34,11 @@ export class GameService {
         return await this.gameModel.find({});
     }
 
+    // TODO: Test
+    async getAllVisibleGames(): Promise<Game[]> {
+        return await this.gameModel.find({ isVisible: true });
+    }
+
     async getGameById(gameId: string): Promise<Game> {
         const game = await this.gameModel.findOne({ id: gameId });
         if (!game) {
@@ -45,6 +50,15 @@ export class GameService {
 
     async getGameByTitle(gameTitle: string): Promise<Game> {
         return await this.gameModel.findOne({ title: gameTitle });
+    }
+
+    // TODO: Test and maybe refactor to separate service?
+    async getChoices(gameId: string, questionId: string) {
+        const game = await this.getGameById(gameId);
+        const question = game.questions.find((currentQuestion) => {
+            return currentQuestion.id == questionId;
+        });
+        return question.choices;
     }
 
     // TODO: Test
@@ -137,20 +151,20 @@ export class GameService {
         }
     }
 
-    // TODO: Match Method -- Add Body which would contain list of choices + Tests (Deactivated temporarily)
-    /*
-    async validatePlayerChoice(gameId: string, questionId: string): Promise<boolean> {
+    // TODO: Tests + Possible Refactor
+    async validatePlayerChoice(gameId: string, questionId: string, selectedChoices: string[]): Promise<boolean> {
         try {
             const game = await this.getGameById(gameId);
             const question = game.questions.find((currentQuestion) => currentQuestion.id === questionId);
+            let expectedChoices: string[] = [];
             for (let i = 0; i < question.choices.length; i++) {
-                // TODO: If question.choices[i] !== listChoices, pouet pouet
-                continue;
+                if (question.choices[i].isCorrect) {
+                    expectedChoices.push(question.choices[i].text);
+                }
             }
-            return true;
+            return expectedChoices.sort().toString() === selectedChoices.sort().toString();
         } catch (error) {
             return Promise.reject('Le jeu est introuvable.');
         }
     }
-    */
 }

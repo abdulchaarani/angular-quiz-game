@@ -8,9 +8,9 @@ import { GamesService } from './games.service';
 })
 export class GamesCreationService extends GamesService {
     game: Game;
-    createGame(title: string, description: string, duration: number): Game {
+    createGame(title: string, description: string, duration: number): void {
         this.game = {
-            id: '0',
+            id: '',
             title,
             description,
             lastModification: new Date().toString(),
@@ -18,9 +18,7 @@ export class GamesCreationService extends GamesService {
             isVisible: true,
             questions: [],
         };
-
-        console.log('Your game has been submitted', this.game);
-        return this.game;
+        this.uploadGame(this.game);
     }
 
     sendModifiedGame(modifiedGame: Game): Game {

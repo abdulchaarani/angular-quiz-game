@@ -33,23 +33,7 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
 
 
     // Modify for this to only be accessible if we're modifying a question
-    ngOnInit(): void {
-
-        //this.initializeForm();
-
-        this.questionForm.valueChanges.subscribe((formValue) => {
-            
-            this.question.text = formValue.text;
-            this.question.points = formValue.points;
-            //this.quest
-            this.question.lastModification = new Date().toLocaleDateString();
-            this.question.id = "5";
-            
-    
-            //console.log("choices",this.question.choices);
-          });
-
-    }
+    ngOnInit(): void {}
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes.question && this.question) {
@@ -61,7 +45,7 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
         this.questionForm = this.fb.group({
             text: ['', Validators.required],
             points: ['', Validators.required],
-            type: ['QCM'],
+            types: ['QCM'],
             choices: this.fb.array([
                 this.fb.group({
                     text: ['', Validators.required], // change to text 

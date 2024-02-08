@@ -4,12 +4,13 @@ import { Component, OnInit , EventEmitter, Output} from '@angular/core';
 import { Game } from '@app/interfaces/game';
 import { Question } from '@app/interfaces/question';
 import { CreateQuestionComponent } from '@app/pages/create-question/create-question.component';
-// import { GamesCreationService } from '@app/services/games-creation.service';
 import { GamesService } from '@app/services/games.service';
 // import { QuestionService } from '@app/services/question.service';
 import { ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { FormBuilder, Validators } from '@angular/forms';
+import { GamesCreationService } from '@app/services/games-creation.service';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-admin-questions-list',
@@ -26,9 +27,17 @@ export class AdminQuestionsListComponent implements OnInit {
     constructor(
         public dialog: MatDialog,
         private readonly gamesService: GamesService,
+        private readonly gamesCreationService: GamesCreationService,
         private route: ActivatedRoute,
         private formBuilder: FormBuilder,
+        private router: Router,
     ) {}
+
+    gameForm = this.formBuilder.nonNullable.group({
+        title: ['', Validators.required],
+        description: ['', [Validators.required]],
+        duration: ['', Validators.required],
+    });
 
     drop(event: CdkDragDrop<Question[]>) {
         moveItemInArray(this.game.questions, event.previousIndex, event.currentIndex);
@@ -61,7 +70,16 @@ export class AdminQuestionsListComponent implements OnInit {
             this.game.description = this.gameEditForm.value.description;
             this.saveGame();
         }
+
+        if (this.gameForm.value.title && this.gameForm.value.description && this.gameForm.value.duration) {
+            this.gamesCreationService.createGame(this.gameForm.value.title, this.gameForm.value.description, parseInt(this.gameForm.value.duration))
+            .subscribe((gameId: string) => {
+            this.router.navigate([`/admin/games/${gameId}/questions`]);
+        });
+
+        }
     }
+    
 
     deleteQuestion(questionId: string) {
         if (this.game.questions.length === 1 || this.game.id === null) {

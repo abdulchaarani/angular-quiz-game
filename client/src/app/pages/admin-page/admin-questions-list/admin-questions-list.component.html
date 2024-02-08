@@ -1,7 +1,47 @@
 <mat-card *ngIf="!isValid" class="create-new-game">
 
-    <app-admin-create-game>
-    </app-admin-create-game>
+    <div class="top-page">
+        <h2>Creation d'un nouveau jeu</h2>
+    </div>
+    
+    <h3>Creation</h3>
+    
+    <p>
+      <a routerLink="/admin/games">Voir tous les jeux</a>
+    </p>
+    
+    <form [formGroup]="gameForm" (ngSubmit)="onSubmit()">
+    
+      <mat-form-field class="add-title">
+        <mat-label>Titre</mat-label>
+        <input matInput id="text" type="text" formControlName="title">
+      </mat-form-field>
+    
+      <mat-form-field class="add-description">
+        <mat-label>Description</mat-label>
+        <textarea matInput id="description" type="text" formControlName="description">
+        </textarea>
+      </mat-form-field>
+    
+      <mat-form-field class="add-duration">
+        <mat-label>Duree</mat-label>
+        <input matInput id="duration" type="number" formControlName="descriptdurationion" formControlName="duration" min="10" max="60">
+      </mat-form-field>
+    
+      <div>
+        <p *ngIf="!gameForm.touched">
+          Veuillez remplir le formulaire.
+        </p>
+    
+        <p *ngIf="gameForm.invalid && gameForm.controls.duration.touched">
+            La durée doit être entre 10 et 60.
+        </p>
+    
+      </div>
+    
+    <button class="button" type="submit" [disabled]="gameForm.invalid">Creer</button>
+    
+    </form>    
     
 </mat-card>
 
@@ -60,15 +100,13 @@
                     (deleteQuestionEvent)="deleteQuestion($event)"
                     cdkDragHandle
                 >
-
-            </app-question-list-item>
-        </div>
-        <div class="add-button-container">
-            <button class="add-question-button" mat-raised-button color="basic" (click)="openDialog()" id="admin-create-question-button">
-                <mat-icon>add</mat-icon>
-                <app-create-question *ngIf="dialogState" (createQuestionEvent)="addNewQuestion($event)"></app-create-question>
-            </button>
-            
+                </app-question-list-item>
+            </div>
+            <div class="add-button-container">
+                <button class="add-question-button" mat-raised-button color="basic" (click)="openDialog()" id="admin-create-question-button">
+                    <mat-icon>add</mat-icon>
+                    <app-create-question *ngIf="dialogState" (createQuestionEvent)="addNewQuestion($event)"></app-create-question>
+                </button>
             </div>
         </div>
     </mat-accordion>

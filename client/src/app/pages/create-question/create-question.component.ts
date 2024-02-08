@@ -187,9 +187,13 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
             const newQuestion: Question = this.questionForm.value;
             //newQuestion.id =;
             newQuestion.lastModification = new Date().toLocaleString();
+            newQuestion.id = this.getRandomString();
             this.createQuestionEvent.emit(newQuestion);
         }
     }
+
+    BASE_36 = 36; 
+    getRandomString = (): string => (Math.random() + 1).toString(this.BASE_36).substring(2);
 
     getControls() {
         return (this.questionForm.get('controlName') as FormArray).controls;

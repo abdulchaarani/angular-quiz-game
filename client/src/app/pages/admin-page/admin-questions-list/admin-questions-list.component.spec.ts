@@ -5,6 +5,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 import { Game } from '@app/interfaces/game';
+import { MatDialog } from '@angular/material/dialog';
 
 describe('AdminQuestionsListComponent', () => {
     let component: AdminQuestionsListComponent;
@@ -54,6 +55,7 @@ describe('AdminQuestionsListComponent', () => {
             providers: [
                 { provide: GamesService, useValue: gamesServiceSpy },
                 { provide: ActivatedRoute, useValue: route },
+                { provide: MatDialog, useValue: {} },
             ],
         });
         fixture = TestBed.createComponent(AdminQuestionsListComponent);
@@ -98,11 +100,5 @@ describe('AdminQuestionsListComponent', () => {
         const questionToDeleteId = component.game.questions[0]?.id;
         component.deleteQuestion(questionToDeleteId);
         expect(component.game.questions.length).toBe(mockGame.questions.length);
-    });
-
-    it('should be able to add a new question', () => {
-        const gameLength = component.game.questions.length;
-        component.addNewGame();
-        expect(component.game.questions.length).toBe(gameLength + 1);
     });
 });

@@ -8,7 +8,7 @@ import { AdminPageComponent } from './admin-page.component';
 import SpyObj = jasmine.SpyObj;
 
 // TODO: Add tests for JSON upload + Display Error Notifications
-// Lines: 27, 34, 43, 50-70
+// Lines: 43, 50-70
 describe('AdminPageComponent', () => {
     let component: AdminPageComponent;
     let fixture: ComponentFixture<AdminPageComponent>;
@@ -70,11 +70,32 @@ describe('AdminPageComponent', () => {
         expect(component.games.length).toBe(mockGames.length - 1);
     });
 
-    it('should be able to add a game', () => {
-        component.addGame(newMockGame);
+    it('should open a snackbar if ondDeleteGameFromList fails', () => {
+        gamesServiceSpy.deleteGame.and.returnValue(throwError(() => new Error('error')));
+        component.onDeleteGameFromList('');
+        expect(notificationServiceSpy.displayErrorMessage).toHaveBeenCalled();
+    });
 
+    it('should be able to add a game (with no body in the response) and display success message', () => {
+        component.addGame(newMockGame);
         expect(gamesServiceSpy.uploadGame).toHaveBeenCalledWith(newMockGame);
         expect(component.games.length).toBe(mockGames.length + 1);
+        expect(notificationServiceSpy.displaySuccessMessage).toHaveBeenCalled();
+    });
+
+    it('should be able to add a game (with appropriate body in the response) and display success message', () => {
+        const mockHttpResponseWithBody: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK', body: JSON.stringify(newMockGame) });
+        gamesServiceSpy.uploadGame.and.returnValue(of(mockHttpResponseWithBody));
+        component.addGame(newMockGame);
+        expect(gamesServiceSpy.uploadGame).toHaveBeenCalledWith(newMockGame);
+        expect(component.games.length).toBe(mockGames.length + 1);
+        expect(notificationServiceSpy.displaySuccessMessage).toHaveBeenCalled();
+    });
+
+    it('should open a snackbar if addGame fails', () => {
+        gamesServiceSpy.uploadGame.and.returnValue(throwError(() => new Error('error')));
+        component.addGame(newMockGame);
+        expect(notificationServiceSpy.displayErrorMessage).toHaveBeenCalled();
     });
 });
 

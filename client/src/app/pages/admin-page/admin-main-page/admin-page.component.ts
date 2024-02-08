@@ -35,7 +35,6 @@ export class AdminPageComponent implements OnInit {
         });
     }
 
-    // TODO: Debug: if a new game is added from JSON, it can't be interacted with.
     addGame(newGame: Game): void {
         this.gamesService.uploadGame(newGame).subscribe({
             next: (response: HttpResponse<string>) => {
@@ -43,7 +42,7 @@ export class AdminPageComponent implements OnInit {
                     newGame = JSON.parse(response.body);
                 }
                 newGame.isVisible = false;
-                this.games.push(newGame); // This game doesn't have the right ID!
+                this.games.push(newGame);
                 this.notificationService.displaySuccessMessage('Jeu ajouté avec succès! 😺');
             },
             error: (error: HttpErrorResponse) =>

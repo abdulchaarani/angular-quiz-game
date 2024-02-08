@@ -10,26 +10,21 @@
 
 <form [formGroup]="gameForm" (ngSubmit)="onSubmit()">
 
-  <div>
-    <label for="title">
-      Titre
-    </label>
-    <input id="title" type="text" formControlName="title">
-  </div>
+  <mat-form-field class="add-title">
+    <mat-label>Titre</mat-label>
+    <input matInput id="text" type="text" formControlName="title">
+  </mat-form-field>
 
-  <div>
-    <label for="description">
-        Description
-    </label>
-    <input id="description" type="text" formControlName="description">
-  </div>
+  <mat-form-field class="add-description">
+    <mat-label>Description</mat-label>
+    <textarea matInput id="description" type="text" formControlName="description">
+    </textarea>
+  </mat-form-field>
 
-  <div>
-    <label for="duration">
-        Duree
-    </label>
-    <input id="duration" type="number" formControlName="duration" min="10" max="60">
-  </div>
+  <mat-form-field class="add-duration">
+    <mat-label>Duree</mat-label>
+    <input matInput id="duration" type="number" formControlName="descriptdurationion" formControlName="duration" min="10" max="60">
+  </mat-form-field>
 
   <div>
     <p *ngIf="!gameForm.touched">

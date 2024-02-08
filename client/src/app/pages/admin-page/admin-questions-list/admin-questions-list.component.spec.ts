@@ -72,6 +72,13 @@ describe('AdminQuestionsListComponent', () => {
         expect(gamesServiceSpy.getGameById).toHaveBeenCalled();
     });
 
+    // it('should be able to change title and description', () => {
+    //     component.gameEditForm.setValue({ title: 'Test', description: 'Test' });
+    //     component.onSubmit();
+    //     expect(component.game.title).toEqual('Test');
+    //     expect(component.game.description).toEqual('Test');
+    // });
+
     it('should be able to change duration', () => {
         const event: any = { target: { value: '20' } };
         component.changeDuration(event);
@@ -101,4 +108,10 @@ describe('AdminQuestionsListComponent', () => {
         component.deleteQuestion(questionToDeleteId);
         expect(component.game.questions.length).toBe(mockGame.questions.length);
     });
+    
+    // it('should be able to save the game', () => {
+    //     component.saveGame();
+    //     expect(gamesServiceSpy.replaceGame).toHaveBeenCalledWith(component.game);
+    // });
+
 });

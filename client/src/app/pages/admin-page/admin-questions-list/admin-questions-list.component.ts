@@ -59,6 +59,7 @@ export class AdminQuestionsListComponent implements OnInit {
         if (this.gameEditForm.value.title && this.gameEditForm.value.description) {
             this.game.title = this.gameEditForm.value.title;
             this.game.description = this.gameEditForm.value.description;
+            this.saveGame();
         }
     }
 
@@ -70,7 +71,6 @@ export class AdminQuestionsListComponent implements OnInit {
     }
 
     saveGame() {
-        console.log(this.game);
         this.gamesService.replaceGame(this.game).subscribe((response: HttpResponse<string>) => {
             () => {
                 this.response = 'Game saved';

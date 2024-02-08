@@ -18,10 +18,10 @@ export class AdminCreateGameComponent {
         description: ['', [Validators.required]],
         duration: ['', Validators.required],
     });
+
     onSubmit(): void {
         if (this.gameForm.value.title && this.gameForm.value.description && this.gameForm.value.duration) {
             this.gamesCreationService.createGame(this.gameForm.value.title, this.gameForm.value.description, parseInt(this.gameForm.value.duration));
-            console.log('Game has been created', this.gameForm.value);
             this.gameForm.reset();
         }
     }

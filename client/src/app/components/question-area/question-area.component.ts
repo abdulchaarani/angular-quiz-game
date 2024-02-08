@@ -98,7 +98,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         return this.selectedAnswers.includes(choice);
     }
 
-    //open-chat-dialog(): void {}
+    // open-chat-dialog(): void {}
 
     openChatDialog(): void {
         this.dialog.open(ChatComponent, {
@@ -107,7 +107,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         });
     }
 
-    //exit-game(): void {}
+    // exit-game(): void {}
     exitGame(): void {}
 
     onNextButtonClick(): void {

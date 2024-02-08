@@ -6,7 +6,7 @@ export class CreateQuestionDto {
     @ApiProperty()
     @IsString()
     @IsOptional()
-    id?: string;
+    id: string;
 
     @ApiProperty()
     @IsString()
@@ -14,11 +14,7 @@ export class CreateQuestionDto {
 
     @ApiProperty()
     @IsString()
-    description: string;
-
-    @ApiProperty()
-    @IsString()
-    question: string;
+    text: string;
 
     @ApiProperty()
     @IsNumber()

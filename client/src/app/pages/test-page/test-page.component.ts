@@ -17,7 +17,7 @@ export class TestPageComponent implements OnInit {
 
     Games: Game[] = [
         {
-            id: 1,
+            id: '1',
             title: 'Questionnaire sur le JS',
             description: 'Questions de pratique sur le langage JavaScript',
             duration: 5,
@@ -26,24 +26,23 @@ export class TestPageComponent implements OnInit {
             questions: [
                 {
                     type: 'QCM',
-                    description: 'Parmi les mots suivants, lesquels sont des mots clés réservés en JS?',
-                    question: 'Parmi les mots suivants, lesquels sont des mots clés réservés en JS?',
+                    text: 'Parmi les mots suivants, lesquels sont des mots clés réservés en JS?',
                     points: 20,
                     choices: [
                         {
-                            choice: 'var',
+                            text: 'var',
                             isCorrect: true,
                         },
                         {
-                            choice: 'self',
+                            text: 'self',
                             isCorrect: false,
                         },
                         {
-                            choice: 'this',
+                            text: 'this',
                             isCorrect: true,
                         },
                         {
-                            choice: 'int',
+                            text: 'int',
                             isCorrect: false,
                         },
                     ],
@@ -52,16 +51,15 @@ export class TestPageComponent implements OnInit {
 
                 {
                     type: 'QCM',
-                    description: 'Parmi les mots suivants, lesquels sont des mots clés réservés en JS?',
-                    question: 'Parmi les mots suivants, lesquels sont des mots clés réservés en JS?',
+                    text: 'Parmi les mots suivants, lesquels sont des mots clés réservés en JS?',
                     points: 20,
                     choices: [
                         {
-                            choice: 'Non',
+                            text: 'Non',
                             isCorrect: true,
                         },
                         {
-                            choice: 'Oui',
+                            text: 'Oui',
                             isCorrect: false,
                         },
                     ],
@@ -75,17 +73,17 @@ export class TestPageComponent implements OnInit {
     currentQuestion: Question = this.currentGame.questions[0];
     currentQuestionIndex: number = 0;
     constructor(
-        // private gameService: GamesService,
+        private gameService: GamesService,
         private gameEventService: GameEventService, // private questionService: QuestionService,
     ) {
         this.currentQuestionIndex = 0;
     }
 
     ngOnInit(): void {
-        // this.gameService.getGameById(1).subscribe((data: Game) => {
-        //     this.currentGame = data;
-        //     console.log(this.currentGame.questions);
-        // });
+        this.gameService.getGameById('4addad76-0de7-4447-8f4f-ea7a018948a2').subscribe((data: Game) => {
+            this.currentGame = data;
+            console.log(this.currentGame.questions);
+        });
 
         console.log(this.currentGame);
         this.questions = this.currentGame.questions;

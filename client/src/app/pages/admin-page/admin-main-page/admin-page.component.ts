@@ -1,7 +1,8 @@
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Game } from '@app/interfaces/game';
 import { GamesService } from '@app/services/games.service';
-import { HttpResponse } from '@angular/common/http';
+import { NotificationService } from '@app/services/notification.service';
 
 @Component({
     selector: 'app-admin-page',
@@ -9,28 +10,49 @@ import { HttpResponse } from '@angular/common/http';
     styleUrls: ['./admin-page.component.scss'],
 })
 export class AdminPageComponent implements OnInit {
-    sortAscending: string = '';
     games: Game[] = [];
 
-    constructor(private gamesService: GamesService) {}
+    constructor(
+        private readonly gamesService: GamesService,
+        private readonly notificationService: NotificationService,
+    ) {}
 
     ngOnInit(): void {
         this.getGames();
     }
 
     getGames(): void {
-        this.gamesService.getGames().subscribe((games: Game[]) => (this.games = [...games]));
-    }
-
-    onDeleteGameFromList(gameToDeleteId: number) {
-        this.gamesService.deleteGame(gameToDeleteId).subscribe((response: HttpResponse<string>) => {
-            if (response.ok) this.games = this.games.filter((x) => x.id !== gameToDeleteId);
+        this.gamesService.getGames().subscribe({
+            next: (data: Game[]) => (this.games = [...data]),
+            error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`Échec d'obtention des jeux 😿\n ${error.message}`),
         });
     }
 
-    // TODO: Find actual type of event to remove the "any" (which is currently illegal)
+    onDeleteGameFromList(gameToDeleteId: string): void {
+        this.gamesService.deleteGame(gameToDeleteId).subscribe({
+            next: () => (this.games = this.games.filter((game: Game) => game.id !== gameToDeleteId)),
+            error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`Échec de supression du jeu 😿\n ${error.message}`),
+        });
+    }
+
+    // TODO: Debug: if a new game is added from JSON, it can't be interacted with.
+    addGame(newGame: Game): void {
+        this.gamesService.uploadGame(newGame).subscribe({
+            next: (response: HttpResponse<string>) => {
+                if (response.body) {
+                    newGame = JSON.parse(response.body);
+                }
+                newGame.isVisible = false;
+                this.games.push(newGame); // This game doesn't have the right ID!
+                this.notificationService.displaySuccessMessage('Jeu ajouté avec succès! 😺');
+            },
+            error: (error: HttpErrorResponse) =>
+                this.notificationService.displayErrorMessage(`Le jeu n'a pas pu être supprimé. 😿 \n ${error.message}`),
+        });
+    }
+
     // TODO: See if the logic can be migrated to games.service.ts (Challenge: Returning the read game while managing fileReader)
-    onFileSelected(event: Event) {
+    onFileSelected(event: Event): void {
         // Reference: https://blog.angular-university.io/angular-file-upload/
         // Reference: https://stackoverflow.com/questions/43176560/property-files-does-not-exist-on-type-eventtarget-error-in-typescript
         const target = event.target as HTMLInputElement;
@@ -42,12 +64,7 @@ export class AdminPageComponent implements OnInit {
                 const newGameStringified = fileReader.result?.toString();
                 if (newGameStringified) {
                     const newGame = JSON.parse(newGameStringified);
-                    this.gamesService.uploadGame(newGame).subscribe((response: HttpResponse<string>) => {
-                        if (response.ok) {
-                            newGame.isVisible = true;
-                            this.games.push(newGame);
-                        }
-                    });
+                    this.addGame(newGame);
                 }
             };
             fileReader.readAsText(file);

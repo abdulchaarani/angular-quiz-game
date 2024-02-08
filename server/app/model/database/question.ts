@@ -13,10 +13,7 @@ export class Question {
     type: string;
 
     @Prop({ required: true })
-    description: string;
-
-    @Prop({ required: true })
-    question: string;
+    text: string;
 
     @Prop({ required: true })
     points: number;

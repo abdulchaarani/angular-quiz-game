@@ -1,17 +1,14 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Game } from '@app/interfaces/game';
-import { Observable} from 'rxjs';
+import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
-import { Question } from '@app/interfaces/question';
 
 @Injectable({
     providedIn: 'root',
 })
 export class GamesService extends ApiService<Game> {
-    constructor(http: HttpClient){
-       // private gamesApiService : ApiService<Game>, 
-        //private questionApiService: ApiService<Question>, ) {
+    constructor(http: HttpClient) {
         super(http, 'admin/games');
     }
 
@@ -35,6 +32,13 @@ export class GamesService extends ApiService<Game> {
         return this.add(newGame, '');
     }
 
+    replaceGame(modifiedGame: Game) {
+        return this.replace(modifiedGame, modifiedGame.id);
+    }
+
+    verifyGame(newGame : Game){
+        return this.add(newGame, 'validate-question');
+      }
 
     downloadGameAsJson(gameToStringify: Game): void {
         const stringifiedGame = JSON.stringify(gameToStringify, (key, value) => {
@@ -52,9 +56,4 @@ export class GamesService extends ApiService<Game> {
         window.URL.revokeObjectURL(url);
         downloadLink.remove();
     }
-
-    addQuestionToGame(gameId: string, addedQuestion: Question): Observable<HttpResponse<string>> {
-        return this.addQuestion(addedQuestion, gameId);
-    }
-    }
-
+}

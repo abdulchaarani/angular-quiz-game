@@ -26,6 +26,8 @@ import { PlayerPageComponent } from './pages/player-page/player-page.component';
 import { TestPageComponent } from './pages/test-page/test-page.component';
 import { WaitPageComponent } from './pages/wait-page/wait-page.component';
 import { SortByLastModificationPipe } from './pipes/sort-by-last-modification.pipe';
+import { AdminCreateGameComponent } from './pages/admin-page/admin-create-game/admin-create-game.component';
+import { AdminQuestionBankSelectionComponent } from './pages/admin-page/admin-questions-list/admin-question-bank-selection/admin-question-bank-selection.component';
 import { FormControlPipe } from './pipes/form-control.pipe';
 /**
  * Main module that is used in main.ts.
@@ -56,6 +58,8 @@ import { FormControlPipe } from './pipes/form-control.pipe';
         FeedbackComponent,
         WaitPageComponent,
         DialogAdminPasswordComponent,
+        AdminCreateGameComponent,
+        AdminQuestionBankSelectionComponent,
     ],
     imports: [
         AppMaterialModule,

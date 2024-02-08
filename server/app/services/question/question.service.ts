@@ -1,16 +1,20 @@
+import { QUESTIONS_TO_POPULATE } from '@app/constants/populate-constants';
 import { Question, QuestionDocument } from '@app/model/database/question';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question-dto';
 import { UpdateQuestionDto } from '@app/model/dto/question/update-question-dto';
+import { GameValidationService } from '@app/services/game-validation/game-validation.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 
+// TODO: Add Validation Service
 @Injectable()
 export class QuestionService {
     constructor(
         @InjectModel(Question.name) public questionModel: Model<QuestionDocument>,
         private readonly logger: Logger,
+        private validation: GameValidationService,
     ) {
         this.start();
     }
@@ -22,84 +26,8 @@ export class QuestionService {
     }
 
     async populateDB(): Promise<void> {
-        const QUESTIONS: CreateQuestionDto[] = [
-            {
-                id: '1',
-                type: 'QCM',
-                description: 'Motifs sur ballon de soccer',
-                question: 'Combien de motifs blancs et noirs y a-t-il respectivement sur un ballon de soccer?',
-                points: 20,
-                choices: [
-                    {
-                        text: '30 blancs, 5 noirs',
-                        isCorrect: false,
-                    },
-                    {
-                        text: '20 blancs, 12 noirs',
-                        isCorrect: true,
-                    },
-                    {
-                        text: 'Cela varie',
-                        isCorrect: false,
-                    },
-                ],
-                lastModification: new Date(2024, 1, 2),
-            },
-            {
-                id: '2',
-                type: 'QCM',
-                description: 'Inspiration Leblanc',
-                question: "Savez-vous de quel auteur Leblanc s'est inspiré ?",
-                points: 60,
-                choices: [
-                    {
-                        text: 'Gaston Leroux',
-                        isCorrect: false,
-                    },
-                    {
-                        text: 'Arthur Conan Doyle',
-                        isCorrect: true,
-                    },
-                    {
-                        text: 'Edgar Wallace',
-                        isCorrect: false,
-                    },
-                    {
-                        text: 'Agatha Christie',
-                        isCorrect: false,
-                    },
-                ],
-                lastModification: new Date(2024, 1, 2),
-            },
-            {
-                id: '3',
-                type: 'QCM',
-                description: 'Outer Wilds',
-                question: 'Parmi les choix suivants, lesquels sont des noms de planètes dans Outer Wilds ?',
-                points: 20,
-                choices: [
-                    {
-                        text: 'Sombronces',
-                        isCorrect: true,
-                    },
-                    {
-                        text: 'Léviathe',
-                        isCorrect: true,
-                    },
-                    {
-                        text: 'Cravité',
-                        isCorrect: true,
-                    },
-                    {
-                        text: 'La Lanterne',
-                        isCorrect: false,
-                    },
-                ],
-                lastModification: new Date(2024, 1, 1),
-            },
-        ];
         this.logger.log('THIS ADDS DATA TO THE DATABASE, DO NOT USE OTHERWISE');
-        await this.questionModel.insertMany(QUESTIONS);
+        await this.questionModel.insertMany(QUESTIONS_TO_POPULATE);
     }
 
     async getAllQuestions(): Promise<Question[]> {
@@ -121,15 +49,19 @@ export class QuestionService {
 
     async addQuestion(question: CreateQuestionDto): Promise<void> {
         // TODO: Unit-test for when a question already exists
-        if (await this.getQuestionByName(question.question)) {
-            return Promise.reject('Question already exists in bank.');
+        if (await this.getQuestionByName(question.text)) {
+            return Promise.reject('La question existe déjà dans la banque.');
         }
         question.id = uuidv4();
         question.lastModification = new Date();
+        const errorMessages = this.validation.findQuestionErrors(question);
+        if (errorMessages.length !== 0) {
+            return Promise.reject(`La question est invalide:\n${errorMessages}`);
+        }
         try {
             await this.questionModel.create(question);
         } catch (error) {
-            return Promise.reject(`Failed to insert question: ${error}`);
+            return Promise.reject(`La question n'a pas pu être ajoutée.: ${error}`);
         }
     }
 
@@ -137,12 +69,16 @@ export class QuestionService {
         const filterQuery = { id: question.id };
         try {
             question.lastModification = new Date();
+            const errorMessages = this.validation.findQuestionErrors(question);
+            if (errorMessages.length !== 0) {
+                return Promise.reject(`La question est invalide:\n${errorMessages}`);
+            }
             const res = await this.questionModel.updateOne(filterQuery, question);
             if (res.matchedCount === 0) {
-                return Promise.reject('Could not find question');
+                return Promise.reject('La question est introuvable.');
             }
         } catch (error) {
-            return Promise.reject(`Failed to update document: ${error}`);
+            return Promise.reject(`La question n'a pas été mise à jour: ${error}`);
         }
     }
 
@@ -152,10 +88,10 @@ export class QuestionService {
                 id: questionId,
             });
             if (res.deletedCount === 0) {
-                return Promise.reject('Could not find game');
+                return Promise.reject('La question est introuvable.');
             }
         } catch (error) {
-            return Promise.reject(`Failed to delete game: ${error}`);
+            return Promise.reject(`La question n'a pas pu être supprimée: ${error}`);
         }
     }
 }

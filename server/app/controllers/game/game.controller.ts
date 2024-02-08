@@ -1,5 +1,6 @@
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
+import { CreateQuestionDto } from '@app/model/dto/question/create-question-dto';
 import { GameService } from '@app/services/game/game.service';
 import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Put, Res } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
@@ -10,6 +11,7 @@ import { Response } from 'express';
 export class GameController {
     constructor(private readonly gameService: GameService) {}
 
+    // TODO: Return types
     @Get('/')
     async allGames(@Res() response: Response) {
         try {
@@ -26,7 +28,7 @@ export class GameController {
             const game = await this.gameService.getGameById(id);
             response.status(HttpStatus.OK).json(game);
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send(error.message);
+            response.status(HttpStatus.NOT_FOUND).send(error);
         }
     }
 
@@ -36,25 +38,36 @@ export class GameController {
             const newGame = await this.gameService.addGame(createGameDto);
             response.status(HttpStatus.CREATED).send(JSON.stringify(newGame));
         } catch (error) {
-            response.status(HttpStatus.BAD_REQUEST).send(error.message);
+            response.status(HttpStatus.BAD_REQUEST).send(error);
+        }
+    }
+
+    // TODO: Unit test
+    @Post('/validate-question/')
+    async validateQuestion(@Body() createQuestionDto: CreateQuestionDto, @Res() response: Response) {
+        try {
+            const questionToValidate = await this.gameService.validateQuestion(createQuestionDto);
+            response.status(HttpStatus.OK).send(JSON.stringify(questionToValidate));
+        } catch (error) {
+            response.status(HttpStatus.BAD_REQUEST).send(error);
         }
     }
 
     // Toggle Visibility doesn't change date
     @Patch('/:id')
-    async updateGame(@Body() updateGameDto: UpdateGameDto, @Res() response: Response) {
+    async toggleGameVisibility(@Param('id') id: string, @Res() response: Response) {
         try {
-            await this.gameService.updateGame(updateGameDto, false);
+            await this.gameService.toggleGameVisibility(id);
             response.status(HttpStatus.OK).send();
         } catch (error) {
-            response.status(HttpStatus.BAD_REQUEST).send(error.message);
+            response.status(HttpStatus.NOT_FOUND).send(error.message);
         }
     }
 
     @Put('/:id')
     async upsertGame(@Body() updateGameDto: UpdateGameDto, @Res() response: Response) {
         try {
-            await this.gameService.updateGame(updateGameDto, true);
+            await this.gameService.upsertGame(updateGameDto);
             response.status(HttpStatus.OK).send();
         } catch (error) {
             response.status(HttpStatus.BAD_REQUEST).send(error.message);

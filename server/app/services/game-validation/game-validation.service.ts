@@ -1,5 +1,8 @@
+import { errorMessage } from '@app/constants/game-error-messages';
+import { constants } from '@app/constants/game-validation-constants';
+import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
-import { Question } from '@app/model/database/question';
+import { CreateQuestionDto } from '@app/model/dto/question/create-question-dto';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -8,11 +11,10 @@ export class GameValidationService {
         return text && text.trim() !== '';
     }
 
-    isValidChoicesRatio(question: Question): boolean {
+    isValidChoicesRatio(question: CreateQuestionDto): boolean {
         let isValidRightChoiceNumber = false;
         let isValidWrongChoiceNumber = false;
-        // TODO: Improve "algorithm" efficiency and whitespace detection
-        question.choices.forEach((choice) => {
+        question.choices.forEach((choice: Choice) => {
             if (choice.isCorrect && this.isValidString(choice.text)) {
                 isValidRightChoiceNumber = true;
             } else if (!choice.isCorrect && this.isValidString(choice.text)) {
@@ -22,46 +24,61 @@ export class GameValidationService {
         return isValidRightChoiceNumber && isValidWrongChoiceNumber;
     }
 
-    // TODO: Case if someone mistakes min > max (??)
-    isValidRange(quantity: number, min: number, max: number, step?: number) {
-        if (step) {
-            return quantity >= min && quantity <= max && quantity % step === 0;
-        } else {
-            return quantity >= min && quantity <= max;
+    isValidRange(quantity: number, firstBound: number, secondBound: number) {
+        const min = Math.min(firstBound, secondBound);
+        const max = Math.max(firstBound, secondBound);
+        return quantity >= min && quantity <= max;
+    }
+
+    findQuestionErrors(question: CreateQuestionDto): string[] {
+        const errorMessages: string[] = [];
+
+        const isValidChoicesNumber = this.isValidRange(question.choices.length, constants.minimumChoicesNumber, constants.maximumChoicesNumber);
+        const isValidPointsRange = this.isValidRange(question.points, constants.minimumPoints, constants.maximumPoints);
+        const isValidPointsMultiple = question.points % constants.stepPoints === 0;
+        const isValidQuestionName = this.isValidString(question.text);
+        const isValidQuestionRatio = this.isValidChoicesRatio(question);
+        if (!isValidChoicesNumber) {
+            errorMessages.push(errorMessage.choicesNumber);
         }
-    }
-
-    isValidQuestion(question: Question): boolean {
-        const MINIMUM_CHOICES_NUMBER = 2;
-        const MAXIMUM_CHOICES_NUMBER = 4;
-        const MINIMUM_POINTS = 10;
-        const MAXIMUM_POINTS = 100;
-        const STEP_POINTS = 10;
-        const isValidChoicesNumber = this.isValidRange(question.choices.length, MINIMUM_CHOICES_NUMBER, MAXIMUM_CHOICES_NUMBER);
-        const isValidPointsNumber = this.isValidRange(question.points, MINIMUM_POINTS, MAXIMUM_POINTS, STEP_POINTS);
-        const isValidQuestionName = this.isValidString(question.question);
-        return isValidQuestionName && isValidChoicesNumber && isValidPointsNumber && this.isValidChoicesRatio(question);
-    }
-
-    isValidQuestionsList(questions: Question[]) {
-        for (let i = 0; i < questions.length; i++) {
-            if (!this.isValidQuestion(questions[i])) {
-                return false;
-            }
+        if (!isValidPointsRange || !isValidPointsMultiple) {
+            errorMessages.push(errorMessage.points);
         }
-        return true;
+        if (!isValidQuestionName) {
+            errorMessages.push(errorMessage.questionEmptyText);
+        }
+        if (!isValidQuestionRatio) {
+            errorMessages.push(errorMessage.choicesRatio);
+        }
+        return errorMessages;
     }
 
-    isValidGame(game: Game): boolean {
-        const MINIMUM_DURATION = 10;
-        const MAXIMUM_DURATION = 60;
-        const MINIMUM_QUESTIONS_NUMBER = 1;
+    findGameErrors(game: Game): string[] {
+        const errorMessages: string[] = [];
         const isValidTitle = this.isValidString(game.title);
         const isValidDescription = this.isValidString(game.description);
-        const isValidDuration = this.isValidRange(game.duration, MINIMUM_DURATION, MAXIMUM_DURATION);
-        const isValidQuestionsNumber = game.questions.length >= MINIMUM_QUESTIONS_NUMBER;
-        const isValidQuestionsList = this.isValidQuestionsList(game.questions);
+        const isValidDuration = this.isValidRange(game.duration, constants.minimumDuration, constants.maximumDuration);
+        const isValidQuestionsNumber = game.questions.length >= constants.minimumQuestionsNumber;
 
-        return isValidTitle && isValidDescription && isValidDuration && isValidQuestionsNumber && isValidQuestionsList;
+        if (!isValidTitle) {
+            errorMessages.push(errorMessage.gameEmptyTitle);
+        }
+        if (!isValidDescription) {
+            errorMessages.push(errorMessage.gameEmptyDescription);
+        }
+        if (!isValidDuration) {
+            errorMessages.push(errorMessage.gameDuration);
+        }
+        if (!isValidQuestionsNumber) {
+            errorMessages.push(errorMessage.gameQuestionsNumber);
+        }
+        game.questions.forEach((question: CreateQuestionDto, index: number) => {
+            const questionErrorMessages = this.findQuestionErrors(question);
+            if (questionErrorMessages.length !== 0) {
+                errorMessages.push(`La question ${index + 1} est invalide:`);
+                questionErrorMessages.forEach((message) => errorMessages.push(message));
+            }
+        });
+        return errorMessages;
     }
 }

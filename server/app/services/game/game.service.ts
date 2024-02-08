@@ -1,13 +1,13 @@
+import { GAMES_TO_POPULATE } from '@app/constants/populate-constants';
 import { Game, GameDocument } from '@app/model/database/game';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
+import { CreateQuestionDto } from '@app/model/dto/question/create-question-dto';
+import { GameValidationService } from '@app/services/game-validation/game-validation.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
-import { GameValidationService } from '../game-validation/game-validation.service';
-
-const YEAR = 2024; // TODO: Document with all CONSTS
 
 @Injectable()
 export class GameService {
@@ -26,175 +26,103 @@ export class GameService {
     }
 
     async populateDB(): Promise<void> {
-        const GAMES: CreateGameDto[] = [
-            {
-                id: '0',
-                title: 'Hoot Hoot',
-                description: 'HOOT HOOT',
-                duration: 60,
-                isVisible: true,
-                lastModification: new Date(YEAR, 1, 1),
-                questions: [
-                    {
-                        id: '2',
-                        type: 'QCM',
-                        description: 'Inspiration Leblanc',
-                        question: "Savez-vous de quel auteur Leblanc s'est inspiré ?",
-                        points: 60,
-                        choices: [
-                            {
-                                text: 'Gaston Leroux',
-                                isCorrect: false,
-                            },
-                            {
-                                text: 'Arthur Conan Doyle',
-                                isCorrect: true,
-                            },
-                            {
-                                text: 'Edgar Wallace',
-                                isCorrect: false,
-                            },
-                            {
-                                text: 'Agatha Christie',
-                                isCorrect: false,
-                            },
-                        ],
-                        lastModification: new Date(YEAR, 1, 1),
-                    },
-                ],
-            },
-            {
-                id: '1',
-                title: 'Lune quantique',
-                description: 'OOOOOH',
-                duration: 60,
-                isVisible: true,
-                lastModification: new Date(YEAR, 1, 1),
-                questions: [
-                    {
-                        id: '1',
-                        type: 'QCM',
-                        description: 'Outer Wilds',
-                        question: 'Parmi les choix suivants, lesquels sont des noms de planètes dans Outer Wilds ?',
-                        points: 20,
-                        choices: [
-                            {
-                                text: 'Sombronces',
-                                isCorrect: true,
-                            },
-                            {
-                                text: 'Léviathe',
-                                isCorrect: true,
-                            },
-                            {
-                                text: 'Cravité',
-                                isCorrect: true,
-                            },
-                            {
-                                text: 'La Lanterne',
-                                isCorrect: false,
-                            },
-                        ],
-                        lastModification: new Date(YEAR, 1, 1),
-                    },
-                ],
-            },
-            {
-                id: '2',
-                title: 'Pokemon Quiz',
-                description: 'WHO IS THAT POKEMON',
-                duration: 30,
-                isVisible: false,
-                lastModification: new Date(YEAR, 1, 1),
-                questions: [
-                    {
-                        id: '123',
-                        type: 'QCM',
-                        description: 'Psykokwak',
-                        question: 'Quelles sont les principales caractéristiques de Psykokwak ?',
-                        points: 50,
-                        choices: [
-                            {
-                                text: 'Il dit "coin coin"',
-                                isCorrect: false,
-                            },
-                            {
-                                text: 'Il est le Pokémon préféré de Junichi Masuda, directeur et compositeur des jeux Pokémon.',
-                                isCorrect: true,
-                            },
-                            {
-                                text: 'Il est jaune.',
-                                isCorrect: false,
-                            },
-                            {
-                                text: 'Il a toujours mal à la tête.',
-                                isCorrect: true,
-                            },
-                        ],
-                        lastModification: new Date(YEAR, 1, 1),
-                    },
-                ],
-            },
-        ];
         this.logger.log('THIS ADDS DATA TO THE DATABASE, DO NOT USE OTHERWISE');
-        await this.gameModel.insertMany(GAMES);
+        await this.gameModel.insertMany(GAMES_TO_POPULATE);
     }
 
     async getAllGames(): Promise<Game[]> {
         return await this.gameModel.find({});
     }
 
+    // TODO: Test
+    async getAllVisibleGames(): Promise<Game[]> {
+        return await this.gameModel.find({ isVisible: true });
+    }
+
     async getGameById(gameId: string): Promise<Game> {
-        return await this.gameModel.findOne({ id: gameId });
+        const game = await this.gameModel.findOne({ id: gameId });
+        if (!game) {
+            return Promise.reject(`Le jeu avec le id: ${gameId} n'a pas été trouvé.`);
+        } else {
+            return game;
+        }
     }
 
     async getGameByTitle(gameTitle: string): Promise<Game> {
         return await this.gameModel.findOne({ title: gameTitle });
     }
 
-    async addGame(newGame: CreateGameDto): Promise<void> {
+    // TODO: Test and maybe refactor to separate service?
+    async getChoices(gameId: string, questionId: string) {
+        const game = await this.getGameById(gameId);
+        const question = game.questions.find((currentQuestion) => {
+            return currentQuestion.id === questionId;
+        });
+        return question.choices;
+    }
+
+    // TODO: Test
+    updateDateAndVisibility(game: Game): Game {
+        const currentDate = new Date();
+        game.isVisible = false;
+        game.lastModification = currentDate;
+        game.questions.forEach((question) => (question.lastModification = currentDate));
+        return game;
+    }
+
+    // TODO: Test
+    generateId(game: Game): Game {
+        game.id = uuidv4();
+        game.questions.forEach((question) => (question.id = uuidv4()));
+        return game;
+    }
+
+    async addGame(newGame: CreateGameDto): Promise<Game> {
         // TODO: Add unit test for when a game already exists.
         if (await this.getGameByTitle(newGame.title)) {
-            return Promise.reject('Game with the same title already exists.');
+            return Promise.reject('Un jeu du même titre existe déjà.');
         }
-        newGame.id = uuidv4();
-        newGame.isVisible = false;
-        newGame.lastModification = new Date();
+        newGame = this.updateDateAndVisibility(this.generateId(newGame));
+
         try {
-            if (this.validation.isValidGame(newGame)) {
+            const gameErrorMessages = this.validation.findGameErrors(newGame);
+            if (gameErrorMessages.length === 0) {
                 await this.gameModel.create(newGame);
+                return newGame;
             } else {
-                return Promise.reject('Invalid game');
+                const messagesToDisplay = gameErrorMessages.join('\n');
+                return Promise.reject(`Le jeu est invalide:\n${messagesToDisplay}`);
             }
         } catch (error) {
-            return Promise.reject(`Failed to insert game: ${error}`);
+            return Promise.reject(`Le jeu n'a pas pu être ajouté: ${error}`);
         }
     }
 
-    async updateGame(game: UpdateGameDto, upsert: boolean): Promise<void> {
-        // TODO: Update LastModification if not ToggleVisibility
+    async toggleGameVisibility(gameId: string): Promise<void> {
+        const filterQuery = { id: gameId };
+        const gameToToggleVisibility = await this.getGameById(gameId);
+        gameToToggleVisibility.isVisible = !gameToToggleVisibility.isVisible;
+        const res = await this.gameModel.updateOne(filterQuery, gameToToggleVisibility);
+        if (res.matchedCount === 0) {
+            return Promise.reject('Le jeu est introuvable.');
+        }
+    }
+
+    async upsertGame(game: UpdateGameDto): Promise<void> {
         const filterQuery = { id: game.id };
         try {
-            if (!this.validation.isValidGame(game)) {
-                return Promise.reject('Invalid game');
+            const errorMessages = this.validation.findGameErrors(game);
+            if (errorMessages.length !== 0) {
+                return Promise.reject(`Le jeu est invalide:\n${errorMessages}`);
             }
-            if (upsert) {
-                // PUT
-                game.isVisible = false;
-                game.lastModification = new Date();
-                const res = await this.gameModel.findOneAndUpdate(filterQuery, game, {
-                    new: true,
-                    upsert: true,
-                });
-            } else {
-                // PATCH
-                const res = await this.gameModel.updateOne(filterQuery, game);
-                if (res.matchedCount === 0) {
-                    return Promise.reject('Game not found');
-                }
-            }
+            game = this.updateDateAndVisibility(game);
+
+            await this.gameModel.findOneAndUpdate(filterQuery, game, {
+                new: true,
+                upsert: true,
+            });
         } catch (error) {
-            return Promise.reject(`Failed to modify game: ${error}`);
+            return Promise.reject(`Le jeu n'a pas pu être modifié: ${error}`);
         }
     }
 
@@ -204,10 +132,39 @@ export class GameService {
                 id: gameId,
             });
             if (res.deletedCount === 0) {
-                return Promise.reject('Could not find game');
+                return Promise.reject('Le jeu est introuvable');
             }
         } catch (error) {
-            return Promise.reject(`Failed to delete game: ${error}`);
+            return Promise.reject(`Le jeu n'a pas pu être supprimé: ${error}`);
+        }
+    }
+
+    // TODO - Unit test
+    async validateQuestion(question: CreateQuestionDto): Promise<void> {
+        try {
+            const errorMessages = this.validation.findQuestionErrors(question);
+            if (errorMessages.length !== 0) {
+                return Promise.reject(`La question est invalide: ${errorMessages}`);
+            }
+        } catch (error) {
+            return Promise.reject(`Erreur: ${error}`);
+        }
+    }
+
+    // TODO: Tests + Possible Refactor
+    async validatePlayerChoice(gameId: string, questionId: string, selectedChoices: string[]): Promise<boolean> {
+        try {
+            const game = await this.getGameById(gameId);
+            const question = game.questions.find((currentQuestion) => currentQuestion.id === questionId);
+            const expectedChoices: string[] = [];
+            question.choices.forEach((choice) => {
+                if (choice.isCorrect) {
+                    expectedChoices.push(choice.text);
+                }
+            });
+            return expectedChoices.sort().toString() === selectedChoices.sort().toString();
+        } catch (error) {
+            return Promise.reject('Le jeu est introuvable.');
         }
     }
 }

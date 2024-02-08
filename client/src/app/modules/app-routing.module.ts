@@ -9,6 +9,8 @@ import { PlayerPageComponent } from '@app/pages/player-page/player-page.componen
 import { CreateQuestionComponent } from '@app/pages/create-question/create-question.component';
 import { TestPageComponent } from '@app/pages/test-page/test-page.component';
 import { WaitPageComponent } from '@app/pages/wait-page/wait-page.component';
+import { AdminQuestionBankSelectionComponent } from '@app/pages/admin-page/admin-questions-list/admin-question-bank-selection/admin-question-bank-selection.component';
+import { AdminCreateGameComponent } from '@app/pages/admin-page/admin-create-game/admin-create-game.component';
 
 const routes: Routes = [
     { path: '', redirectTo: '/home', pathMatch: 'full' },
@@ -17,6 +19,8 @@ const routes: Routes = [
     { path: 'admin/bank', component: AdminQuestionBankComponent },
     { path: 'admin/games', component: AdminPageComponent },
     { path: 'admin/games/:id/questions', component: AdminQuestionsListComponent },
+    { path: 'admin/games/:id/questionbank', component: AdminQuestionBankSelectionComponent },
+    { path: 'admin/games/newgame', component: AdminCreateGameComponent },
     { path: 'admin/games/:id/questions/questioncreation', component: CreateQuestionComponent },
     { path: 'host', component: HostPageComponent },
     { path: 'player', component: PlayerPageComponent },

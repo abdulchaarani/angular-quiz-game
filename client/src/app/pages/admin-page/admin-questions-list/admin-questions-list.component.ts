@@ -71,6 +71,9 @@ export class AdminQuestionsListComponent implements OnInit {
 
     addNewQuestion(newQuestion: Question) {
         console.log("new", newQuestion);
+        //newQuestion.id = "5";
+        //this.gamesService.verifyGame(this.game);
+        
         this.game.questions.push(newQuestion);
     }
 

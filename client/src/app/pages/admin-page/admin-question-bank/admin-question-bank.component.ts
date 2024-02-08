@@ -1,9 +1,9 @@
 // import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Question } from '@app/interfaces/question';
-import { QuestionService } from '@app/services/question.service';
-import { HttpErrorResponse } from '@angular/common/http';
 import { NotificationService } from '@app/services/notification.service';
+import { QuestionService } from '@app/services/question.service';
 
 @Component({
     selector: 'app-admin-question-bank',
@@ -19,8 +19,7 @@ export class AdminQuestionBankComponent implements OnInit {
     newQuestion: Question = {
         id: 'X',
         type: 'QCM',
-        description: 'Capitale du Canada',
-        question: 'Quelle est la capitale du canada?',
+        text: 'Quelle est la capitale du canada?',
         points: 20,
         lastModification: '2024-01-26T14:21:19+00:00',
     };
@@ -56,7 +55,8 @@ export class AdminQuestionBankComponent implements OnInit {
                 this.questions.unshift(newQuestion);
                 this.notificationService.displaySuccessMessage('Question ajoutée avec succès! 😺');
             },
-            error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`Failed to delete question 😿 \n ${error.message}`),
+            error: (error: HttpErrorResponse) =>
+                this.notificationService.displayErrorMessage(`La question n'a pas pu être supprimée. 😿 \n ${error.message}`),
         });
     }
 }

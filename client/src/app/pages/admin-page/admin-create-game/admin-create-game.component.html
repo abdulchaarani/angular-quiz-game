@@ -1,0 +1,52 @@
+<div class="top-page">
+    <h2>Creation d'un nouveau jeu</h2>
+</div>
+
+<h3>Creation</h3>
+
+<p>
+  <a routerLink="/admin/games">Voir tous les jeux</a>
+</p>
+
+<form [formGroup]="gameForm" (ngSubmit)="onSubmit()">
+
+  <div>
+    <label for="title">
+      Titre
+    </label>
+    <input id="title" type="text" formControlName="title">
+  </div>
+
+  <div>
+    <label for="description">
+        Description
+    </label>
+    <input id="description" type="text" formControlName="description">
+  </div>
+
+  <div>
+    <label for="duration">
+        Duree
+    </label>
+    <input id="duration" type="number" formControlName="duration" min="10" max="60">
+  </div>
+
+  <div>
+    <p *ngIf="!gameForm.touched">
+      Veuillez remplir le formulaire.
+    </p>
+
+    <p *ngIf="gameForm.invalid && gameForm.controls.duration.touched">
+        La durée doit être entre 10 et 60.
+    </p>
+
+  </div>
+
+  <button class="button" type="submit" [disabled]="gameForm.invalid">Creer</button>
+
+</form>
+
+<button routerLink="/admin/games/">
+  <mat-icon>done</mat-icon>
+</button>
+  

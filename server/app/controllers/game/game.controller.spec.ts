@@ -1,4 +1,5 @@
 import { Game } from '@app/model/database/game';
+import { Question } from '@app/model/database/question';
 import { GameService } from '@app/services/game/game.service';
 import { HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -96,28 +97,70 @@ describe('GamesController', () => {
         await controller.addGame(new Game(), res);
     });
 
-    it('updateGame() should succeed if service is able to modify the game', async () => {
-        gameService.updateGame.resolves();
+    it('validateQuestion() should return OK if the question is valid.', async () => {
+        gameService.validateQuestion.resolves();
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.OK);
             return res;
         };
         res.send = () => res;
-        await controller.updateGame(new Game(), res);
+        await controller.validateQuestion(new Question(), res);
     });
 
-    // TODO: Case when NOT_FOUND
-
-    it('updateGame() should return BAD_REQUEST when service cannot modify the game', async () => {
-        gameService.updateGame.rejects();
+    it('validateQuestion() should return BAD_REQUEST if the question is invalid.', async () => {
+        gameService.validateQuestion.rejects();
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.BAD_REQUEST);
             return res;
         };
         res.send = () => res;
-        await controller.updateGame(new Game(), res);
+        await controller.validateQuestion(new Question(), res);
+    });
+
+    it('toggleGameVisibility() should succeed if service is able to modify the game', async () => {
+        gameService.toggleGameVisibility.resolves();
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.OK);
+            return res;
+        };
+        res.send = () => res;
+        await controller.toggleGameVisibility('', res);
+    });
+
+    it('toggleGameVisibility() should return NOT_FOUND when service cannot modify the game', async () => {
+        gameService.toggleGameVisibility.rejects();
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.NOT_FOUND);
+            return res;
+        };
+        res.send = () => res;
+        await controller.toggleGameVisibility('', res);
+    });
+
+    it('upsertGame() should succeed if service is able to modify the game', async () => {
+        gameService.upsertGame.resolves();
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.OK);
+            return res;
+        };
+        res.send = () => res;
+        await controller.upsertGame(new Game(), res);
+    });
+
+    it('upsertGame() should return BAD_REQUEST when service cannot modify the game', async () => {
+        gameService.upsertGame.rejects();
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.BAD_REQUEST);
+            return res;
+        };
+        res.send = () => res;
+        await controller.upsertGame(new Game(), res);
     });
 
     it('deleteGame() should succeed if service is able to delete the game', async () => {

@@ -1,4 +1,4 @@
-<div class="example-box" cdkDrag>
+<div class ="dragdrop-box" cdkDrag>
     <mat-expansion-panel class="example-headers-align" *ngIf="question">
         <mat-expansion-panel-header>
             <mat-panel-title> {{ index }} {{ question.text }} </mat-panel-title>
@@ -6,9 +6,6 @@
                 <p>{{ question.points }} points</p>
                 <p *ngIf="isLastModifiedDateVisible">Dernière modification: {{ question.lastModification | date }}</p>
                 <div class="buttons-container">
-                    <button mat-icon-button color="primary" aria-label="Example icon button with a menu icon" appClickStopPropagation>
-                        <mat-icon>create</mat-icon>
-                    </button>
                     <button
                         mat-icon-button
                         color="warn"
@@ -19,15 +16,21 @@
                         <mat-icon>delete</mat-icon>
                     </button>
                 </div>
-                <div class="question-list-item" cdkDragHandle>
-                    <svg width="24px" fill="currentColor" viewBox="0 0 24 24" cdkDragHandle>
-                        <path d="M10 9h4V6h3l-5-5-5 5h3v3zm-1 1H6V7l-5 5 5 5v-3h3v-4zm14 2l-5-5v3h-3v4h3v3l5-5zm-9 3h-4v3H7l5 5 5-5h-3v-3z"></path>
+                <div class="'question-list-item" cdkDragHandle>
+                    <svg class="svg" width="20px" fill="currentColor" viewBox="0 0 24 24" cdkDragHandle>
+                        <path
+                            d="M10 9h4V6h3l-5-5-5 5h3v3zm-1 1H6V7l-5 5 5 5v-3h3v-4zm14 2l-5-5v3h-3v4h3v3l5-5zm-9 3h-4v3H7l5 5 5-5h-3v-3z"
+                        ></path>
                         <path d="M0 0h24v24H0z" fill="none"></path>
                     </svg>
                 </div>
+    
             </mat-panel-description>
         </mat-expansion-panel-header>
+        <button mat-icon-button color="primary" aria-label="Example icon button with a menu icon" appClickStopPropagation (click)="togglePanel()">
+            <mat-icon>create</mat-icon>
+        </button>
+        <app-create-question *ngIf="isEditable&& isPanelExpanded" [question]="question" > </app-create-question>
         <p>{{ question.text }}</p>
-        <app-create-question *ngIf="isEditable" (pointsChanged)="onPointsChanged($event)"></app-create-question>
     </mat-expansion-panel>
-</div>
+    </div>

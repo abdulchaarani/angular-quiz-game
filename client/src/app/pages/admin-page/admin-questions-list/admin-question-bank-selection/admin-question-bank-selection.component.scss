@@ -1,0 +1,25 @@
+.top-page {
+    display: flex;
+    justify-content: space-between;
+}
+
+.add-button-container {
+    box-sizing: border-box;
+}
+
+.add-question-button {
+    box-sizing: border-box;
+    border-style: dashed;
+    border-color: rgba(0, 0, 0, 0.42);
+    display: block;
+    height: 48px;
+    width: 100%;
+}
+
+.submit-button {
+    box-sizing: border-box;
+    border-color: rgba(0, 0, 0, 0.42);
+    display: block;
+    height: 48px;
+    width: 100%;
+}

@@ -20,6 +20,12 @@ export class QuestionListItemComponent {
     questions: Question[] = [];
     // constructor(private readonly questionService: QuestionService) {}
 
+    isPanelExpanded: boolean = false; 
+
+    togglePanel() {
+        this.isPanelExpanded = !this.isPanelExpanded;
+    }
+
     deleteQuestion() {
         this.deleteQuestionEvent.emit(this.question.id);
     }
@@ -30,5 +36,9 @@ export class QuestionListItemComponent {
 
     onPointsChanged(newPoints: number) {
         console.log(`Points changed: ${newPoints}`);
+    }
+
+    onQuestionModified(){
+
     }
 }

@@ -1,18 +1,39 @@
-<div class="top-page">
-    <h2>Liste de questions du jeu.</h2>
-</div>
-
-
 <mat-card *ngIf="!isValid" class="create-new-game">
+
     <app-admin-create-game>
     </app-admin-create-game>
+    
 </mat-card>
 
 <mat-card *ngIf="isValid">
+
+    <div class="top-page">
+        <h2> Liste de questions du jeu : {{ game.title }} </h2>
+        <h2> Description: {{ game.description }} </h2>
+    </div>
+
     <div class="top-container">
-        <h3>Description du jeu.</h3>
+        
+        <button mat-raised-button color="basic" routerLink="/admin/games" id="admin-back-button">Retour</button>
+
+        <form [formGroup]="gameEditForm" class="edit-informations-form" (ngSubmit)="onSubmit()">
+
+            <mat-form-field class="edit-title">
+              <mat-label>Titre</mat-label>
+              <input matInput formControlName="title">
+            </mat-form-field>
+          
+            <mat-form-field class="edit-description">
+              <mat-label>Description</mat-label>
+              <textarea matInput formControlName="description"></textarea>
+            </mat-form-field>
+
+            <button class="button" type="submit" [disabled]="gameEditForm.invalid">Enregistrer</button>
+
+        </form>
     
         <button mat-raised-button color="basic" routerLink="/admin/games/{{ game.id }}/questionbank" id="admin-question-bank-button">Banque de questions</button>
+    
     </div>
     
     <mat-card class="time-slider">
@@ -39,19 +60,23 @@
                     (deleteQuestionEvent)="deleteQuestion($event)"
                 >
 
-            </app-question-list-item>
-        </div>
-        <div class="add-button-container">
-            <!--  <button class="add-question-button" mat-raised-button color="basic" id="admin-create-question-button" (click)="addNewQuestion()"> -->
-            <button class="add-question-button" mat-raised-button color="basic" (click)="openDialog()" id="admin-create-question-button">
-                <mat-icon>add</mat-icon>
-                <app-create-question *ngIf="dialogState" (createQuestionEvent)="addNewQuestion($event)"></app-create-question>
-            </button>
+                </app-question-list-item>
+            </div>
+
+            <div class="add-button-container">
+
+                <!--  <button class="add-question-button" mat-raised-button color="basic" id="admin-create-question-button" (click)="addNewQuestion()"> -->
+                <button class="add-question-button" mat-raised-button color="basic" (click)="openDialog()" id="admin-create-question-button">
+                    <mat-icon>add</mat-icon>
+                    <app-create-question *ngIf="dialogState" (createQuestionEvent)="addNewQuestion($event)"></app-create-question>
+                </button>
             
+            </div>
         </div>
-    </div>
-</mat-accordion>
+    </mat-accordion>
 
 <button class="submit-button" mat-raised-button color="basic" (click)="saveGame()">
     <mat-icon>done</mat-icon>
 </button>
+
+</mat-card>

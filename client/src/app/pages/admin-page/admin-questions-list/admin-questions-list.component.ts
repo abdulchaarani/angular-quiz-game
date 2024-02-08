@@ -9,6 +9,7 @@ import { GamesService } from '@app/services/games.service';
 // import { QuestionService } from '@app/services/question.service';
 import { ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
+import { FormBuilder, Validators } from '@angular/forms';
 
 @Component({
     selector: 'app-admin-questions-list',
@@ -26,17 +27,12 @@ export class AdminQuestionsListComponent implements OnInit {
         public dialog: MatDialog,
         private readonly gamesService: GamesService,
         private route: ActivatedRoute,
-    ) 
+        private formBuilder: FormBuilder,
+    ) {}
 
-    {}
     drop(event: CdkDragDrop<Question[]>) {
         moveItemInArray(this.game.questions, event.previousIndex, event.currentIndex);
     }
-
-    changeDuration(event: Event) {
-        this.game.duration = Number((event.target as HTMLInputElement).value);
-    }
-
 
     isValid: boolean = false;
 
@@ -50,6 +46,22 @@ export class AdminQuestionsListComponent implements OnInit {
         });
     }
 
+    changeDuration(event: Event) {
+        this.game.duration = Number((event.target as HTMLInputElement).value);
+    }
+
+    gameEditForm = this.formBuilder.nonNullable.group({
+        title : ['', Validators.required],
+        description: ['', Validators.required],
+    });
+
+    onSubmit(): void {
+        if (this.gameEditForm.value.title && this.gameEditForm.value.description) {
+            this.game.title = this.gameEditForm.value.title;
+            this.game.description = this.gameEditForm.value.description;
+        }
+    }
+
     deleteQuestion(questionId: string) {
         if (this.game.questions.length === 1 || this.game.id === null) {
             return;
@@ -58,7 +70,7 @@ export class AdminQuestionsListComponent implements OnInit {
     }
 
     saveGame() {
-        console.log(this.game.questions);
+        console.log(this.game);
         this.gamesService.replaceGame(this.game).subscribe((response: HttpResponse<string>) => {
             () => {
                 this.response = 'Game saved';

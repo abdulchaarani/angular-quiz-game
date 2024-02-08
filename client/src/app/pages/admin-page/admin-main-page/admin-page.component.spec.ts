@@ -8,7 +8,7 @@ import { AdminPageComponent } from './admin-page.component';
 import SpyObj = jasmine.SpyObj;
 
 // TODO: Add tests for JSON upload + Display Error Notifications
-// Lines: 43, 50-70
+// Lines: 57-69
 describe('AdminPageComponent', () => {
     let component: AdminPageComponent;
     let fixture: ComponentFixture<AdminPageComponent>;
@@ -96,6 +96,22 @@ describe('AdminPageComponent', () => {
         gamesServiceSpy.uploadGame.and.returnValue(throwError(() => new Error('error')));
         component.addGame(newMockGame);
         expect(notificationServiceSpy.displayErrorMessage).toHaveBeenCalled();
+    });
+
+    it('should add game from JSON', () => {
+        /*
+        const event = new Event('InputEvent');
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(new File([JSON.stringify(newMockGame)], 'file.json', { type: 'application/json' }));
+        const mockEvent = {
+            ...event,
+            dataTransfer: dataTransfer,
+            target: { ...files: dataTransfer },
+        } as InputEvent;
+
+        component.onFileSelected(mockEvent);
+        expect(component.addGame).toHaveBeenCalled();
+        */
     });
 });
 

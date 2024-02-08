@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -56,9 +56,9 @@ export class ApiService<T> {
             .pipe(catchError(this.handleError<HttpResponse<string>>('replace')));
     }
 
-    protected handleError<E>(request: string): (error: Error) => Observable<E> {
-        return (error: Error) => {
-            return throwError(() => new Error(`Error occurred in ${request}\n ${error.message}`));
+    protected handleError<E>(request: string): (error: HttpErrorResponse) => Observable<E> {
+        return (error: HttpErrorResponse) => {
+            return throwError(() => new Error(`Requête ${request}\n ${JSON.parse(error.error)['message']}`));
         };
     }
 }

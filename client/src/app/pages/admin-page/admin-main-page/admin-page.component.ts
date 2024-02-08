@@ -45,8 +45,7 @@ export class AdminPageComponent implements OnInit {
                 this.games.push(newGame);
                 this.notificationService.displaySuccessMessage('Jeu ajouté avec succès! 😺');
             },
-            error: (error: HttpErrorResponse) =>
-                this.notificationService.displayErrorMessage(`Le jeu n'a pas pu être supprimé. 😿 \n ${error.message}`),
+            error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`Le jeu n'a pas pu être ajouté. 😿 \n ${error}`),
         });
     }
 
@@ -56,6 +55,12 @@ export class AdminPageComponent implements OnInit {
         // Reference: https://stackoverflow.com/questions/43176560/property-files-does-not-exist-on-type-eventtarget-error-in-typescript
         const target = event.target as HTMLInputElement;
         const file: File = (target.files as FileList)[0];
+
+        // Debugging purposes
+        console.log(event);
+        console.log(event.target);
+        console.log(target.files);
+
         if (file) {
             // Reference: https://stackoverflow.com/questions/47581687/read-a-file-and-parse-its-content
             const fileReader = new FileReader();

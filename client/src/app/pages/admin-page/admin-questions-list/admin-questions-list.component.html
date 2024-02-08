@@ -20,7 +20,7 @@
 
             <mat-form-field class="edit-title">
               <mat-label>Titre</mat-label>
-              <input matInput formControlName="title">
+              <input matInput formControlName="title" value="game.title">
             </mat-form-field>
           
             <mat-form-field class="edit-description">
@@ -42,8 +42,7 @@
             <h2>Timer</h2>
             <mat-slider min="10" max="60" step="5" discrete="thumblabel">
                 <input matSliderThumb [value]="game.duration"
-                (change)="changeDuration($event)"
-                (input)="changeDuration($event)" />
+                (change)="changeDuration($event)"/>
             </mat-slider>
         </mat-card-content>
     </mat-card>

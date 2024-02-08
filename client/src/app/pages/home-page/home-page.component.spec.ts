@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { HttpClientModule } from '@angular/common/http';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { HomePageComponent } from './home-page.component';
 
@@ -12,7 +13,7 @@ describe('HomePageComponent', () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            imports: [MatDialogModule, HttpClientModule],
+            imports: [MatDialogModule, HttpClientModule, MatSnackBarModule],
             declarations: [HomePageComponent],
         });
         fixture = TestBed.createComponent(HomePageComponent);

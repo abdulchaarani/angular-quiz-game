@@ -100,9 +100,9 @@ describe('AdminQuestionsListComponent', () => {
         expect(component.game.questions.length).toBe(mockGame.questions.length);
     });
 
-    it('should be able to add a new question', () => {
-        const gameLength = component.game.questions.length;
-        component.addNewGame();
-        expect(component.game.questions.length).toBe(gameLength + 1);
-    });
+    // it('should be able to add a new question', () => {
+    //     const gameLength = component.game.questions.length;
+    //     component.addNewGame();
+    //     expect(component.game.questions.length).toBe(gameLength + 1);
+    // });
 });

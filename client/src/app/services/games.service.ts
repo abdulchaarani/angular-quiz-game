@@ -36,10 +36,6 @@ export class GamesService extends ApiService<Game> {
         return this.replace(modifiedGame, modifiedGame.id);
     }
 
-    replaceGame(modifiedGame: Game) {
-        return this.replace(modifiedGame, modifiedGame.id);
-    }
-
 
     verifyGame(newGame : Game){
         return this.add(newGame, 'validate-question');

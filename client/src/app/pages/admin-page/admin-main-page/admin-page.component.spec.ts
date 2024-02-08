@@ -7,8 +7,8 @@ import { of, throwError } from 'rxjs';
 import { AdminPageComponent } from './admin-page.component';
 import SpyObj = jasmine.SpyObj;
 
-// TODO: Add tests for JSON upload + Display Error Notifications
-// Lines: 57-69
+// TODO: Add tests for JSON upload
+// Lines: 56-69
 describe('AdminPageComponent', () => {
     let component: AdminPageComponent;
     let fixture: ComponentFixture<AdminPageComponent>;
@@ -99,6 +99,7 @@ describe('AdminPageComponent', () => {
     });
 
     it('should add game from JSON', () => {
+        // TODO (maybe console.log the event, event.target, and event.target.files[0] for debugging purposes)
         /*
         const event = new Event('InputEvent');
         const dataTransfer = new DataTransfer();

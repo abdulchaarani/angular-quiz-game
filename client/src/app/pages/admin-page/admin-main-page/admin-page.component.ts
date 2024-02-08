@@ -56,11 +56,6 @@ export class AdminPageComponent implements OnInit {
         const target = event.target as HTMLInputElement;
         const file: File = (target.files as FileList)[0];
 
-        // Debugging purposes
-        console.log(event);
-        console.log(event.target);
-        console.log(target.files);
-
         if (file) {
             // Reference: https://stackoverflow.com/questions/47581687/read-a-file-and-parse-its-content
             const fileReader = new FileReader();

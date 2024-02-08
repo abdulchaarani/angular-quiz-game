@@ -6,7 +6,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { HomePageComponent } from './home-page.component';
 
-// TODO: Test Admin Password
+// TODO: Test Admin Password: open Dialog (lines 23-31)
 describe('HomePageComponent', () => {
     let component: HomePageComponent;
     let fixture: ComponentFixture<HomePageComponent>;

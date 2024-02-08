@@ -21,5 +21,5 @@
         </mat-panel-description>
     </mat-expansion-panel-header>
     <p>{{ question.text }}</p>
-    <app-create-question *ngIf="isEditable" (pointsChanged)="onPointsChanged($event)"></app-create-question>
+    <app-create-question *ngIf="isEditable" [question]="question" (pointsChanged)="onPointsChanged($event)"></app-create-question>
 </mat-expansion-panel>

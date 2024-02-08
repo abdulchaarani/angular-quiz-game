@@ -18,8 +18,8 @@
         <mat-card-content>
             <h2>Timer</h2>
             <mat-slider min="10" max="60" step="5" discrete="thumblabel">
-                <input matSliderThumb [value]="game.duration"
-                (change)="changeDuration($event)"
+                <input matSliderThumb
+                [(ngModel)]="game.duration"
                 (input)="changeDuration($event)" />
             </mat-slider>
         </mat-card-content>
@@ -31,17 +31,15 @@
                 <app-question-list-item
                     *ngFor="let question of game.questions"
                     [index]="game.questions.indexOf(question) + 1"
-                    cdkDrag
                     [question]="question"
                     [isEditable]="true"
                     [isLastModifiedDateVisible]="true"
                     (deleteQuestionEvent)="deleteQuestion($event)"
-                >
+                    cdkDragHandle >
 
             </app-question-list-item>
         </div>
         <div class="add-button-container">
-            <!--  <button class="add-question-button" mat-raised-button color="basic" id="admin-create-question-button" (click)="addNewQuestion()"> -->
             <button class="add-question-button" mat-raised-button color="basic" (click)="openDialog()" id="admin-create-question-button">
                 <mat-icon>add</mat-icon>
                 <app-create-question *ngIf="dialogState" (createQuestionEvent)="addNewQuestion($event)"></app-create-question>

@@ -14,7 +14,7 @@ export class MatchController {
             const allVisibleGames = await this.gameService.getAllVisibleGames();
             response.status(HttpStatus.OK).json(allVisibleGames);
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send(error.message);
+            response.status(HttpStatus.NOT_FOUND).send({ message: error });
         }
     }
 
@@ -25,7 +25,7 @@ export class MatchController {
             const game = await this.gameService.getGameById(gameId);
             response.status(HttpStatus.OK).json(game);
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send(error.message);
+            response.status(HttpStatus.NOT_FOUND).send({ message: error });
         }
     }
 
@@ -35,7 +35,7 @@ export class MatchController {
             const choices = await this.gameService.getChoices(gameId, questionId);
             response.status(HttpStatus.OK).json(choices);
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send(error.message);
+            response.status(HttpStatus.NOT_FOUND).send({ message: error });
         }
     }
 
@@ -51,7 +51,7 @@ export class MatchController {
             const isValidChoice = await this.gameService.validatePlayerChoice(gameId, questionId, choicesDto.selected);
             response.status(HttpStatus.OK).json(isValidChoice);
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send(error.message);
+            response.status(HttpStatus.NOT_FOUND).send({ message: error });
         }
     }
 }

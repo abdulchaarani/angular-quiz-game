@@ -7,6 +7,7 @@ import { of } from 'rxjs';
 import { AdminPageComponent } from './admin-page.component';
 import SpyObj = jasmine.SpyObj;
 
+// TODO: Add tests for JSON upload
 describe('AdminPageComponent', () => {
     let component: AdminPageComponent;
     let fixture: ComponentFixture<AdminPageComponent>;
@@ -45,8 +46,6 @@ describe('AdminPageComponent', () => {
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
-
-    // TODO: Add tests for JSON upload
 
     it('should create', () => {
         expect(component).toBeTruthy();

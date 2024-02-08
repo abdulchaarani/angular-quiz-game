@@ -7,6 +7,9 @@
                 <input class="questionInput" matInput formControlName="text" placeholder="Entrez la question" />
             </mat-form-field>
     
+            <!--formControlName="choice" 
+            formControlName="isCorrect" -->
+    
             <span class="submit-button-row">
                 <button mat-raised-button color="primary" type="submit" class="submit-button" [disabled]="!questionForm.valid">Sauvegarder</button>
             </span>
@@ -60,3 +63,14 @@
         <button mat-raised-button color="primary" class="button">Ajouter à la banque</button>
     </span>
     
+    
+    <!-- 
+        formGroupName="choicesGroup"
+    
+                            *ngIf="$any(questionForm)?.choices?.controls"
+                        [formControl]="$any(questionForm).choices.controls[i].get('isCorrect')"
+    
+    <span class="duplicate-button-row">
+        <button mat-raised-button color="primary" class="duplicate-button">Duplicate</button>
+    </span>
+    -->

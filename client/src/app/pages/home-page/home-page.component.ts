@@ -1,8 +1,8 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { environment } from 'src/environments/environment';
+import { AuthenticationService } from '@app/services/authentication/authentication.service';
+import { NotificationService } from '@app/services/notification.service';
 import { DialogAdminPasswordComponent } from '../../components/dialog-admin-password/dialog-admin-password.component';
 
 @Component({
@@ -15,8 +15,9 @@ export class HomePageComponent {
     password: string;
     constructor(
         public dialog: MatDialog,
-        private readonly http: HttpClient,
         private router: Router,
+        private readonly authenticationService: AuthenticationService,
+        private readonly notificationService: NotificationService,
     ) {}
     openDialog(): void {
         const dialogRef = this.dialog.open(DialogAdminPasswordComponent, {
@@ -25,26 +26,10 @@ export class HomePageComponent {
 
         dialogRef.afterClosed().subscribe((result) => {
             this.password = result;
-
-            // TODO: Migrate logic to the standardized service when it will be available (+ use pipe or something else than the .subscribe(), which is deprecated)
-            const contentJsonHeader = new HttpHeaders({
-                'Content-Type': 'application/json',
+            this.authenticationService.validatePassword(this.username, this.password).subscribe({
+                next: () => this.router.navigate(['/admin/games']),
+                error: () => this.notificationService.displayErrorMessage(`Le mot de passe est invalide.`),
             });
-            this.http
-                .post(`${environment.serverUrl}/login`, JSON.stringify({ username: this.username, password: this.password }), {
-                    observe: 'response',
-                    headers: contentJsonHeader,
-                })
-                .subscribe(
-                    (response) => {
-                        if (response.status == 200) {
-                            this.router.navigate(['/admin/games']);
-                        }
-                    },
-                    (error) => {
-                        console.log('YOU SHALL NOT PASS');
-                    },
-                );
         });
     }
 }

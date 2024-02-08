@@ -33,7 +33,23 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
 
 
     // Modify for this to only be accessible if we're modifying a question
-    ngOnInit(): void {}
+    ngOnInit(): void {
+
+        //this.initializeForm();
+
+        this.questionForm.valueChanges.subscribe((formValue) => {
+            
+            this.question.text = formValue.text;
+            this.question.points = formValue.points;
+            //this.quest
+            this.question.lastModification = new Date().toLocaleDateString();
+            this.question.id = "5";
+            
+    
+            //console.log("choices",this.question.choices);
+          });
+
+    }
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes.question && this.question) {
@@ -45,14 +61,14 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
         this.questionForm = this.fb.group({
             text: ['', Validators.required],
             points: ['', Validators.required],
-            types: ['QCM'],
+            type: ['QCM'],
             choices: this.fb.array([
                 this.fb.group({
-                    choice: ['', Validators.required], // change to text 
+                    text: ['', Validators.required], // change to text 
                     isCorrect: [true, Validators.required],
                 }),
                 this.fb.group({
-                    choice: ['', Validators.required],
+                    text: ['', Validators.required],
                     isCorrect: [false, Validators.required],
                 }),
             ]),
@@ -71,7 +87,7 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
         this.question.choices?.forEach((choice) => {
             choicesArray.push(
                 this.fb.group({
-                    choice: choice.text,
+                    text: choice.text,
                     isCorrect: choice.isCorrect,
                 }),
             );
@@ -169,10 +185,15 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     onSubmit() {
         if (this.questionForm.valid) {
             const newQuestion: Question = this.questionForm.value;
+            //newQuestion.id =;
             newQuestion.lastModification = new Date().toLocaleString();
+            newQuestion.id = this.getRandomString();
             this.createQuestionEvent.emit(newQuestion);
         }
     }
+
+    BASE_36 = 36; 
+    getRandomString = (): string => (Math.random() + 1).toString(this.BASE_36).substring(2);
 
     getControls() {
         return (this.questionForm.get('controlName') as FormArray).controls;

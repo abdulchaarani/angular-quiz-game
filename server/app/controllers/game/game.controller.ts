@@ -18,7 +18,7 @@ export class GameController {
             const allGames = await this.gameService.getAllGames();
             response.status(HttpStatus.OK).json(allGames);
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send(error.message);
+            response.status(HttpStatus.NOT_FOUND).send({ message: error });
         }
     }
 
@@ -28,7 +28,7 @@ export class GameController {
             const game = await this.gameService.getGameById(id);
             response.status(HttpStatus.OK).json(game);
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send(error);
+            response.status(HttpStatus.NOT_FOUND).send({ message: error });
         }
     }
 
@@ -38,7 +38,7 @@ export class GameController {
             const newGame = await this.gameService.addGame(createGameDto);
             response.status(HttpStatus.CREATED).send(JSON.stringify(newGame));
         } catch (error) {
-            response.status(HttpStatus.BAD_REQUEST).send(error);
+            response.status(HttpStatus.BAD_REQUEST).send({ message: error });
         }
     }
 
@@ -49,7 +49,7 @@ export class GameController {
             const questionToValidate = await this.gameService.validateQuestion(createQuestionDto);
             response.status(HttpStatus.OK).send(JSON.stringify(questionToValidate));
         } catch (error) {
-            response.status(HttpStatus.BAD_REQUEST).send(error);
+            response.status(HttpStatus.BAD_REQUEST).send({ message: error });
         }
     }
 
@@ -60,7 +60,7 @@ export class GameController {
             await this.gameService.toggleGameVisibility(id);
             response.status(HttpStatus.OK).send();
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send(error.message);
+            response.status(HttpStatus.NOT_FOUND).send({ message: error });
         }
     }
 
@@ -70,7 +70,7 @@ export class GameController {
             await this.gameService.upsertGame(updateGameDto);
             response.status(HttpStatus.OK).send();
         } catch (error) {
-            response.status(HttpStatus.BAD_REQUEST).send(error.message);
+            response.status(HttpStatus.BAD_REQUEST).send({ message: error });
         }
     }
 
@@ -80,7 +80,7 @@ export class GameController {
             await this.gameService.deleteGame(id);
             response.status(HttpStatus.NO_CONTENT).send();
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send(error.message);
+            response.status(HttpStatus.NOT_FOUND).send({ message: error });
         }
     }
 }

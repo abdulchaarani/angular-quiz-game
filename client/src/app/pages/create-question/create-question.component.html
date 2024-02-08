@@ -14,11 +14,11 @@
                 <button mat-raised-button color="primary" type="submit" class="submit-button" [disabled]="!questionForm.valid">Sauvegarder</button>
             </span>
             <div cdkDropList class="" (cdkDropListDropped)="drop($event)">
-                <div formArrayName="choices" class="choice" *ngFor="let choice of choices.controls; let i = index">
+                <div formArrayName="choices" class="text" *ngFor="let text of choices.controls; let i = index">
                     <div class="example-box" cdkDrag>
                         <div class="input-container" [formGroupName]="i">
                             <span class="choice-number">{{ i + 1 }}. </span>
-                            <input class="choicesInput" formControlName="choice" />
+                            <input class="choicesInput" formControlName="text" />
                             <input type="checkbox" formControlName="isCorrect" />
                             <button mat-raised-button color="primary" type="button" class="delete-button" (click)="removeChoice(i)">
                                 <i class="fas fa-trash"></i>
@@ -38,7 +38,7 @@
             <span class="question-type">
                 <mat-form-field>
                     <mat-label>Type de Question</mat-label>
-                    <mat-select formControlName="types">
+                    <mat-select formControlName="type">
                         <mat-option *ngFor="let type of ['QCM', 'QRL']" [value]="type">{{ type }}</mat-option>
                     </mat-select>
                 </mat-form-field>

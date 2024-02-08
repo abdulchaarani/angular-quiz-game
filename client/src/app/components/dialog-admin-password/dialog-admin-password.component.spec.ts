@@ -6,6 +6,7 @@ import { DialogAdminPasswordComponent } from './dialog-admin-password.component'
 describe('DialogAdminPasswordComponent', () => {
     let component: DialogAdminPasswordComponent;
     let fixture: ComponentFixture<DialogAdminPasswordComponent>;
+    const matDialogSpy = jasmine.createSpyObj('MatDialogRef', ['close']);
 
     beforeEach(() => {
         TestBed.configureTestingModule({
@@ -14,7 +15,7 @@ describe('DialogAdminPasswordComponent', () => {
             providers: [
                 {
                     provide: MatDialogRef,
-                    useValue: {},
+                    useValue: matDialogSpy,
                 },
                 {
                     provide: MAT_DIALOG_DATA,
@@ -29,5 +30,10 @@ describe('DialogAdminPasswordComponent', () => {
 
     it('should create', () => {
         expect(component).toBeTruthy();
+    });
+
+    it('onNoClick() should close the dialog component', () => {
+        component.onNoClick();
+        expect(matDialogSpy.close).toHaveBeenCalled();
     });
 });

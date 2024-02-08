@@ -3,11 +3,12 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { Game } from '@app/interfaces/game';
 import { GamesService } from '@app/services/games.service';
 import { NotificationService } from '@app/services/notification.service';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { AdminPageComponent } from './admin-page.component';
 import SpyObj = jasmine.SpyObj;
 
-// TODO: Add tests for JSON upload
+// TODO: Add tests for JSON upload + Display Error Notifications
+// Lines: 27, 34, 43, 50-70
 describe('AdminPageComponent', () => {
     let component: AdminPageComponent;
     let fixture: ComponentFixture<AdminPageComponent>;
@@ -53,6 +54,12 @@ describe('AdminPageComponent', () => {
 
     it('should fetch games after initialiation', () => {
         expect(component.games.length).toEqual(mockGames.length);
+    });
+
+    it('should open a snackbar if getGames fails', () => {
+        gamesServiceSpy.getGames.and.returnValue(throwError(() => new Error('error')));
+        component.getGames();
+        expect(notificationServiceSpy.displayErrorMessage).toHaveBeenCalled();
     });
 
     it('should be able to delete a game from the list', () => {

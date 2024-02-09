@@ -1,4 +1,5 @@
 // import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Question } from '@app/interfaces/question';
@@ -29,9 +30,9 @@ export class AdminQuestionBankComponent implements OnInit {
         private readonly notificationService: NotificationService,
     ) {}
 
-    // drop(event: CdkDragDrop<Question[]>) {
-    //     moveItemInArray(this.questions, event.previousIndex, event.currentIndex);
-    // }
+    drop(event: CdkDragDrop<Question[]>) {
+        moveItemInArray(this.questions, event.previousIndex, event.currentIndex);
+    }
 
     ngOnInit() {
         this.questionService.getAllQuestions().subscribe({

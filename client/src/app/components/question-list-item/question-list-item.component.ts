@@ -20,7 +20,7 @@ export class QuestionListItemComponent {
     questions: Question[] = [];
     // constructor(private readonly questionService: QuestionService) {}
 
-    isPanelExpanded: boolean = false; 
+    isPanelExpanded: boolean = false;
 
     togglePanel() {
         this.isPanelExpanded = !this.isPanelExpanded;
@@ -38,7 +38,5 @@ export class QuestionListItemComponent {
         console.log(`Points changed: ${newPoints}`);
     }
 
-    onQuestionModified(){
-
-    }
+    onQuestionModified() {}
 }

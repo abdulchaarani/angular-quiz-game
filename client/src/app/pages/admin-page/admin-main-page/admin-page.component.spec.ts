@@ -1,5 +1,7 @@
 import { HttpClient, HttpHandler, HttpResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { Game } from '@app/interfaces/game';
 import { GamesService } from '@app/services/games.service';
 import { NotificationService } from '@app/services/notification.service';
@@ -32,6 +34,7 @@ describe('AdminPageComponent', () => {
         gamesServiceSpy.deleteGame.and.returnValue(of(mockHttpResponse));
 
         TestBed.configureTestingModule({
+            imports: [MatDialogModule, MatSnackBarModule],
             declarations: [AdminPageComponent],
             providers: [
                 HttpClient,

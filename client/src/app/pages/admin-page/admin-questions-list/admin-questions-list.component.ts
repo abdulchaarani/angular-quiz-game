@@ -37,6 +37,8 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
     dialogState: boolean = false;
     currentQuestion: Question;
     currentBankMessage = '';
+    addToBank: boolean;
+    addToBankToggleButtonState: boolean = false;
 
     gameForm = new FormGroup({
         title: new FormControl('', Validators.required),
@@ -129,6 +131,19 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
 
     toggleSideBarClass() {
         this.isSideBarActive = !this.isSideBarActive;
+    }
+
+    addQuestionToBank(newQuestion: Question) {
+        if (!this.isDuplicateQuestion(newQuestion, this.originalBankQuestions)) {
+            this.gamesService.questionService.createQuestion(newQuestion).subscribe({
+                next: () => {
+                    this.gamesService.displaySuccessMessage('Question ajoutée à la banque avec succès! 😺');
+                    this.originalBankQuestions.unshift(newQuestion);
+                },
+            });
+        } else if (this.isDuplicateQuestion(newQuestion, this.originalBankQuestions)) {
+            this.gamesService.displayErrorMessage('Cette question fait déjà partie de la banque! 😾');
+        }
     }
 
     openCreateQuestionDialog() {

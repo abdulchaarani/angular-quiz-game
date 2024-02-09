@@ -1,17 +1,17 @@
 import { CdkDragDrop, CdkDragEnd, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { FormBuilder, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
+import { ActivatedRoute, Router } from '@angular/router';
+import { DialogConfirmComponent } from '@app/components/dialog-confirm/dialog-confirm.component';
 import { Game } from '@app/interfaces/game';
 import { Question } from '@app/interfaces/question';
 import { CreateQuestionComponent } from '@app/pages/create-question/create-question.component';
-import { GamesService } from '@app/services/games.service';
-import { QuestionService } from '@app/services/question.service';
-import { Router, ActivatedRoute } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
-import { FormBuilder, Validators } from '@angular/forms';
 import { GamesCreationService } from '@app/services/games-creation.service';
+import { GamesService } from '@app/services/games.service';
 import { NotificationService } from '@app/services/notification.service';
-import { DialogConfirmComponent } from '@app/components/dialog-confirm/dialog-confirm.component';
+import { QuestionService } from '@app/services/question.service';
 import { concatMap } from 'rxjs';
 
 @Component({
@@ -24,12 +24,14 @@ export class AdminQuestionsListComponent implements OnInit {
 
     game: Game = {
         id: '',
-        title: '',
-        description: '',
-        lastModification: '',
-        duration: 0,
-        questions: [],
+        title : '',
+        description : '',
+        lastModification: new Date().toString(),
+        duration : 10,
+        isVisible: false,
+        questions : [],
     };
+
     response: string = '';
     originalBankQuestions: Question[] = [];
     bankQuestions: Question[] = [];
@@ -45,12 +47,7 @@ export class AdminQuestionsListComponent implements OnInit {
 
     currentQuestion: Question;
     currentBankMessage = '';
-
-    gameEditForm = this.formBuilder.nonNullable.group({
-        title: ['', Validators.required],
-        description: ['', Validators.required],
-    });
-
+    
     gameForm = this.formBuilder.nonNullable.group({
         title: ['', Validators.required],
         description: ['', [Validators.required]],
@@ -71,6 +68,8 @@ export class AdminQuestionsListComponent implements OnInit {
     drop(event: CdkDragDrop<Question[]>) {
         moveItemInArray(this.game.questions, event.previousIndex, event.currentIndex);
     }
+
+    questionAdded: boolean = false;
 
     ngOnInit() {
         this.route.params
@@ -94,6 +93,13 @@ export class AdminQuestionsListComponent implements OnInit {
                 error: (error: HttpErrorResponse) =>
                     this.notificationService.displayErrorMessage(`Échec d'obtention des questions 😿\n ${error.message}`),
             });
+        this.route.params.subscribe((params) => {
+                const id = params['id'];
+                this.gamesService.getGameById(id).subscribe((game: Game) => {
+                    this.game = game;
+                    this.isValid = true;        
+                });
+            });
     }
 
     changeDuration(event: Event) {
@@ -101,15 +107,9 @@ export class AdminQuestionsListComponent implements OnInit {
     }
 
     onSubmit(): void {
-        if (this.gameEditForm.value.title && this.gameEditForm.value.description) {
-            this.game.title = this.gameEditForm.value.title;
-            this.game.description = this.gameEditForm.value.description;
-            this.saveGame();
-        }
-
         if (this.gameForm.value.title && this.gameForm.value.description && this.gameForm.value.duration) {
             this.gamesCreationService
-                .createGame(this.gameForm.value.title, this.gameForm.value.description, parseInt(this.gameForm.value.duration))
+                .createGame(this.gameForm.value.title, this.gameForm.value.description, parseInt(this.gameForm.value.duration), this.game.questions)
                 .subscribe((gameId: string) => {
                     this.router.navigate([`/admin/games/${gameId}/questions`]);
                 });
@@ -125,7 +125,26 @@ export class AdminQuestionsListComponent implements OnInit {
         this.setBankMessage();
     }
 
+    getTitle() : string {
+        const modifiedTitle =  document.getElementById("modifiedTitle"); 
+        if (modifiedTitle && modifiedTitle.innerText.trim() !== ""){
+            return modifiedTitle.innerText;
+        }
+        return this.game.title; 
+    }
+
+    getDescription() : string {
+        const modifiedDescription =  document.getElementById("modifiedDescription"); 
+        if (modifiedDescription && modifiedDescription.innerText.trim() !== ""){
+            return modifiedDescription.innerText;
+        }
+        return this.game.description; 
+    }
+
     saveGame() {
+        this.game.title = this.getTitle();
+        this.game.description = this.getDescription();
+
         this.gamesService.replaceGame(this.game).subscribe({
             next: () => {
                 this.notificationService.displaySuccessMessage('Jeux modifié avec succès! 😺');
@@ -138,6 +157,7 @@ export class AdminQuestionsListComponent implements OnInit {
     addNewQuestion(newQuestion: Question) {
         console.log('new', newQuestion);
         this.game.questions.push(newQuestion);
+        this.questionAdded = true;
     }
 
     toggleCreateQuestion() {

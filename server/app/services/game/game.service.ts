@@ -150,21 +150,4 @@ export class GameService {
             return Promise.reject(`Erreur: ${error}`);
         }
     }
-
-    // TODO: Tests + Possible Refactor
-    async validatePlayerChoice(gameId: string, questionId: string, selectedChoices: string[]): Promise<boolean> {
-        try {
-            const game = await this.getGameById(gameId);
-            const question = game.questions.find((currentQuestion) => currentQuestion.id === questionId);
-            const expectedChoices: string[] = [];
-            question.choices.forEach((choice) => {
-                if (choice.isCorrect) {
-                    expectedChoices.push(choice.text);
-                }
-            });
-            return expectedChoices.sort().toString() === selectedChoices.sort().toString();
-        } catch (error) {
-            return Promise.reject('Le jeu est introuvable.');
-        }
-    }
 }

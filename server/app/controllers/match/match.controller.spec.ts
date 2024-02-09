@@ -57,31 +57,31 @@ describe('MatchController', () => {
         await controller.allVisibleGames(res);
     });
 
-    it('gameById() should return the game with the corresponding ID', async () => {
+    it('gameByIdWithoutIsCorrect() should return the game with the corresponding ID', async () => {
         const mockGame = new Game();
-        matchService.getGameById.resolves(mockGame);
+        matchService.getGameByIdWithoutIsCorrect.resolves(mockGame);
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.OK);
             return res;
         };
-        res.json = (games) => {
-            expect(games).toEqual(mockGame);
+        res.json = (game) => {
+            expect(game).toEqual(mockGame);
             return res;
         };
 
-        await controller.gameById('', res);
+        await controller.gameByIdWithoutIsCorrect('', res);
     });
 
-    it('gameById() should return NOT_FOUND when service is unable to fetch the game', async () => {
-        matchService.getGameById.rejects();
+    it('gameByIdWithoutIsCorrect() should return NOT_FOUND when service is unable to fetch the game', async () => {
+        matchService.getGameByIdWithoutIsCorrect.rejects();
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.NOT_FOUND);
             return res;
         };
         res.send = () => res;
-        await controller.gameById('', res);
+        await controller.gameByIdWithoutIsCorrect('', res);
     });
 
     it('allChoices() should return all question choices', async () => {
@@ -157,8 +157,8 @@ describe('MatchController', () => {
             expect(code).toEqual(HttpStatus.OK);
             return res;
         };
-        res.json = (games) => {
-            expect(games).toEqual(mockGame);
+        res.json = (game) => {
+            expect(game).toEqual(mockGame);
             return res;
         };
         await controller.getBackupGame('', res);
@@ -171,6 +171,20 @@ describe('MatchController', () => {
             return res;
         };
         res.send = () => res;
-        await controller.gameById('', res);
+        await controller.gameByIdWithoutIsCorrect('', res);
+    });
+    it('saveBackupGame() should save ("create") backup game locally in the server and return a copy of the game', async () => {
+        const mockGame = new Game();
+        matchService.saveBackupGame.resolves(mockGame);
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.CREATED);
+            return res;
+        };
+        res.json = (game) => {
+            expect(game).toEqual(mockGame);
+            return res;
+        };
+        await controller.saveBackupGame('', res);
     });
 });

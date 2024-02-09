@@ -17,9 +17,9 @@ export class MatchController {
     }
 
     @Get('/games/:gameId')
-    async gameById(@Param('gameId') gameId: string, @Res() response: Response) {
+    async gameByIdWithoutIsCorrect(@Param('gameId') gameId: string, @Res() response: Response) {
         try {
-            const game = await this.matchService.getGameById(gameId);
+            const game = await this.matchService.getGameByIdWithoutIsCorrect(gameId);
             response.status(HttpStatus.OK).json(game);
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send({ message: error.message });
@@ -65,7 +65,7 @@ export class MatchController {
     @Post('/backups/:gameId')
     async saveBackupGame(@Param('gameId') gameId: string, @Res() response: Response) {
         try {
-            const game = await this.matchService.saveGameBackup(gameId);
+            const game = await this.matchService.saveBackupGame(gameId);
             response.status(HttpStatus.CREATED).json(game);
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send({ message: error.message });

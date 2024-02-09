@@ -20,7 +20,7 @@ export class MatchService {
         return gamesWithoutIsCorrectField;
     }
 
-    async getGameById(gameId: string): Promise<Game> {
+    async getGameByIdWithoutIsCorrect(gameId: string): Promise<Game> {
         let game = await this.gameService.getGameById(gameId);
         game = this.removeIsCorrectField(game);
         return game;
@@ -56,7 +56,7 @@ export class MatchService {
     }
 
     // Method to allow players to play a game that becomes deleted during the match.
-    async saveGameBackup(gameId: string): Promise<Game> {
+    async saveBackupGame(gameId: string): Promise<Game> {
         try {
             let backupGame = await this.gameService.getGameById(gameId);
             this.backupGames.push(backupGame);

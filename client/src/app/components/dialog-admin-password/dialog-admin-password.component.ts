@@ -15,7 +15,7 @@ export interface DialogData {
 export class DialogAdminPasswordComponent {
     public isHiddenPassword: boolean;
     constructor(
-        public dialogRef: MatDialogRef<HomePageComponent>,
+        private dialogRef: MatDialogRef<HomePageComponent>,
         @Inject(MAT_DIALOG_DATA) public data: DialogData,
     ) {
         this.isHiddenPassword = true;

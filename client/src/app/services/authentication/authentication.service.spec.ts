@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { HttpClientModule } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { RouterModule } from '@angular/router';
 import { AuthenticationService } from './authentication.service';
 
 describe('AuthenticationService', () => {
@@ -9,7 +10,7 @@ describe('AuthenticationService', () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            imports: [HttpClientModule],
+            imports: [HttpClientModule, RouterModule],
             providers: [MatSnackBar],
         });
         service = TestBed.inject(AuthenticationService);

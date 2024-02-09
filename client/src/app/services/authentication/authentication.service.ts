@@ -29,8 +29,8 @@ export class AuthenticationService {
             })
             .subscribe({
                 next: () => {
-                    this.router.navigate(['/admin/games']);
                     this.isAuthenticated = true;
+                    this.router.navigate(['/admin/games']);
                 },
                 error: () => this.notificationService.displayErrorMessage(`Le mot de passe est invalide.`),
             });

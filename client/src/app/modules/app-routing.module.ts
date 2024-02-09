@@ -21,7 +21,7 @@ const routes: Routes = [
         canActivate: [AuthGuard],
         children: [
             { path: 'bank', component: AdminQuestionBankComponent },
-            { path: 'games', component: AdminPageComponent, canActivate: [AuthGuard] },
+            { path: 'games', component: AdminPageComponent },
             { path: 'games/:id/questions', component: AdminQuestionsListComponent },
             { path: 'games/:id/questionbank', component: AdminQuestionBankSelectionComponent },
             { path: 'games/:id/questions/questioncreation', component: CreateQuestionComponent },

@@ -44,8 +44,10 @@ export class AuthenticationService {
 export const AuthGuard = () => {
     const auth = inject(AuthenticationService);
     const router = inject(Router);
+    const notificationService = inject(NotificationService);
     if (!auth.getIsAuthenticated()) {
         router.navigateByUrl('/home');
+        notificationService.displayErrorMessage('Accès refusé: Veillez vous connecter avec le bon mot de passe.');
         return false;
     }
     return true;

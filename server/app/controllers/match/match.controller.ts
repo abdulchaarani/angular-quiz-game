@@ -64,7 +64,6 @@ export class MatchController {
 
     @Post('/backups/:gameId')
     async saveBackupGame(@Param('gameId') gameId: string, @Res() response: Response) {
-        console.log("POST")
         try {
             const game = await this.matchService.saveBackupGame(gameId);
             response.status(HttpStatus.CREATED).json(game);

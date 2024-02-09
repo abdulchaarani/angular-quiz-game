@@ -89,9 +89,11 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         if (changes.currentQuestion) {
             const newQuestion = changes.currentQuestion.currentValue;
             this.currentQuestion = newQuestion;
+            this.answers = this.currentQuestion.choices || [];
             if (this.currentQuestion.id) {
                 this.matchService.setQuestionId(this.currentQuestion.id);
             }
+            this.resetStateForNewQuestion();
         }
     }
 
@@ -102,12 +104,11 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
 
     checkAnswers(): void {
         const choicesText: string[] = this.selectedAnswers.map((choice) => choice.text);
-        console.log(choicesText);
         this.matchService.validateChoices(choicesText).subscribe({
             next: (response: HttpResponse<string>) => {
                 if (response.body) {
-                    console.log(response.body);
-                    this.isCorrect = true;
+                    // console.log(typeof (response.body));
+                    this.isCorrect = JSON.parse(response.body);
                     this.afterFeedback();
                 }
             },
@@ -147,6 +148,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     }
 
     playerScoreUpdate(): void {
+        // console.log(this.isCorrect);
         if (this.isCorrect === true) {
             if (this.isTestPage === true) {
                 this.bonus = this.currentQuestion.points * this.BONUSFACTOR;

@@ -1,56 +1,53 @@
-<div *ngIf="!showFeedback">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-    <div class="question-area" *ngIf="currentQuestion">
-        <div id="chat-exit">
-            <div id="chat-area">
-                <i id="chat-icon" class="far fa-comment-alt fa-2x" style="color: rgb(81, 81, 81)" (click)="openChatDialog()"></i>
-            </div>
-            <button id="exitButton" routerLink="/host">QUITTER</button>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+<div class="question-area" *ngIf="currentQuestion">
+    <div id="chat-exit">
+        <div id="chat-area">
+            <i id="chat-icon" class="far fa-comment-alt fa-2x" style="color: rgb(81, 81, 81)" (click)="openChatDialog()"></i>
         </div>
-        <div id="upper-question-area">
-            <div id="question-timer-area">
-                <div id="points-area">
-                    <h1 id="points">{{ currentQuestion.points }} points</h1>
-                </div>
-                <h1 id="question">
-                    {{ this.currentQuestion!.text }}
-                </h1>
-                <div id="timer-area">
-                    <div class="circle">
-                        <div id="timer">
-                            <mat-progress-spinner [value]="computeTimerProgress()" mode="determinate" diameter="90"> </mat-progress-spinner>
-                            <h2 id="time-left">
-                                {{ time }}
-                            </h2>
-                        </div>
+        <button id="exitButton" routerLink="/host">QUITTER</button>
+    </div>
+    <div id="upper-question-area">
+        <div id="question-timer-area">
+            <div id="points-area">
+                <h1 id="points" *ngIf="!showFeedback || bonus === 0">{{ currentQuestion.points }} points</h1>
+                <h1 id="bonus-points" *ngIf="isTestPage && showFeedback && bonus > 0">Vous avez obtenu un bonus de {{ bonus }} points!</h1>
+            </div>
+            <h1 id="question">
+                {{ this.currentQuestion!.text }}
+            </h1>
+            <div id="timer-area">
+                <div class="circle">
+                    <div id="timer">
+                        <mat-progress-spinner [value]="computeTimerProgress()" mode="determinate" diameter="90"> </mat-progress-spinner>
+                        <h2 id="time-left">
+                            {{ time }}
+                        </h2>
                     </div>
                 </div>
             </div>
         </div>
-        <div id="lower-question-area">
-            <div id="choice-area">
-                <button
-                    *ngFor="let choice of currentQuestion.choices; let i = index"
-                    class="answer"
-                    [class.selected]="isSelected(choice)"
-                    (click)="selectChoice(choice)"
-                >
-                    {{ i + 1 }}. {{ choice.text }}
-                </button>
+    </div>
+    <div id="lower-question-area">
+        <div id="choice-area">
+            <button
+                *ngFor="let choice of currentQuestion.choices; let i = index"
+                class="answer"
+                [class.selected]="isSelected(choice) && !showFeedback"
+                [class.correct]="showFeedback && choice.isCorrect"
+                [class.incorrect]="showFeedback && !choice.isCorrect && isSelected(choice)"
+                (click)="selectChoice(choice)"
+            >
+                {{ i + 1 }}. {{ choice.text }}
+            </button>
+        </div>
+        <div id="submit-score-area">
+            <div id="score-area">
+                <h1 id="score">
+                    SCORE :
+                    {{ playerScore }}
+                </h1>
             </div>
-            <div id="submit-score-area">
-                <div id="score-area">
-                    <h1 id="score">
-                        SCORE :
-                        {{ playerScore }}
-                    </h1>
-                </div>
-                <button id="submitButton" *ngIf="isSelectionEnabled" (click)="submitAnswers()">SOUMETTRE</button>
-            </div>
+            <button id="submitButton" *ngIf="isSelectionEnabled" (click)="submitAnswers()">SOUMETTRE</button>
         </div>
     </div>
-</div>
-<div *ngIf="showFeedback">
-    <app-feedback id="feedback" *ngIf="showFeedback" [isCorrect]="isCorrect"></app-feedback>
-    <button mat-raised-button *ngIf="showFeedback" id="nextButton" (click)="onNextButtonClick()">SUIVANT</button>
 </div>

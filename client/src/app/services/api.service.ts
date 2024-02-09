@@ -33,6 +33,7 @@ export class ApiService<T> {
     }
 
     protected add(payload: T, endpoint: string = ''): Observable<HttpResponse<string>> {
+        console.log(payload);
         return this.http
             .post(`${this.serverUrl}/${this.baseUrl}/${endpoint}`, payload, this.httpOptions)
             .pipe(catchError(this.handleError<HttpResponse<string>>('add')));
@@ -43,7 +44,6 @@ export class ApiService<T> {
             .post(`${this.serverUrl}/${this.baseUrl}/${endpoint}`, payload, this.httpOptions)
             .pipe(catchError(this.handleError<HttpResponse<string>>('add')));
     }
-
 
     protected delete(endpoint: string): Observable<HttpResponse<string>> {
         return this.http

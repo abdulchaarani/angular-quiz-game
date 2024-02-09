@@ -24,42 +24,72 @@
 
                 <mat-form-field class="add-duration">
                     <mat-label>Duree</mat-label>
-                    <input matInput id="duration" type="number" formControlName="descriptdurationion" formControlName="duration" min="10" max="60" />
+                    <input matInput id="duration" type="number" formControlName="duration" min="10" max="60" />
                 </mat-form-field>
 
                 <div>
                     <p *ngIf="!gameForm.touched">Veuillez remplir le formulaire.</p>
 
                     <p *ngIf="gameForm.invalid && gameForm.controls.duration.touched">La durée doit être entre 10 et 60.</p>
+
+                    <p *ngIf="!questionAdded && gameForm.touched"> Une question minimum est requise.</p>
+              
                 </div>
 
-                <button class="button" type="submit" [disabled]="gameForm.invalid">Creer</button>
+                <button class="button" type="submit" [disabled]="gameForm.invalid && !questionAdded">Creer</button>
             </form>
+
+            <mat-accordion 
+                id="quiz-questions"
+                class="list game-questions-list"
+                cdkDropList
+                [cdkDropListData]="game.questions"
+                cdkDropListConnectedTo="bank-questions"
+                (cdkDropListDropped)="dropInQuizList($event)"
+            >
+                <div cdkDropList class="" (cdkDropListDropped)="drop($event)">
+                    <div cdkDropList class="questions-list-new-game" *ngIf = "questionAdded" (cdkDropListDropped)="drop($event)">
+                        <app-question-list-item
+                            class="question game-question"
+                            *ngFor="let question of game.questions"
+                            [index]="game.questions.indexOf(question) + 1"
+                            [question]="question"
+                            [isEditable]="true"
+                            [isLastModifiedDateVisible]="true"
+                            (deleteQuestionEvent)="deleteQuestion($event)"
+                            (cdkDragStarted)="dragQuizQuestion(question)"
+                            (cdkDragEnded)="dropQuizQuestion($event)"
+                            cdkDrag
+                        >
+                        <div cdkDragHandle></div>
+                        </app-question-list-item>
+                    </div>
+                    <div class="add-button-container-new-game">
+                        <button class = "add-question-button-new-game" mat-raised-button color="primary" (click)="openCreateQuestionDialog()" id="admin-create-question-button-new-game">
+                            <mat-icon>add</mat-icon>Ajouter une nouvelle question
+                            <app-create-question *ngIf="dialogState" (createQuestionEvent)="addNewQuestion($event)"></app-create-question>
+                        </button>
+                    </div>
+                </div>
+            </mat-accordion>
+          
         </mat-card>
 
         <mat-card *ngIf="isValid">
             <div class="top-page">
-                <h2>Liste de questions du jeu : {{ game.title }}</h2>
-                <h2>Description: {{ game.description }}</h2>
-            </div>
+                <h2> Liste de questions du jeu : 
+                  <p contenteditable="true" id="modifiedTitle">
+                    {{ game.title }}
+                  </p>
+                 </h2>
+                <h2> Description : 
+                  <p contenteditable="true" id="modifiedDescription">
+                    {{ game.description }} 
+                  </p>
+                </h2>
+            </div>        
 
             <button mat-raised-button color="basic" routerLink="/admin/games" id="admin-back-button">Retour</button>
-
-            <div class="edit-form-container">
-                <form [formGroup]="gameEditForm" class="edit-informations-form" (ngSubmit)="onSubmit()">
-                    <mat-form-field class="edit-title">
-                        <mat-label>Titre</mat-label>
-                        <input matInput formControlName="title" value="game.title" />
-                    </mat-form-field>
-
-                    <mat-form-field class="edit-description">
-                        <mat-label>Description</mat-label>
-                        <textarea matInput formControlName="description"> </textarea>
-                    </mat-form-field>
-
-                    <button class="button" type="submit" [disabled]="gameEditForm.invalid">Enregistrer</button>
-                </form>
-            </div>
 
             <div class="buttons-container">
                 <button mat-raised-button color="primary" (click)="openCreateQuestionDialog()" id="admin-create-question-button">

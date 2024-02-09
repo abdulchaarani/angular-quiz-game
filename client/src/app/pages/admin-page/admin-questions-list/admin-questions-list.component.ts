@@ -1,14 +1,15 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { Component, OnInit , EventEmitter, Output} from '@angular/core';
+import { Component, OnInit, EventEmitter, Output } from '@angular/core';
 import { Game } from '@app/interfaces/game';
 import { Question } from '@app/interfaces/question';
 import { CreateQuestionComponent } from '@app/pages/create-question/create-question.component';
 // import { GamesCreationService } from '@app/services/games-creation.service';
 import { GamesService } from '@app/services/games.service';
-// import { QuestionService } from '@app/services/question.service';
+import { QuestionService } from '@app/services/question.service';
 import { ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
+import { NotificationService } from '@app/services/notification.service';
 
 @Component({
     selector: 'app-admin-questions-list',
@@ -19,16 +20,18 @@ export class AdminQuestionsListComponent implements OnInit {
     dialogState: boolean = false;
 
     @Output() createQuestionEvent: EventEmitter<Question> = new EventEmitter<Question>();
-    game: Game ;
+    @Output() createQuestionEventQuestionBank: EventEmitter<Question> = new EventEmitter<Question>();
+    game: Game;
     response: string = '';
 
     constructor(
+        private questionService: QuestionService,
         public dialog: MatDialog,
         private readonly gamesService: GamesService,
         private route: ActivatedRoute,
-    ) 
-
-    {}
+        //private router: Router,
+        private readonly notificationService: NotificationService,
+    ) {}
     drop(event: CdkDragDrop<Question[]>) {
         moveItemInArray(this.game.questions, event.previousIndex, event.currentIndex);
     }
@@ -36,7 +39,6 @@ export class AdminQuestionsListComponent implements OnInit {
     changeDuration(event: Event) {
         this.game.duration = Number((event.target as HTMLInputElement).value);
     }
-
 
     isValid: boolean = false;
 
@@ -70,7 +72,7 @@ export class AdminQuestionsListComponent implements OnInit {
     }
 
     addNewQuestion(newQuestion: Question) {
-        console.log("new", newQuestion);
+        //console.log('new', newQuestion);
         this.game.questions.push(newQuestion);
     }
 
@@ -78,7 +80,8 @@ export class AdminQuestionsListComponent implements OnInit {
         this.dialogState = !this.dialogState;
     }
 
-    dialogRef: any;
+   // dialogRef: unknown;
+   dialogRef: any;
 
     // https://stackoverflow.com/questions/47592364/usage-of-mat-dialog-close
     openDialog() {
@@ -92,9 +95,29 @@ export class AdminQuestionsListComponent implements OnInit {
                     this.addNewQuestion(newQuestion);
                     this.dialogRef.close();
                 }
+                this.dialogState = false;
+            });
 
+            this.dialogRef.componentInstance.createQuestionEventQuestionBank.subscribe((newQuestion: Question) => {
+                if (newQuestion) {
+                        this.questionService.createQuestion(newQuestion)
+                        .subscribe({
+                            next: () => {
+                                this.notificationService.displaySuccessMessage('Question ajoutée à la banque avec succès! 😺');
+                            },
+                            error: (error: HttpErrorResponse) =>
+                                this.notificationService.displayErrorMessage(`La question n'a pas pu être ajoutée. 😿 \n ${error.message}`),
+                        });
+        
+                    }
+                    //this.addQuestion(newQuestion);
+                    //this.questionService.createQuestion(newQuestion).subscribe()
+                    //this.questionService.createQuestion(newQuestion);
+                    //this.questionsBank;
+                    this.dialogRef.close();
                 this.dialogState = false;
             });
         }
     }
 }
+

@@ -55,7 +55,8 @@ export class MatchController {
     @Get('/backups/:gameId')
     async getBackupGame(@Param('gameId') gameId: string, @Res() response: Response) {
         try {
-            const backup = await this.matchService.getBackupGame(gameId);
+            const backupGame = await this.matchService.getBackupGame(gameId);
+            response.status(HttpStatus.OK).json(backupGame);
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send({ message: error.message });
         }

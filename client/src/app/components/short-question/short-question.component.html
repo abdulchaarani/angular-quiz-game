@@ -1,0 +1,9 @@
+<mat-card class="short-question" [ngClass]="getPointsColor()">
+    <mat-card-header>
+        <mat-card-title>{{ question.points }} points</mat-card-title>
+        <mat-card-subtitle>{{ question.lastModification | date }}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+        <p>{{ question.text }}</p>
+    </mat-card-content>
+</mat-card>

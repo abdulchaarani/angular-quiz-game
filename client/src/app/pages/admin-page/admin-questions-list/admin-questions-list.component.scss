@@ -1,9 +1,88 @@
-.top-page {
-    display: flex;
-    justify-content: space-between;
+.example-container {
+    background-color: white;
 }
 
-.top-container {
+.sidenav-active {
+    padding-right: 5px;
+}
+.example-sidenav {
+    width: 300px;
+}
+
+.bank-question {
+    width: 30%;
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden; /* This prevents scrolling of the body */
+}
+
+.main-container {
+    height: 100%;
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+}
+
+.mat-drawer-container,
+.example-container {
+    height: 100%;
+}
+
+.question-container {
+    flex-grow: 1; /* This allows the container to take up the remaining space */
+    overflow-y: auto; /* Add this if you want the content to scroll if it exceeds the viewport height */
+}
+
+.drag-preview {
+    color: white;
+    font-size: 40px;
+    font-weight: bold;
+    background-color: goldenrod;
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.list-item {
+    cursor: grab;
+}
+
+.list-item:active {
+    cursor: grabbing;
+}
+
+.cdk-drag-preview {
+    cursor: grabbing;
+}
+
+.draggable-element.cdk-drag-preview {
+    pointer-events: auto;
+    cursor: grabbing;
+}
+
+.custom-placeholder {
+    height: 48px;
+    border: solid 1px #ccc;
+    margin-bottom: 8px;
+    border-radius: 4px;
+}
+
+.drop-destination {
+    text-align: center;
+    display: none;
+}
+
+.visible {
+    display: block;
+}
+
+.bank-message {
+    text-align: center;
+    margin: 0 10px;
 }

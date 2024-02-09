@@ -1,12 +1,12 @@
 import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
+import { GameService } from '@app/services/game/game.service';
 import { Injectable } from '@nestjs/common';
-import { GameService } from '../game/game.service';
 
 @Injectable()
 export class MatchService {
     // TODO: Tests
-    public backupGames: Game[];
+    backupGames: Game[];
     constructor(private readonly gameService: GameService) {
         this.backupGames = [];
     }
@@ -67,7 +67,7 @@ export class MatchService {
         }
     }
 
-    async deleteGameBackup(gameToDeleteId: string): Promise<void> {
+    async deleteBackupGame(gameToDeleteId: string): Promise<void> {
         this.backupGames = this.backupGames.filter((game: Game) => {
             return game.id !== gameToDeleteId;
         });

@@ -1,7 +1,7 @@
+import { GameService } from '@app/services/game/game.service';
+import { MatchService } from '@app/services/match/match.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance } from 'sinon';
-import { GameService } from '../game/game.service';
-import { MatchService } from './match.service';
 
 describe('MatchService', () => {
     let service: MatchService;

@@ -121,7 +121,7 @@ describe('MatchController', () => {
             expect(isValid).toEqual(true);
             return res;
         };
-        await controller.validatePlayerChoice('', '', { '': [''] }, res);
+        await controller.validatePlayerChoice('', '', { mock: [''] }, res);
     });
 
     it('validatePlayerChoice() should return OK with false value in body if validatePlayerChoice returns false', async () => {
@@ -135,7 +135,7 @@ describe('MatchController', () => {
             expect(isValid).toEqual(false);
             return res;
         };
-        await controller.validatePlayerChoice('', '', { '': [''] }, res);
+        await controller.validatePlayerChoice('', '', { mock: [''] }, res);
     });
 
     it('validatePlayerChoice() should return NOT FOUND if validatePlayerChoice does not resolve', async () => {
@@ -146,7 +146,7 @@ describe('MatchController', () => {
             return res;
         };
         res.send = () => res;
-        await controller.validatePlayerChoice('', '', { '': [''] }, res);
+        await controller.validatePlayerChoice('', '', { mock: [''] }, res);
     });
 
     it('getBackupGame() should return the backup game with the corresponding ID', async () => {
@@ -186,5 +186,35 @@ describe('MatchController', () => {
             return res;
         };
         await controller.saveBackupGame('', res);
+    });
+    it('saveBackupGame() should return NOT FOUND if backup could not be saved ("created")', async () => {
+        matchService.saveBackupGame.rejects();
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.NOT_FOUND);
+            return res;
+        };
+        res.send = () => res;
+        await controller.saveBackupGame('', res);
+    });
+    it('deleteBackupGame() should delete the backup and return NO CONTENT', async () => {
+        matchService.deleteBackupGame.resolves();
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.NO_CONTENT);
+            return res;
+        };
+        res.send = () => res;
+        await controller.deleteBackupGame('', res);
+    });
+    it('deleteBackupGame() should return NOT FOUND if backup cannot be deleted', async () => {
+        matchService.deleteBackupGame.rejects();
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.NOT_FOUND);
+            return res;
+        };
+        res.send = () => res;
+        await controller.deleteBackupGame('', res);
     });
 });

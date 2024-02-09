@@ -75,7 +75,7 @@ export class MatchController {
     @Delete('/backups/:gameId')
     async deleteBackupGame(@Param('gameId') gameId: string, @Res() response: Response) {
         try {
-            await this.matchService.deleteGameBackup(gameId);
+            await this.matchService.deleteBackupGame(gameId);
             response.status(HttpStatus.NO_CONTENT).send();
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send({ message: error.message });

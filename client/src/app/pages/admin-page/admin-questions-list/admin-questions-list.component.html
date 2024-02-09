@@ -43,7 +43,7 @@
         <div class="add-button-container">
             <button class="add-question-button" mat-raised-button color="basic" (click)="openDialog()" id="admin-create-question-button">
                 <mat-icon>add</mat-icon>
-                <app-create-question *ngIf="dialogState" (createQuestionEvent)="addNewQuestion($event)"></app-create-question>
+                <app-create-question *ngIf="dialogState" (createQuestionEvent)="addNewQuestion($event)" (createQuestionEventQuestionBank)="addNewQuestion($event)"></app-create-question>
             </button>
             
         </div>

@@ -1,7 +1,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-<your-integrity-hash>" />
 
     <div class="question-border">
-        <form [formGroup]="questionForm" class="question-form" (ngSubmit)="onSubmit()">
+        <form [formGroup]="questionForm" class="question-form" (ngSubmit)="onSubmit()" (ngSubmit)="onSubmitQuestionBank()">
             <mat-form-field class="full-width">
                 <mat-label class="question-label">Question</mat-label>
                 <input class="questionInput" matInput formControlName="text" placeholder="Entrez la question" />
@@ -11,7 +11,7 @@
             formControlName="isCorrect" -->
     
             <span class="submit-button-row">
-                <button mat-raised-button color="primary" type="submit" class="submit-button" [disabled]="!questionForm.valid">Sauvegarder</button>
+                <button mat-raised-button color="primary" type="submit" class="submit-button" [disabled]="!questionForm.valid">Vérifier</button>
             </span>
             <div cdkDropList class="" (cdkDropListDropped)="drop($event)">
                 <div formArrayName="choices" class="text" *ngFor="let text of choices.controls; let i = index">
@@ -60,7 +60,7 @@
     </div>
     
     <span class="add-to-banque-question-button">
-        <button mat-raised-button color="primary" class="button">Ajouter à la banque</button>
+        <button mat-raised-button color="primary" class="button" type ="submit"  [disabled]="!questionForm.valid" (click)="onSubmitQuestionBank()">Ajouter à la banque</button>
     </span>
     
     

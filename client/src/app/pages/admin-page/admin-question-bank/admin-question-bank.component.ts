@@ -1,7 +1,9 @@
 // import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { Question } from '@app/interfaces/question';
+import { CreateQuestionComponent } from '@app/pages/create-question/create-question.component';
 import { NotificationService } from '@app/services/notification.service';
 import { QuestionService } from '@app/services/question.service';
 
@@ -10,8 +12,10 @@ import { QuestionService } from '@app/services/question.service';
     templateUrl: './admin-question-bank.component.html',
     styleUrls: ['./admin-question-bank.component.scss'],
 })
+
 export class AdminQuestionBankComponent implements OnInit {
     sortAscending: string = '';
+    @Output() createQuestionEventQuestionBank: EventEmitter<Question> = new EventEmitter<Question>();
 
     questions: Question[] = [];
 
@@ -23,8 +27,10 @@ export class AdminQuestionBankComponent implements OnInit {
         points: 20,
         lastModification: '2024-01-26T14:21:19+00:00',
     };
+    dialogState: any;
 
     constructor(
+        public dialog: MatDialog,
         private readonly questionService: QuestionService,
         private readonly notificationService: NotificationService,
     ) {}
@@ -59,4 +65,33 @@ export class AdminQuestionBankComponent implements OnInit {
                 this.notificationService.displayErrorMessage(`La question n'a pas pu être supprimée. 😿 \n ${error.message}`),
         });
     }
+
+    createNewQuestionBank(newQuestion: Question){
+        this.createQuestionEventQuestionBank.subscribe((newQuestion: Question) => {
+            if (newQuestion){
+                this.questions.push(newQuestion);
+            }
+        })
+    }
+
+    dialogRef: any;
+
+    openDialog() {
+        if (!this.dialogState) {
+            this.dialogRef = this.dialog.open(CreateQuestionComponent, {
+                height: '70%',
+                width: '100%',
+            });
+            this.dialogRef.componentInstance.createQuestionEvent.subscribe((newQuestion: Question) => {
+                if (newQuestion) {
+                    this.addQuestion(newQuestion);
+                    this.dialogRef.close();
+                }
+                
+                this.dialogState = false;
+            });
+        }
+    }
+
+
 }

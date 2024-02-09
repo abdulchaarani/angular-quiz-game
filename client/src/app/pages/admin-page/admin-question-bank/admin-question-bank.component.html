@@ -14,7 +14,8 @@
 <div class="main-container">
     <h1 class="page-title">Banque de questions</h1>
     <div class="buttons-container">
-        <button id="add-question-button" mat-raised-button color="primary" (click)="addQuestion()">
+        <button id="add-question-button" mat-raised-button color="primary" (click)="openDialog()">
+                <app-create-question *ngIf="dialogState" (createQuestionEvent)="addQuestion($event)"></app-create-question>
             <mat-icon>add</mat-icon>Ajouter une nouvelle question
         </button>
     </div>

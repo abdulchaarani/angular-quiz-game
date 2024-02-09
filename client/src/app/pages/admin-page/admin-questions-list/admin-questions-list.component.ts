@@ -39,6 +39,7 @@ export class AdminQuestionsListComponent implements OnInit {
     isBankQuestionDragged: boolean = false;
     dialogState: boolean = false;
     isValid: boolean = false;
+    newGame: boolean = false;
 
     bankMessages = {
         unavailable: "👀 Aucune autre question valide de la banque n'est disponible! 👀",
@@ -90,11 +91,18 @@ export class AdminQuestionsListComponent implements OnInit {
                     this.bankQuestions = this.filterBankQuestions(this.originalBankQuestions, this.game.questions);
                     this.setBankMessage();
                 },
-                error: (error: HttpErrorResponse) =>
-                    this.notificationService.displayErrorMessage(`Échec d'obtention des questions 😿\n ${error.message}`),
+                error: (error: HttpErrorResponse) => {
+                    if (!this.newGame) {
+                        this.notificationService.displayErrorMessage(`Échec d'obtention des questions 😿\n ${error.message}`);
+                    }
+                }
             });
-        this.route.params.subscribe((params) => {
+        this.route.params
+            .subscribe((params) => {
                 const id = params['id'];
+                if (id === 'new') {
+                    this.newGame = true;
+                }
                 this.gamesService.getGameById(id).subscribe((game: Game) => {
                     this.game = game;
                     this.isValid = true;        
@@ -111,7 +119,8 @@ export class AdminQuestionsListComponent implements OnInit {
             this.gamesCreationService
                 .createGame(this.gameForm.value.title, this.gameForm.value.description, parseInt(this.gameForm.value.duration), this.game.questions)
                 .subscribe((gameId: string) => {
-                    this.router.navigate([`/admin/games/${gameId}/questions`]);
+                    console.log(gameId);
+                    this.router.navigate([`/admin/games/`]);
                 });
         }
     }

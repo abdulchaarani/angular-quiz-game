@@ -161,7 +161,7 @@ describe('MatchController', () => {
             expect(games).toEqual(mockGame);
             return res;
         };
-        await controller.gameById('', res);
+        await controller.getBackupGame('', res);
     });
     it('getBackupGame() should return NOT_FOUND if the backup game cannot be found', async () => {
         matchService.getBackupGame.rejects();

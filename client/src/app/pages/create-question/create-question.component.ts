@@ -3,7 +3,7 @@ import { Question } from '@app/interfaces/question';
 import { FormControl, Validators, FormBuilder, FormGroup, FormArray, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { QuestionService } from '@app/services/question.service';
+//import { QuestionService } from '@app/services/question.service';
 // import { AdminQuestionBankComponent } from '../admin-page/admin-question-bank/admin-question-bank.component';
 
 // import { GamesService } from '@app/services/games.service';
@@ -36,16 +36,20 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
 
     // Modify for this to only be accessible if we're modifying a question
     ngOnInit(): void {
-        // this.initializeForm();
+        //this.initializeForm();
+        if(this.modifyingForm){
+        
         this.questionForm.valueChanges.subscribe((formValue) => {
             this.question.text = formValue?.text;
             this.question.points = formValue?.points;
             this.question.lastModification = new Date().toLocaleDateString();
         });
     }
+    }
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes.question && this.question) {
+            this.modifyingForm = true;
             this.updateFormValues();
         }
     }
@@ -92,12 +96,13 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     }
 
     response: string = '';
+    modifyingForm : boolean = false; 
 
     // References: https://stackoverflow.com/questions/49782253/angular-reactive-form
 
     // In the question: add lastmodified and lastadded
     constructor(
-        private questionService: QuestionService,
+        //private questionService: QuestionService,
         private snackBar: MatSnackBar,
         private fb: FormBuilder, // https://stackoverflow.com/questions/53362983/angular-reactiveforms-nested-formgroup-within-formarray-no-control-found?rq=3
     ) {
@@ -174,10 +179,6 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
         if (this.questionForm.valid) {
             const newQuestion: Question = this.questionForm.value;
             newQuestion.id = this.getRandomString();
-            this.questionService.createQuestion(newQuestion);
-
-            // this.questionService.createQuestion(newQuestion).subscribe((newQuestion: Question) => {
-            // });
             this.createQuestionEventQuestionBank.emit(newQuestion);
         }
     }

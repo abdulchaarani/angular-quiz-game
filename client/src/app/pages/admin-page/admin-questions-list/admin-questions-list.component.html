@@ -64,7 +64,7 @@
             <div class="buttons-container">
                 <button mat-raised-button color="primary" (click)="openCreateQuestionDialog()" id="admin-create-question-button">
                     <mat-icon>add</mat-icon>Ajouter une nouvelle question
-                    <app-create-question *ngIf="dialogState" (createQuestionEvent)="addNewQuestion($event)" (createQuestionEventQuestionBank)="addNewQuestion($event)"></app-create-question>
+                    <app-create-question *ngIf="dialogState" (createQuestionEvent)="addNewQuestion($event)"></app-create-question>
                 </button>
 
                 <button class="submit-button" mat-raised-button color="accent" (click)="saveGame()">

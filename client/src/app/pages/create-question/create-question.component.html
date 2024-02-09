@@ -1,7 +1,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-<your-integrity-hash>" />
 
     <div class="question-border">
-        <form [formGroup]="questionForm" class="question-form" (ngSubmit)="onSubmit()" (ngSubmit)="onSubmitQuestionBank()">
+        <form [formGroup]="questionForm" class="question-form" (ngSubmit)="onSubmit()" >
             <mat-form-field class="full-width">
                 <mat-label class="question-label">Question</mat-label>
                 <input class="questionInput" matInput formControlName="text" placeholder="Entrez la question" />
@@ -60,11 +60,15 @@
     </div>
     
     <span class="add-to-banque-question-button">
-        <button mat-raised-button color="primary" class="button" type ="submit"  [disabled]="!questionForm.valid" (click)="onSubmitQuestionBank()">Ajouter à la banque</button>
+        <mat-slide-toggle color="primary" [disabled]="!questionForm.valid" (click)="onSubmitQuestionBank()" >Ajouter à la banque!</mat-slide-toggle>
+
     </span>
     
     
     <!-- 
+
+                <button mat-raised-button color="primary" class="button" type ="button"  [disabled]="!questionForm.valid" (click)="onSubmitQuestionBank()">Ajouter à la banque</button>
+
         formGroupName="choicesGroup"
     
                             *ngIf="$any(questionForm)?.choices?.controls"

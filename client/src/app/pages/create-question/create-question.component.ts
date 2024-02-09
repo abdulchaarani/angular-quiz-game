@@ -4,7 +4,7 @@ import { FormControl, Validators, FormBuilder, FormGroup, FormArray, AbstractCon
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 
-//import { GamesService } from '@app/services/games.service';
+// import { GamesService } from '@app/services/games.service';
 
 @Component({
     selector: 'app-create-question',
@@ -22,7 +22,7 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     private readonly snackBarDisplayTime = 2000;
     private readonly minChoices = 2;
     private readonly maxChoices = 4;
-    //private apiService: ApiService<Question>;
+    // private apiService: ApiService<Question>;
 
     onCancel(): void {
         this.cancelClicked.emit();
@@ -31,24 +31,15 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     // Reference for forms: https://stackblitz.com/edit/angular-nested-formarray-dynamic-forms?file=src%2Fapp%2Fapp.component.html
     // references for above code: https://stackoverflow.com/questions/67834802/template-error-type-abstractcontrol-is-not-assignable-to-type-formcontrol
 
-
     // Modify for this to only be accessible if we're modifying a question
     ngOnInit(): void {
-
-        //this.initializeForm();
+        // this.initializeForm();
 
         this.questionForm.valueChanges.subscribe((formValue) => {
-            
-            this.question.text = formValue.text;
-            this.question.points = formValue.points;
-            //this.quest
+            this.question.text = formValue?.text;
+            this.question.points = formValue?.points;
             this.question.lastModification = new Date().toLocaleDateString();
-            this.question.id = "5";
-            
-    
-            //console.log("choices",this.question.choices);
-          });
-
+        });
     }
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -58,28 +49,31 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     }
 
     private initializeForm(): void {
-        this.questionForm = this.fb.group({
-            text: ['', Validators.required],
-            points: ['', Validators.required],
-            type: ['QCM'],
-            choices: this.fb.array([
-                this.fb.group({
-                    text: ['', Validators.required], // change to text 
-                    isCorrect: [true, Validators.required],
-                }),
-                this.fb.group({
-                    text: ['', Validators.required],
-                    isCorrect: [false, Validators.required],
-                }),
-            ]),
-        });
+        this.questionForm = this.fb.group(
+            {
+                text: ['', Validators.required],
+                points: ['', Validators.required],
+                type: ['QCM'],
+                choices: this.fb.array([
+                    this.fb.group({
+                        text: ['', Validators.required],
+                        isCorrect: [true, Validators.required],
+                    }),
+                    this.fb.group({
+                        text: ['', Validators.required],
+                        isCorrect: [false, Validators.required],
+                    }),
+                ]),
+            },
+            { validators: this.validateChoicesLength },
+        );
     }
 
     private updateFormValues(): void {
         this.questionForm.patchValue({
-            text: this.question.text,
-            points: this.question.points,
-            types: this.question.type,
+            text: this.question?.text,
+            points: this.question?.points,
+            types: this.question?.type,
         });
 
         const choicesArray = this.questionForm.get('choices') as FormArray;
@@ -102,8 +96,7 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     constructor(
         private snackBar: MatSnackBar,
         private fb: FormBuilder, // https://stackoverflow.com/questions/53362983/angular-reactiveforms-nested-formgroup-within-formarray-no-control-found?rq=3
-    ) 
-    {
+    ) {
         this.initializeForm();
     }
 
@@ -115,25 +108,26 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     }
 
     validateChoicesLength(control: AbstractControl): ValidationErrors | null {
-        let isCorrectCount = 0;
-        let hasIncorrectCount = 0;
-
         const choices = control.get('choices') as FormArray;
 
-        for (let i = 0; i < choices?.length; i++) {
+        let hasCorrect = false;
+        let hasIncorrect = false;
+
+        for (let i = 0; i < choices.length; i++) {
             const isCorrect = choices.at(i).get('isCorrect')?.value;
 
             if (isCorrect === true) {
-                isCorrectCount += 1;
+                hasCorrect = true;
             } else if (isCorrect === false) {
-                hasIncorrectCount += 1;
+                hasIncorrect = true;
             }
-
-            //console.log('iscorrect', isCorrectCount);
-            //console.log('hasIncor', hasIncorrectCount);
         }
 
-        return isCorrectCount >= 1 && hasIncorrectCount >= 1 ? null : { invalidChoicesLength: true };
+        if (hasCorrect && hasIncorrect) {
+            return null;
+        } else {
+            return { invalidChoicesLength: true };
+        }
     }
 
     // https://stackoverflow.com/questions/39679637/angular-2-form-cannot-find-control-with-path
@@ -152,10 +146,6 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
         return this.questionForm.get('choices') as FormArray;
     }
 
-    get types(): FormArray {
-        return this.questionForm.get('types') as FormArray;
-    }
-
     removeChoice(index: number) {
         const choices = this.questionForm.get('choices') as FormArray;
 
@@ -170,7 +160,7 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     }
 
     drop(event: CdkDragDrop<this>) {
-        //const choices = this.questionForm.get('choices') as FormArray;
+        // const choices = this.questionForm.get('choices') as FormArray;
         moveItemInArray(this.choices.controls, event.previousIndex, event.currentIndex);
         this.updateChoiceNumbers();
     }
@@ -185,14 +175,14 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     onSubmit() {
         if (this.questionForm.valid) {
             const newQuestion: Question = this.questionForm.value;
-            //newQuestion.id =;
+            // newQuestion.id =;
             newQuestion.lastModification = new Date().toLocaleString();
             newQuestion.id = this.getRandomString();
             this.createQuestionEvent.emit(newQuestion);
         }
     }
 
-    BASE_36 = 36; 
+    BASE_36 = 36;
     getRandomString = (): string => (Math.random() + 1).toString(this.BASE_36).substring(2);
 
     getControls() {

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Game } from '@app/interfaces/game';
 import { GamesService } from '@app/services/games.service';
+import { MatchService } from '@app/services/match.service';
 import { NotificationService } from '@app/services/notification.service';
 
 @Component({
@@ -16,6 +17,7 @@ export class HostPageComponent implements OnInit {
     constructor(
         private gameService: GamesService,
         private notificationService: NotificationService,
+        private matchService: MatchService,
     ) {
         this.gameIsValid = false;
     }
@@ -34,7 +36,7 @@ export class HostPageComponent implements OnInit {
         this.gameService.getGameById(selectedGame.id).subscribe({
             next: (data: Game) => {
                 this.selectedGame = data;
-                this.validateGame(this.selectedGame);
+                this.validateGame(this.selectedGame)
             },
             error: () => {
                 const snackBarRef = this.notificationService.displayErrorMessageAction("Le jeu sélectionné n'existe plus", 'Actualiser');
@@ -48,6 +50,8 @@ export class HostPageComponent implements OnInit {
     validateGame(selectedGame: Game): void {
         if (selectedGame.isVisible) {
             this.gameIsValid = true;
+            this.matchService.currentGame = selectedGame;
+            this.matchService.saveBackupGame(selectedGame.id).subscribe();
         } else {
             const snackBarRef = this.notificationService.displayErrorMessageAction("Le jeu sélectionné n'est plus visible", 'Actualiser');
             snackBarRef.onAction().subscribe(() => {

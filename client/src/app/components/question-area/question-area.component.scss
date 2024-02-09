@@ -62,6 +62,12 @@
     font-size: 125%;
     color: #777777;
 }
+#bonus-points {
+    font-size: 150%;
+    margin-top: 10px;
+    color: #4caf50;
+}
+
 #choice-area {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -164,6 +170,16 @@ button.answer.selected {
     background-color: #bebebe;
     color: white;
     transform: scale(0.96);
+}
+
+.answer.correct {
+    background-color: #4caf50;
+    color: white;
+}
+
+.answer.incorrect {
+    background-color: #f44336;
+    color: white;
 }
 
 #feedback + #nextButton {

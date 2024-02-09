@@ -46,6 +46,18 @@ describe('GamesController', () => {
         await controller.allGames(res);
     });
 
+    it('allGames() should return NOT_FOUND when service is unable to fetch the games', async () => {
+        gameService.getAllGames.rejects();
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.NOT_FOUND);
+            return res;
+        };
+        res.send = () => res;
+
+        await controller.allGames(res);
+    });
+
     it('gameById() should return the game with the corresponding ID', async () => {
         const fakeGame = new Game();
         gameService.getGameById.resolves(fakeGame);

@@ -15,6 +15,7 @@ import { Game, gameSchema } from './model/database/game';
 import { Question, questionSchema } from './model/database/question';
 import { GameValidationService } from './services/game-validation/game-validation.service';
 import { GameService } from './services/game/game.service';
+import { MatchService } from './services/match/match.service';
 import { QuestionService } from './services/question/question.service';
 
 @Module({
@@ -33,6 +34,6 @@ import { QuestionService } from './services/question/question.service';
         AuthModule,
     ],
     controllers: [DateController, ExampleController, QuestionController, GameController, MatchController],
-    providers: [ChatGateway, DateService, ExampleService, Logger, QuestionService, GameService, GameValidationService],
+    providers: [ChatGateway, DateService, ExampleService, Logger, QuestionService, GameService, GameValidationService, MatchService],
 })
 export class AppModule {}

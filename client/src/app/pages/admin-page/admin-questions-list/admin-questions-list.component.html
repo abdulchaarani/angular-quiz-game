@@ -1,6 +1,6 @@
 <div class="main-container" [class.sidenav-active]="isSideBarActive">
     <mat-drawer-container class="example-container" autosize>
-        <!-- <mat-card *ngIf="!isValid" class="create-new-game">
+        <mat-card *ngIf="!isValid" class="create-new-game">
             <div class="top-page">
                 <h2>Creation d'un nouveau jeu</h2>
             </div>
@@ -35,7 +35,7 @@
 
                 <button class="button" type="submit" [disabled]="gameForm.invalid">Creer</button>
             </form>
-        </mat-card> -->
+        </mat-card>
 
         <mat-card *ngIf="isValid">
             <div class="top-page">

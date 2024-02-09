@@ -1,5 +1,5 @@
 import { CdkDragDrop, CdkDragEnd, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, EventEmitter, Output } from '@angular/core';
 import { Game } from '@app/interfaces/game';
 import { Question } from '@app/interfaces/question';
@@ -126,13 +126,12 @@ export class AdminQuestionsListComponent implements OnInit {
     }
 
     saveGame() {
-        this.gamesService.replaceGame(this.game).subscribe((response: HttpResponse<string>) => {
-            () => {
-                this.response = 'Game saved';
-            };
-            (error: HttpErrorResponse) => {
-                this.response = 'Game not saved';
-            };
+        this.gamesService.replaceGame(this.game).subscribe({
+            next: () => {
+                this.notificationService.displaySuccessMessage('Jeux modifié avec succès! 😺');
+            },
+            error: (error: HttpErrorResponse) =>
+                this.notificationService.displayErrorMessage(`Le jeu n'a pas pu être modifié. 😿 \n ${error.message}`),
         });
     }
 

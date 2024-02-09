@@ -57,7 +57,7 @@ export class AdminQuestionBankComponent implements OnInit {
                 this.notificationService.displaySuccessMessage('Question ajoutée avec succès! 😺');
             },
             error: (error: HttpErrorResponse) =>
-                this.notificationService.displayErrorMessage(`La question n'a pas pu être supprimée. 😿 \n ${error.message}`),
+                this.notificationService.displayErrorMessage(`La question n'a pas pu être ajoutée. 😿 \n ${error.message}`),
         });
     }
 }

@@ -1,4 +1,4 @@
-import { CdkDragDrop, CdkDragEnd, copyArrayItem, moveItemInArray } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, CdkDragEnd, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Component, OnInit, EventEmitter, Output } from '@angular/core';
 import { Game } from '@app/interfaces/game';
@@ -12,6 +12,7 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { GamesCreationService } from '@app/services/games-creation.service';
 import { NotificationService } from '@app/services/notification.service';
 import { DialogConfirmComponent } from '@app/components/dialog-confirm/dialog-confirm.component';
+import { concatMap } from 'rxjs';
 
 @Component({
     selector: 'app-admin-questions-list',
@@ -37,14 +38,12 @@ export class AdminQuestionsListComponent implements OnInit {
     dialogState: boolean = false;
     isValid: boolean = false;
 
-    dialogRef: any;
-
     bankMessages = {
         unavailable: "👀 Aucune autre question valide de la banque n'est disponible! 👀",
         available: '🖐 Glissez et déposez une question de la banque dans le jeu! 🖐',
     };
 
-    currentQuestion: string = '';
+    currentQuestion: Question;
     currentBankMessage = '';
 
     gameEditForm = this.formBuilder.nonNullable.group({
@@ -74,23 +73,27 @@ export class AdminQuestionsListComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.route.params.subscribe((params) => {
-            const id = params['id'];
-            this.gamesService.getGameById(id).subscribe((game: Game) => {
-                this.game = game;
-                this.isValid = true;
+        this.route.params
+            .pipe(
+                concatMap((params) => {
+                    const id = params['id'];
+                    return this.gamesService.getGameById(id);
+                }),
+                concatMap((game: Game) => {
+                    this.game = game;
+                    this.isValid = true;
+                    return this.questionService.getAllQuestions();
+                }),
+            )
+            .subscribe({
+                next: (data: Question[]) => {
+                    this.originalBankQuestions = [...data];
+                    this.bankQuestions = this.filterBankQuestions(this.originalBankQuestions, this.game.questions);
+                    this.setBankMessage();
+                },
+                error: (error: HttpErrorResponse) =>
+                    this.notificationService.displayErrorMessage(`Échec d'obtention des questions 😿\n ${error.message}`),
             });
-        });
-
-        this.questionService.getAllQuestions().subscribe({
-            next: (data: Question[]) => {
-                this.originalBankQuestions = [...data];
-                this.bankQuestions = this.filterBankQuestions(this.originalBankQuestions, this.game.questions);
-                this.setBankMessage();
-            },
-            error: (error: HttpErrorResponse) =>
-                this.notificationService.displayErrorMessage(`Échec d'obtention des questions 😿\n ${error.message}`),
-        });
     }
 
     changeDuration(event: Event) {
@@ -149,14 +152,14 @@ export class AdminQuestionsListComponent implements OnInit {
     // https://stackoverflow.com/questions/47592364/usage-of-mat-dialog-close
     openCreateQuestionDialog() {
         if (!this.dialogState) {
-            this.dialogRef = this.dialog.open(CreateQuestionComponent, {
+            const dialogRef = this.dialog.open(CreateQuestionComponent, {
                 height: '70%',
                 width: '100%',
             });
-            this.dialogRef.componentInstance.createQuestionEvent.subscribe((newQuestion: Question) => {
+            dialogRef.componentInstance.createQuestionEvent.subscribe((newQuestion: Question) => {
                 if (newQuestion) {
                     this.addNewQuestion(newQuestion);
-                    this.dialogRef.close();
+                    dialogRef.close();
                 }
 
                 this.dialogState = false;
@@ -166,10 +169,24 @@ export class AdminQuestionsListComponent implements OnInit {
 
     openConfirmDialog(): void {
         const dialogRef = this.dialog.open(DialogConfirmComponent, {
-            data: { text: this.currentQuestion },
+            data: { text: this.currentQuestion.text },
         });
 
-        dialogRef.afterClosed().subscribe();
+        dialogRef.afterClosed().subscribe((confirm: boolean) => {
+            if (!confirm) return;
+
+            if (!this.isDuplicateQuestion(this.currentQuestion, this.originalBankQuestions)) {
+                this.questionService.createQuestion(this.currentQuestion).subscribe({
+                    next: () => {
+                        this.notificationService.displaySuccessMessage('Question ajoutée à la banque avec succès! 😺');
+                    },
+                    error: (error: HttpErrorResponse) =>
+                        this.notificationService.displayErrorMessage(`La question n'a pas pu être ajoutée. 😿 \n ${error.message}`),
+                });
+            } else {
+                this.notificationService.displayErrorMessage('Cette question fait déjà partie de la banque! 😾');
+            }
+        });
     }
 
     dropInQuizList(event: CdkDragDrop<Question[]>) {
@@ -177,24 +194,21 @@ export class AdminQuestionsListComponent implements OnInit {
         if (event.previousContainer === event.container) {
             moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
         } else if (!this.isDuplicateQuestion(question, this.game.questions)) {
-            copyArrayItem(event.previousContainer.data, event.container.data, event.previousIndex, event.currentIndex);
-            console.log('YIPEE');
-            this.bankQuestions.splice(event.previousIndex, 1);
+            transferArrayItem(event.previousContainer.data, event.container.data, event.previousIndex, event.currentIndex);
             this.setBankMessage();
         } else {
-            this.notificationService.displayErrorMessage('Cette question fait déjà partie du jeu!');
+            this.notificationService.displayErrorMessage('Cette question fait déjà partie du jeu! 😾');
         }
     }
 
     dragQuizQuestion(question: Question) {
-        this.currentQuestion = question.text;
+        this.currentQuestion = question;
     }
 
     dropQuizQuestion(event: CdkDragEnd<Question[]>) {
         const destination = event.event.target as HTMLInputElement;
         const container = destination.closest('mat-drawer');
         if (container) this.openConfirmDialog();
-        this.currentQuestion = '';
     }
 
     dragBankQuestion(): void {

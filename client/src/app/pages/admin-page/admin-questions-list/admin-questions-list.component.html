@@ -91,30 +91,28 @@
                 <h3 class="">👇 Déposez la question dans la liste! 👇</h3>
             </div>
 
-            <mat-accordion class="question-list">
-                <div
-                    id="quiz-questions"
-                    class="list game-questions-list"
-                    cdkDropList
-                    [cdkDropListData]="game.questions"
-                    cdkDropListConnectedTo="bank-questions"
-                    (cdkDropListDropped)="dropInQuizList($event)"
+            <mat-accordion
+                id="quiz-questions"
+                class="list game-questions-list"
+                cdkDropList
+                [cdkDropListData]="game.questions"
+                cdkDropListConnectedTo="bank-questions"
+                (cdkDropListDropped)="dropInQuizList($event)"
+            >
+                <app-question-list-item
+                    class="question game-question"
+                    *ngFor="let question of game.questions"
+                    [index]="game.questions.indexOf(question) + 1"
+                    [question]="question"
+                    [isEditable]="true"
+                    [isLastModifiedDateVisible]="true"
+                    (deleteQuestionEvent)="deleteQuestion($event)"
+                    (cdkDragStarted)="dragQuizQuestion(question)"
+                    (cdkDragEnded)="dropQuizQuestion($event)"
+                    cdkDrag
                 >
-                    <app-question-list-item
-                        class="question game-question"
-                        *ngFor="let question of game.questions"
-                        [index]="game.questions.indexOf(question) + 1"
-                        [question]="question"
-                        [isEditable]="true"
-                        [isLastModifiedDateVisible]="true"
-                        (deleteQuestionEvent)="deleteQuestion($event)"
-                        (cdkDragStarted)="dragQuizQuestion(question)"
-                        (cdkDragEnded)="dropQuizQuestion($event)"
-                        cdkDrag
-                    >
-                        <div cdkDragHandle></div>
-                    </app-question-list-item>
-                </div>
+                    <div cdkDragHandle></div>
+                </app-question-list-item>
             </mat-accordion>
         </mat-card>
 

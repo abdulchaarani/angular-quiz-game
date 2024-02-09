@@ -87,7 +87,7 @@ describe('AdminQuestionBankComponent', () => {
 
         const dom = fixture.nativeElement;
 
-        const emptyBankCard = dom.querySelector('.empty-bank-card');
+        const emptyBankCard = dom.querySelector('.empty-list-card');
         expect(emptyBankCard).toBeTruthy();
     });
 

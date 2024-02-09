@@ -35,7 +35,6 @@ export class AdminPageComponent implements OnInit {
         });
     }
 
-    // TODO: Debug: if a new game is added from JSON, it can't be interacted with.
     addGame(newGame: Game): void {
         this.gamesService.uploadGame(newGame).subscribe({
             next: (response: HttpResponse<string>) => {
@@ -43,11 +42,10 @@ export class AdminPageComponent implements OnInit {
                     newGame = JSON.parse(response.body);
                 }
                 newGame.isVisible = false;
-                this.games.push(newGame); // This game doesn't have the right ID!
+                this.games.push(newGame);
                 this.notificationService.displaySuccessMessage('Jeu ajouté avec succès! 😺');
             },
-            error: (error: HttpErrorResponse) =>
-                this.notificationService.displayErrorMessage(`Le jeu n'a pas pu être supprimé. 😿 \n ${error.message}`),
+            error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`Le jeu n'a pas pu être ajouté. 😿 \n ${error}`),
         });
     }
 
@@ -57,6 +55,7 @@ export class AdminPageComponent implements OnInit {
         // Reference: https://stackoverflow.com/questions/43176560/property-files-does-not-exist-on-type-eventtarget-error-in-typescript
         const target = event.target as HTMLInputElement;
         const file: File = (target.files as FileList)[0];
+
         if (file) {
             // Reference: https://stackoverflow.com/questions/47581687/read-a-file-and-parse-its-content
             const fileReader = new FileReader();

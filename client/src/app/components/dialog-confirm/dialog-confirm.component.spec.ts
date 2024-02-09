@@ -1,21 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { DialogAdminPasswordComponent } from './dialog-admin-password.component';
+import { DialogConfirmComponent } from './dialog-confirm.component';
 
-describe('DialogAdminPasswordComponent', () => {
-    let component: DialogAdminPasswordComponent;
-    let fixture: ComponentFixture<DialogAdminPasswordComponent>;
-    const matDialogSpy = jasmine.createSpyObj('MatDialogRef', ['close']);
+describe('DialogConfrimComponent', () => {
+    let component: DialogConfirmComponent;
+    let fixture: ComponentFixture<DialogConfirmComponent>;
 
     beforeEach(() => {
         TestBed.configureTestingModule({
             imports: [MatDialogModule],
-            declarations: [DialogAdminPasswordComponent],
+            declarations: [DialogConfirmComponent],
             providers: [
                 {
                     provide: MatDialogRef,
-                    useValue: matDialogSpy,
+                    useValue: {},
                 },
                 {
                     provide: MAT_DIALOG_DATA,
@@ -23,17 +22,12 @@ describe('DialogAdminPasswordComponent', () => {
                 },
             ],
         }).compileComponents();
-        fixture = TestBed.createComponent(DialogAdminPasswordComponent);
+        fixture = TestBed.createComponent(DialogConfirmComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
 
     it('should create', () => {
         expect(component).toBeTruthy();
-    });
-
-    it('onNoClick() should close the dialog component', () => {
-        component.onNoClick();
-        expect(matDialogSpy.close).toHaveBeenCalled();
     });
 });

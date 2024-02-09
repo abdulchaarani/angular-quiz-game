@@ -1,0 +1,6 @@
+<h1 mat-dialog-title>Êtes-vous certain de vouloir ajouter cette question à la banque de questions?</h1>
+<div mat-dialog-content>{{ data.text }}</div>
+<div mat-dialog-actions>
+    <button mat-button (click)="onCancel()">Annuler</button>
+    <button mat-button cdkFocusInitial (click)="onConfirm()">OK</button>
+</div>

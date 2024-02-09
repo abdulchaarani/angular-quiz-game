@@ -12,7 +12,7 @@ export class MatchController {
             const allVisibleGames = await this.matchService.getAllVisibleGames();
             response.status(HttpStatus.OK).json(allVisibleGames);
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send({ message: error });
+            response.status(HttpStatus.NOT_FOUND).send({ message: error.message });
         }
     }
 
@@ -22,22 +22,22 @@ export class MatchController {
             const game = await this.matchService.getGameById(gameId);
             response.status(HttpStatus.OK).json(game);
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send({ message: error });
+            response.status(HttpStatus.NOT_FOUND).send({ message: error.message });
         }
     }
 
-    @Get('/games/:gameId/questions/:questionId/choices')
+    @Get('/backups/:gameId/questions/:questionId/choices')
     async allChoices(@Param('gameId') gameId: string, @Param('questionId') questionId: string, @Res() response: Response) {
         try {
             const choices = await this.matchService.getChoices(gameId, questionId);
             response.status(HttpStatus.OK).json(choices);
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send({ message: error });
+            response.status(HttpStatus.NOT_FOUND).send({ message: error.message });
         }
     }
 
     // TODO: Add DTO for Body which would contain a list of choices
-    @Post('/games/:gameId/questions/:questionId/validate-choice')
+    @Post('/backups/:gameId/questions/:questionId/validate-choice')
     async validatePlayerChoice(
         @Param('gameId') gameId: string,
         @Param('questionId') questionId: string,
@@ -48,7 +48,7 @@ export class MatchController {
             const isValidChoice = await this.matchService.validatePlayerChoice(gameId, questionId, choicesDto.selected);
             response.status(HttpStatus.OK).json(isValidChoice);
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send({ message: error });
+            response.status(HttpStatus.NOT_FOUND).send({ message: error.message });
         }
     }
 
@@ -57,7 +57,7 @@ export class MatchController {
         try {
             const backup = await this.matchService.getBackupGame(gameId);
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send({ message: error });
+            response.status(HttpStatus.NOT_FOUND).send({ message: error.message });
         }
     }
 
@@ -67,7 +67,7 @@ export class MatchController {
             const game = await this.matchService.saveGameBackup(gameId);
             response.status(HttpStatus.CREATED).json(game);
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send({ message: error });
+            response.status(HttpStatus.NOT_FOUND).send({ message: error.message });
         }
     }
 
@@ -77,7 +77,7 @@ export class MatchController {
             await this.matchService.deleteGameBackup(gameId);
             response.status(HttpStatus.NO_CONTENT).send();
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send({ message: error });
+            response.status(HttpStatus.NOT_FOUND).send({ message: error.message });
         }
     }
 }

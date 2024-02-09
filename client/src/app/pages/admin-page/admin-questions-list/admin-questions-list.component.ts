@@ -97,7 +97,8 @@ export class AdminQuestionsListComponent implements OnInit {
                     }
                 }
             });
-        this.route.params.subscribe((params) => {
+        this.route.params
+            .subscribe((params) => {
                 const id = params['id'];
                 if (id === 'new') {
                     this.newGame = true;
@@ -118,7 +119,8 @@ export class AdminQuestionsListComponent implements OnInit {
             this.gamesCreationService
                 .createGame(this.gameForm.value.title, this.gameForm.value.description, parseInt(this.gameForm.value.duration), this.game.questions)
                 .subscribe((gameId: string) => {
-                    this.router.navigate([`/admin/games/${gameId}/questions`]);
+                    console.log(gameId);
+                    this.router.navigate([`/admin/games/`]);
                 });
         }
     }

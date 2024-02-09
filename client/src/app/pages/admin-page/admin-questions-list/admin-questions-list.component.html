@@ -1,8 +1,8 @@
 <div class="main-container" [class.sidenav-active]="isSideBarActive">
     <mat-drawer-container class="example-container" autosize>
         <p *ngIf="!isValid && !newGame">
-            JEU INTROUVABLE.
-            <a routerLink="/admin/games">Voir tous les jeux</a>
+            <app-admin-page>
+            </app-admin-page>
         </p>
         <mat-card *ngIf="!isValid && newGame" class="create-new-game">
             <div class="top-page">

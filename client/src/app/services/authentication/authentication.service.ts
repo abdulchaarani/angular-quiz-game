@@ -1,5 +1,5 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { NotificationService } from '../notification.service';
@@ -40,15 +40,3 @@ export class AuthenticationService {
         return this.isAuthenticated;
     }
 }
-
-export const AuthGuard = () => {
-    const auth = inject(AuthenticationService);
-    const router = inject(Router);
-    const notificationService = inject(NotificationService);
-    if (!auth.getIsAuthenticated()) {
-        router.navigateByUrl('/home');
-        notificationService.displayErrorMessage('Accès refusé: Veillez vous connecter avec le bon mot de passe.');
-        return false;
-    }
-    return true;
-};

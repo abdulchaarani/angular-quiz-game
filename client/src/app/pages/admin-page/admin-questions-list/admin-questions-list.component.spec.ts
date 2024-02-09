@@ -6,6 +6,8 @@ import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 import { Game } from '@app/interfaces/game';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SortByLastModificationPipe } from '@app/pipes/sort-by-last-modification.pipe';
 
 describe('AdminQuestionsListComponent', () => {
     let component: AdminQuestionsListComponent;
@@ -51,11 +53,12 @@ describe('AdminQuestionsListComponent', () => {
         ]);
         TestBed.configureTestingModule({
             imports: [HttpClientModule],
-            declarations: [AdminQuestionsListComponent],
+            declarations: [AdminQuestionsListComponent, SortByLastModificationPipe],
             providers: [
                 { provide: GamesService, useValue: gamesServiceSpy },
                 { provide: ActivatedRoute, useValue: route },
                 { provide: MatDialog, useValue: {} },
+                { provide: MatSnackBar, useValue: {} },
             ],
         });
         fixture = TestBed.createComponent(AdminQuestionsListComponent);
@@ -108,10 +111,9 @@ describe('AdminQuestionsListComponent', () => {
         component.deleteQuestion(questionToDeleteId);
         expect(component.game.questions.length).toBe(mockGame.questions.length);
     });
-    
+
     // it('should be able to save the game', () => {
     //     component.saveGame();
     //     expect(gamesServiceSpy.replaceGame).toHaveBeenCalledWith(component.game);
     // });
-
 });

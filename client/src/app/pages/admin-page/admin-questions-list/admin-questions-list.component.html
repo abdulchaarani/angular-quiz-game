@@ -43,8 +43,9 @@
                 <h2>Description: {{ game.description }}</h2>
             </div>
 
-            <!-- <button mat-raised-button color="basic" routerLink="/admin/games" id="admin-back-button">Retour</button>
+            <button mat-raised-button color="basic" routerLink="/admin/games" id="admin-back-button">Retour</button>
 
+            <div class="edit-form-container">
                 <form [formGroup]="gameEditForm" class="edit-informations-form" (ngSubmit)="onSubmit()">
                     <mat-form-field class="edit-title">
                         <mat-label>Titre</mat-label>
@@ -57,9 +58,15 @@
                     </mat-form-field>
 
                     <button class="button" type="submit" [disabled]="gameEditForm.invalid">Enregistrer</button>
-                </form> -->
+                </form>
+            </div>
 
             <div class="buttons-container">
+                <button mat-raised-button color="primary" (click)="openCreateQuestionDialog()" id="admin-create-question-button">
+                    <mat-icon>add</mat-icon>Ajouter une nouvelle question
+                    <app-create-question *ngIf="dialogState" (createQuestionEvent)="addNewQuestion($event)"></app-create-question>
+                </button>
+
                 <button class="submit-button" mat-raised-button color="accent" (click)="saveGame()">
                     <mat-icon>done</mat-icon> Appliquer les modifications
                 </button>
@@ -80,32 +87,35 @@
                 </mat-card-content>
             </mat-card>
 
-            <mat-accordion class="admin-questions-list question-list">
-                <div cdkDropList class="" (cdkDropListDropped)="drop($event)">
-                    <div cdkDropList class="questions-list" (cdkDropListDropped)="drop($event)">
-                        <app-question-list-item
-                            *ngFor="let question of game.questions"
-                            [index]="game.questions.indexOf(question) + 1"
-                            [question]="question"
-                            [isEditable]="true"
-                            [isLastModifiedDateVisible]="true"
-                            (deleteQuestionEvent)="deleteQuestion($event)"
-                            cdkDragHandle
-                        >
-                        </app-question-list-item>
-                    </div>
-                    <div class="add-button-container">
-                        <button class="add-question-button" mat-raised-button color="basic" (click)="openDialog()" id="admin-create-question-button">
-                            <mat-icon>add</mat-icon>
-                            <app-create-question *ngIf="dialogState" (createQuestionEvent)="addNewQuestion($event)"></app-create-question>
-                        </button>
-                    </div>
+            <div class="drop-destination" [class.visible]="isBankQuestionDragged">
+                <h3 class="">👇 Déposez la question dans la liste! 👇</h3>
+            </div>
+
+            <mat-accordion class="question-list">
+                <div
+                    id="quiz-questions"
+                    class="list game-questions-list"
+                    cdkDropList
+                    [cdkDropListData]="game.questions"
+                    cdkDropListConnectedTo="bank-questions"
+                    (cdkDropListDropped)="dropInQuizList($event)"
+                >
+                    <app-question-list-item
+                        class="question game-question"
+                        *ngFor="let question of game.questions"
+                        [index]="game.questions.indexOf(question) + 1"
+                        [question]="question"
+                        [isEditable]="true"
+                        [isLastModifiedDateVisible]="true"
+                        (deleteQuestionEvent)="deleteQuestion($event)"
+                        (cdkDragStarted)="dragQuizQuestion(question)"
+                        (cdkDragEnded)="dropQuizQuestion($event)"
+                        cdkDrag
+                    >
+                        <div cdkDragHandle></div>
+                    </app-question-list-item>
                 </div>
             </mat-accordion>
-
-            <button class="submit-button" mat-raised-button color="basic" (click)="saveGame()">
-                <mat-icon>done</mat-icon>
-            </button>
         </mat-card>
 
         <mat-drawer #drawer class="example-sidenav" mode="side" position="end" id="test">

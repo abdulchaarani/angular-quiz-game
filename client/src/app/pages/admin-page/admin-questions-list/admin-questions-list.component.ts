@@ -6,12 +6,12 @@ import { Question } from '@app/interfaces/question';
 import { CreateQuestionComponent } from '@app/pages/create-question/create-question.component';
 import { GamesService } from '@app/services/games.service';
 import { QuestionService } from '@app/services/question.service';
-import { ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { FormBuilder, Validators } from '@angular/forms';
 import { GamesCreationService } from '@app/services/games-creation.service';
-import { Router } from '@angular/router';
 import { NotificationService } from '@app/services/notification.service';
+import { DialogConfirmComponent } from '@app/components/dialog-confirm/dialog-confirm.component';
 
 @Component({
     selector: 'app-admin-questions-list',
@@ -118,6 +118,8 @@ export class AdminQuestionsListComponent implements OnInit {
             return;
         }
         this.game.questions = this.game.questions.filter((question: Question) => question.id !== questionId);
+        this.bankQuestions = this.filterBankQuestions(this.originalBankQuestions, this.game.questions);
+        this.setBankMessage();
     }
 
     saveGame() {
@@ -145,7 +147,7 @@ export class AdminQuestionsListComponent implements OnInit {
     }
 
     // https://stackoverflow.com/questions/47592364/usage-of-mat-dialog-close
-    openDialog() {
+    openCreateQuestionDialog() {
         if (!this.dialogState) {
             this.dialogRef = this.dialog.open(CreateQuestionComponent, {
                 height: '70%',
@@ -162,12 +164,21 @@ export class AdminQuestionsListComponent implements OnInit {
         }
     }
 
+    openConfirmDialog(): void {
+        const dialogRef = this.dialog.open(DialogConfirmComponent, {
+            data: { text: this.currentQuestion },
+        });
+
+        dialogRef.afterClosed().subscribe();
+    }
+
     dropInQuizList(event: CdkDragDrop<Question[]>) {
         const question: Question = event.previousContainer.data[event.previousIndex];
         if (event.previousContainer === event.container) {
             moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
         } else if (!this.isDuplicateQuestion(question, this.game.questions)) {
             copyArrayItem(event.previousContainer.data, event.container.data, event.previousIndex, event.currentIndex);
+            console.log('YIPEE');
             this.bankQuestions.splice(event.previousIndex, 1);
             this.setBankMessage();
         } else {
@@ -182,7 +193,7 @@ export class AdminQuestionsListComponent implements OnInit {
     dropQuizQuestion(event: CdkDragEnd<Question[]>) {
         const destination = event.event.target as HTMLInputElement;
         const container = destination.closest('mat-drawer');
-        if (container) this.openDialog();
+        if (container) this.openConfirmDialog();
         this.currentQuestion = '';
     }
 

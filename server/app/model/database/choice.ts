@@ -8,7 +8,6 @@ export class Choice {
     @Prop({ required: true })
     text: string;
 
-    @Prop({ default: false })
     isCorrect?: boolean;
 }
 

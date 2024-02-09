@@ -1,17 +1,20 @@
 import { GameService } from '@app/services/game/game.service';
+import { MatchService } from '@app/services/match/match.service';
 import { Body, Controller, Get, HttpStatus, Param, Post, Res } from '@nestjs/common';
 import { Response } from 'express';
 
 @Controller('match')
 export class MatchController {
-    // TODO: Check Mandela effect: do we have to keep a temporary save of the game if the game is deleted while being played by someone?
-    constructor(private readonly gameService: GameService) {}
+    constructor(
+        private readonly gameService: GameService,
+        private readonly matchService: MatchService,
+    ) {}
 
     @Get('/games')
     async allVisibleGames(@Res() response: Response) {
         try {
             // TODO: Is Correct ?
-            const allVisibleGames = await this.gameService.getAllVisibleGames();
+            const allVisibleGames = await this.matchService.getAllVisibleGames();
             response.status(HttpStatus.OK).json(allVisibleGames);
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send({ message: error });
@@ -22,7 +25,7 @@ export class MatchController {
     async gameById(@Param('gameId') gameId: string, @Res() response: Response) {
         try {
             // TODO: IsCorrect ?
-            const game = await this.gameService.getGameById(gameId);
+            const game = await this.matchService.getGameById(gameId);
             response.status(HttpStatus.OK).json(game);
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send({ message: error });
@@ -32,7 +35,7 @@ export class MatchController {
     @Get('/games/:gameId/questions/:questionId/choices')
     async allChoices(@Param('gameId') gameId: string, @Param('questionId') questionId: string, @Res() response: Response) {
         try {
-            const choices = await this.gameService.getChoices(gameId, questionId);
+            const choices = await this.matchService.getChoices(gameId, questionId);
             response.status(HttpStatus.OK).json(choices);
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send({ message: error });
@@ -48,7 +51,7 @@ export class MatchController {
         @Res() response: Response,
     ) {
         try {
-            const isValidChoice = await this.gameService.validatePlayerChoice(gameId, questionId, choicesDto.selected);
+            const isValidChoice = await this.matchService.validatePlayerChoice(gameId, questionId, choicesDto.selected);
             response.status(HttpStatus.OK).json(isValidChoice);
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send({ message: error });

@@ -23,6 +23,7 @@ export class HomePageComponent {
         dialogRef.afterClosed().subscribe((result) => {
             this.password = result;
             this.authenticationService.validatePassword(this.username, this.password);
+            this.password = '';
         });
     }
 }

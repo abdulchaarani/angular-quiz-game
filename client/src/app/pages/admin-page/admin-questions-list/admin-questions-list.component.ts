@@ -18,6 +18,7 @@ import { concatMap, iif } from 'rxjs';
 })
 export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
     @Output() createQuestionEvent: EventEmitter<Question> = new EventEmitter<Question>();
+    @Output() createQuestionEventQuestionBank: EventEmitter<Question> = new EventEmitter<Question>();
 
     game: Game = {
         id: '',
@@ -29,6 +30,7 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
         questions: [],
     };
 
+    response: string = '';
     state: string = '';
     originalBankQuestions: Question[] = [];
     bankQuestions: Question[] = [];
@@ -89,7 +91,6 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
             },
         });
     }
-
     changeDuration(event: Event) {
         this.game.duration = Number((event.target as HTMLInputElement).value);
     }
@@ -157,7 +158,6 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
                     this.addNewQuestion(newQuestion);
                     dialogRef.close();
                 }
-                this.dialogState = false;
             });
         }
     }

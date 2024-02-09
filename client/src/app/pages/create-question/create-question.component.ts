@@ -4,6 +4,7 @@ import { FormControl, Validators, FormBuilder, FormGroup, FormArray, AbstractCon
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { QuestionService } from '@app/services/question.service';
+// import { AdminQuestionBankComponent } from '../admin-page/admin-question-bank/admin-question-bank.component';
 
 // import { GamesService } from '@app/services/games.service';
 
@@ -36,7 +37,6 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     // Modify for this to only be accessible if we're modifying a question
     ngOnInit(): void {
         // this.initializeForm();
-
         this.questionForm.valueChanges.subscribe((formValue) => {
             this.question.text = formValue?.text;
             this.question.points = formValue?.points;
@@ -68,6 +68,7 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
                 ]),
             },
             { validators: this.validateChoicesLength },
+            
         );
     }
 
@@ -172,17 +173,12 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     onSubmitQuestionBank() {
         if (this.questionForm.valid) {
             const newQuestion: Question = this.questionForm.value;
-            this.questionService.createQuestion(newQuestion).subscribe({
-                next: () => {
-                    //this.questions.unshift(newQuestion);
-                    //this.notificationService.displaySuccessMessage('Question ajoutée avec succès! 😺');
-                },
-                // error: (error: HttpErrorResponse) =>
-                //     this.notificationService.displayErrorMessage(`La question n'a pas pu être supprimée. 😿 \n ${error.message}`),
-            });
+            newQuestion.id = this.getRandomString();
+            this.questionService.createQuestion(newQuestion);
 
+            // this.questionService.createQuestion(newQuestion).subscribe((newQuestion: Question) => {
+            // });
             this.createQuestionEventQuestionBank.emit(newQuestion);
-            //console.log(newQuestion);
         }
     }
 

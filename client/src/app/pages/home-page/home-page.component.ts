@@ -12,7 +12,7 @@ export class HomePageComponent {
     username: string = 'admin';
     password: string;
     constructor(
-        public dialog: MatDialog,
+        private dialog: MatDialog,
         private readonly authenticationService: AuthenticationService,
     ) {}
     openDialog(): void {

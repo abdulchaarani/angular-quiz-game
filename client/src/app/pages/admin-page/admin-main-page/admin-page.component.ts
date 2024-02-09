@@ -1,5 +1,7 @@
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogRenameGameComponent } from '@app/components/dialog-rename-game/dialog-rename-game.component';
 import { Game } from '@app/interfaces/game';
 import { GamesService } from '@app/services/games.service';
 import { NotificationService } from '@app/services/notification.service';
@@ -13,6 +15,7 @@ export class AdminPageComponent implements OnInit {
     games: Game[] = [];
 
     constructor(
+        private dialog: MatDialog,
         private readonly gamesService: GamesService,
         private readonly notificationService: NotificationService,
     ) {}
@@ -45,7 +48,13 @@ export class AdminPageComponent implements OnInit {
                 this.games.push(newGame);
                 this.notificationService.displaySuccessMessage('Jeu ajouté avec succès! 😺');
             },
-            error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`Le jeu n'a pas pu être ajouté. 😿 \n ${error}`),
+            error: (error: HttpErrorResponse) => {
+                if (error.message == 'Requête add\n Un jeu du même titre existe déjà.') {
+                    this.openDialog(newGame);
+                } else {
+                    this.notificationService.displayErrorMessage(`Le jeu n'a pas pu être ajouté. 😿 \n ${error}`);
+                }
+            },
         });
     }
 
@@ -68,5 +77,16 @@ export class AdminPageComponent implements OnInit {
             };
             fileReader.readAsText(file);
         }
+    }
+
+    openDialog(newGame: Game): void {
+        const dialogRef = this.dialog.open(DialogRenameGameComponent, {
+            data: '',
+        });
+
+        dialogRef.afterClosed().subscribe((result) => {
+            newGame.title = result;
+            this.addGame(newGame);
+        });
     }
 }

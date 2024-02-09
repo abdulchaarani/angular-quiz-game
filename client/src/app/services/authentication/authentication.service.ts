@@ -32,7 +32,10 @@ export class AuthenticationService {
                     this.isAuthenticated = true;
                     this.router.navigate(['/admin/games']);
                 },
-                error: () => this.notificationService.displayErrorMessage(`Le mot de passe est invalide.`),
+                error: () => {
+                    this.isAuthenticated = false;
+                    this.notificationService.displayErrorMessage(`Le mot de passe est invalide.`);
+                },
             });
     }
 

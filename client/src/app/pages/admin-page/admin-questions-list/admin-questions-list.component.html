@@ -1,6 +1,10 @@
 <div class="main-container" [class.sidenav-active]="isSideBarActive">
     <mat-drawer-container class="example-container" autosize>
-        <mat-card *ngIf="!isValid" class="create-new-game">
+        <p *ngIf="!isValid && !newGame">
+            JEU INTROUVABLE.
+            <a routerLink="/admin/games">Voir tous les jeux</a>
+        </p>
+        <mat-card *ngIf="!isValid && newGame" class="create-new-game">
             <div class="top-page">
                 <h2>Creation d'un nouveau jeu</h2>
             </div>

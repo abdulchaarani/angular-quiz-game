@@ -3,6 +3,7 @@ import { Question } from '@app/interfaces/question';
 import { FormControl, Validators, FormBuilder, FormGroup, FormArray, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { QuestionService } from '@app/services/question.service';
 
 // import { GamesService } from '@app/services/games.service';
 
@@ -17,6 +18,7 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     @Input() question: Question;
     @Output() pointsChanged: EventEmitter<number> = new EventEmitter<number>();
     @Output() createQuestionEvent: EventEmitter<Question> = new EventEmitter<Question>();
+    @Output() createQuestionEventQuestionBank: EventEmitter<Question> = new EventEmitter<Question>();
     @Output() cancelClicked: EventEmitter<void> = new EventEmitter<void>();
 
     private readonly snackBarDisplayTime = 2000;
@@ -94,10 +96,12 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
 
     // In the question: add lastmodified and lastadded
     constructor(
+        private questionService: QuestionService,
         private snackBar: MatSnackBar,
         private fb: FormBuilder, // https://stackoverflow.com/questions/53362983/angular-reactiveforms-nested-formgroup-within-formarray-no-control-found?rq=3
     ) {
         this.initializeForm();
+        
     }
 
     buildChoices(): FormGroup {
@@ -168,7 +172,17 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     onSubmitQuestionBank() {
         if (this.questionForm.valid) {
             const newQuestion: Question = this.questionForm.value;
-            console.log(newQuestion);
+            this.questionService.createQuestion(newQuestion).subscribe({
+                next: () => {
+                    //this.questions.unshift(newQuestion);
+                    //this.notificationService.displaySuccessMessage('Question ajoutée avec succès! 😺');
+                },
+                // error: (error: HttpErrorResponse) =>
+                //     this.notificationService.displayErrorMessage(`La question n'a pas pu être supprimée. 😿 \n ${error.message}`),
+            });
+
+            this.createQuestionEventQuestionBank.emit(newQuestion);
+            //console.log(newQuestion);
         }
     }
 

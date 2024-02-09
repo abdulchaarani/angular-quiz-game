@@ -1,118 +1,142 @@
-<mat-card *ngIf="!isValid" class="create-new-game">
+<div class="main-container" [class.sidenav-active]="isSideBarActive">
+    <mat-drawer-container class="example-container" autosize>
+        <mat-card *ngIf="!isValid" class="create-new-game">
+            <div class="top-page">
+                <h2>Creation d'un nouveau jeu</h2>
+            </div>
 
-    <div class="top-page">
-        <h2>Creation d'un nouveau jeu</h2>
-    </div>
-    
-    <h3>Creation</h3>
-    
-    <p>
-      <a routerLink="/admin/games">Voir tous les jeux</a>
-    </p>
-    
-    <form [formGroup]="gameForm" (ngSubmit)="onSubmit()">
-    
-      <mat-form-field class="add-title">
-        <mat-label>Titre</mat-label>
-        <input matInput id="text" type="text" formControlName="title">
-      </mat-form-field>
-    
-      <mat-form-field class="add-description">
-        <mat-label>Description</mat-label>
-        <textarea matInput id="description" type="text" formControlName="description">
-        </textarea>
-      </mat-form-field>
-    
-      <mat-form-field class="add-duration">
-        <mat-label>Duree</mat-label>
-        <input matInput id="duration" type="number" formControlName="descriptdurationion" formControlName="duration" min="10" max="60">
-      </mat-form-field>
-    
-      <div>
-        <p *ngIf="!gameForm.touched">
-          Veuillez remplir le formulaire.
-        </p>
-    
-        <p *ngIf="gameForm.invalid && gameForm.controls.duration.touched">
-            La durée doit être entre 10 et 60.
-        </p>
-    
-      </div>
-    
-    <button class="button" type="submit" [disabled]="gameForm.invalid">Creer</button>
-    
-    </form>    
-    
-</mat-card>
+            <h3>Creation</h3>
 
-<mat-card *ngIf="isValid">
+            <p>
+                <a routerLink="/admin/games">Voir tous les jeux</a>
+            </p>
 
-    <div class="top-page">
-        <h2> Liste de questions du jeu : {{ game.title }} </h2>
-        <h2> Description: {{ game.description }} </h2>
-    </div>
+            <form [formGroup]="gameForm" (ngSubmit)="onSubmit()">
+                <mat-form-field class="add-title">
+                    <mat-label>Titre</mat-label>
+                    <input matInput id="text" type="text" formControlName="title" />
+                </mat-form-field>
 
-    <div class="top-container">
-        
-        <button mat-raised-button color="basic" routerLink="/admin/games" id="admin-back-button">Retour</button>
+                <mat-form-field class="add-description">
+                    <mat-label>Description</mat-label>
+                    <textarea matInput id="description" type="text" formControlName="description"> </textarea>
+                </mat-form-field>
 
-        <form [formGroup]="gameEditForm" class="edit-informations-form" (ngSubmit)="onSubmit()">
+                <mat-form-field class="add-duration">
+                    <mat-label>Duree</mat-label>
+                    <input matInput id="duration" type="number" formControlName="descriptdurationion" formControlName="duration" min="10" max="60" />
+                </mat-form-field>
 
-            <mat-form-field class="edit-title">
-              <mat-label>Titre</mat-label>
-              <input matInput formControlName="title" value="game.title">
-            </mat-form-field>
-          
-            <mat-form-field class="edit-description">
-              <mat-label>Description</mat-label>
-              <textarea matInput formControlName="description">
-              </textarea>
-            </mat-form-field>
+                <div>
+                    <p *ngIf="!gameForm.touched">Veuillez remplir le formulaire.</p>
 
-            <button class="button" type="submit" [disabled]="gameEditForm.invalid">Enregistrer</button>
+                    <p *ngIf="gameForm.invalid && gameForm.controls.duration.touched">La durée doit être entre 10 et 60.</p>
+                </div>
 
-        </form>
-    
-        <button mat-raised-button color="basic" routerLink="/admin/games/{{ game.id }}/questionbank" id="admin-question-bank-button">Banque de questions</button>
-    
-    </div>
-    
-    <mat-card class="time-slider">
-        <mat-card-content>
-            <h2>Timer</h2>
-            <mat-slider min="10" max="60" step="5" discrete="thumblabel">
-                <input matSliderThumb [value]="game.duration"
-                (change)="changeDuration($event)"/>
-            </mat-slider>
+                <button class="button" type="submit" [disabled]="gameForm.invalid">Creer</button>
+            </form>
+        </mat-card>
 
-        </mat-card-content>
-    </mat-card>
+        <mat-card *ngIf="isValid">
+            <div class="top-page">
+                <h2>Liste de questions du jeu : {{ game.title }}</h2>
+                <h2>Description: {{ game.description }}</h2>
+            </div>
 
-    <mat-accordion class="admin-questions-list question-list">
-        <div cdkDropList class="" (cdkDropListDropped)="drop($event)">
-            <div cdkDropList class="questions-list" (cdkDropListDropped)="drop($event)">
+            <button mat-raised-button color="basic" routerLink="/admin/games" id="admin-back-button">Retour</button>
+
+            <div class="edit-form-container">
+                <form [formGroup]="gameEditForm" class="edit-informations-form" (ngSubmit)="onSubmit()">
+                    <mat-form-field class="edit-title">
+                        <mat-label>Titre</mat-label>
+                        <input matInput formControlName="title" value="game.title" />
+                    </mat-form-field>
+
+                    <mat-form-field class="edit-description">
+                        <mat-label>Description</mat-label>
+                        <textarea matInput formControlName="description"> </textarea>
+                    </mat-form-field>
+
+                    <button class="button" type="submit" [disabled]="gameEditForm.invalid">Enregistrer</button>
+                </form>
+            </div>
+
+            <div class="buttons-container">
+                <button mat-raised-button color="primary" (click)="openCreateQuestionDialog()" id="admin-create-question-button">
+                    <mat-icon>add</mat-icon>Ajouter une nouvelle question
+                    <app-create-question *ngIf="dialogState" (createQuestionEvent)="addNewQuestion($event)"></app-create-question>
+                </button>
+
+                <button class="submit-button" mat-raised-button color="accent" (click)="saveGame()">
+                    <mat-icon>done</mat-icon> Appliquer les modifications
+                </button>
+
+                <div class="buttons-container">
+                    <button mat-raised-button color="basic" (click)="drawer.toggle()" (click)="toggleSideBarClass()">
+                        <mat-icon>question_mark</mat-icon>Banque de question
+                    </button>
+                </div>
+            </div>
+
+            <mat-card class="time-slider">
+                <mat-card-content>
+                    <h2>Timer</h2>
+                    <mat-slider min="10" max="60" step="5" discrete="thumblabel">
+                        <input matSliderThumb [value]="game.duration" (change)="changeDuration($event)" />
+                    </mat-slider>
+                </mat-card-content>
+            </mat-card>
+
+            <div class="drop-destination" [class.visible]="isBankQuestionDragged">
+                <h3 class="">👇 Déposez la question dans la liste! 👇</h3>
+            </div>
+
+            <mat-accordion
+                id="quiz-questions"
+                class="list game-questions-list"
+                cdkDropList
+                [cdkDropListData]="game.questions"
+                cdkDropListConnectedTo="bank-questions"
+                (cdkDropListDropped)="dropInQuizList($event)"
+            >
                 <app-question-list-item
+                    class="question game-question"
                     *ngFor="let question of game.questions"
                     [index]="game.questions.indexOf(question) + 1"
                     [question]="question"
                     [isEditable]="true"
                     [isLastModifiedDateVisible]="true"
                     (deleteQuestionEvent)="deleteQuestion($event)"
-                    cdkDragHandle
+                    (cdkDragStarted)="dragQuizQuestion(question)"
+                    (cdkDragEnded)="dropQuizQuestion($event)"
+                    cdkDrag
                 >
+                    <div cdkDragHandle></div>
                 </app-question-list-item>
-            </div>
-            <div class="add-button-container">
-                <button class="add-question-button" mat-raised-button color="basic" (click)="openDialog()" id="admin-create-question-button">
-                    <mat-icon>add</mat-icon>
-                    <app-create-question *ngIf="dialogState" (createQuestionEvent)="addNewQuestion($event)"></app-create-question>
-                </button>
-            </div>
-        </div>
-    </mat-accordion>
+            </mat-accordion>
+        </mat-card>
 
-<button class="submit-button" mat-raised-button color="basic" (click)="saveGame()">
-    <mat-icon>done</mat-icon>
-</button>
-
-</mat-card>
+        <mat-drawer #drawer class="example-sidenav" mode="side" position="end" id="test">
+            <cdk-virtual-scroll-viewport class="bank-sidenav" itemSize="50" style="height: 100vh">
+                <h3 class="bank-message">{{ currentBankMessage }}</h3>
+                <div
+                    id="bank-questions"
+                    cdkDropList
+                    [cdkDropListData]="bankQuestions"
+                    cdkDropListConnectedTo="quiz-questions"
+                    class="list bank-questions-list"
+                >
+                    <app-short-question
+                        class="question short-question"
+                        *ngFor="let question of bankQuestions | sortByLastModification: 'ascending'"
+                        [question]="question"
+                        cdkDrag
+                        [cdkDragData]="question"
+                        (cdkDragStarted)="dragBankQuestion()"
+                        (cdkDragEnded)="dropBankQuestion()"
+                    ></app-short-question>
+                </div>
+            </cdk-virtual-scroll-viewport>
+        </mat-drawer>
+    </mat-drawer-container>
+</div>

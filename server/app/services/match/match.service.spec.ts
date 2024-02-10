@@ -164,11 +164,12 @@ const getMockQuestionWithChoices = (): Question => {
     return mockQuestion;
 };
 
+const pastYear = 2020;
 const mockGameWithIsCorrectField: Game = {
     id: '',
     title: '',
     description: '',
-    lastModification: new Date(),
+    lastModification: new Date(pastYear, 1, 1),
     duration: 0,
     isVisible: true,
     questions: [
@@ -177,7 +178,7 @@ const mockGameWithIsCorrectField: Game = {
             type: 'QCM',
             text: '',
             points: 0,
-            lastModification: new Date(),
+            lastModification: new Date(pastYear, 1, 1),
             choices: [
                 {
                     text: '',
@@ -194,7 +195,7 @@ const mockGameWithIsCorrectField: Game = {
             type: 'QCM',
             text: '',
             points: 0,
-            lastModification: new Date(),
+            lastModification: new Date(pastYear, 1, 1),
             choices: [
                 {
                     text: '',
@@ -213,7 +214,7 @@ const mockGameWithoutIsCorrectField: Game = {
     id: '',
     title: '',
     description: '',
-    lastModification: new Date(),
+    lastModification: new Date(pastYear, 1, 1),
     duration: 0,
     isVisible: true,
     questions: [
@@ -222,7 +223,7 @@ const mockGameWithoutIsCorrectField: Game = {
             type: 'QCM',
             text: '',
             points: 0,
-            lastModification: new Date(),
+            lastModification: new Date(pastYear, 1, 1),
             choices: [
                 {
                     text: '',
@@ -237,7 +238,7 @@ const mockGameWithoutIsCorrectField: Game = {
             type: 'QCM',
             text: '',
             points: 0,
-            lastModification: new Date(),
+            lastModification: new Date(pastYear, 1, 1),
             choices: [
                 {
                     text: '',

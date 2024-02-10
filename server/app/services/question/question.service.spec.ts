@@ -37,7 +37,7 @@ const getMockQuestion = (): Question => ({
     ],
     lastModification: new Date(),
 });
-// TODO: Complete the base tests
+
 describe('QuestionService', () => {
     let service: QuestionService;
     let questionModel: Model<QuestionDocument>;
@@ -91,7 +91,6 @@ describe('QuestionService', () => {
         const mockQuestions = [getMockQuestion(), getMockQuestion()];
         const spyFind = jest.spyOn(questionModel, 'find').mockResolvedValue(mockQuestions);
         const returnedQuestions = await service.getAllQuestions();
-        expect(returnedQuestions.length).toEqual(mockQuestions.length);
         expect(spyFind).toHaveBeenCalledWith({});
         expect(returnedQuestions).toEqual(mockQuestions);
     });
@@ -111,7 +110,6 @@ describe('QuestionService', () => {
     });
 
     it('addQuestion() should add the question to the database with new ID and lastModification', async () => {
-        jest.mock('uuid', () => ({ v4: () => '123456789' }));
         const mockQuestion = getMockQuestion();
         const pastYear = 2020;
         mockQuestion.lastModification = new Date(pastYear, 1, 1);

@@ -1,4 +1,5 @@
 import { GAMES_TO_POPULATE } from '@app/constants/populate-constants';
+import { Choice } from '@app/model/database/choice';
 import { Game, GameDocument } from '@app/model/database/game';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
@@ -34,7 +35,6 @@ export class GameService {
         return await this.gameModel.find({});
     }
 
-    // TODO: Test
     async getAllVisibleGames(): Promise<Game[]> {
         return await this.gameModel.find({ isVisible: true });
     }
@@ -42,7 +42,7 @@ export class GameService {
     async getGameById(gameId: string): Promise<Game> {
         const game = await this.gameModel.findOne({ id: gameId });
         if (!game) {
-            return Promise.reject(`Le jeu avec le id: ${gameId} n'a pas été trouvé.`);
+            return Promise.reject('Le jeu est introuvable.');
         } else {
             return game;
         }
@@ -52,16 +52,14 @@ export class GameService {
         return await this.gameModel.findOne({ title: gameTitle });
     }
 
-    // TODO: Test and maybe refactor to separate service?
-    async getChoices(gameId: string, questionId: string) {
+    async getChoices(gameId: string, questionId: string): Promise<Choice[]> {
         const game = await this.getGameById(gameId);
         const question = game.questions.find((currentQuestion) => {
             return currentQuestion.id === questionId;
         });
-        return question.choices;
+        return question ? question.choices : Promise.reject('La question est introuvable.');
     }
 
-    // TODO: Test
     updateDateAndVisibility(game: Game): Game {
         const currentDate = new Date();
         game.isVisible = false;
@@ -70,7 +68,6 @@ export class GameService {
         return game;
     }
 
-    // TODO: Test
     generateId(game: Game): Game {
         game.id = uuidv4();
         game.questions.forEach((question) => (question.id = uuidv4()));
@@ -78,7 +75,6 @@ export class GameService {
     }
 
     async addGame(newGame: CreateGameDto): Promise<Game> {
-        // TODO: Add unit test for when a game already exists.
         if (await this.getGameByTitle(newGame.title)) {
             return Promise.reject('Un jeu du même titre existe déjà.');
         }
@@ -97,17 +93,19 @@ export class GameService {
         }
     }
 
-    async toggleGameVisibility(gameId: string): Promise<void> {
+    async toggleGameVisibility(gameId: string): Promise<Game> {
         const filterQuery = { id: gameId };
-        const gameToToggleVisibility = await this.getGameById(gameId);
-        gameToToggleVisibility.isVisible = !gameToToggleVisibility.isVisible;
-        const res = await this.gameModel.updateOne(filterQuery, gameToToggleVisibility);
-        if (res.matchedCount === 0) {
-            return Promise.reject('Le jeu est introuvable.');
+        try {
+            const gameToToggleVisibility = await this.getGameById(gameId);
+            gameToToggleVisibility.isVisible = !gameToToggleVisibility.isVisible;
+            await this.gameModel.updateOne(filterQuery, gameToToggleVisibility);
+            return gameToToggleVisibility;
+        } catch (error) {
+            return Promise.reject(`Erreur: ${error}`);
         }
     }
 
-    async upsertGame(game: UpdateGameDto): Promise<void> {
+    async upsertGame(game: UpdateGameDto): Promise<Game> {
         const filterQuery = { id: game.id };
         try {
             const errorMessages = this.validation.findGameErrors(game);
@@ -120,6 +118,7 @@ export class GameService {
                 new: true,
                 upsert: true,
             });
+            return game;
         } catch (error) {
             return Promise.reject(`Le jeu n'a pas pu être modifié: ${error}`);
         }
@@ -127,26 +126,22 @@ export class GameService {
 
     async deleteGame(gameId: string): Promise<void> {
         try {
-            const res = await this.gameModel.deleteOne({
-                id: gameId,
-            });
-            if (res.deletedCount === 0) {
-                return Promise.reject('Le jeu est introuvable');
-            }
+            await this.getGameById(gameId);
+        } catch (error) {
+            return Promise.reject(`Erreur: ${error}`);
+        }
+        try {
+            await this.gameModel.deleteOne({ id: gameId });
         } catch (error) {
             return Promise.reject(`Le jeu n'a pas pu être supprimé: ${error}`);
         }
     }
 
-    // TODO - Unit test
-    async validateQuestion(question: CreateQuestionDto): Promise<void> {
-        try {
-            const errorMessages = this.validation.findQuestionErrors(question);
-            if (errorMessages.length !== 0) {
-                return Promise.reject(`La question est invalide: ${errorMessages.join('\n')}`);
-            }
-        } catch (error) {
-            return Promise.reject(`Erreur: ${error}`);
+    async validateQuestion(question: CreateQuestionDto): Promise<boolean> {
+        const errorMessages = this.validation.findQuestionErrors(question);
+        if (errorMessages.length !== 0) {
+            return Promise.reject(`La question est invalide:\n${errorMessages.join('\n')}`);
         }
+        return true;
     }
 }

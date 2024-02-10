@@ -1,6 +1,6 @@
 import { CdkDragDrop, CdkDragEnd, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -12,17 +12,17 @@ import { GamesCreationService } from '@app/services/games-creation.service';
 import { GamesService } from '@app/services/games.service';
 import { NotificationService } from '@app/services/notification.service';
 import { QuestionService } from '@app/services/question.service';
-import { concatMap, firstValueFrom, switchMap } from 'rxjs';
+import { concatMap, iif } from 'rxjs';
 
 @Component({
     selector: 'app-admin-questions-list',
     templateUrl: './admin-questions-list.component.html',
     styleUrls: ['./admin-questions-list.component.scss'],
 })
-export class AdminQuestionsListComponent implements OnInit {
+export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
     @Output() createQuestionEvent: EventEmitter<Question> = new EventEmitter<Question>();
 
-    @Output() game: Game = {
+    game: Game = {
         id: '',
         title: '',
         description: '',
@@ -74,36 +74,42 @@ export class AdminQuestionsListComponent implements OnInit {
     }
 
     setState() {
-        this.route.data.subscribe((data) => {
-            this.state = data.state;
-        });
+        this.route.data.subscribe((data) => (this.state = data.state));
+    }
+
+    setGame() {
+        return this.route.params.pipe(
+            concatMap((params) => {
+                const id = params.id;
+                return this.gamesService.getGameById(id);
+            }),
+            concatMap((game: Game) => {
+                this.game = game;
+                this.isValid = true;
+                return this.questionService.getAllQuestions();
+            }),
+        );
     }
 
     ngOnInit() {
-        this.route.params
-            .pipe(
-                concatMap((params) => {
-                    const id = params['id'];
-                    return this.gamesService.getGameById(id);
-                }),
-                concatMap((game: Game) => {
-                    this.game = game;
-                    this.isValid = true;
-                    return this.questionService.getAllQuestions();
-                }),
-            )
-            .subscribe({
-                next: (data: Question[]) => {
-                    this.originalBankQuestions = [...data];
-                    this.bankQuestions = this.filterBankQuestions(this.originalBankQuestions, this.game.questions);
-                    this.setBankMessage();
-                },
-                error: (error: HttpErrorResponse) => {
-                    if (!this.newGame) {
-                        this.notificationService.displayErrorMessage(`Échec d'obtention des questions 😿\n ${error.message}`);
-                    }
-                },
-            });
+        this.setState();
+    }
+
+    ngAfterViewInit() {
+        const isModifyState = iif(() => this.state === 'modify', this.setGame(), this.questionService.getAllQuestions());
+
+        isModifyState.subscribe({
+            next: (data: Question[]) => {
+                this.originalBankQuestions = [...data];
+                this.bankQuestions = this.filterBankQuestions(this.originalBankQuestions, this.game.questions);
+                this.setBankMessage();
+            },
+            error: (error: HttpErrorResponse) => {
+                if (!this.newGame) {
+                    this.notificationService.displayErrorMessage(`Échec d'obtention des questions 😿\n ${error.message}`);
+                }
+            },
+        });
     }
 
     changeDuration(event: Event) {

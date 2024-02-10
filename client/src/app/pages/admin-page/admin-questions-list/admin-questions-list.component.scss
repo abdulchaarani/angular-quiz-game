@@ -95,7 +95,16 @@ body {
     background-color: transparent;
     cursor: move;
 }
-.game-questions-list,
-.bank-questions-list {
+
+.list {
     min-height: 70px;
+}
+
+.empty-list {
+    border: dashed 1px;
+}
+
+.create-notice {
+    text-align: center;
+    color: grey;
 }

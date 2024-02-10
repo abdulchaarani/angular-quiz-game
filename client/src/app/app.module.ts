@@ -30,8 +30,6 @@ import { TestPageComponent } from './pages/test-page/test-page.component';
 import { WaitPageComponent } from './pages/wait-page/wait-page.component';
 import { FormControlPipe } from './pipes/form-control.pipe';
 import { SortByLastModificationPipe } from './pipes/sort-by-last-modification.pipe';
-import { AdminModifyGameComponent } from './pages/admin-page/admin-modify-game/admin-modify-game.component';
-import { AdminCreateGameComponent } from './pages/admin-page/admin-create-game/admin-create-game.component';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -64,8 +62,6 @@ import { AdminCreateGameComponent } from './pages/admin-page/admin-create-game/a
         ShortQuestionComponent,
         DialogConfirmComponent,
         DialogRenameGameComponent,
-        AdminModifyGameComponent,
-        AdminCreateGameComponent,
     ],
     imports: [
         AppMaterialModule,

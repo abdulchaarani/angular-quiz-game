@@ -1,5 +1,5 @@
 <div class="main-container" [class.sidenav-active]="isSideBarActive">
-    <mat-drawer-container class="example-container" autosize>
+    <mat-drawer-container class="bank-container container" autosize>
         <h1 class="page-title">{{ this.state === 'modify' ? 'Modification' : 'Création' }} du jeu</h1>
         <div class="buttons-container buttons-rack">
             <div>
@@ -85,7 +85,7 @@
             </div>
         </div>
 
-        <mat-drawer #drawer class="example-sidenav" mode="side" position="end" id="test">
+        <mat-drawer #drawer class="sidenav" mode="side" position="end" id="test">
             <cdk-virtual-scroll-viewport class="bank-sidenav" itemSize="50" style="height: 100vh">
                 <h3 class="bank-message">{{ currentBankMessage }}</h3>
                 <div

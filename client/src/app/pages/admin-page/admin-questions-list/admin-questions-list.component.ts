@@ -1,7 +1,7 @@
 import { CdkDragDrop, CdkDragEnd, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AfterViewInit, Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { DialogConfirmComponent } from '@app/components/dialog-confirm/dialog-confirm.component';
@@ -40,17 +40,16 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
     currentQuestion: Question;
     currentBankMessage = '';
 
-    gameForm = this.formBuilder.nonNullable.group({
-        title: ['', Validators.required],
-        description: ['', Validators.required],
-        duration: ['10', Validators.required],
+    gameForm = new FormGroup({
+        title: new FormControl('', Validators.required),
+        description: new FormControl('', Validators.required),
+        duration: new FormControl('10', Validators.required),
     });
 
     constructor(
         public dialog: MatDialog,
         private readonly gamesService: GamesService,
         private route: ActivatedRoute,
-        private formBuilder: FormBuilder,
     ) {}
 
     setState() {
@@ -65,10 +64,10 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
             }),
             concatMap((game: Game) => {
                 this.game = game;
-                this.gameForm = this.formBuilder.nonNullable.group({
-                    title: [this.game.title],
-                    description: [this.game.description],
-                    duration: [this.game.duration.toString()],
+                this.gameForm.patchValue({
+                    title: this.game.title,
+                    description: this.game.description,
+                    duration: this.game.duration.toString(),
                 });
                 return this.gamesService.questionService.getAllQuestions();
             }),
@@ -220,9 +219,10 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
     }
 
     private setBankMessage() {
-        this.currentBankMessage = this.bankQuestions.length
-            ? this.gamesService.questionService.bankMessages.unavailable
-            : this.gamesService.questionService.bankMessages.available;
+        this.currentBankMessage =
+            this.bankQuestions.length === 0
+                ? this.gamesService.questionService.bankMessages.unavailable
+                : this.gamesService.questionService.bankMessages.available;
     }
 
     private isDuplicateQuestion(newQuestion: Question, questionList: Question[]): boolean {

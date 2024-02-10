@@ -73,6 +73,14 @@ body {
     margin-bottom: 1rem;
 }
 
+.buttons-rack {
+    flex-direction: column;
+}
+
+.submit-button {
+    width: 100%;
+}
+
 .error-snackbar {
     --mdc-snackbar-container-color: #cc0000;
     --mat-snack-bar-button-color: white;

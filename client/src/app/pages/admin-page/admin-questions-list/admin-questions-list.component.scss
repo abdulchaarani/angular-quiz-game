@@ -97,7 +97,7 @@ body {
 }
 
 .list {
-    min-height: 70px;
+    min-height: 100px;
 }
 
 .empty-list {
@@ -107,4 +107,22 @@ body {
 .create-notice {
     text-align: center;
     color: grey;
+}
+
+.game-form {
+    display: flex;
+    justify-content: space-between;
+}
+
+.game-description {
+    min-width: 70%;
+}
+
+.time-slider {
+    display: flex;
+    gap: 1rem;
+}
+
+.question-buttons {
+    justify-content: space-between;
 }

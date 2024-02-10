@@ -45,6 +45,17 @@ describe('QuestionController', () => {
         await controller.allQuestions(res);
     });
 
+    it('allQuestions() should return NOT FOUND if the service fails', async () => {
+        questionService.getAllQuestions.rejects('');
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.NOT_FOUND);
+            return res;
+        };
+        res.send = () => res;
+        await controller.allQuestions(res);
+    });
+
     it('questionById() should return the question with the corresponding ID', async () => {
         const fakeQuestion = new Question();
         questionService.getQuestionById.resolves(fakeQuestion);

@@ -39,10 +39,6 @@ export class QuestionService {
         return await this.questionModel.findOne({ question: name });
     }
 
-    async getAllMultipleChoiceQuestions(): Promise<Question[]> {
-        return await this.questionModel.find({ type: 'QCM' });
-    }
-
     async getQuestionById(questionId: string): Promise<Question> {
         return await this.questionModel.findOne({ id: questionId });
     }

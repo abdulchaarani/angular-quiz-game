@@ -3,7 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { AfterViewInit, Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DialogConfirmComponent } from '@app/components/dialog-confirm/dialog-confirm.component';
 import { Game } from '@app/interfaces/game';
 import { Question } from '@app/interfaces/question';
@@ -30,13 +30,11 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
     };
 
     state: string = '';
-
     originalBankQuestions: Question[] = [];
     bankQuestions: Question[] = [];
     isSideBarActive: boolean = false;
     isBankQuestionDragged: boolean = false;
     dialogState: boolean = false;
-
     currentQuestion: Question;
     currentBankMessage = '';
 
@@ -50,11 +48,8 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
         public dialog: MatDialog,
         private readonly gamesService: GamesService,
         private route: ActivatedRoute,
+        private router: Router,
     ) {}
-
-    setState() {
-        this.route.data.subscribe((data) => (this.state = data.state));
-    }
 
     setGame() {
         return this.route.params.pipe(
@@ -75,7 +70,7 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
     }
 
     ngOnInit() {
-        this.setState();
+        this.route.data.subscribe((data) => (this.state = data.state));
     }
 
     ngAfterViewInit() {
@@ -97,32 +92,21 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
         this.game.duration = Number((event.target as HTMLInputElement).value);
     }
 
-    createGame(): void {
+    handleSubmit() {
         if (this.gameForm.value.title && this.gameForm.value.description && this.gameForm.value.duration) {
             this.game.title = this.gameForm.value.title;
             this.game.description = this.gameForm.value.description;
             this.game.duration = parseInt(this.gameForm.value.duration, 10);
 
-            this.gamesService.uploadGame(this.game).subscribe({
+            this.gamesService.submitGame(this.game, this.state).subscribe({
                 next: () => {
-                    this.gamesService.displaySuccessMessage('Jeux créé avec succès! 😺');
+                    this.gamesService.displaySuccessMessage(`Jeux ${this.state === 'modify' ? 'modifié' : 'créé'} avec succès! 😺`);
+                    this.router.navigate(['/admin/games/']);
                 },
-                error: (error: HttpErrorResponse) => this.gamesService.displayErrorMessage(`Le jeu n'a pas pu être crée. 😿 \n ${error.message}`),
-            });
-        }
-    }
-
-    saveGame() {
-        if (this.gameForm.value.title && this.gameForm.value.description && this.gameForm.value.duration) {
-            this.game.title = this.gameForm.value.title;
-            this.game.description = this.gameForm.value.description;
-            this.game.duration = parseInt(this.gameForm.value.duration, 10);
-
-            this.gamesService.replaceGame(this.game).subscribe({
-                next: () => {
-                    this.gamesService.displaySuccessMessage('Jeux modifié avec succès! 😺');
-                },
-                error: (error: HttpErrorResponse) => this.gamesService.displayErrorMessage(`Le jeu n'a pas pu être modifié. 😿 \n ${error.message}`),
+                error: (error: HttpErrorResponse) =>
+                    this.gamesService.displayErrorMessage(
+                        `Le jeu n'a pas pu être ${this.state === 'modify' ? 'modifié' : 'créé'}. 😿 \n ${error.message}`,
+                    ),
             });
         }
     }
@@ -132,9 +116,8 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
     }
 
     deleteQuestion(questionId: string) {
-        if (this.game.questions.length === 1 || this.game.id === null) {
-            return;
-        }
+        if (this.game.questions.length === 1 || this.game.id === null) return;
+
         this.game.questions = this.game.questions.filter((question: Question) => question.id !== questionId);
         this.bankQuestions = this.filterBankQuestions(this.originalBankQuestions, this.game.questions);
         this.setBankMessage();
@@ -148,7 +131,6 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
         this.isSideBarActive = !this.isSideBarActive;
     }
 
-    // https://stackoverflow.com/questions/47592364/usage-of-mat-dialog-close
     openCreateQuestionDialog() {
         if (!this.dialogState) {
             const dialogRef = this.dialog.open(CreateQuestionComponent, {
@@ -160,7 +142,6 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
                     this.addNewQuestion(newQuestion);
                     dialogRef.close();
                 }
-
                 this.dialogState = false;
             });
         }

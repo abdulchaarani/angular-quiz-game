@@ -7,9 +7,8 @@
                     class="submit-button"
                     mat-raised-button
                     color="accent"
-                    (click)="this.state === 'modify' ? saveGame() : createGame()"
+                    (click)="handleSubmit()"
                     [disabled]="gameForm.invalid || game.questions.length === 0"
-                    routerLink="/admin/games"
                 >
                     <mat-icon>done</mat-icon> {{ this.state === 'modify' ? 'Appliquer les modifications' : 'Créer le jeu' }}
                 </button>

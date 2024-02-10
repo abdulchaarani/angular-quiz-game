@@ -19,7 +19,7 @@ export class ApiService<T> {
 
     constructor(
         private readonly http: HttpClient,
-        @Inject(String) private baseUrl: string, // @Inject(String) private config: ApiConfig = {},
+        @Inject(String) private baseUrl: string,
     ) {}
 
     protected getAll(endpoint: string = ''): Observable<T[]> {

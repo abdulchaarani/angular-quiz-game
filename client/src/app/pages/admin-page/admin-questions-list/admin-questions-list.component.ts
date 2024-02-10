@@ -4,12 +4,11 @@ import { AfterViewInit, Component, EventEmitter, OnInit, Output } from '@angular
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DialogConfirmComponent } from '@app/components/dialog-confirm/dialog-confirm.component';
 import { Game } from '@app/interfaces/game';
 import { Question } from '@app/interfaces/question';
 import { CreateQuestionComponent } from '@app/pages/create-question/create-question.component';
 import { GamesService } from '@app/services/games.service';
-import { concatMap, iif } from 'rxjs';
+import { concatMap, iif, lastValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-admin-questions-list',
@@ -81,11 +80,16 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
                 this.originalBankQuestions = [...data];
                 this.bankQuestions = this.filterBankQuestions(this.originalBankQuestions, this.game.questions);
                 this.setBankMessage();
+                this.gamesService.resetPendingChanges();
             },
             error: (error: HttpErrorResponse) => {
                 this.gamesService.displayErrorMessage(`Échec d'obtention du jeu 😿\n ${error.message}`);
             },
         });
+
+        this.gameForm.get('title')?.valueChanges.subscribe(() => this.gamesService.markPendingChanges());
+        this.gameForm.get('description')?.valueChanges.subscribe(() => this.gamesService.markPendingChanges());
+        this.gameForm.get('duration')?.valueChanges.subscribe(() => this.gamesService.markPendingChanges());
     }
 
     changeDuration(event: Event) {
@@ -113,6 +117,7 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
 
     addNewQuestion(newQuestion: Question) {
         this.game.questions.push(newQuestion);
+        this.gamesService.markPendingChanges();
     }
 
     deleteQuestion(questionId: string) {
@@ -121,6 +126,7 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
         this.game.questions = this.game.questions.filter((question: Question) => question.id !== questionId);
         this.bankQuestions = this.filterBankQuestions(this.originalBankQuestions, this.game.questions);
         this.setBankMessage();
+        this.gamesService.markPendingChanges();
     }
 
     toggleCreateQuestion() {
@@ -147,35 +153,35 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
         }
     }
 
-    openConfirmDialog(): void {
-        const dialogRef = this.dialog.open(DialogConfirmComponent, {
-            data: { text: this.currentQuestion.text },
-        });
+    async openConfirmDialog() {
+        const confirmation$ = this.gamesService.confirmBankUpload(this.currentQuestion.text);
+        const confirmation = await lastValueFrom(confirmation$);
 
-        dialogRef.afterClosed().subscribe((confirm: boolean) => {
-            if (!confirm) return;
+        if (!confirmation) return;
 
-            if (!this.isDuplicateQuestion(this.currentQuestion, this.originalBankQuestions)) {
-                this.gamesService.questionService.createQuestion(this.currentQuestion).subscribe({
-                    next: () => {
-                        this.gamesService.displaySuccessMessage('Question ajoutée à la banque avec succès! 😺');
-                    },
-                    error: (error: HttpErrorResponse) =>
-                        this.gamesService.displayErrorMessage(`La question n'a pas pu être ajoutée. 😿 \n ${error.message}`),
-                });
-            } else {
-                this.gamesService.displayErrorMessage('Cette question fait déjà partie de la banque! 😾');
-            }
-        });
+        if (!this.isDuplicateQuestion(this.currentQuestion, this.originalBankQuestions)) {
+            this.gamesService.questionService.createQuestion(this.currentQuestion).subscribe({
+                next: () => {
+                    this.gamesService.displaySuccessMessage('Question ajoutée à la banque avec succès! 😺');
+                    this.originalBankQuestions.unshift(this.currentQuestion);
+                },
+                error: (error: HttpErrorResponse) =>
+                    this.gamesService.displayErrorMessage(`La question n'a pas pu être ajoutée. 😿 \n ${error.message}`),
+            });
+        } else {
+            this.gamesService.displayErrorMessage('Cette question fait déjà partie de la banque! 😾');
+        }
     }
 
     dropInQuizList(event: CdkDragDrop<Question[]>) {
         const question: Question = event.previousContainer.data[event.previousIndex];
         if (event.previousContainer === event.container) {
             moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+            this.gamesService.markPendingChanges();
         } else if (!this.isDuplicateQuestion(question, this.game.questions)) {
             transferArrayItem(event.previousContainer.data, event.container.data, event.previousIndex, event.currentIndex);
             this.setBankMessage();
+            this.gamesService.markPendingChanges();
         } else {
             this.gamesService.displayErrorMessage('Cette question fait déjà partie du jeu! 😾');
         }

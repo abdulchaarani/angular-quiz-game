@@ -22,7 +22,6 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { ClickStopPropagationDirective } from './directives/click-stop-propagation.directive';
 import { AdminPageComponent } from './pages/admin-page/admin-main-page/admin-page.component';
 import { AdminQuestionBankComponent } from './pages/admin-page/admin-question-bank/admin-question-bank.component';
-import { AdminQuestionBankSelectionComponent } from './pages/admin-page/admin-questions-list/admin-question-bank-selection/admin-question-bank-selection.component';
 import { AdminQuestionsListComponent } from './pages/admin-page/admin-questions-list/admin-questions-list.component';
 import { HomePageComponent } from './pages/home-page/home-page.component';
 import { HostPageComponent } from './pages/host-page/host-page.component';
@@ -60,7 +59,6 @@ import { SortByLastModificationPipe } from './pipes/sort-by-last-modification.pi
         FeedbackComponent,
         WaitPageComponent,
         DialogAdminPasswordComponent,
-        AdminQuestionBankSelectionComponent,
         ShortQuestionComponent,
         DialogConfirmComponent,
         DialogRenameGameComponent,

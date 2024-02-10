@@ -113,6 +113,8 @@ describe('QuestionService', () => {
     it('addQuestion() should add the question to the database with new ID and lastModification', async () => {
         jest.mock('uuid', () => ({ v4: () => '123456789' }));
         const mockQuestion = getMockQuestion();
+        const pastYear = 2020;
+        mockQuestion.lastModification = new Date(pastYear, 1, 1);
         const spyGet = jest.spyOn(service, 'getQuestionByName');
         const spyCreate = jest.spyOn(questionModel, 'create').mockImplementation();
         const spyValidate = jest.spyOn(gameValidationService, 'findQuestionErrors').mockReturnValue([]);
@@ -157,6 +159,8 @@ describe('QuestionService', () => {
     });
     it('updateQuestion() should update the question in the database with new lastModification', async () => {
         const mockQuestion = new Question();
+        const pastYear = 2020;
+        mockQuestion.lastModification = new Date(pastYear, 1, 1);
         const spyValidate = jest.spyOn(gameValidationService, 'findQuestionErrors').mockReturnValue([]);
         const spyUpdate = jest.spyOn(questionModel, 'updateOne');
         const spyGet = jest.spyOn(service, 'getQuestionById').mockResolvedValue(mockQuestion);

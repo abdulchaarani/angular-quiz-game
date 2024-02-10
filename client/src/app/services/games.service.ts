@@ -10,6 +10,8 @@ import { QuestionService } from './question.service';
     providedIn: 'root',
 })
 export class GamesService extends ApiService<Game> {
+    isPendingChanges = false;
+
     constructor(
         private readonly notificationService: NotificationService,
         public questionService: QuestionService,
@@ -73,5 +75,23 @@ export class GamesService extends ApiService<Game> {
 
     displayErrorMessage(errorMessage: string) {
         this.notificationService.displayErrorMessage(errorMessage);
+    }
+
+    markPendingChanges() {
+        this.isPendingChanges = true;
+    }
+
+    resetPendingChanges() {
+        this.isPendingChanges = false;
+    }
+
+    confirmBankUpload(questionTitle: string) {
+        return this.notificationService.openConfirmDialog({
+            data: {
+                icon: 'info_outline',
+                title: 'Êtes-vous certain de vouloir ajouter cette question à la banque de questions?',
+                text: questionTitle,
+            },
+        });
     }
 }

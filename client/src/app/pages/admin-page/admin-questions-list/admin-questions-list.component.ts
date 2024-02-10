@@ -2,11 +2,9 @@ import { CdkDragDrop, CdkDragEnd, moveItemInArray, transferArrayItem } from '@an
 import { HttpErrorResponse } from '@angular/common/http';
 import { AfterViewInit, Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Game } from '@app/interfaces/game';
 import { Question } from '@app/interfaces/question';
-import { CreateQuestionComponent } from '@app/pages/create-question/create-question.component';
 import { GamesService } from '@app/services/games.service';
 import { concatMap, iif, lastValueFrom } from 'rxjs';
 
@@ -44,7 +42,6 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
     });
 
     constructor(
-        public dialog: MatDialog,
         private readonly gamesService: GamesService,
         private route: ActivatedRoute,
         private router: Router,
@@ -105,6 +102,7 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
             this.gamesService.submitGame(this.game, this.state).subscribe({
                 next: () => {
                     this.gamesService.displaySuccessMessage(`Jeux ${this.state === 'modify' ? 'modifié' : 'créé'} avec succès! 😺`);
+                    this.gamesService.resetPendingChanges();
                     this.router.navigate(['/admin/games/']);
                 },
                 error: (error: HttpErrorResponse) =>
@@ -139,10 +137,8 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
 
     openCreateQuestionDialog() {
         if (!this.dialogState) {
-            const dialogRef = this.dialog.open(CreateQuestionComponent, {
-                height: '70%',
-                width: '100%',
-            });
+            const dialogRef = this.gamesService.openCreateQuestionModal();
+
             dialogRef.componentInstance.createQuestionEvent.subscribe((newQuestion: Question) => {
                 if (newQuestion) {
                     this.addNewQuestion(newQuestion);

@@ -94,4 +94,8 @@ export class GamesService extends ApiService<Game> {
             },
         });
     }
+
+    openCreateQuestionModal() {
+        return this.notificationService.openCreateQuestionModal();
+    }
 }

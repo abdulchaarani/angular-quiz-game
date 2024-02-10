@@ -3,11 +3,12 @@ import { ComponentFixture, TestBed, fakeAsync, flush, tick } from '@angular/core
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { GamesService } from '@app/services/games.service';
-
 import { Game } from '@app/interfaces/game';
 import { NotificationService } from '@app/services/notification.service';
 import { of, throwError } from 'rxjs';
 import { HostPageComponent } from './host-page.component';
+import { MatDialog } from '@angular/material/dialog';
+import { MatDialogMock } from '@app/testing/mat-dialog-mock';
 
 describe('HostPageComponent', () => {
     let component: HostPageComponent;
@@ -41,7 +42,7 @@ describe('HostPageComponent', () => {
         TestBed.configureTestingModule({
             declarations: [HostPageComponent],
             imports: [HttpClientTestingModule, BrowserAnimationsModule],
-            providers: [MatSnackBar, GamesService, NotificationService],
+            providers: [MatSnackBar, GamesService, NotificationService, { provide: MatDialog, useClass: MatDialogMock }],
         });
         fixture = TestBed.createComponent(HostPageComponent);
         gameService = TestBed.inject(GamesService);

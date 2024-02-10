@@ -193,7 +193,6 @@ export class AdminQuestionsListComponent implements OnInit {
             });
         }
     }
-
     openConfirmDialog(): void {
         const dialogRef = this.dialog.open(DialogConfirmComponent, {
             data: { text: this.currentQuestion.text },

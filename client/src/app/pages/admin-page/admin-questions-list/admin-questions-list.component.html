@@ -1,8 +1,7 @@
 <div class="main-container" [class.sidenav-active]="isSideBarActive">
     <mat-drawer-container class="example-container" autosize>
         <p *ngIf="!isValid && !newGame">
-            <app-admin-page>
-            </app-admin-page>
+            <app-admin-page> </app-admin-page>
         </p>
         <mat-card *ngIf="!isValid && newGame" class="create-new-game">
             <div class="top-page">
@@ -36,14 +35,13 @@
 
                     <p *ngIf="gameForm.invalid && gameForm.controls.duration.touched">La durée doit être entre 10 et 60.</p>
 
-                    <p *ngIf="!questionAdded && gameForm.touched"> Une question minimum est requise.</p>
-              
+                    <p *ngIf="!questionAdded && gameForm.touched">Une question minimum est requise.</p>
                 </div>
 
                 <button class="button" type="submit" [disabled]="gameForm.invalid && !questionAdded">Creer</button>
             </form>
 
-            <mat-accordion 
+            <mat-accordion
                 id="quiz-questions"
                 class="list game-questions-list"
                 cdkDropList
@@ -52,7 +50,7 @@
                 (cdkDropListDropped)="dropInQuizList($event)"
             >
                 <div cdkDropList class="" (cdkDropListDropped)="drop($event)">
-                    <div cdkDropList class="questions-list-new-game" *ngIf = "questionAdded" (cdkDropListDropped)="drop($event)">
+                    <div cdkDropList class="questions-list-new-game" *ngIf="questionAdded" (cdkDropListDropped)="drop($event)">
                         <app-question-list-item
                             class="question game-question"
                             *ngFor="let question of game.questions"
@@ -65,33 +63,40 @@
                             (cdkDragEnded)="dropQuizQuestion($event)"
                             cdkDrag
                         >
-                        <div cdkDragHandle></div>
+                            <div cdkDragHandle></div>
                         </app-question-list-item>
                     </div>
                     <div class="add-button-container-new-game">
-                        <button class = "add-question-button-new-game" mat-raised-button color="primary" (click)="openCreateQuestionDialog()" id="admin-create-question-button-new-game">
+                        <button
+                            class="add-question-button-new-game"
+                            mat-raised-button
+                            color="primary"
+                            (click)="openCreateQuestionDialog()"
+                            id="admin-create-question-button-new-game"
+                        >
                             <mat-icon>add</mat-icon>Ajouter une nouvelle question
                             <app-create-question *ngIf="dialogState" (createQuestionEvent)="addNewQuestion($event)"></app-create-question>
                         </button>
                     </div>
                 </div>
             </mat-accordion>
-          
         </mat-card>
 
         <mat-card *ngIf="isValid">
             <div class="top-page">
-                <h2> Liste de questions du jeu : 
-                  <p contenteditable="true" id="modifiedTitle">
-                    {{ game.title }}
-                  </p>
-                 </h2>
-                <h2> Description : 
-                  <p contenteditable="true" id="modifiedDescription">
-                    {{ game.description }} 
-                  </p>
+                <h2>
+                    Liste de questions du jeu :
+                    <p contenteditable="true" id="modifiedTitle">
+                        {{ game.title }}
+                    </p>
                 </h2>
-            </div>        
+                <h2>
+                    Description :
+                    <p contenteditable="true" id="modifiedDescription">
+                        {{ game.description }}
+                    </p>
+                </h2>
+            </div>
 
             <button mat-raised-button color="basic" routerLink="/admin/games" id="admin-back-button">Retour</button>
 

@@ -22,7 +22,6 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { ClickStopPropagationDirective } from './directives/click-stop-propagation.directive';
 import { AdminPageComponent } from './pages/admin-page/admin-main-page/admin-page.component';
 import { AdminQuestionBankComponent } from './pages/admin-page/admin-question-bank/admin-question-bank.component';
-import { AdminQuestionBankSelectionComponent } from './pages/admin-page/admin-questions-list/admin-question-bank-selection/admin-question-bank-selection.component';
 import { AdminQuestionsListComponent } from './pages/admin-page/admin-questions-list/admin-questions-list.component';
 import { HomePageComponent } from './pages/home-page/home-page.component';
 import { HostPageComponent } from './pages/host-page/host-page.component';
@@ -31,6 +30,8 @@ import { TestPageComponent } from './pages/test-page/test-page.component';
 import { WaitPageComponent } from './pages/wait-page/wait-page.component';
 import { FormControlPipe } from './pipes/form-control.pipe';
 import { SortByLastModificationPipe } from './pipes/sort-by-last-modification.pipe';
+import { AdminModifyGameComponent } from './pages/admin-page/admin-modify-game/admin-modify-game.component';
+import { AdminCreateGameComponent } from './pages/admin-page/admin-create-game/admin-create-game.component';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -60,10 +61,11 @@ import { SortByLastModificationPipe } from './pipes/sort-by-last-modification.pi
         FeedbackComponent,
         WaitPageComponent,
         DialogAdminPasswordComponent,
-        AdminQuestionBankSelectionComponent,
         ShortQuestionComponent,
         DialogConfirmComponent,
         DialogRenameGameComponent,
+        AdminModifyGameComponent,
+        AdminCreateGameComponent,
     ],
     imports: [
         AppMaterialModule,

@@ -12,7 +12,7 @@ import { GamesCreationService } from '@app/services/games-creation.service';
 import { GamesService } from '@app/services/games.service';
 import { NotificationService } from '@app/services/notification.service';
 import { QuestionService } from '@app/services/question.service';
-import { concatMap } from 'rxjs';
+import { concatMap, firstValueFrom, switchMap } from 'rxjs';
 
 @Component({
     selector: 'app-admin-questions-list',
@@ -22,15 +22,17 @@ import { concatMap } from 'rxjs';
 export class AdminQuestionsListComponent implements OnInit {
     @Output() createQuestionEvent: EventEmitter<Question> = new EventEmitter<Question>();
 
-    game: Game = {
+    @Output() game: Game = {
         id: '',
-        title : '',
-        description : '',
+        title: '',
+        description: '',
         lastModification: new Date().toString(),
-        duration : 10,
+        duration: 10,
         isVisible: false,
-        questions : [],
+        questions: [],
     };
+
+    state: string = '';
 
     response: string = '';
     originalBankQuestions: Question[] = [];
@@ -40,6 +42,7 @@ export class AdminQuestionsListComponent implements OnInit {
     dialogState: boolean = false;
     isValid: boolean = false;
     newGame: boolean = false;
+    questionAdded: boolean = false;
 
     bankMessages = {
         unavailable: "👀 Aucune autre question valide de la banque n'est disponible! 👀",
@@ -48,7 +51,7 @@ export class AdminQuestionsListComponent implements OnInit {
 
     currentQuestion: Question;
     currentBankMessage = '';
-    
+
     gameForm = this.formBuilder.nonNullable.group({
         title: ['', Validators.required],
         description: ['', [Validators.required]],
@@ -70,7 +73,11 @@ export class AdminQuestionsListComponent implements OnInit {
         moveItemInArray(this.game.questions, event.previousIndex, event.currentIndex);
     }
 
-    questionAdded: boolean = false;
+    setState() {
+        this.route.data.subscribe((data) => {
+            this.state = data.state;
+        });
+    }
 
     ngOnInit() {
         this.route.params
@@ -95,18 +102,7 @@ export class AdminQuestionsListComponent implements OnInit {
                     if (!this.newGame) {
                         this.notificationService.displayErrorMessage(`Échec d'obtention des questions 😿\n ${error.message}`);
                     }
-                }
-            });
-        this.route.params
-            .subscribe((params) => {
-                const id = params['id'];
-                if (id === 'new') {
-                    this.newGame = true;
-                }
-                this.gamesService.getGameById(id).subscribe((game: Game) => {
-                    this.game = game;
-                    this.isValid = true;        
-                });
+                },
             });
     }
 
@@ -134,20 +130,20 @@ export class AdminQuestionsListComponent implements OnInit {
         this.setBankMessage();
     }
 
-    getTitle() : string {
-        const modifiedTitle =  document.getElementById("modifiedTitle"); 
-        if (modifiedTitle && modifiedTitle.innerText.trim() !== ""){
+    getTitle(): string {
+        const modifiedTitle = document.getElementById('modifiedTitle');
+        if (modifiedTitle && modifiedTitle.innerText.trim() !== '') {
             return modifiedTitle.innerText;
         }
-        return this.game.title; 
+        return this.game.title;
     }
 
-    getDescription() : string {
-        const modifiedDescription =  document.getElementById("modifiedDescription"); 
-        if (modifiedDescription && modifiedDescription.innerText.trim() !== ""){
+    getDescription(): string {
+        const modifiedDescription = document.getElementById('modifiedDescription');
+        if (modifiedDescription && modifiedDescription.innerText.trim() !== '') {
             return modifiedDescription.innerText;
         }
-        return this.game.description; 
+        return this.game.description;
     }
 
     saveGame() {

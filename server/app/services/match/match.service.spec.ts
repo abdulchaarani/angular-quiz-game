@@ -106,7 +106,7 @@ describe('MatchService', () => {
         expect(spyGetBackupQuestion).toHaveBeenCalled();
     });
 
-    it('saveBackupGame() should get the game from the database, add it to the backup data, and return the game without isCorrect property', async () => {
+    it('saveBackupGame() should get the game from database, add it to the backup data, and return the game without isCorrect property', async () => {
         const mockGame = new Game();
         mockGame.id = '0';
         const spyGetGameById = jest.spyOn(gameService, 'getGameById').mockResolvedValue(mockGame);

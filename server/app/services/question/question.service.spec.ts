@@ -5,13 +5,14 @@ import { Logger } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Model } from 'mongoose';
+import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { QuestionService } from './question.service';
 const stringifyPublicValues = (question: Question): string => {
     return JSON.stringify(question, (key, value) => {
         if (key !== '_id' && key !== '__v') return value;
     });
 };
-const getFakeQuestion = (): Question => ({
+const getMockQuestion = (): Question => ({
     id: getRandomString(),
     type: 'QCM',
     text: getRandomString(),
@@ -40,7 +41,10 @@ const getFakeQuestion = (): Question => ({
 describe('QuestionService', () => {
     let service: QuestionService;
     let questionModel: Model<QuestionDocument>;
+    let gameValidationService: SinonStubbedInstance<GameValidationService>;
+
     beforeEach(async () => {
+        gameValidationService = createStubInstance(GameValidationService);
         questionModel = {
             countDocuments: jest.fn(),
             insertMany: jest.fn(),
@@ -55,11 +59,14 @@ describe('QuestionService', () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 QuestionService,
-                GameValidationService,
                 Logger,
                 {
                     provide: getModelToken(Question.name),
                     useValue: questionModel,
+                },
+                {
+                    provide: GameValidationService,
+                    useValue: gameValidationService,
                 },
             ],
         }).compile();
@@ -81,50 +88,135 @@ describe('QuestionService', () => {
         expect(spyPopulateDB).not.toHaveBeenCalled();
     });
     it('getAllQuestions() should return all questions in database', async () => {
-        const mockQuestions = [getFakeQuestion(), getFakeQuestion()];
+        const mockQuestions = [getMockQuestion(), getMockQuestion()];
         const spyFind = jest.spyOn(questionModel, 'find').mockResolvedValue(mockQuestions);
         const returnedQuestions = await service.getAllQuestions();
         expect(returnedQuestions.length).toEqual(mockQuestions.length);
         expect(spyFind).toHaveBeenCalledWith({});
+        expect(returnedQuestions).toEqual(mockQuestions);
+    });
+    it('getQuestionByName() should return question with the corresponding text', async () => {
+        const mockQuestion = getMockQuestion();
+        const spyFindOne = jest.spyOn(questionModel, 'findOne').mockResolvedValue(mockQuestion);
+        const returnedQuestion = await service.getQuestionByName(mockQuestion.text);
+        expect(returnedQuestion).toEqual(mockQuestion);
+        expect(spyFindOne).toHaveBeenCalledWith({ text: mockQuestion.text });
     });
     it('getQuestionById() should return question with the corresponding ID', async () => {
-        const mockQuestion = getFakeQuestion();
+        const mockQuestion = getMockQuestion();
         const spyFindOne = jest.spyOn(questionModel, 'findOne').mockResolvedValue(mockQuestion);
         const returnedQuestion = await service.getQuestionById(mockQuestion.id);
-        expect(stringifyPublicValues(returnedQuestion)).toEqual(stringifyPublicValues(mockQuestion));
+        expect(returnedQuestion).toEqual(mockQuestion);
         expect(spyFindOne).toHaveBeenCalledWith({ id: mockQuestion.id });
     });
-    it('updateQuestion() should fail if the corresponding question does not exist in the database', async () => {
-        const mockQuestion = getFakeQuestion();
-        const spyFindOne = jest.spyOn(questionModel, 'findOne').mockRejectedValue('');
-        await expect(service.updateQuestion(mockQuestion)).rejects.toBeTruthy();
-        expect(spyFindOne).not.toBeCalled();
+
+    it('addQuestion() should add the question to the database with new ID and lastModification', async () => {
+        jest.mock('uuid', () => ({ v4: () => '123456789' }));
+        const mockQuestion = getMockQuestion();
+        const spyGet = jest.spyOn(service, 'getQuestionByName');
+        const spyCreate = jest.spyOn(questionModel, 'create').mockImplementation();
+        const spyValidate = jest.spyOn(gameValidationService, 'findQuestionErrors').mockReturnValue([]);
+        const createdQuestion = await service.addQuestion({ ...mockQuestion });
+        expect(spyGet).toHaveBeenCalled();
+        expect(spyCreate).toHaveBeenCalled();
+        expect(spyValidate).toHaveBeenCalled();
+        expect(stringifyPublicValues(mockQuestion)).toEqual(stringifyPublicValues(mockQuestion));
+        expect(createdQuestion.id).not.toEqual(mockQuestion.id);
+        expect(createdQuestion.lastModification).not.toEqual(mockQuestion.lastModification);
     });
-    // TODO: Unit tests with upsert(): updateQuestion(question, true)
+    it('addQuestion() should fail if mongo query failed', async () => {
+        const spyGet = jest.spyOn(service, 'getQuestionByName');
+        const spyValidate = jest.spyOn(gameValidationService, 'findQuestionErrors').mockReturnValue([]);
+        const spyCreate = jest.spyOn(questionModel, 'create').mockImplementation(async () => Promise.reject(''));
+        const mockQuestion = new Question();
+        await service.addQuestion({ ...mockQuestion }).catch((error) => {
+            expect(error).toBe("La question n'a pas pu être ajoutée: ");
+        });
+        expect(spyGet).toHaveBeenCalled();
+        expect(spyValidate).toHaveBeenCalled();
+        expect(spyCreate).toHaveBeenCalled();
+    });
+    it('addQuestion() should fail if the question already exists in the bank', async () => {
+        const mockQuestion = new Question();
+        const spyGetQuestionByName = jest.spyOn(service, 'getQuestionByName').mockResolvedValue(mockQuestion);
+        const testQuestion = new Question();
+        testQuestion.id = mockQuestion.id;
+        await service.addQuestion(testQuestion).catch((error) => {
+            expect(error).toBe('La question existe déjà dans la banque.');
+        });
+        expect(spyGetQuestionByName).toHaveBeenCalledWith(testQuestion.text);
+    });
+    it('addQuestion() should fail if the question is invalid', async () => {
+        const mockErrorMessages = ['mock'];
+        const spyValidate = jest.spyOn(gameValidationService, 'findQuestionErrors').mockReturnValue(mockErrorMessages);
+        const mockQuestion = new Question();
+        await service.addQuestion(mockQuestion).catch((error) => {
+            expect(error).toBe('La question est invalide:\nmock');
+        });
+        expect(spyValidate).toBeCalledWith(mockQuestion);
+    });
+    it('updateQuestion() should update the question in the database with new lastModification', async () => {
+        const mockQuestion = new Question();
+        const spyValidate = jest.spyOn(gameValidationService, 'findQuestionErrors').mockReturnValue([]);
+        const spyUpdate = jest.spyOn(questionModel, 'updateOne');
+        const spyGet = jest.spyOn(service, 'getQuestionById').mockResolvedValue(mockQuestion);
+        const updatedQuestion = await service.updateQuestion({ ...mockQuestion });
+        expect(spyGet).toHaveBeenCalled();
+        expect(spyUpdate).toHaveBeenCalled();
+        expect(spyValidate).toHaveBeenCalled();
+        expect(updatedQuestion.id).toEqual(mockQuestion.id);
+        expect(updatedQuestion.lastModification).not.toEqual(mockQuestion.lastModification);
+    });
+    it('updateQuestion() should fail if question cannot be found in database.', async () => {
+        const spyGet = jest.spyOn(service, 'getQuestionById').mockResolvedValue(null);
+        await service.updateQuestion(new Question()).catch((error) => {
+            expect(error).toBe('La question est introuvable.');
+        });
+        expect(spyGet).toHaveBeenCalled();
+    });
+    it('updateQuestion() should fail if the question is invalid', async () => {
+        const mockErrorMessages = ['mock'];
+        const spyValidate = jest.spyOn(gameValidationService, 'findQuestionErrors').mockReturnValue(mockErrorMessages);
+        const spyGet = jest.spyOn(service, 'getQuestionById').mockResolvedValue(new Question());
+        await service.updateQuestion(new Question()).catch((error) => {
+            expect(error).toBe('La question est invalide:\nmock');
+        });
+        expect(spyValidate).toHaveBeenCalled();
+        expect(spyGet).toHaveBeenCalled();
+    });
+    it('updateQuestion() should fail if mongo query fails', async () => {
+        const spyUpdate = jest.spyOn(questionModel, 'updateOne').mockRejectedValue('');
+        const spyValidate = jest.spyOn(gameValidationService, 'findQuestionErrors').mockReturnValue([]);
+        const spyGet = jest.spyOn(service, 'getQuestionById').mockResolvedValue(new Question());
+        await service.updateQuestion(new Question()).catch((error) => {
+            expect(error).toBe("La question n'a pas été mise à jour: ");
+        });
+        expect(spyValidate).toHaveBeenCalled();
+        expect(spyGet).toHaveBeenCalled();
+        expect(spyUpdate).toHaveBeenCalled();
+    });
     it('deleteQuestion() should delete the corresponding question', async () => {
-        const mockQuestion = getFakeQuestion();
+        const mockQuestion = getMockQuestion();
+        const spyGet = jest.spyOn(service, 'getQuestionById').mockResolvedValue(mockQuestion);
         const spyDeleteOne = jest.spyOn(questionModel, 'deleteOne').mockResolvedValue({ acknowledged: true, deletedCount: 1 });
         await service.deleteQuestion(mockQuestion.id);
         expect(spyDeleteOne).toHaveBeenCalledWith({ id: mockQuestion.id });
-        // TODO: Find a way to count documents?
+        expect(spyGet).toHaveBeenCalledWith(mockQuestion.id);
     });
-    it('deleteQuestion() should fail if mongo query failed or question does not exist', async () => {
+    it('deleteQuestion() should fail if question cannot be found', async () => {
+        const spyGet = jest.spyOn(service, 'getQuestionById').mockResolvedValue(null);
+        await service.deleteQuestion('').catch((error) => {
+            expect(error).toBe('La question est introuvable.');
+        });
+        expect(spyGet).toHaveBeenCalled();
+    });
+    it('deleteQuestion() should fail if mongo query failed', async () => {
+        const spyGet = jest.spyOn(service, 'getQuestionById').mockResolvedValue(new Question());
         jest.spyOn(questionModel, 'deleteOne').mockRejectedValue('');
-        const question = getFakeQuestion();
-        await expect(service.deleteQuestion(question.id)).rejects.toBeTruthy();
-    });
-    // TODO: Add isVisible = false + id and date?
-    it('addQuestion() should add the question to the database', async () => {
-        jest.mock('uuid', () => ({ v4: () => '123456789' }));
-        const mockQuestion = getFakeQuestion();
-        const spyCreate = jest.spyOn(questionModel, 'create').mockImplementation();
-        await service.addQuestion({ ...mockQuestion }); // TODO: See if it requires adjustements
-        expect(spyCreate).toHaveBeenCalled();
-    });
-    it('addQuestion() should fail if mongo query failed', async () => {
-        jest.spyOn(questionModel, 'create').mockImplementation(async () => Promise.reject(''));
-        const question = getFakeQuestion();
-        await expect(service.addQuestion({ ...question })).rejects.toBeTruthy();
+        await service.deleteQuestion('').catch((error) => {
+            expect(error).toBe("La question n'a pas pu être supprimée: ");
+        });
+        expect(spyGet).toHaveBeenCalled();
     });
 });
 // Alternative version of tests: Can pass locally, but does not always on GitLab for some reason... (hence it's deactivated)
@@ -171,7 +263,7 @@ describe('QuestionServiceE2E', () => {
         expect(spyPopulateDB).toHaveBeenCalled();
     });
     it('start() should not populate the database if is not empty', async () => {
-        const question = getFakeQuestion();
+        const question = getMockQuestion();
         await questionModel.create(question);
         const spyPopulateDB = jest.spyOn(service, 'populateDB');
         expect(spyPopulateDB).not.toHaveBeenCalled();
@@ -186,51 +278,51 @@ describe('QuestionServiceE2E', () => {
     it('getAllQuestions() should return all questions in database', async () => {
         await questionModel.deleteMany({});
         expect((await service.getAllQuestions()).length).toEqual(0);
-        const question = getFakeQuestion();
+        const question = getMockQuestion();
         await questionModel.create(question);
         expect((await service.getAllQuestions()).length).toEqual(1);
     });
     it('getQuestionById() should return Question with the corresponding ID', async () => {
-        const question = getFakeQuestion();
+        const question = getMockQuestion();
         await questionModel.create(question);
         const returnedQuestion = await service.getQuestionById(question.id);
         expect(stringifyPublicValues(returnedQuestion)).toEqual(stringifyPublicValues(question));
     });
     it('updateQuestion() should fail if the corresponding question does not exist in the database', async () => {
-        const question = getFakeQuestion();
+        const question = getMockQuestion();
         await expect(service.updateQuestion(question)).rejects.toBeTruthy();
     });
     it('updateQuestion() should fail if Mongo query failed', async () => {
         jest.spyOn(questionModel, 'updateOne').mockRejectedValue('');
-        const question = getFakeQuestion();
+        const question = getMockQuestion();
         await expect(service.updateQuestion(question)).rejects.toBeTruthy();
     });
     it('deleteQuestion() should delete the corresponding question', async () => {
         await questionModel.deleteMany({});
-        const question = getFakeQuestion();
+        const question = getMockQuestion();
         await questionModel.create(question);
         await service.deleteQuestion(question.id);
         expect(await questionModel.countDocuments()).toEqual(0);
     });
     it('deleteQuestion() should fail if the question does not exist', async () => {
         await questionModel.deleteMany({});
-        const question = getFakeQuestion();
+        const question = getMockQuestion();
         await expect(service.deleteQuestion(question.id)).rejects.toBeTruthy();
     });
     it('deleteQuestion() should fail if mongo query failed', async () => {
         jest.spyOn(questionModel, 'deleteOne').mockRejectedValue('');
-        const question = getFakeQuestion();
+        const question = getMockQuestion();
         await expect(service.deleteQuestion(question.id)).rejects.toBeTruthy();
     });
     it('addQuestion() should add the question to the database', async () => {
         await questionModel.deleteMany({});
-        const question = getFakeQuestion();
+        const question = getMockQuestion();
         await service.addQuestion({ ...question }); // TODO: See if it requires adjustements
         expect(await questionModel.countDocuments()).toEqual(1);
     });
     it('addQuestion() should fail if mongo query failed', async () => {
         jest.spyOn(questionModel, 'create').mockImplementation(async () => Promise.reject(''));
-        const question = getFakeQuestion();
+        const question = getMockQuestion();
         await expect(service.addQuestion({ ...question })).rejects.toBeTruthy();
     });
 });

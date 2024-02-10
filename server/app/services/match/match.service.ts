@@ -69,7 +69,8 @@ export class MatchService {
 
     async deleteBackupGame(gameToDeleteId: string): Promise<void> {
         const deleteIndex = this.backupGames.findIndex((game: Game) => game.id === gameToDeleteId);
-        if (deleteIndex !== -1) {
+        const notFoundIndex = -1;
+        if (deleteIndex !== notFoundIndex) {
             this.backupGames.splice(deleteIndex, 1);
         } else {
             return Promise.reject("La copie du jeu n'a pas pu être supprimée.");

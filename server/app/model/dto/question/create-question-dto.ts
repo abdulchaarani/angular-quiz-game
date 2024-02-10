@@ -23,5 +23,6 @@ export class CreateQuestionDto {
     @ApiProperty()
     choices: Choice[];
 
+    @ApiProperty()
     lastModification: Date;
 }

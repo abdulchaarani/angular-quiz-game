@@ -85,13 +85,12 @@ export class GameService {
         newGame = this.updateDateAndVisibility(this.generateId(newGame));
 
         try {
-            const gameErrorMessages = this.validation.findGameErrors(newGame);
-            if (gameErrorMessages.length === 0) {
+            const errorMessages = this.validation.findGameErrors(newGame);
+            if (errorMessages.length === 0) {
                 await this.gameModel.create(newGame);
                 return newGame;
             } else {
-                const messagesToDisplay = gameErrorMessages.join('\n');
-                return Promise.reject(`Le jeu est invalide:\n${messagesToDisplay}`);
+                return Promise.reject(`Le jeu est invalide:\n${errorMessages.join('\n')}`);
             }
         } catch (error) {
             return Promise.reject(`Le jeu n'a pas pu être ajouté: ${error}`);
@@ -113,7 +112,7 @@ export class GameService {
         try {
             const errorMessages = this.validation.findGameErrors(game);
             if (errorMessages.length !== 0) {
-                return Promise.reject(`Le jeu est invalide:\n${errorMessages}`);
+                return Promise.reject(`Le jeu est invalide:\n${errorMessages.join('\n')}`);
             }
             game = this.updateDateAndVisibility(game);
 
@@ -144,7 +143,7 @@ export class GameService {
         try {
             const errorMessages = this.validation.findQuestionErrors(question);
             if (errorMessages.length !== 0) {
-                return Promise.reject(`La question est invalide: ${errorMessages}`);
+                return Promise.reject(`La question est invalide: ${errorMessages.join('\n')}`);
             }
         } catch (error) {
             return Promise.reject(`Erreur: ${error}`);

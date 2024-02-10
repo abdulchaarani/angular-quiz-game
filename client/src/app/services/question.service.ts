@@ -7,6 +7,11 @@ import { ApiService } from './api.service';
     providedIn: 'root',
 })
 export class QuestionService extends ApiService<Question> {
+    bankMessages = {
+        unavailable: "👀 Aucune autre question valide de la banque n'est disponible! 👀",
+        available: '🖐 Glissez et déposez une question de la banque dans le jeu! 🖐',
+    };
+
     constructor(http: HttpClient) {
         super(http, 'questions');
     }

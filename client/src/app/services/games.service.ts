@@ -3,12 +3,18 @@ import { Injectable } from '@angular/core';
 import { Game } from '@app/interfaces/game';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
+import { NotificationService } from './notification.service';
+import { QuestionService } from './question.service';
 
 @Injectable({
     providedIn: 'root',
 })
 export class GamesService extends ApiService<Game> {
-    constructor(http: HttpClient) {
+    constructor(
+        private readonly notificationService: NotificationService,
+        public questionService: QuestionService,
+        http: HttpClient,
+    ) {
         super(http, 'admin/games');
     }
 
@@ -36,10 +42,9 @@ export class GamesService extends ApiService<Game> {
         return this.replace(modifiedGame, modifiedGame.id);
     }
 
-
-    verifyGame(newGame : Game){
+    verifyGame(newGame: Game) {
         return this.add(newGame, 'validate-question');
-      }
+    }
 
     downloadGameAsJson(gameToStringify: Game): void {
         const stringifiedGame = JSON.stringify(gameToStringify, (key, value) => {
@@ -56,5 +61,13 @@ export class GamesService extends ApiService<Game> {
         downloadLink.click();
         window.URL.revokeObjectURL(url);
         downloadLink.remove();
+    }
+
+    displaySuccessMessage(successMessage: string) {
+        this.notificationService.displaySuccessMessage(successMessage);
+    }
+
+    displayErrorMessage(errorMessage: string) {
+        this.notificationService.displayErrorMessage(errorMessage);
     }
 }

@@ -3,15 +3,12 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { AfterViewInit, Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { DialogConfirmComponent } from '@app/components/dialog-confirm/dialog-confirm.component';
 import { Game } from '@app/interfaces/game';
 import { Question } from '@app/interfaces/question';
 import { CreateQuestionComponent } from '@app/pages/create-question/create-question.component';
-import { GamesCreationService } from '@app/services/games-creation.service';
 import { GamesService } from '@app/services/games.service';
-import { NotificationService } from '@app/services/notification.service';
-import { QuestionService } from '@app/services/question.service';
 import { concatMap, iif } from 'rxjs';
 
 @Component({
@@ -34,44 +31,27 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
 
     state: string = '';
 
-    response: string = '';
     originalBankQuestions: Question[] = [];
     bankQuestions: Question[] = [];
     isSideBarActive: boolean = false;
     isBankQuestionDragged: boolean = false;
     dialogState: boolean = false;
-    isValid: boolean = false;
-    newGame: boolean = false;
-    questionAdded: boolean = false;
-
-    bankMessages = {
-        unavailable: "👀 Aucune autre question valide de la banque n'est disponible! 👀",
-        available: '🖐 Glissez et déposez une question de la banque dans le jeu! 🖐',
-    };
 
     currentQuestion: Question;
     currentBankMessage = '';
 
     gameForm = this.formBuilder.nonNullable.group({
         title: ['', Validators.required],
-        description: ['', [Validators.required]],
-        duration: ['', Validators.required],
+        description: ['', Validators.required],
+        duration: ['10', Validators.required],
     });
 
     constructor(
         public dialog: MatDialog,
         private readonly gamesService: GamesService,
-        private readonly questionService: QuestionService,
-        private readonly gamesCreationService: GamesCreationService,
-        private readonly notificationService: NotificationService,
         private route: ActivatedRoute,
         private formBuilder: FormBuilder,
-        private router: Router,
     ) {}
-
-    drop(event: CdkDragDrop<Question[]>) {
-        moveItemInArray(this.game.questions, event.previousIndex, event.currentIndex);
-    }
 
     setState() {
         this.route.data.subscribe((data) => (this.state = data.state));
@@ -90,7 +70,7 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
                     description: [this.game.description],
                     duration: [this.game.duration.toString()],
                 });
-                return this.questionService.getAllQuestions();
+                return this.gamesService.questionService.getAllQuestions();
             }),
         );
     }
@@ -100,7 +80,7 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
     }
 
     ngAfterViewInit() {
-        const isModifyState = iif(() => this.state === 'modify', this.setGame(), this.questionService.getAllQuestions());
+        const isModifyState = iif(() => this.state === 'modify', this.setGame(), this.gamesService.questionService.getAllQuestions());
 
         isModifyState.subscribe({
             next: (data: Question[]) => {
@@ -109,9 +89,7 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
                 this.setBankMessage();
             },
             error: (error: HttpErrorResponse) => {
-                if (!this.newGame) {
-                    this.notificationService.displayErrorMessage(`Échec d'obtention des questions 😿\n ${error.message}`);
-                }
+                this.gamesService.displayErrorMessage(`Échec d'obtention du jeu 😿\n ${error.message}`);
             },
         });
     }
@@ -120,15 +98,38 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
         this.game.duration = Number((event.target as HTMLInputElement).value);
     }
 
-    onSubmit(): void {
+    createGame(): void {
         if (this.gameForm.value.title && this.gameForm.value.description && this.gameForm.value.duration) {
-            this.gamesCreationService
-                .createGame(this.gameForm.value.title, this.gameForm.value.description, parseInt(this.gameForm.value.duration), this.game.questions)
-                .subscribe((gameId: string) => {
-                    console.log(gameId);
-                    this.router.navigate([`/admin/games/`]);
-                });
+            this.game.title = this.gameForm.value.title;
+            this.game.description = this.gameForm.value.description;
+            this.game.duration = parseInt(this.gameForm.value.duration, 10);
+
+            this.gamesService.uploadGame(this.game).subscribe({
+                next: () => {
+                    this.gamesService.displaySuccessMessage('Jeux créé avec succès! 😺');
+                },
+                error: (error: HttpErrorResponse) => this.gamesService.displayErrorMessage(`Le jeu n'a pas pu être crée. 😿 \n ${error.message}`),
+            });
         }
+    }
+
+    saveGame() {
+        if (this.gameForm.value.title && this.gameForm.value.description && this.gameForm.value.duration) {
+            this.game.title = this.gameForm.value.title;
+            this.game.description = this.gameForm.value.description;
+            this.game.duration = parseInt(this.gameForm.value.duration, 10);
+
+            this.gamesService.replaceGame(this.game).subscribe({
+                next: () => {
+                    this.gamesService.displaySuccessMessage('Jeux modifié avec succès! 😺');
+                },
+                error: (error: HttpErrorResponse) => this.gamesService.displayErrorMessage(`Le jeu n'a pas pu être modifié. 😿 \n ${error.message}`),
+            });
+        }
+    }
+
+    addNewQuestion(newQuestion: Question) {
+        this.game.questions.push(newQuestion);
     }
 
     deleteQuestion(questionId: string) {
@@ -138,41 +139,6 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
         this.game.questions = this.game.questions.filter((question: Question) => question.id !== questionId);
         this.bankQuestions = this.filterBankQuestions(this.originalBankQuestions, this.game.questions);
         this.setBankMessage();
-    }
-
-    getTitle(): string {
-        const modifiedTitle = document.getElementById('modifiedTitle');
-        if (modifiedTitle && modifiedTitle.innerText.trim() !== '') {
-            return modifiedTitle.innerText;
-        }
-        return this.game.title;
-    }
-
-    getDescription(): string {
-        const modifiedDescription = document.getElementById('modifiedDescription');
-        if (modifiedDescription && modifiedDescription.innerText.trim() !== '') {
-            return modifiedDescription.innerText;
-        }
-        return this.game.description;
-    }
-
-    saveGame() {
-        this.game.title = this.getTitle();
-        this.game.description = this.getDescription();
-
-        this.gamesService.replaceGame(this.game).subscribe({
-            next: () => {
-                this.notificationService.displaySuccessMessage('Jeux modifié avec succès! 😺');
-            },
-            error: (error: HttpErrorResponse) =>
-                this.notificationService.displayErrorMessage(`Le jeu n'a pas pu être modifié. 😿 \n ${error.message}`),
-        });
-    }
-
-    addNewQuestion(newQuestion: Question) {
-        console.log('new', newQuestion);
-        this.game.questions.push(newQuestion);
-        this.questionAdded = true;
     }
 
     toggleCreateQuestion() {
@@ -210,15 +176,15 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
             if (!confirm) return;
 
             if (!this.isDuplicateQuestion(this.currentQuestion, this.originalBankQuestions)) {
-                this.questionService.createQuestion(this.currentQuestion).subscribe({
+                this.gamesService.questionService.createQuestion(this.currentQuestion).subscribe({
                     next: () => {
-                        this.notificationService.displaySuccessMessage('Question ajoutée à la banque avec succès! 😺');
+                        this.gamesService.displaySuccessMessage('Question ajoutée à la banque avec succès! 😺');
                     },
                     error: (error: HttpErrorResponse) =>
-                        this.notificationService.displayErrorMessage(`La question n'a pas pu être ajoutée. 😿 \n ${error.message}`),
+                        this.gamesService.displayErrorMessage(`La question n'a pas pu être ajoutée. 😿 \n ${error.message}`),
                 });
             } else {
-                this.notificationService.displayErrorMessage('Cette question fait déjà partie de la banque! 😾');
+                this.gamesService.displayErrorMessage('Cette question fait déjà partie de la banque! 😾');
             }
         });
     }
@@ -231,7 +197,7 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
             transferArrayItem(event.previousContainer.data, event.container.data, event.previousIndex, event.currentIndex);
             this.setBankMessage();
         } else {
-            this.notificationService.displayErrorMessage('Cette question fait déjà partie du jeu! 😾');
+            this.gamesService.displayErrorMessage('Cette question fait déjà partie du jeu! 😾');
         }
     }
 
@@ -254,9 +220,9 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
     }
 
     private setBankMessage() {
-        if (this.bankQuestions.length === 0) {
-            this.currentBankMessage = this.bankMessages.unavailable;
-        } else this.currentBankMessage = this.bankMessages.available;
+        this.currentBankMessage = this.bankQuestions.length
+            ? this.gamesService.questionService.bankMessages.unavailable
+            : this.gamesService.questionService.bankMessages.available;
     }
 
     private isDuplicateQuestion(newQuestion: Question, questionList: Question[]): boolean {

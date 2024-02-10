@@ -1,36 +1,17 @@
 <div class="main-container" [class.sidenav-active]="isSideBarActive">
     <mat-drawer-container class="example-container" autosize>
         <h1 class="page-title">{{ this.state === 'modify' ? 'Modification' : 'Création' }} du jeu</h1>
-
-        <!-- <div *ngIf="this.state === 'modify'">
-            <div>
-                <p contenteditable="true" id="modifiedTitle">
-                    {{ game.title ? game.title : 'TITRE' }}
-                </p>
-            </div>
-            <div>
-                <h2>Description :</h2>
-                <p contenteditable="true" id="modifiedDescription">
-                    {{ game.description ? game.description : 'DESC' }}
-                </p>
-            </div>
-        </div> -->
-
         <div class="buttons-container buttons-rack">
             <div>
-                <button *ngIf="this.state === 'modify'" class="submit-button" mat-raised-button color="accent" (click)="saveGame()">
-                    <mat-icon>done</mat-icon> Appliquer les modifications
-                </button>
-
                 <button
-                    *ngIf="this.state === 'create'"
                     class="submit-button"
                     mat-raised-button
                     color="accent"
-                    (click)="saveGame()"
-                    [disabled]="gameForm.invalid && !questionAdded"
+                    (click)="this.state === 'modify' ? saveGame() : createGame()"
+                    [disabled]="gameForm.invalid || game.questions.length === 0"
+                    routerLink="/admin/games"
                 >
-                    <mat-icon>done</mat-icon> Créer le jeu
+                    <mat-icon>done</mat-icon> {{ this.state === 'modify' ? 'Appliquer les modifications' : 'Créer le jeu' }}
                 </button>
             </div>
 
@@ -46,12 +27,8 @@
             </div>
         </div>
 
-        <div class="create-new-game">
-            <!-- <p>
-                <a routerLink="/admin/games">Voir tous les jeux</a>
-            </p> -->
-
-            <form [formGroup]="gameForm" (ngSubmit)="onSubmit()">
+        <div>
+            <form [formGroup]="gameForm">
                 <div class="game-form-details">
                     <mat-form-field class="game-title">
                         <mat-label>Titre</mat-label>
@@ -64,15 +41,11 @@
                     </mat-form-field>
                 </div>
 
-                <!-- <button class="button" type="submit" [disabled]="gameForm.invalid && !questionAdded">Creer</button> -->
-
-                <!-- <button mat-raised-button color="basic" routerLink="/admin/games" id="admin-back-button">Retour</button> -->
-
                 <mat-card>
                     <mat-card-content class="time-slider">
                         <p>Durée de la minuterie</p>
-                        <mat-slider min="10" max="60" step="5" discrete="thumblabel" formControlName="duration">
-                            <input matSliderThumb [value]="game.duration" (change)="changeDuration($event)" />
+                        <mat-slider min="10" max="60" step="5" discrete="thumblabel">
+                            <input matSliderThumb [value]="game.duration" (change)="changeDuration($event)" formControlName="duration" />
                         </mat-slider>
                         <p>{{ game.duration }} secondes</p>
                     </mat-card-content>

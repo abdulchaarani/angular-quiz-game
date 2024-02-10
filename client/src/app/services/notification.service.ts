@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarConfig, MatSnackBarRef, TextOnlySnackBar } from '@angular/material/snack-bar';
 import { DialogConfirmComponent, DialogData } from '@app/components/dialog-confirm/dialog-confirm.component';
+import { CreateQuestionComponent } from '@app/pages/create-question/create-question.component';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -35,6 +36,13 @@ export class NotificationService {
         const dialogRef = this.dialog.open(DialogConfirmComponent, config);
 
         return dialogRef.afterClosed().pipe((confirm) => confirm);
+    }
+
+    openCreateQuestionModal() {
+        return this.dialog.open(CreateQuestionComponent, {
+            height: '70%',
+            width: '100%',
+        });
     }
 
     private openSnackBar(message: string, action: string, options?: MatSnackBarConfig): MatSnackBarRef<TextOnlySnackBar> {

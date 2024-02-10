@@ -1,8 +1,9 @@
-import { Component, EventEmitter, Output, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Output, Input, OnInit, OnChanges, SimpleChanges} from '@angular/core';
 import { Question } from '@app/interfaces/question';
 import { FormControl, Validators, FormBuilder, FormGroup, FormArray, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+//import test from 'node:test';
 //import { QuestionService } from '@app/services/question.service';
 // import { AdminQuestionBankComponent } from '../admin-page/admin-question-bank/admin-question-bank.component';
 
@@ -13,6 +14,7 @@ import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
     templateUrl: './create-question.component.html',
     styleUrls: ['./create-question.component.scss'],
 })
+
 export class CreateQuestionComponent implements OnInit, OnChanges {
     questionFormControl = new FormControl('', [Validators.required]);
     questionForm: FormGroup;
@@ -41,6 +43,7 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
         
         this.questionForm.valueChanges.subscribe((formValue) => {
             this.question.text = formValue?.text;
+            this.question.type = formValue?.type;
             this.question.points = formValue?.points;
             this.question.lastModification = new Date().toLocaleDateString();
         });
@@ -70,6 +73,7 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
                         isCorrect: [false, Validators.required],
                     }),
                 ]),
+                //lastModification: new Date().toString(),
             },
             { validators: this.validateChoicesLength },
             
@@ -80,7 +84,8 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
         this.questionForm.patchValue({
             text: this.question?.text,
             points: this.question?.points,
-            types: this.question?.type,
+            type: this.question?.type,
+            lastModification: this.question?.lastModification,
         });
 
         const choicesArray = this.questionForm.get('choices') as FormArray;
@@ -94,6 +99,7 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
             );
         });
     }
+
 
     response: string = '';
     modifyingForm : boolean = false; 
@@ -186,7 +192,6 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     onSubmit() {
         if (this.questionForm.valid) {
             const newQuestion: Question = this.questionForm.value;
-            // newQuestion.id =;
             newQuestion.lastModification = new Date().toLocaleString();
             newQuestion.id = this.getRandomString();
             this.createQuestionEvent.emit(newQuestion);
@@ -195,22 +200,6 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
 
     BASE_36 = 36;
     getRandomString = (): string => (Math.random() + 1).toString(this.BASE_36).substring(2);
-
-    getControls() {
-        return (this.questionForm.get('controlName') as FormArray).controls;
-    }
-
-    // https://angular.io/api/forms/FormControl
-    resetForm() {
-        // this.questionForm.reset({
-        //     questionFormControl: '',
-        //     points: 0,
-        //     choices: [
-        //         { choice: '', isCorrect: true },
-        //         { choice: '', isCorrect: true },
-        //     ],
-        // });
-    }
 
     updateChoiceNumbers() {
         this.choices.controls.forEach((control, index) => {

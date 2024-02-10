@@ -51,33 +51,33 @@
                 <a routerLink="/admin/games">Voir tous les jeux</a>
             </p> -->
 
-            <form [formGroup]="gameForm" (ngSubmit)="onSubmit()" class="game-form">
-                <mat-form-field class="game-title">
-                    <mat-label>Titre</mat-label>
-                    <input matInput id="text" type="text" formControlName="title" />
-                </mat-form-field>
+            <form [formGroup]="gameForm" (ngSubmit)="onSubmit()">
+                <div class="game-form-details">
+                    <mat-form-field class="game-title">
+                        <mat-label>Titre</mat-label>
+                        <input matInput id="text" type="text" formControlName="title" />
+                    </mat-form-field>
 
-                <mat-form-field class="game-description">
-                    <mat-label>Description</mat-label>
-                    <textarea matInput id="description" type="text" formControlName="description"> </textarea>
-                </mat-form-field>
+                    <mat-form-field class="game-description">
+                        <mat-label>Description</mat-label>
+                        <textarea matInput id="description" type="text" formControlName="description"> </textarea>
+                    </mat-form-field>
+                </div>
 
                 <!-- <button class="button" type="submit" [disabled]="gameForm.invalid && !questionAdded">Creer</button> -->
+
+                <!-- <button mat-raised-button color="basic" routerLink="/admin/games" id="admin-back-button">Retour</button> -->
+
+                <mat-card>
+                    <mat-card-content class="time-slider">
+                        <p>Durée de la minuterie</p>
+                        <mat-slider min="10" max="60" step="5" discrete="thumblabel" formControlName="duration">
+                            <input matSliderThumb [value]="game.duration" (change)="changeDuration($event)" />
+                        </mat-slider>
+                        <p>{{ game.duration }} secondes</p>
+                    </mat-card-content>
+                </mat-card>
             </form>
-        </div>
-
-        <div>
-            <!-- <button mat-raised-button color="basic" routerLink="/admin/games" id="admin-back-button">Retour</button> -->
-
-            <mat-card>
-                <mat-card-content class="time-slider">
-                    <p>Durée de la minuterie</p>
-                    <mat-slider min="10" max="60" step="5" discrete="thumblabel">
-                        <input matSliderThumb [value]="game.duration" (change)="changeDuration($event)" />
-                    </mat-slider>
-                    <p>{{ game.duration }} secondes</p>
-                </mat-card-content>
-            </mat-card>
 
             <div class="drop-destination" [class.visible]="isBankQuestionDragged">
                 <h3 class="">👇 Déposez la question dans la liste! 👇</h3>

@@ -85,7 +85,11 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
             }),
             concatMap((game: Game) => {
                 this.game = game;
-                this.isValid = true;
+                this.gameForm = this.formBuilder.nonNullable.group({
+                    title: [this.game.title],
+                    description: [this.game.description],
+                    duration: [this.game.duration.toString()],
+                });
                 return this.questionService.getAllQuestions();
             }),
         );

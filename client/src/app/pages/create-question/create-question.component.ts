@@ -3,7 +3,8 @@ import { Question } from '@app/interfaces/question';
 import { FormControl, Validators, FormBuilder, FormGroup, FormArray, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { QuestionService } from '@app/services/question.service';
+//import test from 'node:test';
+//import { QuestionService } from '@app/services/question.service';
 // import { AdminQuestionBankComponent } from '../admin-page/admin-question-bank/admin-question-bank.component';
 
 // import { GamesService } from '@app/services/games.service';
@@ -39,6 +40,7 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
         // this.initializeForm();
         this.questionForm.valueChanges.subscribe((formValue) => {
             this.question.text = formValue?.text;
+            this.question.type = formValue?.type;
             this.question.points = formValue?.points;
             this.question.lastModification = new Date().toLocaleDateString();
         });
@@ -66,9 +68,9 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
                         isCorrect: [false, Validators.required],
                     }),
                 ]),
+                //lastModification: new Date().toString(),
             },
             { validators: this.validateChoicesLength },
-            
         );
     }
 
@@ -76,7 +78,8 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
         this.questionForm.patchValue({
             text: this.question?.text,
             points: this.question?.points,
-            types: this.question?.type,
+            type: this.question?.type,
+            lastModification: this.question?.lastModification,
         });
 
         const choicesArray = this.questionForm.get('choices') as FormArray;
@@ -102,7 +105,6 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
         private fb: FormBuilder, // https://stackoverflow.com/questions/53362983/angular-reactiveforms-nested-formgroup-within-formarray-no-control-found?rq=3
     ) {
         this.initializeForm();
-        
     }
 
     buildChoices(): FormGroup {
@@ -185,7 +187,6 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     onSubmit() {
         if (this.questionForm.valid) {
             const newQuestion: Question = this.questionForm.value;
-            // newQuestion.id =;
             newQuestion.lastModification = new Date().toLocaleString();
             newQuestion.id = this.getRandomString();
             this.createQuestionEvent.emit(newQuestion);
@@ -194,22 +195,6 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
 
     BASE_36 = 36;
     getRandomString = (): string => (Math.random() + 1).toString(this.BASE_36).substring(2);
-
-    getControls() {
-        return (this.questionForm.get('controlName') as FormArray).controls;
-    }
-
-    // https://angular.io/api/forms/FormControl
-    resetForm() {
-        // this.questionForm.reset({
-        //     questionFormControl: '',
-        //     points: 0,
-        //     choices: [
-        //         { choice: '', isCorrect: true },
-        //         { choice: '', isCorrect: true },
-        //     ],
-        // });
-    }
 
     updateChoiceNumbers() {
         this.choices.controls.forEach((control, index) => {

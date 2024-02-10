@@ -11,7 +11,6 @@ import { Response } from 'express';
 export class GameController {
     constructor(private readonly gameService: GameService) {}
 
-    // TODO: Return types
     @Get('/')
     async allGames(@Res() response: Response) {
         try {
@@ -42,18 +41,16 @@ export class GameController {
         }
     }
 
-    // TODO: Unit test
     @Post('/validate-question/')
     async validateQuestion(@Body() createQuestionDto: CreateQuestionDto, @Res() response: Response) {
         try {
-            const questionToValidate = await this.gameService.validateQuestion(createQuestionDto);
-            response.status(HttpStatus.OK).send(JSON.stringify(questionToValidate));
+            const isValidQuestion = await this.gameService.validateQuestion(createQuestionDto);
+            response.status(HttpStatus.OK).send(isValidQuestion);
         } catch (error) {
             response.status(HttpStatus.BAD_REQUEST).send({ message: error });
         }
     }
 
-    // Toggle Visibility doesn't change date
     @Patch('/:id')
     async toggleGameVisibility(@Param('id') id: string, @Res() response: Response) {
         try {

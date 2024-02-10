@@ -30,9 +30,17 @@ export class GameValidationService {
         return quantity >= min && quantity <= max;
     }
 
+    isUniqueChoices(choices: Choice[]): boolean {
+        const choicesTexts = [];
+        choices.forEach((choice) => {
+            choicesTexts.push(choice.text);
+        });
+        return new Set(choicesTexts).size === choicesTexts.length;
+    }
+
     findQuestionErrors(question: CreateQuestionDto): string[] {
         const errorMessages: string[] = [];
-
+        const isUniqueChoices = this.isUniqueChoices(question.choices);
         const isValidChoicesNumber = this.isValidRange(question.choices.length, constants.minimumChoicesNumber, constants.maximumChoicesNumber);
         const isValidPointsRange = this.isValidRange(question.points, constants.minimumPoints, constants.maximumPoints);
         const isValidPointsMultiple = question.points % constants.stepPoints === 0;
@@ -40,6 +48,9 @@ export class GameValidationService {
         const isValidQuestionRatio = this.isValidChoicesRatio(question);
         if (!isValidChoicesNumber) {
             errorMessages.push(errorMessage.choicesNumber);
+        }
+        if (!isUniqueChoices) {
+            errorMessages.push(errorMessage.noRepeatChoice);
         }
         if (!isValidPointsRange || !isValidPointsMultiple) {
             errorMessages.push(errorMessage.points);

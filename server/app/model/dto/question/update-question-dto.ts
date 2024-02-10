@@ -22,5 +22,6 @@ export class UpdateQuestionDto {
     @ApiProperty()
     choices: Choice[];
 
+    @ApiProperty()
     lastModification: Date;
 }

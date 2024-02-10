@@ -1,5 +1,6 @@
 import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
+import { Question } from '@app/model/database/question';
 import { GameService } from '@app/services/game/game.service';
 import { Injectable } from '@nestjs/common';
 
@@ -26,26 +27,26 @@ export class MatchService {
         return game;
     }
 
-    async getBackupGame(gameId: string): Promise<Game> {
+    // TODO: Check if it's okay to not put async here (since there is no communication with DB)
+    getBackupGame(gameId: string): Game {
         return this.backupGames.find((currentGame) => {
             return currentGame.id === gameId;
         });
     }
 
-    async getBackupQuestion(gameId: string, questionId: string) {
-        const game = await this.getBackupGame(gameId);
+    getBackupQuestion(gameId: string, questionId: string): Question {
+        const game = this.getBackupGame(gameId);
         return game.questions.find((currentQuestion) => {
             return currentQuestion.id === questionId;
         });
     }
 
-    async getChoices(gameId: string, questionId: string): Promise<Choice[]> {
-        return (await this.getBackupQuestion(gameId, questionId)).choices;
+    getChoices(gameId: string, questionId: string): Choice[] {
+        return this.getBackupQuestion(gameId, questionId).choices;
     }
 
-    // TODO: Tests
-    async validatePlayerChoice(gameId: string, questionId: string, selectedChoices: string[]): Promise<boolean> {
-        const question = await this.getBackupQuestion(gameId, questionId);
+    validatePlayerChoice(gameId: string, questionId: string, selectedChoices: string[]): boolean {
+        const question = this.getBackupQuestion(gameId, questionId);
         const expectedChoices: string[] = [];
         question.choices.forEach((choice) => {
             if (choice.isCorrect) {
@@ -55,7 +56,6 @@ export class MatchService {
         return expectedChoices.sort().toString() === selectedChoices.sort().toString();
     }
 
-    // Method to allow players to play a game that becomes deleted during the match.
     async saveBackupGame(gameId: string): Promise<Game> {
         try {
             let backupGame = await this.gameService.getGameById(gameId);
@@ -63,14 +63,18 @@ export class MatchService {
             backupGame = this.removeIsCorrectField(backupGame);
             return backupGame;
         } catch (error) {
-            return Promise.reject('Le jeu ne peut pas être accédé.');
+            return Promise.reject('Le jeu est introuvable.');
         }
     }
 
     async deleteBackupGame(gameToDeleteId: string): Promise<void> {
-        this.backupGames = this.backupGames.filter((game: Game) => {
-            return game.id !== gameToDeleteId;
-        });
+        const deleteIndex = this.backupGames.findIndex((game: Game) => game.id === gameToDeleteId);
+        const notFoundIndex = -1;
+        if (deleteIndex !== notFoundIndex) {
+            this.backupGames.splice(deleteIndex, 1);
+        } else {
+            return Promise.reject("La copie du jeu n'a pas pu être supprimée.");
+        }
     }
 
     removeIsCorrectField(game: Game): Game {

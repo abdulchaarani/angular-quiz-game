@@ -8,7 +8,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 
-// TODO: Add Validation Service
 @Injectable()
 export class QuestionService {
     constructor(
@@ -34,21 +33,15 @@ export class QuestionService {
         return await this.questionModel.find({});
     }
 
-    //
     async getQuestionByName(name: string): Promise<Question> {
-        return await this.questionModel.findOne({ question: name });
-    }
-
-    async getAllMultipleChoiceQuestions(): Promise<Question[]> {
-        return await this.questionModel.find({ type: 'QCM' });
+        return await this.questionModel.findOne({ text: name });
     }
 
     async getQuestionById(questionId: string): Promise<Question> {
         return await this.questionModel.findOne({ id: questionId });
     }
 
-    async addQuestion(question: CreateQuestionDto): Promise<void> {
-        // TODO: Unit-test for when a question already exists
+    async addQuestion(question: CreateQuestionDto): Promise<Question> {
         if (await this.getQuestionByName(question.text)) {
             return Promise.reject('La question existe déjà dans la banque.');
         }
@@ -56,27 +49,29 @@ export class QuestionService {
         question.lastModification = new Date();
         const errorMessages = this.validation.findQuestionErrors(question);
         if (errorMessages.length !== 0) {
-            return Promise.reject(`La question est invalide:\n${errorMessages}`);
+            return Promise.reject(`La question est invalide:\n${errorMessages.join('\n')}`);
         }
         try {
             await this.questionModel.create(question);
+            return question;
         } catch (error) {
-            return Promise.reject(`La question n'a pas pu être ajoutée.: ${error}`);
+            return Promise.reject(`La question n'a pas pu être ajoutée: ${error}`);
         }
     }
 
-    async updateQuestion(question: UpdateQuestionDto): Promise<void> {
+    async updateQuestion(question: UpdateQuestionDto): Promise<Question> {
         const filterQuery = { id: question.id };
         try {
+            if (!(await this.getQuestionById(question.id))) {
+                return Promise.reject('La question est introuvable.');
+            }
             question.lastModification = new Date();
             const errorMessages = this.validation.findQuestionErrors(question);
             if (errorMessages.length !== 0) {
-                return Promise.reject(`La question est invalide:\n${errorMessages}`);
+                return Promise.reject(`La question est invalide:\n${errorMessages.join('\n')}`);
             }
-            const res = await this.questionModel.updateOne(filterQuery, question);
-            if (res.matchedCount === 0) {
-                return Promise.reject('La question est introuvable.');
-            }
+            await this.questionModel.updateOne(filterQuery, question);
+            return question;
         } catch (error) {
             return Promise.reject(`La question n'a pas été mise à jour: ${error}`);
         }
@@ -84,12 +79,12 @@ export class QuestionService {
 
     async deleteQuestion(questionId: string): Promise<void> {
         try {
-            const res = await this.questionModel.deleteOne({
-                id: questionId,
-            });
-            if (res.deletedCount === 0) {
+            if (!(await this.getQuestionById(questionId))) {
                 return Promise.reject('La question est introuvable.');
             }
+            await this.questionModel.deleteOne({
+                id: questionId,
+            });
         } catch (error) {
             return Promise.reject(`La question n'a pas pu être supprimée: ${error}`);
         }

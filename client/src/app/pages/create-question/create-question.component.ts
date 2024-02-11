@@ -1,9 +1,8 @@
-import { Component, EventEmitter, Output, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
-import { Question } from '@app/interfaces/question';
-import { FormControl, Validators, FormBuilder, FormGroup, FormArray, AbstractControl, ValidationErrors } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Question } from '@app/interfaces/question';
 //import { GamesService } from '@app/services/games.service';
 
 @Component({
@@ -22,6 +21,9 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     private readonly snackBarDisplayTime = 2000;
     private readonly minChoices = 2;
     private readonly maxChoices = 4;
+    color: any;
+    checked: any;
+    disabled: any;
     //private apiService: ApiService<Question>;
 
     onCancel(): void {
@@ -31,24 +33,19 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     // Reference for forms: https://stackblitz.com/edit/angular-nested-formarray-dynamic-forms?file=src%2Fapp%2Fapp.component.html
     // references for above code: https://stackoverflow.com/questions/67834802/template-error-type-abstractcontrol-is-not-assignable-to-type-formcontrol
 
-
     // Modify for this to only be accessible if we're modifying a question
     ngOnInit(): void {
-
         //this.initializeForm();
 
         this.questionForm.valueChanges.subscribe((formValue) => {
-            
             this.question.text = formValue.text;
             this.question.points = formValue.points;
             //this.quest
             this.question.lastModification = new Date().toLocaleDateString();
-            this.question.id = "5";
-            
-    
-            //console.log("choices",this.question.choices);
-          });
+            this.question.id = '5';
 
+            //console.log("choices",this.question.choices);
+        });
     }
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -64,7 +61,7 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
             type: ['QCM'],
             choices: this.fb.array([
                 this.fb.group({
-                    text: ['', Validators.required], // change to text 
+                    text: ['', Validators.required], // change to text
                     isCorrect: [true, Validators.required],
                 }),
                 this.fb.group({
@@ -102,8 +99,7 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     constructor(
         private snackBar: MatSnackBar,
         private fb: FormBuilder, // https://stackoverflow.com/questions/53362983/angular-reactiveforms-nested-formgroup-within-formarray-no-control-found?rq=3
-    ) 
-    {
+    ) {
         this.initializeForm();
     }
 
@@ -192,7 +188,7 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
         }
     }
 
-    BASE_36 = 36; 
+    BASE_36 = 36;
     getRandomString = (): string => (Math.random() + 1).toString(this.BASE_36).substring(2);
 
     getControls() {

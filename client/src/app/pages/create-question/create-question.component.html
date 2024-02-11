@@ -1,76 +1,61 @@
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-<your-integrity-hash>" />
+<div class="main-container">
+    <form [formGroup]="questionForm" class="question-form" (ngSubmit)="onSubmit()">
+        <mat-form-field class="question-text-container">
+            <mat-label>Question</mat-label>
+            <input class="question-input" matInput formControlName="text" placeholder="Texte de la question" />
+        </mat-form-field>
+        <div class="question-properties">
+            <div cdkDropList (cdkDropListDropped)="drop($event)">
+                <div formArrayName="choices" class="choices-container" *ngFor="let text of choices.controls; let i = index">
+                    <div class="choice-container" cdkDrag>
+                        <div class="choice-container" [formGroupName]="i">
+                            <mat-form-field class="choice-input-container">
+                                <p class="choice-number" matPrefix>{{ i + 1 }}.</p>
+                                <input class="choice-input" matInput formControlName="text" placeholder="Choix de réponse" />
+                                <span matSuffix class="choice-buttons">
+                                    <mat-checkbox formControlName="isCorrect" color="primary" [checked]="checked" [disabled]="disabled">
+                                    </mat-checkbox>
+                                    <button mat-icon-button (click)="removeChoice(i)" color="accent"><mat-icon>delete</mat-icon></button>
 
-    <div class="question-border">
-        <form [formGroup]="questionForm" class="question-form" (ngSubmit)="onSubmit()">
-            <mat-form-field class="full-width">
-                <mat-label class="question-label">Question</mat-label>
-                <input class="questionInput" matInput formControlName="text" placeholder="Entrez la question" />
-            </mat-form-field>
-    
-            <!--formControlName="choice" 
-            formControlName="isCorrect" -->
-    
-            <span class="submit-button-row">
-                <button mat-raised-button color="primary" type="submit" class="submit-button" [disabled]="!questionForm.valid">Sauvegarder</button>
-            </span>
-            <div cdkDropList class="" (cdkDropListDropped)="drop($event)">
-                <div formArrayName="choices" class="text" *ngFor="let text of choices.controls; let i = index">
-                    <div class="example-box" cdkDrag>
-                        <div class="input-container" [formGroupName]="i">
-                            <span class="choice-number">{{ i + 1 }}. </span>
-                            <input class="choicesInput" formControlName="text" />
-                            <input type="checkbox" formControlName="isCorrect" />
-                            <button mat-raised-button color="primary" type="button" class="delete-button" (click)="removeChoice(i)">
-                                <i class="fas fa-trash"></i>
-                            </button>
-    
-                            <svg class="svg" width="20px" fill="currentColor" viewBox="0 0 24 24" cdkDragHandle>
-                                <path
-                                    d="M10 9h4V6h3l-5-5-5 5h3v3zm-1 1H6V7l-5 5 5 5v-3h3v-4zm14 2l-5-5v3h-3v4h3v3l5-5zm-9 3h-4v3H7l5 5 5-5h-3v-3z"
-                                ></path>
-                                <path d="M0 0h24v24H0z" fill="none"></path>
-                            </svg>
+                                    <svg width="20px" fill="currentColor" viewBox="0 0 24 24" cdkDragHandle>
+                                        <path
+                                            d="M10 9h4V6h3l-5-5-5 5h3v3zm-1 1H6V7l-5 5 5 5v-3h3v-4zm14 2l-5-5v3h-3v4h3v3l5-5zm-9 3h-4v3H7l5 5 5-5h-3v-3z"
+                                        ></path>
+                                        <path d="M0 0h24v24H0z" fill="none"></path>
+                                    </svg>
+                                </span>
+                            </mat-form-field>
                         </div>
                     </div>
                 </div>
+                <button mat-raised-button color="primary" class="add-button" type="button" (click)="addChoice()">
+                    <mat-icon>add</mat-icon>
+                    Ajouter un choix de réponse
+                </button>
             </div>
-    
-            <span class="question-type">
+
+            <div id="question-options">
                 <mat-form-field>
                     <mat-label>Type de Question</mat-label>
                     <mat-select formControlName="type">
                         <mat-option *ngFor="let type of ['QCM', 'QRL']" [value]="type">{{ type }}</mat-option>
                     </mat-select>
                 </mat-form-field>
-            </span>
-    
-            <span class="points-box-container">
+
                 <mat-form-field>
-                    <mat-label class="points-box">Points</mat-label>
+                    <mat-label>Points</mat-label>
                     <mat-select formControlName="points">
                         <mat-option *ngFor="let point of [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]" [value]="point">{{ point }}</mat-option>
                     </mat-select>
                 </mat-form-field>
-            </span>
-    
-            <div class="add-button-container">
-                <button mat-raised-button color="primary" class="add-button" type="button" (click)="addChoice()">+</button>
+                <button mat-raised-button color="primary" [disabled]="!questionForm.valid">
+                    <mat-icon>add_to_photos</mat-icon>Ajouter à la banque de questions
+                </button>
+                <button mat-raised-button color="primary" type="submit" class="submit-button" [disabled]="!questionForm.valid">
+                    <mat-icon>check</mat-icon>
+                    Vérifier si la question est valide
+                </button>
             </div>
-        </form>
-    </div>
-    
-    <span class="add-to-banque-question-button">
-        <button mat-raised-button color="primary" class="button">Ajouter à la banque</button>
-    </span>
-    
-    
-    <!-- 
-        formGroupName="choicesGroup"
-    
-                            *ngIf="$any(questionForm)?.choices?.controls"
-                        [formControl]="$any(questionForm).choices.controls[i].get('isCorrect')"
-    
-    <span class="duplicate-button-row">
-        <button mat-raised-button color="primary" class="duplicate-button">Duplicate</button>
-    </span>
-    -->
+        </div>
+    </form>
+</div>

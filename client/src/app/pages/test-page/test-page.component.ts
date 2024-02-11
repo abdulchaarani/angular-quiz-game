@@ -50,6 +50,7 @@ export class TestPageComponent implements OnInit {
                 this.currentQuestion = this.questions[0];
                 this.currentQuestionIndex = 0;
             },
+            // TODO: handle error
             error: () => console.log('caca'),
         });
     }

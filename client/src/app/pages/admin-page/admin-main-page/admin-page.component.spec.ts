@@ -1,7 +1,8 @@
 import { HttpClient, HttpHandler, HttpResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { DialogRenameGameComponent } from '@app/components/dialog-rename-game/dialog-rename-game.component';
 import { Game } from '@app/interfaces/game';
 import { GamesService } from '@app/services/games.service';
 import { NotificationService } from '@app/services/notification.service';
@@ -9,15 +10,21 @@ import { of, throwError } from 'rxjs';
 import { AdminPageComponent } from './admin-page.component';
 import SpyObj = jasmine.SpyObj;
 
-// TODO: 53,83,90-96
+// TODO: 53
 describe('AdminPageComponent', () => {
     let component: AdminPageComponent;
     let fixture: ComponentFixture<AdminPageComponent>;
     let gamesServiceSpy: SpyObj<GamesService>;
     let notificationServiceSpy: SpyObj<NotificationService>;
     const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK' });
+    let dialogMock: SpyObj<MatDialog>;
 
     beforeEach(waitForAsync(() => {
+        dialogMock = jasmine.createSpyObj({
+            open: jasmine.createSpyObj({
+                afterClosed: of('mockResult'),
+            }),
+        });
         gamesServiceSpy = jasmine.createSpyObj('GamesService', [
             'getGames',
             'getGameById',
@@ -38,6 +45,7 @@ describe('AdminPageComponent', () => {
             providers: [
                 HttpClient,
                 HttpHandler,
+                { provide: MatDialog, useValue: dialogMock },
                 { provide: GamesService, useValue: gamesServiceSpy },
                 { provide: NotificationService, useValue: notificationServiceSpy },
             ],
@@ -129,13 +137,23 @@ describe('AdminPageComponent', () => {
         const addGameSpy = spyOn(component, 'addGame');
         const mockGameStringified = JSON.stringify(newMockGame);
         component.addStringifiedGame(mockGameStringified);
-        expect(addGameSpy).toHaveBeenCalledWith(newMockGame);
+        expect(addGameSpy).toHaveBeenCalledWith(JSON.parse(mockGameStringified));
     });
 
     it('addStringifiedGame() should not add the game if it is undefined', () => {
         const addGameSpy = spyOn(component, 'addGame');
         component.addStringifiedGame('');
         expect(addGameSpy).not.toHaveBeenCalled();
+    });
+
+    it('openDialog() should open a dialog', () => {
+        const addGameSpy = spyOn(component, 'addGame');
+        component.openDialog(newMockGame);
+        expect(dialogMock.open).toHaveBeenCalledWith(DialogRenameGameComponent, {
+            data: '',
+        });
+        dialogMock.closeAll;
+        expect(addGameSpy).toHaveBeenCalled();
     });
 });
 

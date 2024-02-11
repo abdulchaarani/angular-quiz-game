@@ -73,7 +73,7 @@ describe('HomePageComponent', () => {
         expect(href).toEqual('/host');
     });
 
-    it('openDialog() should open a dialog', () => {
+    it('openDialog() should open a dialog and allow to submit password', () => {
         const submitPasswordSpy = spyOn(component, 'submitPassword');
         component.password = 'mock';
         component.openDialog();

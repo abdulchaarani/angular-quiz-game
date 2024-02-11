@@ -98,11 +98,24 @@ describe('GamesController', () => {
         await controller.addGame(new Game(), res);
     });
 
-    it('addGame() should return BAD_REQUEST when service is not able to find the course', async () => {
+    it('addGame() should return BAD_REQUEST when the game cannot be added.', async () => {
         gameService.addGame.rejects();
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.BAD_REQUEST);
+            return res;
+        };
+        res.send = () => res;
+        await controller.addGame(new Game(), res);
+    });
+
+    it('addGame() should return CONFLICT if the game already exists.', async () => {
+        jest.spyOn(gameService, 'addGame').mockImplementationOnce(async () => {
+            return Promise.reject('Un jeu du même titre existe déjà.');
+        });
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.CONFLICT);
             return res;
         };
         res.send = () => res;

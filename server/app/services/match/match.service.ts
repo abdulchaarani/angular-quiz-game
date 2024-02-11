@@ -6,7 +6,6 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class MatchService {
-    // TODO: Tests
     backupGames: Game[];
     constructor(private readonly gameService: GameService) {
         this.backupGames = [];
@@ -27,7 +26,6 @@ export class MatchService {
         return game;
     }
 
-    // TODO: Check if it's okay to not put async here (since there is no communication with DB)
     getBackupGame(gameId: string): Game {
         return this.backupGames.find((currentGame) => {
             return currentGame.id === gameId;

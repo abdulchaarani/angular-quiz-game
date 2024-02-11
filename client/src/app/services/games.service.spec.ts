@@ -8,7 +8,7 @@ import { of } from 'rxjs';
 import { GamesService } from './games.service';
 import { NotificationService } from './notification.service';
 
-fdescribe('GameService', () => {
+describe('GameService', () => {
     let service: GamesService;
     let notificationService: NotificationService;
 

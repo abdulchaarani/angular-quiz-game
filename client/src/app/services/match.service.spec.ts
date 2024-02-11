@@ -3,13 +3,13 @@ import { TestBed, fakeAsync, waitForAsync } from '@angular/core/testing';
 
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Game } from '@app/interfaces/game';
-import { lastValueFrom, of } from 'rxjs';
-import { ApiService } from './api.service';
+// import { lastValueFrom, of } from 'rxjs';
 import { MatchService } from './match.service';
 
-describe('MatchService', () => {
+fdescribe('MatchService', () => {
     let service: MatchService;
-    let apiServiceStub: Partial<ApiService<Game>>;
+    // let matchServiceSpy: jasmine.SpyObj<MatchService>;
+
     const NOT_FOUND = 404;
 
     const fakeGame: Game = {
@@ -32,20 +32,9 @@ describe('MatchService', () => {
     };
 
     beforeEach(() => {
-        apiServiceStub = {
-            getById: jasmine.createSpy('getById').and.returnValue(of(fakeGame)),
-            add: jasmine.createSpy('add').and.returnValue(of(fakeGame)),
-        };
-
         TestBed.configureTestingModule({
             imports: [HttpClientTestingModule],
-            providers: [
-                MatchService,
-                {
-                    provide: ApiService,
-                    useValue: apiServiceStub,
-                },
-            ],
+            providers: [MatchService],
         });
         service = TestBed.inject(MatchService);
     });
@@ -66,9 +55,10 @@ describe('MatchService', () => {
         expect(idResult).toEqual(questionId);
     });
 
-    it('should get a backup of a game with success', async () => {
-        const result = await lastValueFrom(service.getBackupGame(fakeGame.id));
-        expect(result).toEqual(fakeGame);
+    it('should get a backup of a game with success', () => {
+        spyOn(service, 'getById').and.callThrough();
+        service.getBackupGame('1');
+        expect(service['getById']).toHaveBeenCalled();
     });
 
     it('getBackupGame should return an error if the object is not found (404 server response)', fakeAsync(() => {

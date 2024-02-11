@@ -11,7 +11,7 @@ import { QuestionService } from './question.service';
 })
 export class GamesService extends ApiService<Game> {
     isPendingChangesObservable: Observable<boolean>;
-    private isPendingChangesSource = new BehaviorSubject<boolean>(false);
+    isPendingChangesSource = new BehaviorSubject<boolean>(false);
 
     constructor(
         private readonly notificationService: NotificationService,

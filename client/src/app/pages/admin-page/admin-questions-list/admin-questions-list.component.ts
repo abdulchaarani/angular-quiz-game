@@ -182,7 +182,6 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
         }
     }
 
-
     async openConfirmDialog() {
         const confirmation$ = this.gamesService.confirmBankUpload(this.currentQuestion.text);
         const confirmation = await lastValueFrom(confirmation$);

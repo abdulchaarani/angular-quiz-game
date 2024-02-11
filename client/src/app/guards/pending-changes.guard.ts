@@ -8,7 +8,7 @@ export const pendingChangesGuard: CanDeactivateFn<unknown> = async () => {
     const gameService = inject(GamesService);
     const notificationService = inject(NotificationService);
 
-    const pendingChange = gameService.isPendingChangesObservable.subscribe();
+    const pendingChange = gameService.isPendingChangesSource.getValue();
     if (pendingChange) {
         const confirmation$ = notificationService.openConfirmDialog({
             data: {

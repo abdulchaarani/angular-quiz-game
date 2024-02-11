@@ -1,10 +1,10 @@
-import { AuthController } from '@app/auth/auth.controller';
-import { AuthService } from '@app/auth/auth.service';
+import { AuthController } from '@app/controllers/authentication/auth.controller';
 import { GameController } from '@app/controllers/game/game.controller';
 import { MatchController } from '@app/controllers/match/match.controller';
 import { QuestionController } from '@app/controllers/question/question.controller';
 import { Game, gameSchema } from '@app/model/database/game';
 import { Question, questionSchema } from '@app/model/database/question';
+import { AuthService } from '@app/services/authentication/auth.service';
 import { GameValidationService } from '@app/services/game-validation/game-validation.service';
 import { GameService } from '@app/services/game/game.service';
 import { MatchService } from '@app/services/match/match.service';

@@ -19,7 +19,7 @@ export class ExampleService {
     helloWorld(): Message {
         return {
             title: 'Hello world',
-            body: `Lorem Ipsum`,
+            body: 'Lorem Ipsum',
         };
     }
 

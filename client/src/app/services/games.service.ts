@@ -82,11 +82,11 @@ export class GamesService extends ApiService<Game> {
     }
 
     markPendingChanges() {
-        this.isPendingChangesSource.next(true);
+        this.isPendingChangesSource.next(true); // TODO: Test
     }
 
     resetPendingChanges() {
-        this.isPendingChangesSource.next(false);
+        this.isPendingChangesSource.next(false); // TODO: Test
     }
 
     confirmBankUpload(questionTitle: string) {

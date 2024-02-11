@@ -10,7 +10,7 @@ import { NotificationService } from './notification.service';
 
 fdescribe('GameService', () => {
     let service: GamesService;
-    // let notificationService: NotificationService;
+    let notificationService: NotificationService;
 
     beforeEach(() => {
         TestBed.configureTestingModule({
@@ -25,7 +25,7 @@ fdescribe('GameService', () => {
             ],
         });
         service = TestBed.inject(GamesService);
-        // notificationService = TestBed.inject(NotificationService);
+        notificationService = TestBed.inject(NotificationService);
     });
 
     it('should be created', () => {
@@ -122,10 +122,37 @@ fdescribe('GameService', () => {
         expect(revokeObjectSpy).toHaveBeenCalled();
     });
 
-    // it('should open a snackbar to display a success message', () => {
-    //     const notificationSpy = spyOn(notificationService, 'displaySuccessMessage').and.callThrough();
-    //     service.displaySuccessMessage()
-    // });
+    it('should open a snackbar to display a success message', () => {
+        const notificationSpy = spyOn(notificationService, 'displaySuccessMessage');
+        const mockMessage = 'mock';
+        service.displaySuccessMessage(mockMessage);
+        expect(notificationSpy).toHaveBeenCalledWith(mockMessage);
+    });
+
+    it('should displayErrorMessage() should display an error message', () => {
+        const notificationSpy = spyOn(notificationService, 'displayErrorMessage');
+        const mockMessage = 'mock';
+        service.displayErrorMessage(mockMessage);
+        expect(notificationSpy).toHaveBeenCalledWith(mockMessage);
+    });
+
+    it('should open confirm dialog to confirm bank upload', () => {
+        const notificationSpy = spyOn(notificationService, 'openConfirmDialog');
+        const mockTitle = 'mockTitle';
+        service.confirmBankUpload(mockTitle);
+        const mockData = {
+            icon: 'info_outline',
+            title: 'Êtes-vous certain de vouloir ajouter cette question à la banque de questions?',
+            text: mockTitle,
+        };
+        expect(notificationSpy).toHaveBeenCalledWith({ data: mockData });
+    });
+
+    it('should open create question modal', () => {
+        const notificationSpy = spyOn(notificationService, 'openCreateQuestionModal');
+        service.openCreateQuestionModal();
+        expect(notificationSpy).toHaveBeenCalled();
+    });
 });
 
 const BASE_36 = 36;

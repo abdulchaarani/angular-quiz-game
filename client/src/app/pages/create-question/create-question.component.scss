@@ -1,112 +1,41 @@
-.question-form-field {
-    margin-top: 5%;
-    margin-left: 5%;
-    width: 80%;
+.main-container {
+    padding: 2rem;
 }
 
-.question-input::placeholder {
-    font-size: 20px;
-    color: #999;
+.question-properties {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5vw;
 }
 
-.question-input.ng-valid {
-    font-size: 24px;
+.choices-container {
+    display: flex;
+    align-items: center;
 }
 
-.question-form {
-    width: 100%;
+.choice-container {
+    display: flex;
+    align-items: center;
 }
 
-.question-label {
-    font-size: 20px;
-}
-.question-label::after {
-    font-size: 20px;
+.choice-input-container {
+    width: 50vw;
+    display: flex;
 }
 
-.question-input {
-    font-size: 28px;
+.choice-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 1rem;
 }
 
-#h1 {
-    height: 10%;
+.question-text-container {
+    display: flex;
 }
 
-.choices-input {
-    background-color: #ece5e5;
-    width: 80%;
-    margin-left: 5%;
-    margin-top: 10px;
-    height: 40px;
-    padding: 10px;
-    box-sizing: border-box;
-    border-radius: 5px;
-}
-
-.question-input {
-    margin-top: 5%;
-    margin-left: 5%;
-    width: 90%;
-    height: 5%;
-    border: #afa8a8;
-    border-bottom: 3px solid #cac4c4;
-}
-
-.points-box-container {
-    position: absolute;
-    top: 30%;
-    height: 10%;
-    width: 10%;
-    margin-left: 70%;
-}
-
-.question-type {
-    position: absolute;
-    top: 15%;
-    border-left: 2px #333;
-    margin-left: 70%;
-    margin-top: 0%;
-    height: 10%;
-    width: 10%;
-}
-
-.checkbox-container {
-    width: 10px;
-}
-
-.question-border {
-    margin-left: 15%;
-    //height: 100%;
-    height: 500px;
-    width: 70%;
-    background-color: #f5f4f4;
-}
-
-.add-button-container {
-    position: absolute;
-    top: 90%;
-    left: 75%;
-}
-
-.add-button {
-    width: 80px;
-    height: 30px;
-    font-size: 18px;
-    margin-bottom: 10px;
-}
-
-.submit-button-row {
-    bottom: 60%;
-    left: 83.3%;
-    font-size: 18px;
-    padding: 10px 20px;
-}
-.submit-button {
-    width: 100px;
-    height: 30px;
-    font-size: 15px;
-}
-
-.svg {
-    right: 5%;
+#question-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
 }

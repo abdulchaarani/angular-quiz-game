@@ -1,6 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { HomePageComponent } from '../../pages/home-page/home-page.component';
+import { HomePageComponent } from '@app/pages/home-page/home-page.component';
 
 export interface DialogData {
     username: string;
@@ -15,7 +15,7 @@ export interface DialogData {
 export class DialogAdminPasswordComponent {
     public isHiddenPassword: boolean;
     constructor(
-        public dialogRef: MatDialogRef<HomePageComponent>,
+        private dialogRef: MatDialogRef<HomePageComponent>,
         @Inject(MAT_DIALOG_DATA) public data: DialogData,
     ) {
         this.isHiddenPassword = true;

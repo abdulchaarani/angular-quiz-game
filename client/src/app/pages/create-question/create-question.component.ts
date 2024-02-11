@@ -1,8 +1,9 @@
-import { Component, EventEmitter, Output, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
-import { Question } from '@app/interfaces/question';
-import { FormControl, Validators, FormBuilder, FormGroup, FormArray, AbstractControl, ValidationErrors } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Question } from '@app/interfaces/question';
+//import { GamesService } from '@app/services/games.service';
 
 @Component({
     selector: 'app-create-question',
@@ -23,6 +24,9 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     private readonly minChoices = 2;
     private readonly maxChoices = 4;
     private readonly base36 = 36;
+    color: any;
+    checked: any;
+    disabled: any;
 
     constructor(
         private snackBar: MatSnackBar,

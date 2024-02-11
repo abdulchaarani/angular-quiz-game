@@ -1,7 +1,7 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Game } from '@app/interfaces/game';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { ApiService } from './api.service';
 import { NotificationService } from './notification.service';
 import { QuestionService } from './question.service';
@@ -10,7 +10,8 @@ import { QuestionService } from './question.service';
     providedIn: 'root',
 })
 export class GamesService extends ApiService<Game> {
-    isPendingChanges = false;
+    isPendingChangesObservable: Observable<boolean>;
+    private isPendingChangesSource = new BehaviorSubject<boolean>(false);
 
     constructor(
         private readonly notificationService: NotificationService,
@@ -18,6 +19,7 @@ export class GamesService extends ApiService<Game> {
         http: HttpClient,
     ) {
         super(http, 'admin/games');
+        this.isPendingChangesObservable = this.isPendingChangesSource.asObservable();
     }
 
     getGames(): Observable<Game[]> {
@@ -78,11 +80,11 @@ export class GamesService extends ApiService<Game> {
     }
 
     markPendingChanges() {
-        this.isPendingChanges = true;
+        this.isPendingChangesSource.next(true);
     }
 
     resetPendingChanges() {
-        this.isPendingChanges = false;
+        this.isPendingChangesSource.next(false);
     }
 
     confirmBankUpload(questionTitle: string) {

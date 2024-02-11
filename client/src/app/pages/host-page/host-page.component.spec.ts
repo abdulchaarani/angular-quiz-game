@@ -3,12 +3,13 @@ import { ComponentFixture, TestBed, fakeAsync, flush, tick } from '@angular/core
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { GamesService } from '@app/services/games.service';
-
 import { Game } from '@app/interfaces/game';
 import { MatchService } from '@app/services/match.service';
 import { NotificationService } from '@app/services/notification.service';
 import { of, throwError } from 'rxjs';
 import { HostPageComponent } from './host-page.component';
+import { MatDialog } from '@angular/material/dialog';
+import { MatDialogMock } from '@app/testing/mat-dialog-mock';
 
 describe('HostPageComponent', () => {
     let component: HostPageComponent;

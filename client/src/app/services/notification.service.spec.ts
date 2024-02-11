@@ -2,6 +2,8 @@ import { TestBed } from '@angular/core/testing';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { NotificationService } from './notification.service';
+import { MatDialog } from '@angular/material/dialog';
+import { MatDialogMock } from '@app/testing/mat-dialog-mock';
 
 describe('NotificationService', () => {
     let service: NotificationService;
@@ -10,7 +12,7 @@ describe('NotificationService', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             imports: [MatSnackBarModule, NoopAnimationsModule],
-            providers: [NotificationService, MatSnackBar],
+            providers: [NotificationService, MatSnackBar, { provide: MatDialog, useClass: MatDialogMock }],
         });
 
         service = TestBed.inject(NotificationService);

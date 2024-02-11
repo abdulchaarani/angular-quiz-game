@@ -7,6 +7,8 @@ import { HttpResponse } from '@angular/common/http';
 import { SortByLastModificationPipe } from '@app/pipes/sort-by-last-modification.pipe';
 import { NotificationService } from '@app/services/notification.service';
 import { of } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+
 
 describe('AdminQuestionBankComponent', () => {
     let component: AdminQuestionBankComponent;
@@ -52,6 +54,7 @@ describe('AdminQuestionBankComponent', () => {
             providers: [
                 { provide: QuestionService, useValue: questionServiceSpy },
                 { provide: NotificationService, useValue: notificationServiceSpy },
+                {provide: MatDialog, useValue: {}}
             ],
         });
         fixture = TestBed.createComponent(AdminQuestionBankComponent);

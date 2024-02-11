@@ -1,53 +1,25 @@
-import { getRandomString } from '@app/constants/random-string';
+import { gameMocks } from '@app/constants/game-mocks';
 import { Game, GameDocument } from '@app/model/database/game';
+import { Question } from '@app/model/database/question';
 import { GameValidationService } from '@app/services/game-validation/game-validation.service';
 import { Logger } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Model } from 'mongoose';
+import { SinonStubbedInstance, createStubInstance } from 'sinon';
+import * as uuid from 'uuid';
 import { GameService } from './game.service';
+jest.mock('uuid');
 
-// TODO: Add tests for the add from JSON
-// TODO: Unit tests with upsert()
-// TODO: Unit tests with toggleGameVisibility()
-
-const getFakeGame = (): Game => ({
-    id: getRandomString(),
-    title: getRandomString(),
-    description: getRandomString(),
-    lastModification: new Date(),
-    duration: 30,
-    isVisible: true,
-    questions: [
-        {
-            id: getRandomString(),
-            type: 'QCM',
-            text: getRandomString(),
-            points: 30,
-            choices: [
-                {
-                    text: getRandomString(),
-                    isCorrect: true,
-                },
-                {
-                    text: getRandomString(),
-                    isCorrect: false,
-                },
-            ],
-            lastModification: new Date(),
-        },
-    ],
-});
-const stringifyPublicValues = (game: Game): string => {
-    return JSON.stringify(game, (key, value) => {
-        if (key !== '_id' && key !== '__v') return value;
-    });
-};
-// TODO: Complete the base tests
+const mockYear = 2024;
+const mockDate = new Date(mockYear, 1, 1);
 describe('GameService', () => {
     let service: GameService;
     let gameModel: Model<GameDocument>;
+    let gameValidationService: SinonStubbedInstance<GameValidationService>;
+
     beforeEach(async () => {
+        gameValidationService = createStubInstance(GameValidationService);
         gameModel = {
             countDocuments: jest.fn(),
             insertMany: jest.fn(),
@@ -58,19 +30,31 @@ describe('GameService', () => {
             update: jest.fn(),
             updateOne: jest.fn(),
             deleteMany: jest.fn(),
+            findOneAndUpdate: jest.fn(),
         } as unknown as Model<GameDocument>;
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 GameService,
-                GameValidationService,
                 Logger,
                 {
                     provide: getModelToken(Game.name),
                     useValue: gameModel,
                 },
+                {
+                    provide: GameValidationService,
+                    useValue: gameValidationService,
+                },
             ],
         }).compile();
         service = module.get<GameService>(GameService);
+    });
+    beforeAll(() => {
+        jest.useFakeTimers();
+        jest.setSystemTime(mockDate);
+    });
+
+    afterAll(() => {
+        jest.useRealTimers();
     });
     it('should be defined', () => {
         expect(service).toBeDefined();
@@ -87,169 +71,245 @@ describe('GameService', () => {
         await service.start();
         expect(spyPopulateDB).not.toHaveBeenCalled();
     });
-    it('getAllGames() should return all games in database', async () => {
-        const mockGames = [getFakeGame(), getFakeGame()];
+    it('getAllGames() should return all games from database', async () => {
+        const mockGames = [gameMocks.getGame(), gameMocks.getGame()];
         const spyFind = jest.spyOn(gameModel, 'find').mockResolvedValue(mockGames);
         const returnedGames = await service.getAllGames();
-        expect(returnedGames.length).toEqual(mockGames.length);
         expect(spyFind).toHaveBeenCalledWith({});
-    });
-    it('getGameById() should return Game with the corresponding ID', async () => {
-        const mockGame = getFakeGame();
-        const spyFindOne = jest.spyOn(gameModel, 'findOne').mockResolvedValue(mockGame);
-        const returnedGame = await service.getGameById(mockGame.id);
-        expect(stringifyPublicValues(returnedGame)).toEqual(stringifyPublicValues(mockGame));
-        expect(spyFindOne).toHaveBeenCalledWith({ id: mockGame.id });
-    });
-    it('getGameByTitle() should return Game with the corresponding title', async () => {
-        const mockGame = getFakeGame();
-        const spyFindOne = jest.spyOn(gameModel, 'findOne').mockResolvedValue(mockGame);
-        const returnedGame = await service.getGameByTitle(mockGame.title);
-        expect(stringifyPublicValues(returnedGame)).toEqual(stringifyPublicValues(mockGame));
-        expect(spyFindOne).toHaveBeenCalledWith({ title: mockGame.title });
-    });
-    // TODO: Fix this test
-    it('toggleGameVisibility() should fail if the corresponding game does not exist in the database', async () => {
-        // const mockGame = getFakeGame();
-        const spyFindOne = jest.spyOn(gameModel, 'findOne').mockRejectedValue('');
-        // await expect(service.toggleGameVisibility(mockGame.id)).rejects.toBeTruthy();
-        expect(spyFindOne).not.toHaveBeenCalled();
+        expect(returnedGames).toEqual(mockGames);
     });
 
-    it('deleteGame() should delete the corresponding game', async () => {
-        const mockGame = getFakeGame();
-        const spyDeleteOne = jest.spyOn(gameModel, 'deleteOne').mockResolvedValue({ acknowledged: true, deletedCount: 1 });
-        await service.deleteGame(mockGame.id);
-        expect(spyDeleteOne).toHaveBeenCalledWith({ id: mockGame.id });
-        // TODO: Find a way to count documents?
+    it('getAllVisibleGames() should return all visible games from database', async () => {
+        const mockGames = [gameMocks.getGame(), gameMocks.getGame()];
+        const spyFind = jest.spyOn(gameModel, 'find').mockResolvedValue(mockGames);
+        const returnedGames = await service.getAllVisibleGames();
+        expect(spyFind).toHaveBeenCalledWith({ isVisible: true });
+        expect(returnedGames).toEqual(mockGames);
     });
-    it('deleteGame() should fail if mongo query failed or game does not exist', async () => {
-        jest.spyOn(gameModel, 'deleteOne').mockRejectedValue('');
-        const game = getFakeGame();
-        await expect(service.deleteGame(game.id)).rejects.toBeTruthy();
+
+    it('getGameById should return the game with the corresponding ID', async () => {
+        const mockGame = gameMocks.getGame();
+        const spyFindOne = jest.spyOn(gameModel, 'findOne').mockResolvedValue(mockGame);
+        const returnedGame = await service.getGameById(mockGame.id);
+        expect(returnedGame).toEqual(mockGame);
+        expect(spyFindOne).toHaveBeenCalledWith({ id: mockGame.id });
     });
-    // TODO: Add isVisible = false + id and date?
-    it('addGame() should add the game to the database', async () => {
-        jest.mock('uuid', () => ({ v4: () => '123456789' }));
-        const mockGame = getFakeGame();
+
+    it('getGameById should fail if there is no game with the corresponding ID', async () => {
+        const spyFindOne = jest.spyOn(gameModel, 'findOne').mockResolvedValue(null);
+        await service.getGameById('').catch((error) => {
+            expect(error).toBe('Le jeu est introuvable.');
+        });
+        expect(spyFindOne).toHaveBeenCalled();
+    });
+
+    it('getGameByTitle should return the game with the corresponding title', async () => {
+        const mockGame = gameMocks.getGame();
+        const spyFindOne = jest.spyOn(gameModel, 'findOne').mockResolvedValue(mockGame);
+        const returnedGame = await service.getGameByTitle(mockGame.title);
+        expect(returnedGame).toEqual(mockGame);
+        expect(spyFindOne).toHaveBeenCalledWith({ title: mockGame.title });
+    });
+
+    it('getChoices() should return the choices of the question in the game with the corresponding IDs', async () => {
+        const mockGame = gameMocks.getGame();
+        const mockQuestion = mockGame.questions[0];
+        const mockChoices = mockQuestion.choices;
+        const spyGet = jest.spyOn(service, 'getGameById').mockResolvedValue(mockGame);
+        const returnedChoices = await service.getChoices(mockGame.id, mockQuestion.id);
+        expect(returnedChoices).toEqual(mockChoices);
+        expect(spyGet).toHaveBeenCalledWith(mockGame.id);
+    });
+    it('getChoices() should reject if question cannot be found in the game', async () => {
+        const mockGame = gameMocks.getGame();
+        const spyGet = jest.spyOn(service, 'getGameById').mockResolvedValue(mockGame);
+        await service.getChoices(mockGame.id, '').catch((error) => {
+            expect(error).toBe('La question est introuvable.');
+        });
+        expect(spyGet).toHaveBeenCalledWith(mockGame.id);
+    });
+
+    it('updateDateAndVisibility() should update the game date and make its visibility to false', async () => {
+        const mockGame = gameMocks.getGame();
+        const updatedGame = service.updateDateAndVisibility(mockGame);
+        expect(updatedGame.id).toEqual(mockGame.id);
+        expect(updatedGame.isVisible).toBeFalsy();
+        expect(updatedGame.lastModification).toEqual(mockDate);
+        updatedGame.questions.forEach((question) => {
+            expect(question.lastModification).toEqual(mockDate);
+        });
+    });
+
+    it('generateId() should generate an ID for game and its questions', () => {
+        // Reference: https://stackoverflow.com/questions/51383177/how-to-mock-uuid-with-jest
+        const uuidSpy = jest.spyOn(uuid, 'v4').mockReturnValue('mockedValue');
+        const mockGame = gameMocks.getGame();
+        const updatedGame = service.generateId(mockGame);
+        expect(uuidSpy).toHaveBeenCalledTimes(1 + updatedGame.questions.length);
+    });
+
+    it('addGame() should add the game to the database if it is valid and has new title', async () => {
+        const mockGame = gameMocks.getGame();
+        const spyGet = jest.spyOn(service, 'getGameByTitle').mockResolvedValue(null);
         const spyCreate = jest.spyOn(gameModel, 'create').mockImplementation();
-        await service.addGame({ ...mockGame }); // TODO: See if it requires adjustements
-        expect(spyCreate).toHaveBeenCalled();
+        const spyValidate = jest.spyOn(gameValidationService, 'findGameErrors').mockReturnValue([]);
+        const spyDateVisibility = jest.spyOn(service, 'updateDateAndVisibility').mockReturnValue(mockGame);
+        const spyGenerateId = jest.spyOn(service, 'generateId').mockReturnValue(mockGame);
+        const createdGame = await service.addGame({ ...mockGame });
+        expect(createdGame).toEqual(mockGame);
+        expect(spyGet).toHaveBeenCalledWith(mockGame.title);
+        expect(spyGenerateId).toHaveBeenCalledWith(mockGame);
+        expect(spyDateVisibility).toHaveBeenCalledWith(mockGame);
+        expect(spyValidate).toHaveBeenCalledWith(mockGame);
+        expect(spyCreate).toHaveBeenCalledWith(mockGame);
     });
-    it('addGame() should fail if mongo query failed', async () => {
-        jest.spyOn(gameModel, 'create').mockImplementation(async () => Promise.reject(''));
-        const game = getFakeGame();
-        await expect(service.addGame({ ...game })).rejects.toBeTruthy();
+    it('addGame() should not add the game to the database if another game with the same title already exists', async () => {
+        const mockGame = new Game();
+        const spyGet = jest.spyOn(service, 'getGameByTitle').mockResolvedValue(new Game());
+        await service.addGame({ ...mockGame }).catch((error) => {
+            expect(error).toBe('Un jeu du même titre existe déjà.');
+        });
+        expect(spyGet).toHaveBeenCalledWith(mockGame.title);
+    });
+    it('addGame should not add the game to the database if it is invalid', async () => {
+        const mockGame = new Game();
+        const spyGet = jest.spyOn(service, 'getGameByTitle').mockResolvedValue(null);
+        const mockErrorMessages = ['mock'];
+        const spyValidate = jest.spyOn(gameValidationService, 'findGameErrors').mockReturnValue(mockErrorMessages);
+        const spyDateVisibility = jest.spyOn(service, 'updateDateAndVisibility').mockReturnValue(mockGame);
+        const spyGenerateId = jest.spyOn(service, 'generateId').mockReturnValue(mockGame);
+        await service.addGame({ ...mockGame }).catch((error) => {
+            expect(error).toBe('Le jeu est invalide:\nmock');
+        });
+        expect(spyGet).toHaveBeenCalledWith(mockGame.title);
+        expect(spyGenerateId).toHaveBeenCalledWith(mockGame);
+        expect(spyDateVisibility).toHaveBeenCalledWith(mockGame);
+        expect(spyValidate).toHaveBeenCalledWith(mockGame);
+    });
+    it('addGame() should not add the game to the database if mongo query fails', async () => {
+        const mockGame = gameMocks.getGame();
+        const spyGet = jest.spyOn(service, 'getGameByTitle').mockResolvedValue(null);
+        const spyCreate = jest.spyOn(gameModel, 'create').mockImplementation(async () => Promise.reject(''));
+        const spyValidate = jest.spyOn(gameValidationService, 'findGameErrors').mockReturnValue([]);
+        const spyDateVisibility = jest.spyOn(service, 'updateDateAndVisibility').mockReturnValue(mockGame);
+        const spyGenerateId = jest.spyOn(service, 'generateId').mockReturnValue(mockGame);
+        await service.addGame({ ...mockGame }).catch((error) => {
+            expect(error).toBe("Le jeu n'a pas pu être ajouté: ");
+        });
+        expect(spyGet).toHaveBeenCalledWith(mockGame.title);
+        expect(spyGenerateId).toHaveBeenCalledWith(mockGame);
+        expect(spyDateVisibility).toHaveBeenCalledWith(mockGame);
+        expect(spyValidate).toHaveBeenCalledWith(mockGame);
+        expect(spyCreate).toHaveBeenCalledWith(mockGame);
+    });
+
+    it('toggleGameVisibility() should make a visible game invisible', async () => {
+        const mockVisibleGame = gameMocks.getGame();
+        const spyGet = jest.spyOn(service, 'getGameById').mockResolvedValue(mockVisibleGame);
+        const spyUpdate = jest.spyOn(gameModel, 'updateOne').mockImplementation();
+        const updatedGame = await service.toggleGameVisibility(mockVisibleGame.id);
+        expect(spyGet).toHaveBeenCalledWith(mockVisibleGame.id);
+        expect(spyUpdate).toHaveBeenCalled();
+        expect(updatedGame.isVisible).toBeFalsy();
+        expect(updatedGame.id).toEqual(mockVisibleGame.id);
+    });
+
+    it('toggleGameVisibility() should make an invisible game visible', async () => {
+        const mockVisibleGame = gameMocks.getGame();
+        mockVisibleGame.isVisible = false;
+        const spyGet = jest.spyOn(service, 'getGameById').mockResolvedValue(mockVisibleGame);
+        const spyUpdate = jest.spyOn(gameModel, 'updateOne').mockImplementation();
+        const updatedGame = await service.toggleGameVisibility(mockVisibleGame.id);
+        expect(spyGet).toHaveBeenCalledWith(mockVisibleGame.id);
+        expect(spyUpdate).toHaveBeenCalled();
+        expect(updatedGame.isVisible).toBeTruthy();
+        expect(updatedGame.id).toEqual(mockVisibleGame.id);
+    });
+
+    it('toggleGameVisibility() should fail if game cannot be found', async () => {
+        const mockVisibleGame = new Game();
+        const spyGet = jest.spyOn(service, 'getGameById').mockRejectedValue('');
+        await service.toggleGameVisibility(mockVisibleGame.id).catch((error) => {
+            expect(error).toBe('Erreur: ');
+        });
+        expect(spyGet).toHaveBeenCalledWith(mockVisibleGame.id);
+    });
+
+    it('upsertGame() should upsert the game if it is valid', async () => {
+        const mockGame = gameMocks.getGame();
+        const spyValidate = jest.spyOn(gameValidationService, 'findGameErrors').mockReturnValue([]);
+        const spyDateVisibility = jest.spyOn(service, 'updateDateAndVisibility').mockReturnValue(mockGame);
+        const spyModel = jest.spyOn(gameModel, 'findOneAndUpdate').mockImplementation();
+        const upsertedGame = await service.upsertGame(mockGame);
+        expect(upsertedGame).toEqual(mockGame);
+        expect(spyValidate).toHaveBeenCalledWith(mockGame);
+        expect(spyDateVisibility).toHaveBeenCalledWith(mockGame);
+        expect(spyModel).toHaveBeenCalledWith({ id: mockGame.id }, mockGame, { new: true, upsert: true });
+    });
+
+    it('upsertGame() should fail if the game is not valid', async () => {
+        const mockGame = gameMocks.getGame();
+        const mockErrorMessages = ['mock'];
+        const spyValidate = jest.spyOn(gameValidationService, 'findGameErrors').mockReturnValue(mockErrorMessages);
+        await service.upsertGame(mockGame).catch((error) => {
+            expect(error).toBe('Le jeu est invalide:\nmock');
+        });
+        expect(spyValidate).toHaveBeenCalledWith(mockGame);
+    });
+
+    it('upsertGame() should fail if mongo query fails', async () => {
+        const mockGame = gameMocks.getGame();
+        const spyValidate = jest.spyOn(gameValidationService, 'findGameErrors').mockReturnValue([]);
+        const spyDateVisibility = jest.spyOn(service, 'updateDateAndVisibility').mockReturnValue(mockGame);
+        const spyModel = jest.spyOn(gameModel, 'findOneAndUpdate').mockRejectedValue('');
+        await service.upsertGame(mockGame).catch((error) => {
+            expect(error).toBe("Le jeu n'a pas pu être modifié: ");
+        });
+        expect(spyValidate).toHaveBeenCalledWith(mockGame);
+        expect(spyDateVisibility).toHaveBeenCalledWith(mockGame);
+        expect(spyModel).toHaveBeenCalledWith({ id: mockGame.id }, mockGame, { new: true, upsert: true });
+    });
+
+    it('deleteGame() should delete the game with the corresponding ID', async () => {
+        const mockGame = new Game();
+        const spyGet = jest.spyOn(service, 'getGameById').mockResolvedValue(mockGame);
+        const spyDelete = jest.spyOn(gameModel, 'deleteOne').mockImplementation();
+        await service.deleteGame(mockGame.id);
+        expect(spyGet).toHaveBeenCalledWith(mockGame.id);
+        expect(spyDelete).toHaveBeenCalledWith({ id: mockGame.id });
+    });
+    it('deleteGame() should fail if the game with the corresponding ID cannot be found', async () => {
+        const mockGame = new Game();
+        const spyGet = jest.spyOn(service, 'getGameById').mockRejectedValue('');
+        await service.deleteGame(mockGame.id).catch((error) => {
+            expect(error).toBe('Erreur: ');
+        });
+        expect(spyGet).toHaveBeenCalledWith(mockGame.id);
+    });
+    it('deleteGame() should fail if mongo query fails', async () => {
+        const mockGame = new Game();
+        const spyGet = jest.spyOn(service, 'getGameById').mockResolvedValue(mockGame);
+        const spyDelete = jest.spyOn(gameModel, 'deleteOne').mockRejectedValue('');
+        await service.deleteGame(mockGame.id).catch((error) => {
+            expect(error).toBe("Le jeu n'a pas pu être supprimé: ");
+        });
+        expect(spyGet).toHaveBeenCalledWith(mockGame.id);
+        expect(spyDelete).toHaveBeenCalledWith({ id: mockGame.id });
+    });
+
+    it('validateQuestion() should return true if the question is valid (does not have any error messages)', async () => {
+        const spyValidate = jest.spyOn(gameValidationService, 'findQuestionErrors').mockReturnValue([]);
+        const mockQuestion = new Question();
+        expect(service.validateQuestion(mockQuestion)).toBeTruthy();
+        expect(spyValidate).toHaveBeenCalledWith(mockQuestion);
+    });
+    it('validateQuestion should return the error messages if question is invalid', async () => {
+        const mockErrorMessages = ['mock', 'message'];
+        const spyValidate = jest.spyOn(gameValidationService, 'findQuestionErrors').mockReturnValue(mockErrorMessages);
+        const mockQuestion = new Question();
+        await service.validateQuestion(mockQuestion).catch((error) => {
+            expect(error).toBe('La question est invalide:\nmock\nmessage');
+        });
+        expect(spyValidate).toHaveBeenCalledWith(mockQuestion);
     });
 });
-// Alternative version of tests: Can pass locally, but does not always on GitLab for some reason... (hence it's deactivated)
-/*
-describe('GameServiceE2E', () => {
-    let service: GameService;
-    let gameModel: Model<GameDocument>;
-    let mongoServer: MongoMemoryServer;
-    let connection: Connection;
-    beforeEach(async () => {
-        mongoServer = await MongoMemoryServer.create();
-        const module: TestingModule = await Test.createTestingModule({
-            imports: [
-                MongooseModule.forRootAsync({
-                    useFactory: () => ({
-                        uri: mongoServer.getUri(),
-                    }),
-                }),
-                MongooseModule.forFeature([{ name: Game.name, schema: gameSchema }]),
-            ],
-            providers: [GameService, Logger, GameValidationService],
-        }).compile();
-        service = module.get<GameService>(GameService);
-        gameModel = module.get<Model<GameDocument>>(getModelToken(Game.name));
-        connection = await module.get(getConnectionToken());
-        await gameModel.deleteMany({});
-    });
-    afterEach((done) => {
-        setTimeout(async () => {
-            await gameModel.deleteMany({});
-            await connection.close();
-            await mongoServer.stop();
-            done();
-        }, DELAY_BEFORE_CLOSING_CONNECTION);
-    });
-    it('should be defined', () => {
-        expect(service).toBeDefined();
-        expect(gameModel).toBeDefined();
-    });
-    it('start() should populate the database if it is empty', async () => {
-        const spyPopulateDB = jest.spyOn(service, 'populateDB');
-        await gameModel.deleteMany({});
-        await service.start();
-        expect(spyPopulateDB).toHaveBeenCalled();
-    });
-    it('start() should not populate the database if is not empty', async () => {
-        const game = getFakeGame();
-        await gameModel.create(game);
-        const spyPopulateDB = jest.spyOn(service, 'populateDB');
-        expect(spyPopulateDB).not.toHaveBeenCalled();
-    });
-    it('populateDB() should add 3 new games', async () => {
-        const gamesCountBefore = await gameModel.countDocuments();
-        await service.populateDB();
-        const gamesCountAfter = await gameModel.countDocuments();
-        const expectedCount = 3;
-        expect(gamesCountAfter - gamesCountBefore).toEqual(expectedCount);
-    });
-    it('getAllGames() should return all games in database', async () => {
-        await gameModel.deleteMany({});
-        expect((await service.getAllGames()).length).toEqual(0);
-        const game = getFakeGame();
-        await gameModel.create(game);
-        expect((await service.getAllGames()).length).toEqual(1);
-    });
-    it('getGameById() should return Game with the corresponding ID', async () => {
-        const game = getFakeGame();
-        await gameModel.create(game);
-        const returnedGame = await service.getGameById(game.id);
-        expect(stringifyPublicValues(returnedGame)).toEqual(stringifyPublicValues(game));
-    });
-    it('updateGame() should fail if the corresponding game does not exist in the database', async () => {
-        const game = getFakeGame();
-        await expect(service.updateGame(game, false)).rejects.toBeTruthy();
-    });
-    it('updateGame() should fail if Mongo query failed', async () => {
-        jest.spyOn(gameModel, 'updateOne').mockRejectedValue('');
-        const game = getFakeGame();
-        await expect(service.updateGame(game, false)).rejects.toBeTruthy();
-    });
-    // TODO: Unit tests with upsert(): updateGame(game, true)
-    it('deleteGame() should delete the corresponding game', async () => {
-        await gameModel.deleteMany({});
-        const game = getFakeGame();
-        await gameModel.create(game);
-        await service.deleteGame(game.id);
-        expect(await gameModel.countDocuments()).toEqual(0);
-    });
-    it('deleteGame() should fail if the game does not exist', async () => {
-        await gameModel.deleteMany({});
-        const game = getFakeGame();
-        await expect(service.deleteGame(game.id)).rejects.toBeTruthy();
-    });
-    it('deleteGame() should fail if mongo query failed', async () => {
-        jest.spyOn(gameModel, 'deleteOne').mockRejectedValue('');
-        const game = getFakeGame();
-        await expect(service.deleteGame(game.id)).rejects.toBeTruthy();
-    });
-    // TODO: Add isVisible = false + id and date?
-    it('addGame() should add the game to the database', async () => {
-        jest.mock('uuid', () => ({ v4: () => '123456789' }));
-        await gameModel.deleteMany({});
-        const game = getFakeGame();
-        await service.addGame({ ...game }); // TODO: See if it requires adjustements
-        expect(await gameModel.countDocuments()).toEqual(1);
-    });
-    it('addGame() should fail if mongo query failed', async () => {
-        jest.spyOn(gameModel, 'create').mockImplementation(async () => Promise.reject(''));
-        const game = getFakeGame();
-        await expect(service.addGame({ ...game })).rejects.toBeTruthy();
-    });
-   });
-*/

@@ -1,11 +1,11 @@
-.example-container {
+.bank-container {
     background-color: white;
 }
 
 .sidenav-active {
     padding-right: 5px;
 }
-.example-sidenav {
+.sidenav {
     width: 300px;
 }
 
@@ -13,27 +13,9 @@
     width: 30%;
 }
 
-html,
-body {
-    height: 100%;
-    margin: 0;
-    overflow: hidden; /* This prevents scrolling of the body */
-}
-
-.main-container {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-.mat-drawer-container,
-.example-container {
-    height: 100%;
-}
-
 .question-container {
-    flex-grow: 1; /* This allows the container to take up the remaining space */
-    overflow-y: auto; /* Add this if you want the content to scroll if it exceeds the viewport height */
+    flex-grow: 1;
+    overflow-y: auto;
 }
 
 .drag-preview {
@@ -95,7 +77,41 @@ body {
     background-color: transparent;
     cursor: move;
 }
-.game-questions-list,
-.bank-questions-list {
-    min-height: 70px;
+
+.list {
+    min-height: 100px;
+}
+
+.empty-list {
+    border: dashed 1px;
+}
+
+.create-notice {
+    text-align: center;
+    color: grey;
+}
+
+.game-form-details {
+    display: flex;
+    justify-content: space-between;
+}
+
+.game-description {
+    min-width: 70%;
+}
+
+.time-slider {
+    display: flex;
+    gap: 1rem;
+}
+
+.question-buttons {
+    justify-content: space-between;
+}
+.page-title,
+.pending-changes {
+    display: inline-block;
+}
+.pending-changes {
+    color: #4758b8;
 }

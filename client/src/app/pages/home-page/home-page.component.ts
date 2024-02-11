@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { AuthenticationService } from '@app/services/authentication/authentication.service';
-import { DialogAdminPasswordComponent } from '../../components/dialog-admin-password/dialog-admin-password.component';
+import { DialogAdminPasswordComponent } from '@app/components/dialog-admin-password/dialog-admin-password.component';
 
 @Component({
     selector: 'app-home-page',
@@ -12,7 +12,7 @@ export class HomePageComponent {
     username: string = 'admin';
     password: string;
     constructor(
-        public dialog: MatDialog,
+        private dialog: MatDialog,
         private readonly authenticationService: AuthenticationService,
     ) {}
     openDialog(): void {

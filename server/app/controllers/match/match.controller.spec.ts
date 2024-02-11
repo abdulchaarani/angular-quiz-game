@@ -171,7 +171,7 @@ describe('MatchController', () => {
             return res;
         };
         res.send = () => res;
-        await controller.gameByIdWithoutIsCorrect('', res);
+        await controller.getBackupGame('', res);
     });
     it('saveBackupGame() should save ("create") backup game locally in the server and return a copy of the game', async () => {
         const mockGame = new Game();

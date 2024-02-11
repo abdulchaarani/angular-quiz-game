@@ -21,17 +21,6 @@ export class QuestionController {
         }
     }
 
-    // TODO: Delete unecessary routes
-    @Get('/qcm')
-    async allMultipleChoiceQuestions(@Res() response: Response) {
-        try {
-            const allQuestions = await this.questionService.getAllMultipleChoiceQuestions();
-            response.status(HttpStatus.OK).json(allQuestions);
-        } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send({ message: error });
-        }
-    }
-
     @Post('/')
     async addQuestion(@Body() questionDto: CreateQuestionDto, @Res() response: Response) {
         try {

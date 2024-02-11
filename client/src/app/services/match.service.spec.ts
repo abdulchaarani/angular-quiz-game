@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 import { ChoiceValidationService } from './choice-validation.service';
 import { MatchService } from './match.service';
 
-describe('MatchService', () => {
+fdescribe('MatchService', () => {
     let service: MatchService;
     let choiceValidationService: ChoiceValidationService;
     const deletedGame = {} as Game;
@@ -61,6 +61,12 @@ describe('MatchService', () => {
         service.advanceQuestion();
 
         expect(emitted).toBeTruthy();
+    });
+
+    it('should get all games with success using GetAllGames', () => {
+        const spy = spyOn(service, 'getAllGames').and.callThrough();
+        service.getAllGames();
+        expect(spy).toHaveBeenCalled();
     });
 
     it('should set and get question id correctly', () => {

@@ -10,7 +10,7 @@ import { NotificationService } from '@app/services/notification.service';
 import { of, throwError } from 'rxjs';
 import { HostPageComponent } from './host-page.component';
 
-fdescribe('HostPageComponent', () => {
+describe('HostPageComponent', () => {
     let component: HostPageComponent;
     let fixture: ComponentFixture<HostPageComponent>;
     let gameService: GamesService;

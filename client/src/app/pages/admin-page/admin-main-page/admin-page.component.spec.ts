@@ -9,8 +9,7 @@ import { of, throwError } from 'rxjs';
 import { AdminPageComponent } from './admin-page.component';
 import SpyObj = jasmine.SpyObj;
 
-// TODO: Add tests for JSON upload
-// Lines: 56-69
+// TODO: 53,83,90-96
 describe('AdminPageComponent', () => {
     let component: AdminPageComponent;
     let fixture: ComponentFixture<AdminPageComponent>;
@@ -101,21 +100,42 @@ describe('AdminPageComponent', () => {
         expect(notificationServiceSpy.displayErrorMessage).toHaveBeenCalled();
     });
 
-    it('should add game from JSON', () => {
-        // TODO (maybe console.log the event, event.target, and event.target.files[0] for debugging purposes)
-        /*
+    it('onFileSelected should call readFile()', () => {
+        const readFileSpy = spyOn(component, 'readFile');
         const event = new Event('InputEvent');
         const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(new File([JSON.stringify(newMockGame)], 'file.json', { type: 'application/json' }));
+        const mockFile = new File([JSON.stringify(newMockGame)], 'file.json', { type: 'application/json' });
+        dataTransfer.items.add(mockFile);
         const mockEvent = {
             ...event,
             dataTransfer: dataTransfer,
-            target: { ...files: dataTransfer },
-        } as InputEvent;
+            target: { files: dataTransfer },
+        } as unknown as InputEvent;
 
         component.onFileSelected(mockEvent);
-        expect(component.addGame).toHaveBeenCalled();
-        */
+        expect(readFileSpy).toHaveBeenCalled();
+    });
+
+    it('readFile should call addStringifiedGame()', waitForAsync(() => {
+        // Reference: https://stackoverflow.com/questions/64642547/how-can-i-test-the-filereader-onload-callback-function-in-angular-jasmine
+        const addStringifiedGameSpy = spyOn(component, 'addStringifiedGame');
+        const mockFile = new File([JSON.stringify(newMockGame)], 'file.json', { type: 'application/json' });
+        component.readFile(mockFile).then((data) => {
+            expect(addStringifiedGameSpy).toHaveBeenCalled();
+        });
+    }));
+
+    it('addStringifiedGame() should parse the stringified game and call addGame()', () => {
+        const addGameSpy = spyOn(component, 'addGame');
+        const mockGameStringified = JSON.stringify(newMockGame);
+        component.addStringifiedGame(mockGameStringified);
+        expect(addGameSpy).toHaveBeenCalledWith(newMockGame);
+    });
+
+    it('addStringifiedGame() should not add the game if it is undefined', () => {
+        const addGameSpy = spyOn(component, 'addGame');
+        component.addStringifiedGame('');
+        expect(addGameSpy).not.toHaveBeenCalled();
     });
 });
 

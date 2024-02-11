@@ -58,25 +58,32 @@ export class AdminPageComponent implements OnInit {
         });
     }
 
-    // TODO: See if the logic can be migrated to games.service.ts (Challenge: Returning the read game while managing fileReader)
     onFileSelected(event: Event): void {
         // Reference: https://blog.angular-university.io/angular-file-upload/
         // Reference: https://stackoverflow.com/questions/43176560/property-files-does-not-exist-on-type-eventtarget-error-in-typescript
         const target = event.target as HTMLInputElement;
         const file: File = (target.files as FileList)[0];
+        this.readFile(file);
+    }
 
-        if (file) {
-            // Reference: https://stackoverflow.com/questions/47581687/read-a-file-and-parse-its-content
+    readFile(file: File): Promise<void | undefined> {
+        // Reference: https://stackoverflow.com/questions/47581687/read-a-file-and-parse-its-content
+        return new Promise<void>(() => {
             const fileReader = new FileReader();
             fileReader.onload = () => {
-                const newGameStringified = fileReader.result?.toString();
-                if (newGameStringified) {
-                    const newGame = JSON.parse(newGameStringified);
-                    this.addGame(newGame);
-                }
+                const stringifiedGame = fileReader.result?.toString();
+                this.addStringifiedGame(stringifiedGame);
             };
             fileReader.readAsText(file);
+        });
+    }
+
+    addStringifiedGame(newGameStringified: string | undefined): void {
+        if (!newGameStringified) {
+            return;
         }
+        const newGame = JSON.parse(newGameStringified);
+        this.addGame(newGame);
     }
 
     openDialog(newGame: Game): void {

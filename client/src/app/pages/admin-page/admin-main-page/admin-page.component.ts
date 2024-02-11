@@ -49,7 +49,7 @@ export class AdminPageComponent implements OnInit {
                 this.notificationService.displaySuccessMessage('Jeu ajouté avec succès! 😺');
             },
             error: (error: HttpErrorResponse) => {
-                if (error.message === 'Requête add\n Un jeu du même titre existe déjà.') {
+                if (error.message === 'Requête add\n Un jeu du même titre existe déjà.' || error.status === 409) {
                     this.openDialog(newGame);
                 } else {
                     this.notificationService.displayErrorMessage(`Le jeu n'a pas pu être ajouté. 😿 \n ${error}`);

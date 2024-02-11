@@ -37,6 +37,9 @@ export class GameController {
             const newGame = await this.gameService.addGame(createGameDto);
             response.status(HttpStatus.CREATED).send(JSON.stringify(newGame));
         } catch (error) {
+            if (error === 'Un jeu du même titre existe déjà.') {
+                response.status(HttpStatus.CONFLICT).send({ message: error });
+            }
             response.status(HttpStatus.BAD_REQUEST).send({ message: error });
         }
     }

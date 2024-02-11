@@ -1,4 +1,4 @@
-import { HttpClient, HttpHandler, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHandler, HttpResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -100,6 +100,28 @@ describe('AdminPageComponent', () => {
         expect(gamesServiceSpy.uploadGame).toHaveBeenCalledWith(newMockGame);
         expect(component.games.length).toBe(mockGames.length + 1);
         expect(notificationServiceSpy.displaySuccessMessage).toHaveBeenCalled();
+    });
+
+    it('should not add the game if it already exists and open dialog to ask to rename the game title', () => {
+        const httpError = new HttpErrorResponse({
+            status: 409,
+            error: { code: '409', message: 'Requête add\n Un jeu du même titre existe déjà.' },
+        });
+        gamesServiceSpy.uploadGame.and.returnValue(throwError(() => httpError));
+        const openDialogSpy = spyOn(component, 'openDialog');
+        component.addGame(newMockGame);
+        expect(openDialogSpy).toHaveBeenCalledWith(newMockGame);
+        expect(notificationServiceSpy.displayErrorMessage).not.toHaveBeenCalled();
+    });
+
+    it('should not add the game if it already exists and open dialog to ask to rename the game title', () => {
+        const httpError = new HttpErrorResponse({
+            status: 400,
+            statusText: 'Bad Request',
+        });
+        gamesServiceSpy.uploadGame.and.returnValue(throwError(() => httpError));
+        component.addGame(newMockGame);
+        expect(notificationServiceSpy.displayErrorMessage).toHaveBeenCalled();
     });
 
     it('should open a snackbar if addGame fails', () => {

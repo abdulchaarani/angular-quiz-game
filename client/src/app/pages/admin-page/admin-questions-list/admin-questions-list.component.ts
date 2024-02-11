@@ -38,6 +38,8 @@ export class AdminQuestionsListComponent implements OnInit {
     isBankQuestionDragged: boolean = false;
     dialogState: boolean = false;
     isValid: boolean = false;
+    //dialogRef: any;
+    
 
     bankMessages = {
         unavailable: "👀 Aucune autre question valide de la banque n'est disponible! 👀",
@@ -46,6 +48,8 @@ export class AdminQuestionsListComponent implements OnInit {
 
     currentQuestion: Question;
     currentBankMessage = '';
+    addToBank: boolean;
+    addToBankToggleButtonState: boolean = false;
 
     gameEditForm = this.formBuilder.nonNullable.group({
         title: ['', Validators.required],
@@ -145,12 +149,9 @@ export class AdminQuestionsListComponent implements OnInit {
         this.dialogState = !this.dialogState;
     }
 
-    // dialogRef: unknown;
-    dialogRef: any;
     toggleSideBarClass() {
         this.isSideBarActive = !this.isSideBarActive;
     }
-    addToBank: boolean;
 
     addQuestionToBank(newQuestion: Question) {
         if (!this.isDuplicateQuestion(newQuestion, this.originalBankQuestions)) {
@@ -161,33 +162,31 @@ export class AdminQuestionsListComponent implements OnInit {
                 },
             });
         } else if (this.isDuplicateQuestion(newQuestion, this.originalBankQuestions)) {
-            this.notificationService.displayErrorMessage(`Cette question fait déjà partie de la banque! 😾`);
+            this.notificationService.displayErrorMessage('Cette question fait déjà partie de la banque! 😾');
         }
     }
-
-    addToBankToggleButtonState: boolean = false;
 
     // https://stackoverflow.com/questions/47592364/usage-of-mat-dialog-close
     openCreateQuestionDialog() {
         if (!this.dialogState) {
-            this.dialogRef = this.dialog.open(CreateQuestionComponent, {
+            const dialogRef = this.dialog.open(CreateQuestionComponent, {
                 height: '70%',
                 width: '100%',
             });
 
-            this.dialogRef.componentInstance.createQuestionEvent.subscribe((newQuestion: Question) => {
+            dialogRef.componentInstance.createQuestionEvent.subscribe((newQuestion: Question) => {
                 if (!this.isDuplicateQuestion(newQuestion, this.game.questions)) {
                     this.addNewQuestion(newQuestion);
                     if (this.addToBankToggleButtonState) {
                         this.addQuestionToBank(newQuestion);
                     }
-                    this.dialogRef.close();
+                    dialogRef.close();
                 } else {
                     this.notificationService.displayErrorMessage('Cette question fait déjà partie de la liste des questions de ce jeu! 😾');
                 }
             });
 
-            this.dialogRef.componentInstance.createQuestionEventQuestionBank.subscribe(() => {
+            dialogRef.componentInstance.createQuestionEventQuestionBank.subscribe(() => {
                 this.addToBankToggleButtonState = !this.addToBankToggleButtonState;
                 this.dialogState = false;
             });

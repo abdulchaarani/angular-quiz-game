@@ -1,7 +1,7 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Game } from '@app/interfaces/game';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { ApiService } from './api.service';
 import { NotificationService } from './notification.service';
 import { QuestionService } from './question.service';
@@ -10,12 +10,16 @@ import { QuestionService } from './question.service';
     providedIn: 'root',
 })
 export class GamesService extends ApiService<Game> {
+    isPendingChangesObservable: Observable<boolean>;
+    private isPendingChangesSource = new BehaviorSubject<boolean>(false);
+
     constructor(
         private readonly notificationService: NotificationService,
         public questionService: QuestionService,
         http: HttpClient,
     ) {
         super(http, 'admin/games');
+        this.isPendingChangesObservable = this.isPendingChangesSource.asObservable();
     }
 
     getGames(): Observable<Game[]> {
@@ -73,5 +77,27 @@ export class GamesService extends ApiService<Game> {
 
     displayErrorMessage(errorMessage: string) {
         this.notificationService.displayErrorMessage(errorMessage);
+    }
+
+    markPendingChanges() {
+        this.isPendingChangesSource.next(true);
+    }
+
+    resetPendingChanges() {
+        this.isPendingChangesSource.next(false);
+    }
+
+    confirmBankUpload(questionTitle: string) {
+        return this.notificationService.openConfirmDialog({
+            data: {
+                icon: 'info_outline',
+                title: 'Êtes-vous certain de vouloir ajouter cette question à la banque de questions?',
+                text: questionTitle,
+            },
+        });
+    }
+
+    openCreateQuestionModal() {
+        return this.notificationService.openCreateQuestionModal();
     }
 }

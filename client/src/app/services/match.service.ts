@@ -40,6 +40,10 @@ export class MatchService extends ApiService<Game> {
         this.currentQuestionId = id;
     }
 
+    getAllGames() {
+        return this.getAll('games');
+    }
+
     advanceQuestion() {
         this.questionAdvanceSubject.next();
     }

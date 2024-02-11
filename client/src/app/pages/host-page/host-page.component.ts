@@ -27,22 +27,18 @@ export class HostPageComponent implements OnInit {
     }
 
     reloadAllGames(): void {
-        this.gameService.getGames().subscribe((data: Game[]) => {
-            this.games = data.filter((game) => game.isVisible); // test
-        });
+        this.matchService.getAllGames().subscribe((data: Game[]) => (this.games = data));
     }
 
     loadSelectedGame(selectedGame: Game): void {
         this.gameService.getGameById(selectedGame.id).subscribe({
             next: (data: Game) => {
                 this.selectedGame = data;
-                this.validateGame(this.selectedGame)
+                this.validateGame(this.selectedGame);
             },
             error: () => {
                 const snackBarRef = this.notificationService.displayErrorMessageAction("Le jeu sélectionné n'existe plus", 'Actualiser');
-                snackBarRef.onAction().subscribe(() => {
-                    this.reloadAllGames(); // test
-                });
+                snackBarRef.onAction().subscribe(() => this.reloadAllGames());
             },
         });
     }
@@ -54,9 +50,7 @@ export class HostPageComponent implements OnInit {
             this.matchService.saveBackupGame(selectedGame.id).subscribe();
         } else {
             const snackBarRef = this.notificationService.displayErrorMessageAction("Le jeu sélectionné n'est plus visible", 'Actualiser');
-            snackBarRef.onAction().subscribe(() => {
-                this.reloadAllGames(); // test
-            });
+            snackBarRef.onAction().subscribe(() => this.reloadAllGames());
         }
     }
 }

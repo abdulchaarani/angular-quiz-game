@@ -6,10 +6,9 @@ import { Observable } from 'rxjs';
 import { ChoiceValidationService } from './choice-validation.service';
 import { MatchService } from './match.service';
 
-fdescribe('MatchService', () => {
+describe('MatchService', () => {
     let service: MatchService;
     let choiceValidationService: ChoiceValidationService;
-    // // const NOT_FOUND = 404;
     const deletedGame = {} as Game;
     const fakeGame: Game = {
         id: '0',
@@ -43,7 +42,7 @@ fdescribe('MatchService', () => {
         expect(service).toBeTruthy();
     });
 
-    it('questionAdvanced$ should return an observable', async () => {
+    it('questionAdvanced$ should return an observable', () => {
         const result = service.questionAdvanced$;
         expect(result).toBeInstanceOf(Observable);
     });
@@ -69,13 +68,6 @@ fdescribe('MatchService', () => {
         service.questionId = questionId;
         const value = service.questionId;
         expect(value).toEqual(questionId);
-        // const spy = spyOn(service, 'setQuestionId').and.callThrough();
-        // service.setQuestionId(questionId);
-
-        // expect(spy).toHaveBeenCalledWith(questionId);
-        // const idResult = service.getQuestionId();
-
-        // expect(idResult).toEqual(questionId);
     });
 
     it('should get a backup of a game with success', () => {

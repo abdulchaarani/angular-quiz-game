@@ -24,9 +24,6 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     private readonly minChoices = 2;
     private readonly maxChoices = 4;
     private readonly base36 = 36;
-    color: any;
-    checked: any;
-    disabled: any;
 
     constructor(
         private snackBar: MatSnackBar,

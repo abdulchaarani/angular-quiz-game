@@ -84,10 +84,6 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
         if (this.questionForm.valid) {
             const newQuestion: Question = this.questionForm.value;
             newQuestion.id = this.getRandomString();
-            this.questionService.createQuestion(newQuestion);
-
-            // this.questionService.createQuestion(newQuestion).subscribe((newQuestion: Question) => {
-            // });
             this.createQuestionEventQuestionBank.emit(newQuestion);
         }
     }

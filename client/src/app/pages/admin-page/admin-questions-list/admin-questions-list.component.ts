@@ -130,9 +130,13 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
         this.dialogState = !this.dialogState;
     }
 
+    // dialogRef: unknown;
+    dialogRef: any;
     toggleSideBarClass() {
         this.isSideBarActive = !this.isSideBarActive;
     }
+
+    addToBankToggleButtonState: boolean = false;
 
     addQuestionToBank(newQuestion: Question) {
         if (!this.isDuplicateQuestion(newQuestion, this.originalBankQuestions)) {
@@ -149,15 +153,26 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
 
     openCreateQuestionDialog() {
         if (!this.dialogState) {
-            const dialogRef = this.dialog.open(CreateQuestionComponent, {
+            this.dialogRef = this.dialog.open(CreateQuestionComponent, {
                 height: '70%',
                 width: '100%',
             });
-            dialogRef.componentInstance.createQuestionEvent.subscribe((newQuestion: Question) => {
-                if (newQuestion) {
+
+            this.dialogRef.componentInstance.createQuestionEvent.subscribe((newQuestion: Question) => {
+                if (!this.isDuplicateQuestion(newQuestion, this.game.questions)) {
                     this.addNewQuestion(newQuestion);
-                    dialogRef.close();
+                    if (this.addToBankToggleButtonState) {
+                        this.addQuestionToBank(newQuestion);
+                    }
+                    this.dialogRef.close();
+                } else {
+                    this.gamesService.displayErrorMessage('Cette question fait déjà partie de la liste des questions de ce jeu! 😾');
                 }
+            });
+
+            this.dialogRef.componentInstance.createQuestionEventQuestionBank.subscribe(() => {
+                this.addToBankToggleButtonState = !this.addToBankToggleButtonState;
+                this.dialogState = false;
             });
         }
     }

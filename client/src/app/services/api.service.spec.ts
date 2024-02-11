@@ -5,7 +5,7 @@ import { Game } from '@app/interfaces/game';
 import { environment } from 'src/environments/environment';
 import { HttpErrorResponse } from '@angular/common/http';
 
-fdescribe('ApiService', () => {
+describe('ApiService', () => {
     let gamesService: ApiService<Game>;
     let httpMock: HttpTestingController;
 

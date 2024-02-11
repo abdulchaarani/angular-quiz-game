@@ -1,18 +1,13 @@
-import { DateController } from '@app/controllers/date/date.controller';
-import { ExampleController } from '@app/controllers/example/example.controller';
 import { GameController } from '@app/controllers/game/game.controller';
-import { ChatGateway } from '@app/gateways/chat/chat.gateway';
-import { Course, courseSchema } from '@app/model/database/course';
-import { DateService } from '@app/services/date/date.service';
-import { ExampleService } from '@app/services/example/example.service';
 import { Logger, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AuthModule } from './auth/auth.module';
+import { AuthController } from './controllers/authentication/auth.controller';
 import { MatchController } from './controllers/match/match.controller';
 import { QuestionController } from './controllers/question/question.controller';
 import { Game, gameSchema } from './model/database/game';
 import { Question, questionSchema } from './model/database/question';
+import { AuthService } from './services/authentication/auth.service';
 import { GameValidationService } from './services/game-validation/game-validation.service';
 import { GameService } from './services/game/game.service';
 import { MatchService } from './services/match/match.service';
@@ -29,11 +24,9 @@ import { QuestionService } from './services/question/question.service';
             }),
         }),
         MongooseModule.forFeature([{ name: Game.name, schema: gameSchema }]),
-        MongooseModule.forFeature([{ name: Course.name, schema: courseSchema }]),
         MongooseModule.forFeature([{ name: Question.name, schema: questionSchema }]),
-        AuthModule,
     ],
-    controllers: [DateController, ExampleController, QuestionController, GameController, MatchController],
-    providers: [ChatGateway, DateService, ExampleService, Logger, QuestionService, GameService, GameValidationService, MatchService],
+    controllers: [QuestionController, GameController, MatchController, AuthController],
+    providers: [Logger, QuestionService, GameService, GameValidationService, MatchService, AuthService],
 })
 export class AppModule {}

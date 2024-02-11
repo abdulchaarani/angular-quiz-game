@@ -18,7 +18,6 @@ export class AdminQuestionBankComponent implements OnInit {
     @Output() createQuestionEventQuestionBank: EventEmitter<Question> = new EventEmitter<Question>();
 
     questions: Question[] = [];
-    dialogRef: any;
 
     response: string = '';
     newQuestion: Question = {
@@ -74,7 +73,6 @@ export class AdminQuestionBankComponent implements OnInit {
             }
         });
     }
-
 
     openDialog() {
         if (!this.dialogState) {

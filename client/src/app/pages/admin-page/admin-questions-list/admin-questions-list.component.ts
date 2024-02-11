@@ -38,9 +38,8 @@ export class AdminQuestionsListComponent implements OnInit {
     isBankQuestionDragged: boolean = false;
     dialogState: boolean = false;
     isValid: boolean = false;
-    //dialogRef: any;
-    
 
+    
     bankMessages = {
         unavailable: "👀 Aucune autre question valide de la banque n'est disponible! 👀",
         available: '🖐 Glissez et déposez une question de la banque dans le jeu! 🖐',

@@ -47,9 +47,9 @@
                         <mat-option *ngFor="let point of [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]" [value]="point">{{ point }}</mat-option>
                     </mat-select>
                 </mat-form-field>
-                <button mat-raised-button color="primary" [disabled]="!questionForm.valid">
-                    <mat-icon>add_to_photos</mat-icon>Ajouter à la banque de questions
-                </button>
+                <mat-slide-toggle color="primary" [disabled]="!questionForm.valid" (click)="onSubmitQuestionBank()">
+                    Ajouter à la banque de questions
+                </mat-slide-toggle>
                 <button mat-raised-button color="primary" type="submit" class="submit-button" [disabled]="!questionForm.valid">
                     <mat-icon>check</mat-icon>
                     Vérifier si la question est valide

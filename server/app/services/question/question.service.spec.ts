@@ -1,4 +1,5 @@
-import { getRandomString } from '@app/constants/random-string';
+import { questionMocks } from '@app/constants/question-mocks';
+import { stringifyQuestionPublicValues } from '@app/constants/test-utils';
 import { Question, QuestionDocument } from '@app/model/database/question';
 import { GameValidationService } from '@app/services/game-validation/game-validation.service';
 import { Logger } from '@nestjs/common';
@@ -7,36 +8,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { Model } from 'mongoose';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { QuestionService } from './question.service';
-const stringifyPublicValues = (question: Question): string => {
-    return JSON.stringify(question, (key, value) => {
-        if (key !== '_id' && key !== '__v') return value;
-    });
-};
-const getMockQuestion = (): Question => ({
-    id: getRandomString(),
-    type: 'QCM',
-    text: getRandomString(),
-    points: 50,
-    choices: [
-        {
-            text: getRandomString(),
-            isCorrect: true,
-        },
-        {
-            text: getRandomString(),
-            isCorrect: true,
-        },
-        {
-            text: getRandomString(),
-            isCorrect: false,
-        },
-        {
-            text: getRandomString(),
-            isCorrect: false,
-        },
-    ],
-    lastModification: new Date(),
-});
 
 describe('QuestionService', () => {
     let service: QuestionService;
@@ -88,21 +59,21 @@ describe('QuestionService', () => {
         expect(spyPopulateDB).not.toHaveBeenCalled();
     });
     it('getAllQuestions() should return all questions in database', async () => {
-        const mockQuestions = [getMockQuestion(), getMockQuestion()];
+        const mockQuestions = [questionMocks.getQuestion(), questionMocks.getQuestion()];
         const spyFind = jest.spyOn(questionModel, 'find').mockResolvedValue(mockQuestions);
         const returnedQuestions = await service.getAllQuestions();
         expect(spyFind).toHaveBeenCalledWith({});
         expect(returnedQuestions).toEqual(mockQuestions);
     });
     it('getQuestionByName() should return question with the corresponding text', async () => {
-        const mockQuestion = getMockQuestion();
+        const mockQuestion = questionMocks.getQuestion();
         const spyFindOne = jest.spyOn(questionModel, 'findOne').mockResolvedValue(mockQuestion);
         const returnedQuestion = await service.getQuestionByName(mockQuestion.text);
         expect(returnedQuestion).toEqual(mockQuestion);
         expect(spyFindOne).toHaveBeenCalledWith({ text: mockQuestion.text });
     });
     it('getQuestionById() should return question with the corresponding ID', async () => {
-        const mockQuestion = getMockQuestion();
+        const mockQuestion = questionMocks.getQuestion();
         const spyFindOne = jest.spyOn(questionModel, 'findOne').mockResolvedValue(mockQuestion);
         const returnedQuestion = await service.getQuestionById(mockQuestion.id);
         expect(returnedQuestion).toEqual(mockQuestion);
@@ -110,7 +81,7 @@ describe('QuestionService', () => {
     });
 
     it('addQuestion() should add the question to the database with new ID and lastModification', async () => {
-        const mockQuestion = getMockQuestion();
+        const mockQuestion = questionMocks.getQuestion();
         const pastYear = 2020;
         mockQuestion.lastModification = new Date(pastYear, 1, 1);
         const spyGet = jest.spyOn(service, 'getQuestionByName');
@@ -120,7 +91,7 @@ describe('QuestionService', () => {
         expect(spyGet).toHaveBeenCalled();
         expect(spyCreate).toHaveBeenCalled();
         expect(spyValidate).toHaveBeenCalled();
-        expect(stringifyPublicValues(mockQuestion)).toEqual(stringifyPublicValues(mockQuestion));
+        expect(stringifyQuestionPublicValues(mockQuestion)).toEqual(stringifyQuestionPublicValues(mockQuestion));
         expect(createdQuestion.id).not.toEqual(mockQuestion.id);
         expect(createdQuestion.lastModification).not.toEqual(mockQuestion.lastModification);
     });
@@ -198,7 +169,7 @@ describe('QuestionService', () => {
         expect(spyUpdate).toHaveBeenCalled();
     });
     it('deleteQuestion() should delete the corresponding question', async () => {
-        const mockQuestion = getMockQuestion();
+        const mockQuestion = questionMocks.getQuestion();
         const spyGet = jest.spyOn(service, 'getQuestionById').mockResolvedValue(mockQuestion);
         const spyDeleteOne = jest.spyOn(questionModel, 'deleteOne').mockResolvedValue({ acknowledged: true, deletedCount: 1 });
         await service.deleteQuestion(mockQuestion.id);

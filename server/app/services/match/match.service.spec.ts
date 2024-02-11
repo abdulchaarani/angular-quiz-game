@@ -1,3 +1,6 @@
+import { choiceMocks } from '@app/constants/choice-mocks';
+import { gameMocks } from '@app/constants/game-mocks';
+import { questionMocks } from '@app/constants/question-mocks';
 import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
 import { Question } from '@app/model/database/question';
@@ -83,25 +86,29 @@ describe('MatchService', () => {
     });
 
     it('validatePlayerChoice() should return true only if all choices from player are correct', () => {
-        const mockQuestion = getMockQuestionWithChoices();
+        const mockQuestion = questionMocks.getQuestionWithChoices();
         const spyGetBackupQuestion = jest.spyOn(service, 'getBackupQuestion').mockReturnValue(mockQuestion);
-        const correctPlayerTry = service.validatePlayerChoice('', '', [firstCorrectChoice.text, secondCorrectChoice.text]);
+        const correctPlayerTry = service.validatePlayerChoice('', '', [choiceMocks.firstCorrect.text, choiceMocks.secondCorrect.text]);
         expect(correctPlayerTry).toBe(true);
         expect(spyGetBackupQuestion).toHaveBeenCalled();
     });
 
     it('validatePlayerChoice() should return false if at least one choice from player is incorrect', () => {
-        const mockQuestion = getMockQuestionWithChoices();
+        const mockQuestion = questionMocks.getQuestionWithChoices();
         const spyGetBackupQuestion = jest.spyOn(service, 'getBackupQuestion').mockReturnValue(mockQuestion);
-        const correctPlayerTry = service.validatePlayerChoice('', '', [firstCorrectChoice.text, secondCorrectChoice.text, incorrectChoice.text]);
+        const correctPlayerTry = service.validatePlayerChoice('', '', [
+            choiceMocks.firstCorrect.text,
+            choiceMocks.secondCorrect.text,
+            choiceMocks.incorrect.text,
+        ]);
         expect(correctPlayerTry).toBe(false);
         expect(spyGetBackupQuestion).toHaveBeenCalled();
     });
 
     it('validatePlayerChoice() should return false if the player does not submit ALL correct choices.', () => {
-        const mockQuestion = getMockQuestionWithChoices();
+        const mockQuestion = questionMocks.getQuestionWithChoices();
         const spyGetBackupQuestion = jest.spyOn(service, 'getBackupQuestion').mockReturnValue(mockQuestion);
-        const correctPlayerTry = service.validatePlayerChoice('', '', [firstCorrectChoice.text]);
+        const correctPlayerTry = service.validatePlayerChoice('', '', [choiceMocks.firstCorrect.text]);
         expect(correctPlayerTry).toBe(false);
         expect(spyGetBackupQuestion).toHaveBeenCalled();
     });
@@ -145,108 +152,10 @@ describe('MatchService', () => {
     });
 
     it('removeIsCorrectField should return a game without the field isCorrect in question choices', () => {
-        const game = service.removeIsCorrectField(mockGameWithIsCorrectField);
-        expect(JSON.stringify(game)).toBe(JSON.stringify(mockGameWithoutIsCorrectField));
+        const game = service.removeIsCorrectField(gameMocks.gameWithIsCorrectField);
+        expect(JSON.stringify(game)).toBe(JSON.stringify(gameMocks.gameWithoutIsCorrectField));
 
-        const gameNoIsCorrect = service.removeIsCorrectField(mockGameWithoutIsCorrectField);
-        expect(JSON.stringify(gameNoIsCorrect)).toBe(JSON.stringify(mockGameWithoutIsCorrectField));
+        const gameNoIsCorrect = service.removeIsCorrectField(gameMocks.gameWithoutIsCorrectField);
+        expect(JSON.stringify(gameNoIsCorrect)).toBe(JSON.stringify(gameMocks.gameWithoutIsCorrectField));
     });
 });
-
-// TODO: Consider refactor the constants in a separate file (same for the error messages)
-const firstCorrectChoice = { text: 'first', isCorrect: true };
-const secondCorrectChoice = { text: 'second', isCorrect: true };
-const incorrectChoice = { text: 'third', isCorrect: false };
-
-const getMockQuestionWithChoices = (): Question => {
-    const mockQuestion = new Question();
-    mockQuestion.choices = [firstCorrectChoice, secondCorrectChoice, incorrectChoice];
-    return mockQuestion;
-};
-
-const pastYear = 2020;
-const mockGameWithIsCorrectField: Game = {
-    id: '',
-    title: '',
-    description: '',
-    lastModification: new Date(pastYear, 1, 1),
-    duration: 0,
-    isVisible: true,
-    questions: [
-        {
-            id: '0',
-            type: 'QCM',
-            text: '',
-            points: 0,
-            lastModification: new Date(pastYear, 1, 1),
-            choices: [
-                {
-                    text: '',
-                    isCorrect: true,
-                },
-                {
-                    text: '',
-                    isCorrect: false,
-                },
-            ],
-        },
-        {
-            id: '1',
-            type: 'QCM',
-            text: '',
-            points: 0,
-            lastModification: new Date(pastYear, 1, 1),
-            choices: [
-                {
-                    text: '',
-                    isCorrect: true,
-                },
-                {
-                    text: '',
-                    isCorrect: false,
-                },
-            ],
-        },
-    ],
-};
-
-const mockGameWithoutIsCorrectField: Game = {
-    id: '',
-    title: '',
-    description: '',
-    lastModification: new Date(pastYear, 1, 1),
-    duration: 0,
-    isVisible: true,
-    questions: [
-        {
-            id: '0',
-            type: 'QCM',
-            text: '',
-            points: 0,
-            lastModification: new Date(pastYear, 1, 1),
-            choices: [
-                {
-                    text: '',
-                },
-                {
-                    text: '',
-                },
-            ],
-        },
-        {
-            id: '1',
-            type: 'QCM',
-            text: '',
-            points: 0,
-            lastModification: new Date(pastYear, 1, 1),
-            choices: [
-                {
-                    text: '',
-                },
-                {
-                    text: '',
-                },
-            ],
-        },
-    ],
-};

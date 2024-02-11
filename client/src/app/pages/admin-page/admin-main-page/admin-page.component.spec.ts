@@ -146,14 +146,16 @@ describe('AdminPageComponent', () => {
         expect(addGameSpy).not.toHaveBeenCalled();
     });
 
-    it('openDialog() should open a dialog', () => {
+    it('openDialog() should open a dialog asking to change the game title and resubmit the updated game', () => {
         const addGameSpy = spyOn(component, 'addGame');
         component.openDialog(newMockGame);
         expect(dialogMock.open).toHaveBeenCalledWith(DialogRenameGameComponent, {
             data: '',
         });
         dialogMock.closeAll;
-        expect(addGameSpy).toHaveBeenCalled();
+        const changedTitleMockGame = newMockGame;
+        changedTitleMockGame.title = 'mockResult';
+        expect(addGameSpy).toHaveBeenCalledWith(changedTitleMockGame);
     });
 });
 

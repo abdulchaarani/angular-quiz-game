@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { AuthenticationService } from '@app/services/authentication/authentication.service';
 import { DialogAdminPasswordComponent } from '@app/components/dialog-admin-password/dialog-admin-password.component';
+import { AuthenticationService } from '@app/services/authentication/authentication.service';
 
 @Component({
     selector: 'app-home-page',
@@ -20,10 +20,13 @@ export class HomePageComponent {
             data: { username: this.username, password: this.password },
         });
 
-        dialogRef.afterClosed().subscribe((result) => {
-            this.password = result;
-            this.authenticationService.validatePassword(this.username, this.password);
-            this.password = '';
+        dialogRef.afterClosed().subscribe((result: string) => {
+            this.submitPassword(result);
         });
+    }
+
+    submitPassword(password: string): void {
+        this.authenticationService.validatePassword(this.username, password);
+        this.password = '';
     }
 }

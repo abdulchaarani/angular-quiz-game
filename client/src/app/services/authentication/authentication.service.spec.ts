@@ -38,6 +38,7 @@ describe('AuthenticationService', () => {
         httpClientSpy.post.and.returnValue(of({ status: 200 }));
         service.validatePassword('', '');
         expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/admin/games');
+        expect(service.getIsAuthenticated()).toBeTrue();
     });
 
     it('validatePassword() should display error message if wrong password', () => {
@@ -45,5 +46,6 @@ describe('AuthenticationService', () => {
         service.validatePassword('', '');
         expect(routerSpy.navigateByUrl).not.toHaveBeenCalledWith('/admin/games');
         expect(notificationSpy.displayErrorMessage).toHaveBeenCalled();
+        expect(service.getIsAuthenticated()).toBeFalse();
     });
 });

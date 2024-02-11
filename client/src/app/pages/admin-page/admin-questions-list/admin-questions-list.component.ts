@@ -1,19 +1,19 @@
 import { CdkDragDrop, CdkDragEnd, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { HttpErrorResponse } from '@angular/common/http';
-import { AfterViewInit, Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Game } from '@app/interfaces/game';
 import { Question } from '@app/interfaces/question';
 import { GamesService } from '@app/services/games.service';
-import { concatMap, iif, lastValueFrom } from 'rxjs';
+import { Subscription, concatMap, iif, lastValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-admin-questions-list',
     templateUrl: './admin-questions-list.component.html',
     styleUrls: ['./admin-questions-list.component.scss'],
 })
-export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
+export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDestroy {
     @Output() createQuestionEvent: EventEmitter<Question> = new EventEmitter<Question>();
 
     game: Game = {
@@ -34,12 +34,15 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
     dialogState: boolean = false;
     currentQuestion: Question;
     currentBankMessage = '';
+    isPendingChanges: boolean;
 
     gameForm = new FormGroup({
         title: new FormControl('', Validators.required),
         description: new FormControl('', Validators.required),
         duration: new FormControl('10', Validators.required),
     });
+
+    private isPendingChangesSubscription: Subscription = new Subscription();
 
     constructor(
         private readonly gamesService: GamesService,
@@ -67,6 +70,7 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
 
     ngOnInit() {
         this.route.data.subscribe((data) => (this.state = data.state));
+        this.isPendingChangesSubscription = this.gamesService.isPendingChangesObservable.subscribe((change) => (this.isPendingChanges = change));
     }
 
     ngAfterViewInit() {
@@ -87,6 +91,10 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit {
         this.gameForm.get('title')?.valueChanges.subscribe(() => this.gamesService.markPendingChanges());
         this.gameForm.get('description')?.valueChanges.subscribe(() => this.gamesService.markPendingChanges());
         this.gameForm.get('duration')?.valueChanges.subscribe(() => this.gamesService.markPendingChanges());
+    }
+
+    ngOnDestroy() {
+        this.isPendingChangesSubscription.unsubscribe();
     }
 
     changeDuration(event: Event) {

@@ -2,12 +2,15 @@ import { TestBed } from '@angular/core/testing';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { NotificationService } from './notification.service';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { MatDialogMock } from '@app/testing/mat-dialog-mock';
+import { DialogConfirmComponent } from '@app/components/dialog-confirm/dialog-confirm.component';
+import { CreateQuestionComponent } from '@app/pages/create-question/create-question.component';
 
-describe('NotificationService', () => {
+fdescribe('NotificationService', () => {
     let service: NotificationService;
     let snackBar: MatSnackBar;
+    let dialog: MatDialog;
 
     beforeEach(() => {
         TestBed.configureTestingModule({
@@ -17,6 +20,7 @@ describe('NotificationService', () => {
 
         service = TestBed.inject(NotificationService);
         snackBar = TestBed.inject(MatSnackBar);
+        dialog = TestBed.inject(MatDialog);
     });
 
     it('should be created', () => {
@@ -47,5 +51,46 @@ describe('NotificationService', () => {
             duration: 5000,
             panelClass: ['success-snackbar'],
         });
+    });
+
+    it('should display an error message snackbar with a custom action message', () => {
+        const errorMessage = 'Error with action :O';
+        const action = 'Accept';
+        spyOn(snackBar, 'open');
+
+        service.displayErrorMessageAction(errorMessage, action);
+
+        expect(snackBar.open).toHaveBeenCalledWith(errorMessage, action, undefined);
+    });
+
+    it('should open a confirmation dialog with provided config and return confirmation result', () => {
+        const config: MatDialogConfig = {
+            data: {
+                icon: 'warning',
+                title: 'warning',
+                text: 'warning',
+            },
+        };
+        const afterOpenSpy = spyOn(dialog, 'open').and.callThrough();
+
+        service.openConfirmDialog(config).subscribe((confirmResult) => {
+            expect(confirmResult).toBe(true);
+            expect(dialog.open).toHaveBeenCalledWith(DialogConfirmComponent, config);
+        });
+
+        expect(afterOpenSpy).toHaveBeenCalled();
+    });
+
+    it('should open a question creation modal', () => {
+        const config: MatDialogConfig = {
+            height: '70%',
+            width: '100%',
+        };
+        const afterOpenSpy = spyOn(dialog, 'open').and.callThrough();
+
+        service.openCreateQuestionModal();
+
+        expect(dialog.open).toHaveBeenCalledWith(CreateQuestionComponent, config);
+        expect(afterOpenSpy).toHaveBeenCalled();
     });
 });

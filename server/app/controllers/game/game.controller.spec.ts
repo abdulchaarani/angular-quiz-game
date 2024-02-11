@@ -110,7 +110,9 @@ describe('GamesController', () => {
     });
 
     it('addGame() should return CONFLICT if the game already exists.', async () => {
-        gameService.addGame.rejects('Un jeu du même titre existe déjà.');
+        jest.spyOn(gameService, 'addGame').mockImplementationOnce(() => {
+            return Promise.reject('Un jeu du même titre existe déjà.');
+        });
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.CONFLICT);

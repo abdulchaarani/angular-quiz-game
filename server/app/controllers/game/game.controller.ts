@@ -39,8 +39,9 @@ export class GameController {
         } catch (error) {
             if (error === 'Un jeu du même titre existe déjà.') {
                 response.status(HttpStatus.CONFLICT).send({ message: error });
+            } else {
+                response.status(HttpStatus.BAD_REQUEST).send({ message: error });
             }
-            response.status(HttpStatus.BAD_REQUEST).send({ message: error });
         }
     }
 

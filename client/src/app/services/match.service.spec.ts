@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 import { ChoiceValidationService } from './choice-validation.service';
 import { MatchService } from './match.service';
 
-fdescribe('MatchService', () => {
+describe('MatchService', () => {
     let service: MatchService;
     let choiceValidationService: ChoiceValidationService;
     const deletedGame = {} as Game;

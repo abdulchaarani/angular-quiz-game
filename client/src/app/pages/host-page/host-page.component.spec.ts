@@ -44,7 +44,7 @@ describe('HostPageComponent', () => {
         TestBed.configureTestingModule({
             declarations: [HostPageComponent],
             imports: [HttpClientTestingModule, BrowserAnimationsModule],
-            providers: [MatSnackBar, GamesService, NotificationService, MatchService],
+            providers: [MatSnackBar, GamesService, NotificationService, MatchService, { provide: MatDialog, useClass: MatDialogMock }],
         });
         fixture = TestBed.createComponent(HostPageComponent);
         gameService = TestBed.inject(GamesService);

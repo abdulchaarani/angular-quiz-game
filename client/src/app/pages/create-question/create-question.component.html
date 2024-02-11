@@ -13,8 +13,7 @@
                                 <p class="choice-number" matPrefix>{{ i + 1 }}.</p>
                                 <input class="choice-input" matInput formControlName="text" placeholder="Choix de réponse" />
                                 <span matSuffix class="choice-buttons">
-                                    <mat-checkbox formControlName="isCorrect" color="primary" [checked]="checked" [disabled]="disabled">
-                                    </mat-checkbox>
+                                    <input type="checkbox" formControlName="isCorrect" />
                                     <button mat-icon-button (click)="removeChoice(i)" color="accent"><mat-icon>delete</mat-icon></button>
 
                                     <svg width="20px" fill="currentColor" viewBox="0 0 24 24" cdkDragHandle>

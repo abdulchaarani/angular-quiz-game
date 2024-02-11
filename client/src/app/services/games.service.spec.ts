@@ -153,6 +153,17 @@ describe('GameService', () => {
         service.openCreateQuestionModal();
         expect(notificationSpy).toHaveBeenCalled();
     });
+
+    it('should mark pending changes', () => {
+        service.markPendingChanges();
+        expect(service.isPendingChangesSource.value).toBe(true);
+    });
+
+    it('should reset pending changes', () => {
+        service.markPendingChanges();
+        service.resetPendingChanges();
+        expect(service.isPendingChangesSource.value).toBe(false);
+    });
 });
 
 const BASE_36 = 36;

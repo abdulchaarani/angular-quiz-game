@@ -4,6 +4,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { GamesService } from '@app/services/games.service';
 import { Game } from '@app/interfaces/game';
+import { MatchService } from '@app/services/match.service';
 import { NotificationService } from '@app/services/notification.service';
 import { of, throwError } from 'rxjs';
 import { HostPageComponent } from './host-page.component';
@@ -15,7 +16,8 @@ describe('HostPageComponent', () => {
     let fixture: ComponentFixture<HostPageComponent>;
     let gameService: GamesService;
     let notificationService: NotificationService;
-    const invisibleGame = { isVisible: false } as Game;
+    let matchService: MatchService;
+    const invisibleGame: Game = { isVisible: false } as Game;
     const fakeGame: Game = {
         id: '0',
         title: 'title',
@@ -42,11 +44,12 @@ describe('HostPageComponent', () => {
         TestBed.configureTestingModule({
             declarations: [HostPageComponent],
             imports: [HttpClientTestingModule, BrowserAnimationsModule],
-            providers: [MatSnackBar, GamesService, NotificationService, { provide: MatDialog, useClass: MatDialogMock }],
+            providers: [MatSnackBar, GamesService, NotificationService, MatchService, { provide: MatDialog, useClass: MatDialogMock }],
         });
         fixture = TestBed.createComponent(HostPageComponent);
         gameService = TestBed.inject(GamesService);
         notificationService = TestBed.inject(NotificationService);
+        matchService = TestBed.inject(MatchService);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
@@ -66,15 +69,28 @@ describe('HostPageComponent', () => {
         expect(isNotVisible).toBeFalsy();
     });
 
+    it('should load only visible games with reloadAllGames()', fakeAsync(() => {
+        const spy = spyOn(component, 'reloadAllGames').and.callThrough();
+        spyOn(matchService, 'getAllGames').and.returnValue(of([fakeGame]));
+        component.games = [fakeGame, invisibleGame];
+        component.reloadAllGames();
+        tick();
+        const games = component.games;
+        const expectedGames = [fakeGame];
+        expect(games).toEqual(expectedGames);
+        expect(invisibleGame.isVisible).toBeFalsy();
+        expect(spy).toHaveBeenCalled();
+
+        flush();
+    }));
+
     it('should load a visible selected game', fakeAsync(() => {
         const spy = spyOn(component, 'validateGame').and.callThrough();
         spyOn(gameService, 'getGameById').and.returnValue(of(fakeGame));
         component.loadSelectedGame(fakeGame);
-        tick();
         expect(component.selectedGame).toEqual(fakeGame);
         expect(spy).toHaveBeenCalledWith(fakeGame);
         expect(component.gameIsValid).toBeTruthy();
-        flush();
     }));
 
     it('should not load an invisible selected game', fakeAsync(() => {
@@ -97,6 +113,7 @@ describe('HostPageComponent', () => {
         flush();
     }));
 
+    // TODO: cover onAction() for snackbars
     it('should open a snackbar when selecting an invisible game', fakeAsync(() => {
         const notificationSpy = spyOn(notificationService, 'displayErrorMessageAction').and.callThrough();
         component.validateGame(invisibleGame);

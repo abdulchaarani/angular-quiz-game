@@ -70,7 +70,8 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         this.answers = this.currentQuestion.choices || [];
 
         if (this.currentQuestion.id) {
-            this.matchService.setQuestionId(this.currentQuestion.id);
+            // this.matchService.setQuestionId(this.currentQuestion.id);
+            this.matchService.questionId = this.currentQuestion.id;
         }
 
         this.timeService.timerFinished$.subscribe((timerFinished) => {
@@ -91,7 +92,8 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
             this.currentQuestion = newQuestion;
             this.answers = this.currentQuestion.choices || [];
             if (this.currentQuestion.id) {
-                this.matchService.setQuestionId(this.currentQuestion.id);
+                this.matchService.questionId = this.currentQuestion.id;
+                // this.matchService.setQuestionId(this.currentQuestion.id);
             }
             this.resetStateForNewQuestion();
         }

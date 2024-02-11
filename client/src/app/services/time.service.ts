@@ -5,7 +5,6 @@ import { BehaviorSubject } from 'rxjs';
     providedIn: 'root',
 })
 export class TimeService {
-    // TODO : Permettre plus qu'une minuterie à la fois
     private timerFinished: BehaviorSubject<boolean>;
     private interval: number | undefined;
     private tick;

@@ -6,6 +6,7 @@ import { Response } from 'express';
 export class AuthController {
     constructor(private authService: AuthService) {}
 
+    // TODO: Replace DTO
     @Post('/')
     signIn(@Body() signInDto: Record<string, string>, @Res() response: Response) {
         if (this.authService.isValidPassword(signInDto.password)) {

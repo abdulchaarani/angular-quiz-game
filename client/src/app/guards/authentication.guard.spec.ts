@@ -6,7 +6,6 @@ import { NotificationService } from '@app/services/notification.service';
 import { AuthenticationGuard } from './authentication.guard';
 import SpyObj = jasmine.SpyObj;
 describe('AuthenticationGuard', () => {
-    // const executeGuard: CanActivateFn = (...guardParameters) => TestBed.runInInjectionContext(() => AuthenticationGuard(...guardParameters));
     let authenticationSpy: SpyObj<AuthenticationService>;
     let routerSpy: SpyObj<Router>;
     let notificationSpy: SpyObj<NotificationService>;

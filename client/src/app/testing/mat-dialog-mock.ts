@@ -1,3 +1,9 @@
+import { of } from 'rxjs';
+
 export class MatDialogMock {
-    // TODO
+    open() {
+        return {
+            afterClosed: () => of(true),
+        };
+    }
 }

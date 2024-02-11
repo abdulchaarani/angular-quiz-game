@@ -4,13 +4,12 @@ import { Game } from '@app/interfaces/game';
 import { Question } from '@app/interfaces/question';
 import { GamesService } from '@app/services/games.service';
 import { MatchService } from '@app/services/match.service';
-import { QuestionService } from '@app/services/question.service';
 import { Subscription } from 'rxjs';
 @Component({
     selector: 'app-test-page',
     templateUrl: './test-page.component.html',
     styleUrls: ['./test-page.component.scss'],
-    providers: [QuestionService, GamesService],
+    providers: [GamesService],
 })
 export class TestPageComponent implements OnInit {
     timeLimit: number;

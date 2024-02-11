@@ -9,14 +9,12 @@ import { ChoiceValidationService } from './choice-validation.service';
     providedIn: 'root',
 })
 export class MatchService extends ApiService<Game> {
+    questionAdvanced: Subject<void>;
     private questionId: string;
     // private gameId: string;
 
     private questionAdvanceSubject = new Subject<void>();
     private selectedGame: Game;
-
-    questionAdvanced$ = this.questionAdvanceSubject.asObservable();
-
     constructor(
         http: HttpClient,
         private readonly choiceValidationService: ChoiceValidationService,
@@ -28,17 +26,24 @@ export class MatchService extends ApiService<Game> {
         return this.selectedGame;
     }
 
+    get questionAdvanced$() {
+        return this.questionAdvanceSubject.asObservable(); // test
+    }
+
     set currentGame(game: Game) {
         this.selectedGame = game;
     }
 
     advanceQuestion() {
-        this.questionAdvanceSubject.next();
+        this.questionAdvanceSubject.next(); // test to
     }
 
     // setGameId(id: string) {
     //     this.gameId = id;
     // }
+    getQuestionId() {
+        return this.questionId;
+    }
 
     setQuestionId(id: string) {
         this.questionId = id;
@@ -53,7 +58,7 @@ export class MatchService extends ApiService<Game> {
     }
 
     deleteBackupGame(id: string) {
-        return this.delete(`backups/${id}`);
+        return this.delete(`backups/${id}`); // test to
     }
 
     validateChoices(choices: string[]) {
@@ -61,6 +66,6 @@ export class MatchService extends ApiService<Game> {
             selected: choices,
         };
 
-        return this.choiceValidationService.validateChoices(testChoice, this.currentGame.id, this.questionId);
+        return this.choiceValidationService.validateChoices(testChoice, this.currentGame.id, this.questionId); // here
     }
 }

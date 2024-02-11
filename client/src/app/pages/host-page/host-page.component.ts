@@ -28,7 +28,7 @@ export class HostPageComponent implements OnInit {
 
     reloadAllGames(): void {
         this.gameService.getGames().subscribe((data: Game[]) => {
-            this.games = data.filter((game) => game.isVisible);
+            this.games = data.filter((game) => game.isVisible); // test
         });
     }
 
@@ -41,7 +41,7 @@ export class HostPageComponent implements OnInit {
             error: () => {
                 const snackBarRef = this.notificationService.displayErrorMessageAction("Le jeu sélectionné n'existe plus", 'Actualiser');
                 snackBarRef.onAction().subscribe(() => {
-                    this.reloadAllGames();
+                    this.reloadAllGames(); // test
                 });
             },
         });
@@ -55,7 +55,7 @@ export class HostPageComponent implements OnInit {
         } else {
             const snackBarRef = this.notificationService.displayErrorMessageAction("Le jeu sélectionné n'est plus visible", 'Actualiser');
             snackBarRef.onAction().subscribe(() => {
-                this.reloadAllGames();
+                this.reloadAllGames(); // test
             });
         }
     }

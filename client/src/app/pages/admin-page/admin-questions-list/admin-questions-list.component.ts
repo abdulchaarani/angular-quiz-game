@@ -15,6 +15,7 @@ import { Subscription, concatMap, iif, lastValueFrom } from 'rxjs';
 })
 export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDestroy {
     @Output() createQuestionEvent: EventEmitter<Question> = new EventEmitter<Question>();
+    @Output() createQuestionEventQuestionBank: EventEmitter<Question> = new EventEmitter<Question>();
 
     game: Game = {
         id: '',
@@ -26,6 +27,7 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
         questions: [],
     };
 
+    response: string = '';
     state: string = '';
     originalBankQuestions: Question[] = [];
     bankQuestions: Question[] = [];
@@ -35,6 +37,8 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
     currentQuestion: Question;
     currentBankMessage = '';
     isPendingChanges: boolean;
+    addToBank: boolean;
+    addToBankToggleButtonState: boolean = false;
 
     gameForm = new FormGroup({
         title: new FormControl('', Validators.required),
@@ -96,7 +100,6 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
     ngOnDestroy() {
         this.isPendingChangesSubscription.unsubscribe();
     }
-
     changeDuration(event: Event) {
         this.game.duration = Number((event.target as HTMLInputElement).value);
     }
@@ -143,19 +146,42 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
         this.isSideBarActive = !this.isSideBarActive;
     }
 
+    addQuestionToBank(newQuestion: Question) {
+        if (!this.isDuplicateQuestion(newQuestion, this.originalBankQuestions)) {
+            this.gamesService.questionService.createQuestion(newQuestion).subscribe({
+                next: () => {
+                    this.gamesService.displaySuccessMessage('Question ajoutée à la banque avec succès! 😺');
+                    this.originalBankQuestions.unshift(newQuestion);
+                },
+            });
+        } else if (this.isDuplicateQuestion(newQuestion, this.originalBankQuestions)) {
+            this.gamesService.displayErrorMessage('Cette question fait déjà partie de la banque! 😾');
+        }
+    }
+
     openCreateQuestionDialog() {
         if (!this.dialogState) {
             const dialogRef = this.gamesService.openCreateQuestionModal();
 
             dialogRef.componentInstance.createQuestionEvent.subscribe((newQuestion: Question) => {
-                if (newQuestion) {
+                if (!this.isDuplicateQuestion(newQuestion, this.game.questions)) {
                     this.addNewQuestion(newQuestion);
+                    if (this.addToBankToggleButtonState) {
+                        this.addQuestionToBank(newQuestion);
+                    }
                     dialogRef.close();
+                } else {
+                    this.gamesService.displayErrorMessage('Cette question fait déjà partie de la liste des questions de ce jeu! 😾');
                 }
+            });
+
+            dialogRef.componentInstance.createQuestionEventQuestionBank.subscribe(() => {
+                this.addToBankToggleButtonState = !this.addToBankToggleButtonState;
                 this.dialogState = false;
             });
         }
     }
+
 
     async openConfirmDialog() {
         const confirmation$ = this.gamesService.confirmBankUpload(this.currentQuestion.text);

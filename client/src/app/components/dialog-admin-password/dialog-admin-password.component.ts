@@ -1,6 +1,6 @@
-import { Component, Inject } from '@angular/core';
+import { Component, HostListener, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { HomePageComponent } from '../../pages/home-page/home-page.component';
+import { HomePageComponent } from '@app/pages/home-page/home-page.component';
 
 export interface DialogData {
     username: string;
@@ -19,6 +19,11 @@ export class DialogAdminPasswordComponent {
         @Inject(MAT_DIALOG_DATA) public data: DialogData,
     ) {
         this.isHiddenPassword = true;
+    }
+
+    @HostListener('window:keyup.Enter', ['$event'])
+    onEnterPress(): void {
+        this.dialogRef.close(this.data.password);
     }
 
     onNoClick(): void {

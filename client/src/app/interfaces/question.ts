@@ -1,7 +1,7 @@
 import { Choice } from './choice';
 
 export interface Question {
-    id?: string;
+    id: string;
     type: string;
     text: string;
     points: number;

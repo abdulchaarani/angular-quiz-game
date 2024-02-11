@@ -1,4 +1,3 @@
-import { DateService } from '@app/services/date/date.service';
 import { Message } from '@common/message';
 import { Injectable, Logger } from '@nestjs/common';
 
@@ -6,10 +5,7 @@ import { Injectable, Logger } from '@nestjs/common';
 export class ExampleService {
     private clientMessages: Message[];
 
-    constructor(
-        private readonly dateService: DateService,
-        private readonly logger: Logger,
-    ) {
+    constructor(private readonly logger: Logger) {
         this.clientMessages = [];
     }
 
@@ -23,7 +19,7 @@ export class ExampleService {
     helloWorld(): Message {
         return {
             title: 'Hello world',
-            body: `Time is : ${this.dateService.currentTime()}`,
+            body: `Lorem Ipsum`,
         };
     }
 

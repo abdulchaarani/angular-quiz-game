@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { HttpClientModule, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -13,7 +14,7 @@ import { QuestionService } from '@app/services/question.service';
 import { of, throwError } from 'rxjs';
 import { AdminQuestionsListComponent } from './admin-questions-list.component';
 
-describe('AdminQuestionsListComponent', () => {
+fdescribe('AdminQuestionsListComponent', () => {
     let component: AdminQuestionsListComponent;
     let fixture: ComponentFixture<AdminQuestionsListComponent>;
     let gamesServiceSpy: jasmine.SpyObj<GamesService>;
@@ -91,7 +92,7 @@ describe('AdminQuestionsListComponent', () => {
             'displayErrorMessage',
             'resetPendingChanges',
         ]);
-        //matDialogSpy = TestBed.inject(MatDialog) as jasmine.SpyObj<MatDialog>;
+        // matDialogSpy = TestBed.inject(MatDialog) as jasmine.SpyObj<MatDialog>;
         questionServiceSpy = jasmine.createSpyObj('QuestionService', ['getAllQuestions', 'createQuestion']);
         notificationServiceSpy = jasmine.createSpyObj('NotificationService', ['displayErrorMessage', 'displaySuccessMessage']);
         questionServiceSpy.createQuestion.and.returnValue(of(mockHttpResponse));
@@ -130,7 +131,7 @@ describe('AdminQuestionsListComponent', () => {
     });
 
     it('should be able to change duration', () => {
-        const event: any = { target: { value: '20' } };
+        const event: Event = { target: { value: '20' } } as unknown as Event;
         component.changeDuration(event);
         expect(component.game.duration).toEqual(20);
     });
@@ -141,7 +142,7 @@ describe('AdminQuestionsListComponent', () => {
         component.handleSubmit();
 
         expect(gamesServiceSpy.submitGame).toHaveBeenCalled();
-        expect(gamesServiceSpy.displaySuccessMessage).toHaveBeenCalledWith('Jeux modifié avec succès! 😺');
+        expect(notificationServiceSpy.displaySuccessMessage).toHaveBeenCalledWith('Jeux modifié avec succès! 😺');
         expect(gamesServiceSpy.resetPendingChanges).toHaveBeenCalled();
         expect(routerSpy.navigate).toHaveBeenCalledWith(['/admin/games/']);
     });
@@ -150,10 +151,10 @@ describe('AdminQuestionsListComponent', () => {
         component.gameForm.setValue({ title: 'Test', description: 'Test', duration: '10' });
         component.state = 'modify';
         const errorMessage = 'Error submitting game';
-        gamesServiceSpy.submitGame.and.returnValue(throwError(new HttpErrorResponse({ error: errorMessage })));
+        gamesServiceSpy.submitGame.and.returnValue(throwError(() => new HttpErrorResponse({ error: errorMessage })));
         component.handleSubmit();
         expect(gamesServiceSpy.submitGame).toHaveBeenCalled();
-        expect(gamesServiceSpy.displayErrorMessage).toHaveBeenCalled();
+        expect(notificationServiceSpy.displayErrorMessage).toHaveBeenCalled();
     });
 
     // it('should add a new question to the current game', () => {

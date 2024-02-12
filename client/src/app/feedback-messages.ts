@@ -9,8 +9,10 @@ export enum BankStatus {
 export enum QuestionStatus {
     VERIFIED = 'Question vérifiée avec succès! 😺',
     UNVERIFIED = 'Question non vérifiée 😿',
+    DUPLICATE = 'Cette question fait déjà partie du jeu! 😾',
 }
 
 export enum GameStatus {
     VERIFIED = 'Question vérifiée avec succès! 😺',
+    DUPLICATE = 'Cette question fait déjà partie de la liste des questions de ce jeu! 😾',
 }

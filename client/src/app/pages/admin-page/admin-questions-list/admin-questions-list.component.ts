@@ -3,7 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { AfterViewInit, Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BankStatus, QuestionStatus } from '@app/feedback-messages';
+import { BankStatus, GameStatus, QuestionStatus } from '@app/feedback-messages';
 import { CanComponentDeactivate, CanDeactivateType } from '@app/interfaces/can-component-deactivate';
 import { Game } from '@app/interfaces/game';
 import { Question } from '@app/interfaces/question';
@@ -31,18 +31,14 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
         questions: [],
     };
 
-    response: string = '';
     state: string = '';
     originalBankQuestions: Question[] = [];
     bankQuestions: Question[] = [];
     isSideBarActive: boolean = false;
     isBankQuestionDragged: boolean = false;
     dialogState: boolean = false;
-    isValid: boolean = false;
-
     currentQuestion: Question;
     currentBankMessage = '';
-    isPendingChanges: boolean;
     addToBank: boolean;
     addToBankToggleButtonState: boolean = false;
 
@@ -52,6 +48,7 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
         duration: new FormControl('10', Validators.required),
     });
 
+    isPendingChanges: boolean;
     private isPendingChangesSubscription: Subscription = new Subscription();
 
     // eslint-disable-next-line max-params
@@ -185,7 +182,6 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
         }
     }
 
-    // https://stackoverflow.com/questions/47592364/usage-of-mat-dialog-close
     openCreateQuestionDialog() {
         if (!this.dialogState) {
             const dialogRef = this.notificationService.openCreateQuestionModal();
@@ -198,7 +194,7 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
                     }
                     dialogRef.close();
                 } else {
-                    this.notificationService.displayErrorMessage('Cette question fait déjà partie de la liste des questions de ce jeu! 😾');
+                    this.notificationService.displayErrorMessage(GameStatus.DUPLICATE);
                 }
             });
 
@@ -217,16 +213,16 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
     }
 
     dropInQuizList(event: CdkDragDrop<Question[]>) {
-        const question: Question = event.previousContainer.data[event.previousIndex];
+        const bankQuestion: Question = event.previousContainer.data[event.previousIndex];
         if (event.previousContainer === event.container) {
             moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
             this.gamesService.markPendingChanges();
-        } else if (!this.isDuplicateQuestion(question, this.game.questions)) {
+        } else if (!this.isDuplicateQuestion(bankQuestion, this.game.questions)) {
             transferArrayItem(event.previousContainer.data, event.container.data, event.previousIndex, event.currentIndex);
             this.setBankMessage();
             this.gamesService.markPendingChanges();
         } else {
-            this.notificationService.displayErrorMessage('Cette question fait déjà partie du jeu! 😾');
+            this.notificationService.displayErrorMessage(QuestionStatus.DUPLICATE);
         }
     }
 

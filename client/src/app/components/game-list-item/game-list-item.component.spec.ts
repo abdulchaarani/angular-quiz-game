@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { By } from '@angular/platform-browser';
+import { DownloadGameService } from '@app/services/download-game.service';
 import { GamesService } from '@app/services/games.service';
 import { of } from 'rxjs';
 import { GameListItemComponent } from './game-list-item.component';
@@ -12,23 +13,21 @@ describe('GameListItemComponent', () => {
     let component: GameListItemComponent;
     let fixture: ComponentFixture<GameListItemComponent>;
     let gamesServiceSpy: SpyObj<GamesService>;
+    let downloadSpy: SpyObj<DownloadGameService>;
 
     beforeEach(waitForAsync(() => {
-        gamesServiceSpy = jasmine.createSpyObj('GamesService', [
-            'getGames',
-            'getGameById',
-            'toggleGameVisibility',
-            'deleteGame',
-            'uploadGame',
-            'downloadGameAsJson',
-        ]);
+        gamesServiceSpy = jasmine.createSpyObj('GamesService', ['getGames', 'getGameById', 'toggleGameVisibility', 'deleteGame', 'uploadGame']);
+        downloadSpy = jasmine.createSpyObj('DownloadGameService', ['downloadGameAsJson']);
 
         gamesServiceSpy.toggleGameVisibility.and.returnValue(of());
 
         TestBed.configureTestingModule({
             imports: [MatCardModule, HttpClientModule, MatIconModule],
             declarations: [GameListItemComponent],
-            providers: [{ provide: GamesService, useValue: gamesServiceSpy }],
+            providers: [
+                { provide: GamesService, useValue: gamesServiceSpy },
+                { provide: DownloadGameService, useValue: downloadSpy },
+            ],
         }).compileComponents();
     }));
 
@@ -86,13 +85,13 @@ describe('GameListItemComponent', () => {
     it('downloadGameAsJson() should call the service to download the game as json', () => {
         component.isAdminMode = true;
         component.downloadGameAsJson();
-        expect(gamesServiceSpy.downloadGameAsJson).toHaveBeenCalledWith(component.game);
+        expect(downloadSpy.downloadGameAsJson).toHaveBeenCalledWith(component.game);
     });
 
     it('downloadGameAsJson() should not call the service to download the game as json if not in admin mode', () => {
         component.isAdminMode = false;
         component.downloadGameAsJson();
-        expect(gamesServiceSpy.downloadGameAsJson).not.toHaveBeenCalled();
+        expect(downloadSpy.downloadGameAsJson).not.toHaveBeenCalled();
     });
 });
 

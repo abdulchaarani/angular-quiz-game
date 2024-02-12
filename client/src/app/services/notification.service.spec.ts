@@ -7,7 +7,7 @@ import { CreateQuestionComponent } from '@app/pages/create-question/create-quest
 import { MatDialogMock } from '@app/testing/mat-dialog-mock';
 import { NotificationService } from './notification.service';
 
-xdescribe('NotificationService', () => {
+describe('NotificationService', () => {
     let service: NotificationService;
     let snackBar: MatSnackBar;
     let dialog: MatDialog;

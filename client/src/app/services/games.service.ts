@@ -3,7 +3,6 @@ import { Injectable } from '@angular/core';
 import { Game } from '@app/interfaces/game';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { ApiService } from './api.service';
-import { QuestionService } from './question.service';
 
 @Injectable({
     providedIn: 'root',
@@ -12,10 +11,7 @@ export class GamesService extends ApiService<Game> {
     isPendingChangesObservable: Observable<boolean>;
     isPendingChangesSource = new BehaviorSubject<boolean>(false);
 
-    constructor(
-        public questionService: QuestionService,
-        http: HttpClient,
-    ) {
+    constructor(http: HttpClient) {
         super(http, 'admin/games');
         this.isPendingChangesObservable = this.isPendingChangesSource.asObservable();
     }

@@ -131,9 +131,33 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
                 this.question.text = formValue?.text;
                 this.question.type = formValue?.type;
                 this.question.points = formValue?.points;
+                //this.question.choices = formValue?.choices;
                 this.question.lastModification = new Date().toLocaleDateString();
+
+                this.questionForm.get('choices')?.valueChanges.subscribe((choices) => {
+                    console.log("quest",choices);
+                    if (this.question) {
+                        this.updateChoices(choices);
+                    }
+                });
             });
         }
+    }
+
+    updateChoices(choices: any[]): void {
+        choices.forEach((choice, index) => {
+            if (index < this.question.choices!.length) {
+                this.question.choices![index].text = choice.text;
+                this.question.choices![index].isCorrect = choice.isCorrect;
+            }
+            else {
+                this.question.choices!.push({
+                    text: choice.text,
+                    isCorrect: choice.isCorrect
+                });
+            }
+            console.log(this.question.choices);
+        });
     }
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -170,6 +194,7 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
             points: this.question?.points,
             type: this.question?.type,
             lastModification: this.question?.lastModification,
+            //choices: this.question?.choices,
         });
 
         const choicesArray = this.questionForm.get('choices') as FormArray;

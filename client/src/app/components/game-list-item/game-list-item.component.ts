@@ -9,12 +9,11 @@ import { GamesService } from '@app/services/games.service';
 })
 export class GameListItemComponent {
     @Input() game: Game;
-    @Input() isAdminMode: boolean; // TODO: Base itself from the URL instead? (must start by admin...)
+    @Input() isAdminMode: boolean;
     @Output() deleteGameFromList: EventEmitter<string> = new EventEmitter<string>();
 
     constructor(private gamesService: GamesService) {}
 
-    // TODO notify errors
     toggleGameVisibility() {
         if (this.isAdminMode) {
             this.gamesService.toggleGameVisibility(this.game).subscribe();

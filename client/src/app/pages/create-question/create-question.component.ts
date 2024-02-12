@@ -131,6 +131,7 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
                 this.question.text = formValue?.text;
                 this.question.type = formValue?.type;
                 this.question.points = formValue?.points;
+                //this.question.choices = formValue?.choices;
                 this.question.lastModification = new Date().toLocaleDateString();
 
                 this.questionForm.get('choices')?.valueChanges.subscribe((choices) => {
@@ -144,17 +145,12 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     }
 
     updateChoices(choices: any[]): void {
-        choices.forEach((choice, index) => {
-            if (index < this.question.choices!.length) {
-                this.question.choices![index].text = choice.text;
-                this.question.choices![index].isCorrect = choice.isCorrect;
-            }
-            else {
-                this.question.choices!.push({
-                    text: choice.text,
-                    isCorrect: choice.isCorrect
-                });
-            }
+        this.question.choices = [];
+        choices.forEach((choice) => {
+            this.question.choices!.push({
+                text: choice.text,
+                isCorrect: choice.isCorrect
+            });
         });
     }
 

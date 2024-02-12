@@ -3,7 +3,6 @@ import { Injectable } from '@angular/core';
 import { Game } from '@app/interfaces/game';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { ApiService } from './api.service';
-import { NotificationService } from './notification.service';
 import { QuestionService } from './question.service';
 
 @Injectable({
@@ -14,7 +13,6 @@ export class GamesService extends ApiService<Game> {
     isPendingChangesSource = new BehaviorSubject<boolean>(false);
 
     constructor(
-        private readonly notificationService: NotificationService,
         public questionService: QuestionService,
         http: HttpClient,
     ) {
@@ -67,33 +65,11 @@ export class GamesService extends ApiService<Game> {
         downloadLink.remove();
     }
 
-    displaySuccessMessage(successMessage: string) {
-        this.notificationService.displaySuccessMessage(successMessage);
-    }
-
-    displayErrorMessage(errorMessage: string) {
-        this.notificationService.displayErrorMessage(errorMessage);
-    }
-
     markPendingChanges() {
-        this.isPendingChangesSource.next(true); // TODO: Test
+        this.isPendingChangesSource.next(true);
     }
 
     resetPendingChanges() {
-        this.isPendingChangesSource.next(false); // TODO: Test
-    }
-
-    confirmBankUpload(questionTitle: string) {
-        return this.notificationService.openConfirmDialog({
-            data: {
-                icon: 'info_outline',
-                title: 'Êtes-vous certain de vouloir ajouter cette question à la banque de questions?',
-                text: questionTitle,
-            },
-        });
-    }
-
-    openCreateQuestionModal() {
-        return this.notificationService.openCreateQuestionModal();
+        this.isPendingChangesSource.next(false);
     }
 }

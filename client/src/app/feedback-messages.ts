@@ -15,4 +15,5 @@ export enum QuestionStatus {
 export enum GameStatus {
     VERIFIED = 'Question vérifiée avec succès! 😺',
     DUPLICATE = 'Cette question fait déjà partie de la liste des questions de ce jeu! 😾',
+    FAILURE = "Échec d'obtention du jeu 😿",
 }

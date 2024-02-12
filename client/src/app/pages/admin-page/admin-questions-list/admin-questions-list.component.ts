@@ -63,11 +63,10 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
     canDeactivate(): CanDeactivateType {
         if (this.isPendingChanges) {
             const deactivateSubject = new Subject<boolean>();
-            this.notificationService.openPendingChangesConfirmDialog().subscribe((confirm) => deactivateSubject.next(confirm));
+            this.notificationService.openPendingChangesConfirmDialog().subscribe((confirm: boolean) => deactivateSubject.next(confirm));
             return deactivateSubject;
-        } else {
-            return true;
         }
+        return true;
     }
 
     setGame() {
@@ -104,7 +103,7 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
                 this.gamesService.resetPendingChanges();
             },
             error: (error: HttpErrorResponse) => {
-                this.notificationService.displayErrorMessage(`Échec d'obtention du jeu 😿\n ${error.message}`);
+                this.notificationService.displayErrorMessage(`${GameStatus.FAILURE}\n${error.message}`);
             },
         });
 
@@ -116,6 +115,7 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
     ngOnDestroy() {
         this.isPendingChangesSubscription.unsubscribe();
     }
+
     changeDuration(event: Event) {
         this.game.duration = Number((event.target as HTMLInputElement).value);
     }
@@ -213,11 +213,11 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
     }
 
     dropInQuizList(event: CdkDragDrop<Question[]>) {
-        const bankQuestion: Question = event.previousContainer.data[event.previousIndex];
+        const droppedQuestion: Question = event.previousContainer.data[event.previousIndex];
         if (event.previousContainer === event.container) {
             moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
             this.gamesService.markPendingChanges();
-        } else if (!this.isDuplicateQuestion(bankQuestion, this.game.questions)) {
+        } else if (!this.isDuplicateQuestion(droppedQuestion, this.game.questions)) {
             transferArrayItem(event.previousContainer.data, event.container.data, event.previousIndex, event.currentIndex);
             this.setBankMessage();
             this.gamesService.markPendingChanges();

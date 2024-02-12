@@ -1,4 +1,14 @@
-import { errorMessage } from '@app/constants/game-error-messages';
+import {
+    ERROR_CHOICES_NUMBER,
+    ERROR_CHOICES_RATIO,
+    ERROR_DURATION,
+    ERROR_EMPTY_DESCRIPTION,
+    ERROR_EMPTY_QUESTION,
+    ERROR_EMPTY_TITLE,
+    ERROR_POINTS,
+    ERROR_QUESTIONS_NUMBER,
+    ERROR_REPEAT_CHOICES,
+} from '@app/constants/game-error-messages';
 import {
     MAX_CHOICES_NUMBER,
     MAX_DURATION,
@@ -56,19 +66,19 @@ export class GameValidationService {
         const isValidQuestionName = this.isValidString(question.text);
         const isValidQuestionRatio = this.isValidChoicesRatio(question);
         if (!isValidChoicesNumber) {
-            errorMessages.push(errorMessage.choicesNumber);
+            errorMessages.push(ERROR_CHOICES_NUMBER);
         }
         if (!isUniqueChoices) {
-            errorMessages.push(errorMessage.noRepeatChoice);
+            errorMessages.push(ERROR_REPEAT_CHOICES);
         }
         if (!isValidPointsRange || !isValidPointsMultiple) {
-            errorMessages.push(errorMessage.points);
+            errorMessages.push(ERROR_POINTS);
         }
         if (!isValidQuestionName) {
-            errorMessages.push(errorMessage.questionEmptyText);
+            errorMessages.push(ERROR_EMPTY_QUESTION);
         }
         if (!isValidQuestionRatio) {
-            errorMessages.push(errorMessage.choicesRatio);
+            errorMessages.push(ERROR_CHOICES_RATIO);
         }
         return errorMessages;
     }
@@ -81,16 +91,16 @@ export class GameValidationService {
         const isValidQuestionsNumber = game.questions.length >= MIN_QUESTIONS_NUMBER;
 
         if (!isValidTitle) {
-            errorMessages.push(errorMessage.gameEmptyTitle);
+            errorMessages.push(ERROR_EMPTY_TITLE);
         }
         if (!isValidDescription) {
-            errorMessages.push(errorMessage.gameEmptyDescription);
+            errorMessages.push(ERROR_EMPTY_DESCRIPTION);
         }
         if (!isValidDuration) {
-            errorMessages.push(errorMessage.gameDuration);
+            errorMessages.push(ERROR_DURATION);
         }
         if (!isValidQuestionsNumber) {
-            errorMessages.push(errorMessage.gameQuestionsNumber);
+            errorMessages.push(ERROR_QUESTIONS_NUMBER);
         }
         game.questions.forEach((question: CreateQuestionDto, index: number) => {
             const questionErrorMessages = this.findQuestionErrors(question);

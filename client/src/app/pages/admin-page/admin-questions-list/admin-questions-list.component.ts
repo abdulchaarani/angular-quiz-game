@@ -36,7 +36,6 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
     dialogState: boolean = false;
     isValid: boolean = false;
 
-    
     bankMessages = {
         unavailable: "👀 Aucune autre question valide de la banque n'est disponible! 👀",
         available: '🖐 Glissez et déposez une question de la banque dans le jeu! 🖐',
@@ -60,7 +59,7 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
         private readonly gamesService: GamesService,
         private route: ActivatedRoute,
         private router: Router,
-    ) { }
+    ) {}
 
     setGame() {
         return this.route.params.pipe(
@@ -133,12 +132,13 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
     }
 
     addNewQuestion(newQuestion: Question) {
-        this.game.questions.push(newQuestion);
-        this.gamesService.verifyGame(this.game).subscribe({
+        this.gamesService.questionService.verifyQuestion(newQuestion).subscribe({
             next: () => {
-            }
-        }
-        )
+                this.gamesService.displaySuccessMessage('Question vérifiée avec succès! 😺');
+            },
+            error: (error: HttpErrorResponse) => this.gamesService.displayErrorMessage(`Question non vérifiée 😿 \n ${error.message}`),
+        });
+        this.game.questions.push(newQuestion);
         this.gamesService.markPendingChanges();
     }
 

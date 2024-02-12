@@ -13,7 +13,7 @@ import { QuestionService } from '@app/services/question.service';
 import { of, throwError } from 'rxjs';
 import { AdminQuestionsListComponent } from './admin-questions-list.component';
 
-fdescribe('AdminQuestionsListComponent', () => {
+describe('AdminQuestionsListComponent', () => {
     let component: AdminQuestionsListComponent;
     let fixture: ComponentFixture<AdminQuestionsListComponent>;
     let gamesServiceSpy: jasmine.SpyObj<GamesService>;
@@ -91,7 +91,7 @@ fdescribe('AdminQuestionsListComponent', () => {
             'displayErrorMessage',
             'resetPendingChanges',
         ]);
-        //matDialogSpy = TestBed.inject(MatDialog) as jasmine.SpyObj<MatDialog>;
+        // matDialogSpy = TestBed.inject(MatDialog) as jasmine.SpyObj<MatDialog>;
         questionServiceSpy = jasmine.createSpyObj('QuestionService', ['getAllQuestions', 'createQuestion']);
         notificationServiceSpy = jasmine.createSpyObj('NotificationService', ['displayErrorMessage', 'displaySuccessMessage']);
         questionServiceSpy.createQuestion.and.returnValue(of(mockHttpResponse));
@@ -130,6 +130,7 @@ fdescribe('AdminQuestionsListComponent', () => {
     });
 
     it('should be able to change duration', () => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const event: any = { target: { value: '20' } };
         component.changeDuration(event);
         expect(component.game.duration).toEqual(20);

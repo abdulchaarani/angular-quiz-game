@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Game } from '@app/interfaces/game';
+import { DownloadGameService } from '@app/services/download-game.service';
 import { GamesService } from '@app/services/games.service';
 
 @Component({
@@ -12,7 +13,10 @@ export class GameListItemComponent {
     @Input() isAdminMode: boolean;
     @Output() deleteGameFromList: EventEmitter<string> = new EventEmitter<string>();
 
-    constructor(private gamesService: GamesService) {}
+    constructor(
+        private gamesService: GamesService,
+        private readonly downloadGameService: DownloadGameService,
+    ) {}
 
     toggleGameVisibility() {
         if (this.isAdminMode) {
@@ -22,7 +26,7 @@ export class GameListItemComponent {
 
     downloadGameAsJson() {
         if (this.isAdminMode) {
-            this.gamesService.downloadGameAsJson(this.game);
+            this.downloadGameService.downloadGameAsJson(this.game);
         }
     }
 

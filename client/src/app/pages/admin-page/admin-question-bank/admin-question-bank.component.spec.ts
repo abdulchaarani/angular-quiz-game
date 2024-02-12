@@ -4,10 +4,10 @@ import { QuestionService } from '@app/services/question.service';
 import { AdminQuestionBankComponent } from './admin-question-bank.component';
 
 import { HttpResponse } from '@angular/common/http';
+import { MatDialog } from '@angular/material/dialog';
 import { SortByLastModificationPipe } from '@app/pipes/sort-by-last-modification.pipe';
 import { NotificationService } from '@app/services/notification.service';
 import { of } from 'rxjs';
-import { MatDialog } from '@angular/material/dialog';
 
 
 describe('AdminQuestionBankComponent', () => {

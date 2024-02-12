@@ -1,9 +1,3 @@
-const firstCorrect = { text: 'first', isCorrect: true };
-const secondCorrect = { text: 'second', isCorrect: true };
-const incorrect = { text: 'third', isCorrect: false };
-
-export const choiceMocks = {
-    firstCorrect,
-    secondCorrect,
-    incorrect,
-};
+export const FIRST_CORRECT_CHOICE = { text: 'first', isCorrect: true };
+export const SECOND_CORRECT_CHOICE = { text: 'second', isCorrect: true };
+export const INCORRECT_CHOICE = { text: 'third', isCorrect: false };

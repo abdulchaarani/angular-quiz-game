@@ -14,7 +14,7 @@ import { QuestionService } from '@app/services/question.service';
 import { of, throwError } from 'rxjs';
 import { AdminQuestionsListComponent } from './admin-questions-list.component';
 
-fdescribe('AdminQuestionsListComponent', () => {
+describe('AdminQuestionsListComponent', () => {
     let component: AdminQuestionsListComponent;
     let fixture: ComponentFixture<AdminQuestionsListComponent>;
     let gamesServiceSpy: jasmine.SpyObj<GamesService>;

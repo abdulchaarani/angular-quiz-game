@@ -1,11 +1,11 @@
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import { Component, HostListener, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { ChatComponent } from '@app/components/chat/chat.component';
 import { Choice } from '@app/interfaces/choice';
 import { Question } from '@app/interfaces/question';
 import { MatchService } from '@app/services/match.service';
 import { TimeService } from '@app/services/time.service';
-import { ChatComponent } from '../chat/chat.component';
 
 @Component({
     selector: 'app-question-area',
@@ -23,11 +23,11 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     showFeedback: boolean;
     isCorrect: boolean;
     playerScore: number;
-    havePointsbeenAdded: boolean;
+    havePointsBeenAdded: boolean;
     bonus: number;
 
+    readonly bonusFactor = 0.2;
     private readonly multiplicationFactor = 100;
-    readonly BONUSFACTOR = 0.2;
     private readonly timeout = 3000;
 
     constructor(
@@ -40,7 +40,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         this.showFeedback = false;
         this.isCorrect = false;
         this.playerScore = 0;
-        this.havePointsbeenAdded = false;
+        this.havePointsBeenAdded = false;
         this.bonus = 0;
     }
 
@@ -71,7 +71,6 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
             this.answers = this.currentQuestion.choices;
         }
         if (this.currentQuestion.id) {
-            // this.matchService.setQuestionId(this.currentQuestion.id);
             this.matchService.questionId = this.currentQuestion.id;
         }
 
@@ -96,30 +95,22 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
             }
             if (this.currentQuestion.id) {
                 this.matchService.questionId = this.currentQuestion.id;
-                // this.matchService.setQuestionId(this.currentQuestion.id);
             }
             this.resetStateForNewQuestion();
         }
     }
 
-    // TODO : TEST
     computeTimerProgress(): number {
         return (this.timeService.time / this.gameDuration) * this.multiplicationFactor;
     }
 
     checkAnswers(): void {
         const choicesText: string[] = this.selectedAnswers.map((choice) => choice.text);
-        this.matchService.validateChoices(choicesText).subscribe({
-            next: (response: HttpResponse<string>) => {
-                if (response.body) {
-                    this.isCorrect = JSON.parse(response.body);
-                    this.afterFeedback();
-                }
-            },
-            // TODO : handle error
-            error: (error: HttpErrorResponse) => {
-                console.error(error.message);
-            },
+        this.matchService.validateChoices(choicesText).subscribe((response: HttpResponse<string>) => {
+            if (response.body) {
+                this.isCorrect = JSON.parse(response.body);
+                this.afterFeedback();
+            }
         });
     }
 
@@ -151,7 +142,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     playerScoreUpdate(): void {
         if (this.isCorrect === true) {
             if (this.isTestPage === true) {
-                this.bonus = this.currentQuestion.points * this.BONUSFACTOR;
+                this.bonus = this.currentQuestion.points * this.bonusFactor;
             }
             this.playerScore += this.currentQuestion.points;
             this.playerScore += this.bonus;
@@ -159,9 +150,9 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     }
 
     afterFeedback(): void {
-        if (this.havePointsbeenAdded === false) {
+        if (this.havePointsBeenAdded === false) {
             this.playerScoreUpdate();
-            this.havePointsbeenAdded = true;
+            this.havePointsBeenAdded = true;
         }
         this.showFeedback = true;
         setTimeout(() => {
@@ -177,7 +168,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         this.isSelectionEnabled = true;
         this.selectedAnswers = [];
         this.isCorrect = false;
-        this.havePointsbeenAdded = false;
+        this.havePointsBeenAdded = false;
         this.bonus = 0;
     }
 }

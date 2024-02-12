@@ -13,6 +13,8 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     @Input() question: Question;
     @Output() createQuestionEvent: EventEmitter<Question> = new EventEmitter<Question>();
     @Output() createQuestionEventQuestionBank: EventEmitter<Question> = new EventEmitter<Question>();
+    @Input() createNewQuestionButton: boolean = true;
+    @Input() createNewQuestionToBankButton: boolean = true;
 
     response: string = '';
     modifyingForm: boolean = false;
@@ -181,7 +183,6 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
             points: this.question?.points,
             type: this.question?.type,
             lastModification: this.question?.lastModification,
-            //choices: this.question?.choices,
         });
 
         const choicesArray = this.questionForm.get('choices') as FormArray;

@@ -1,15 +1,15 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed, fakeAsync, flush, tick } from '@angular/core/testing';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { GamesService } from '@app/services/games.service';
 import { Game } from '@app/interfaces/game';
+import { GamesService } from '@app/services/games.service';
 import { MatchService } from '@app/services/match.service';
 import { NotificationService } from '@app/services/notification.service';
+import { MatDialogMock } from '@app/testing/mat-dialog-mock';
 import { of, throwError } from 'rxjs';
 import { HostPageComponent } from './host-page.component';
-import { MatDialog } from '@angular/material/dialog';
-import { MatDialogMock } from '@app/testing/mat-dialog-mock';
 
 describe('HostPageComponent', () => {
     let component: HostPageComponent;
@@ -113,7 +113,6 @@ describe('HostPageComponent', () => {
         flush();
     }));
 
-    // TODO: cover onAction() for snackbars
     it('should open a snackbar when selecting an invisible game', fakeAsync(() => {
         const notificationSpy = spyOn(notificationService, 'displayErrorMessageAction').and.callThrough();
         component.validateGame(invisibleGame);

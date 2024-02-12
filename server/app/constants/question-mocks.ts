@@ -1,8 +1,8 @@
 import { Question } from '@app/model/database/question';
-import { choiceMocks } from './choice-mocks';
+import { FIRST_CORRECT_CHOICE, INCORRECT_CHOICE, SECOND_CORRECT_CHOICE } from './choice-mocks';
 import { getRandomString } from './test-utils';
 
-const getQuestion = (): Question => ({
+const getMockQuestion = (): Question => ({
     id: getRandomString(),
     type: 'QCM',
     text: getRandomString(),
@@ -28,36 +28,36 @@ const getQuestion = (): Question => ({
     lastModification: new Date(),
 });
 
-const validQuestion = getQuestion();
-validQuestion.choices = [
+const VALID_QUESTION = getMockQuestion();
+VALID_QUESTION.choices = [
     { text: 'a', isCorrect: true },
     { text: 'b', isCorrect: false },
 ];
 
-const fourChoicesQuestion = getQuestion();
-fourChoicesQuestion.choices = [
+const FOUR_CHOICES_QUESTION = getMockQuestion();
+FOUR_CHOICES_QUESTION.choices = [
     { text: 'a', isCorrect: true },
     { text: 'b', isCorrect: false },
     { text: 'c', isCorrect: true },
     { text: 'd', isCorrect: false },
 ];
 
-const allTrueQuestion = getQuestion();
-allTrueQuestion.choices = [
+const ALL_TRUE_QUESTION = getMockQuestion();
+ALL_TRUE_QUESTION.choices = [
     { text: 'a', isCorrect: true },
     { text: 'b', isCorrect: true },
 ];
 
-const allFalseQuestion = getQuestion();
-allFalseQuestion.choices = [
+const ALL_FALSE_QUESTION = getMockQuestion();
+ALL_FALSE_QUESTION.choices = [
     { text: 'a', isCorrect: false },
     { text: 'b', isCorrect: false },
 ];
 
-export const getQuestionWithChoices = (): Question => {
+const getMockQuestionWithChoices = (): Question => {
     const mockQuestion = new Question();
-    mockQuestion.choices = [choiceMocks.firstCorrect, choiceMocks.secondCorrect, choiceMocks.incorrect];
+    mockQuestion.choices = [FIRST_CORRECT_CHOICE, SECOND_CORRECT_CHOICE, INCORRECT_CHOICE];
     return mockQuestion;
 };
 
-export const questionMocks = { getQuestion, validQuestion, fourChoicesQuestion, allTrueQuestion, allFalseQuestion, getQuestionWithChoices };
+export { ALL_FALSE_QUESTION, ALL_TRUE_QUESTION, FOUR_CHOICES_QUESTION, VALID_QUESTION, getMockQuestion, getMockQuestionWithChoices };

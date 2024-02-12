@@ -29,7 +29,7 @@ export class GamesService extends ApiService<Game> {
 
     toggleGameVisibility(game: Game): Observable<HttpResponse<string>> {
         game.isVisible = !game.isVisible;
-        return this.update(game.id);
+        return this.update(game, game.id);
     }
 
     deleteGame(id: string): Observable<HttpResponse<string>> {
@@ -48,21 +48,12 @@ export class GamesService extends ApiService<Game> {
         return state === 'modify' ? this.replaceGame(game) : this.uploadGame(game);
     }
 
-    downloadGameAsJson(gameToStringify: Game) {
-        const stringifiedGame = JSON.stringify(gameToStringify, (key, value) => {
-            if (key !== 'isVisible' && key !== '_id' && key !== '__v') {
-                return value;
-            }
-        });
-        const blob = new Blob([stringifiedGame], { type: 'text/json' });
-        // Reference: https://runninghill.azurewebsites.net/downloading-objects-as-json-files-in-angular/
-        const url = window.URL.createObjectURL(blob);
-        const downloadLink = document.createElement('a');
-        downloadLink.href = url;
-        downloadLink.download = `${gameToStringify.title}.json`;
-        downloadLink.click();
-        window.URL.revokeObjectURL(url);
-        downloadLink.remove();
+    displaySuccessMessage(successMessage: string) {
+        this.notificationService.displaySuccessMessage(successMessage);
+    }
+
+    displayErrorMessage(errorMessage: string) {
+        this.notificationService.displayErrorMessage(errorMessage);
     }
 
     markPendingChanges() {

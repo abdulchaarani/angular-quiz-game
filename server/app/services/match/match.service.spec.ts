@@ -1,4 +1,4 @@
-import { choiceMocks } from '@app/constants/choice-mocks';
+import { FIRST_CORRECT_CHOICE, INCORRECT_CHOICE, SECOND_CORRECT_CHOICE } from '@app/constants/choice-mocks';
 import { gameMocks } from '@app/constants/game-mocks';
 import { questionMocks } from '@app/constants/question-mocks';
 import { Choice } from '@app/model/database/choice';
@@ -88,7 +88,7 @@ describe('MatchService', () => {
     it('validatePlayerChoice() should return true only if all choices from player are correct', () => {
         const mockQuestion = questionMocks.getQuestionWithChoices();
         const spyGetBackupQuestion = jest.spyOn(service, 'getBackupQuestion').mockReturnValue(mockQuestion);
-        const correctPlayerTry = service.validatePlayerChoice('', '', [choiceMocks.firstCorrect.text, choiceMocks.secondCorrect.text]);
+        const correctPlayerTry = service.validatePlayerChoice('', '', [FIRST_CORRECT_CHOICE.text, SECOND_CORRECT_CHOICE.text]);
         expect(correctPlayerTry).toBe(true);
         expect(spyGetBackupQuestion).toHaveBeenCalled();
     });
@@ -96,11 +96,7 @@ describe('MatchService', () => {
     it('validatePlayerChoice() should return false if at least one choice from player is incorrect', () => {
         const mockQuestion = questionMocks.getQuestionWithChoices();
         const spyGetBackupQuestion = jest.spyOn(service, 'getBackupQuestion').mockReturnValue(mockQuestion);
-        const correctPlayerTry = service.validatePlayerChoice('', '', [
-            choiceMocks.firstCorrect.text,
-            choiceMocks.secondCorrect.text,
-            choiceMocks.incorrect.text,
-        ]);
+        const correctPlayerTry = service.validatePlayerChoice('', '', [FIRST_CORRECT_CHOICE.text, SECOND_CORRECT_CHOICE.text, INCORRECT_CHOICE.text]);
         expect(correctPlayerTry).toBe(false);
         expect(spyGetBackupQuestion).toHaveBeenCalled();
     });
@@ -108,7 +104,7 @@ describe('MatchService', () => {
     it('validatePlayerChoice() should return false if the player does not submit ALL correct choices.', () => {
         const mockQuestion = questionMocks.getQuestionWithChoices();
         const spyGetBackupQuestion = jest.spyOn(service, 'getBackupQuestion').mockReturnValue(mockQuestion);
-        const correctPlayerTry = service.validatePlayerChoice('', '', [choiceMocks.firstCorrect.text]);
+        const correctPlayerTry = service.validatePlayerChoice('', '', [FIRST_CORRECT_CHOICE.text]);
         expect(correctPlayerTry).toBe(false);
         expect(spyGetBackupQuestion).toHaveBeenCalled();
     });

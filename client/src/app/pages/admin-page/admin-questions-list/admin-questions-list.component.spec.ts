@@ -97,7 +97,6 @@ describe('AdminQuestionsListComponent', () => {
         notificationServiceSpy = jasmine.createSpyObj('NotificationService', ['displayErrorMessage', 'displaySuccessMessage']);
         questionServiceSpy.createQuestion.and.returnValue(of(mockHttpResponse));
         gamesServiceSpy.isPendingChangesObservable = of(false);
-        gamesServiceSpy.questionService = questionServiceSpy;
 
         TestBed.configureTestingModule({
             imports: [HttpClientModule, MatDialogModule, RouterTestingModule],

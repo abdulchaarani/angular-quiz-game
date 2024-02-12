@@ -183,7 +183,6 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
     }
 
     openCreateQuestionDialog() {
-        //console.log(this.dialogState);
         if (!this.dialogState) {
             const dialogRef = this.notificationService.openCreateQuestionModal();
 

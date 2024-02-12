@@ -1,4 +1,5 @@
 import { QUESTIONS_TO_POPULATE } from '@app/constants/populate-constants';
+import { ERROR_DEFAULT, ERROR_INVALID_QUESTION, ERROR_QUESTION_BANK_SAME_TITLE, ERROR_QUESTION_NOT_FOUND } from '@app/constants/request-errors';
 import { Question, QuestionDocument } from '@app/model/database/question';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question-dto';
 import { UpdateQuestionDto } from '@app/model/dto/question/update-question-dto';
@@ -43,19 +44,19 @@ export class QuestionService {
 
     async addQuestion(question: CreateQuestionDto): Promise<Question> {
         if (await this.getQuestionByName(question.text)) {
-            return Promise.reject('La question existe déjà dans la banque.');
+            return Promise.reject(`${ERROR_QUESTION_BANK_SAME_TITLE}`);
         }
         question.id = uuidv4();
         question.lastModification = new Date();
         const errorMessages = this.validation.findQuestionErrors(question);
         if (errorMessages.length !== 0) {
-            return Promise.reject(`La question est invalide:\n${errorMessages.join('\n')}`);
+            return Promise.reject(`${ERROR_INVALID_QUESTION}\n${errorMessages.join('\n')}`);
         }
         try {
             await this.questionModel.create(question);
             return question;
         } catch (error) {
-            return Promise.reject(`La question n'a pas pu être ajoutée: ${error}`);
+            return Promise.reject(`${ERROR_DEFAULT} ${error}`);
         }
     }
 
@@ -63,37 +64,37 @@ export class QuestionService {
         const filterQuery = { id: question.id };
         try {
             if (!(await this.getQuestionById(question.id))) {
-                return Promise.reject('La question est introuvable.');
+                return Promise.reject(`${ERROR_QUESTION_NOT_FOUND}`);
             }
             question.lastModification = new Date();
             const errorMessages = this.validation.findQuestionErrors(question);
             if (errorMessages.length !== 0) {
-                return Promise.reject(`La question est invalide:\n${errorMessages.join('\n')}`);
+                return Promise.reject(`${ERROR_INVALID_QUESTION}\n${errorMessages.join('\n')}`);
             }
             await this.questionModel.updateOne(filterQuery, question);
             return question;
         } catch (error) {
-            return Promise.reject(`La question n'a pas été mise à jour: ${error}`);
+            return Promise.reject(`${ERROR_DEFAULT} ${error}`);
         }
     }
 
     async deleteQuestion(questionId: string): Promise<void> {
         try {
             if (!(await this.getQuestionById(questionId))) {
-                return Promise.reject('La question est introuvable.');
+                return Promise.reject(`${ERROR_QUESTION_NOT_FOUND}`);
             }
             await this.questionModel.deleteOne({
                 id: questionId,
             });
         } catch (error) {
-            return Promise.reject(`La question n'a pas pu être supprimée: ${error}`);
+            return Promise.reject(`${ERROR_DEFAULT} ${error}`);
         }
     }
 
     async validateNewQuestion(question: CreateQuestionDto): Promise<boolean> {
         const errorMessages = this.validation.findQuestionErrors(question);
         if (errorMessages.length !== 0) {
-            return Promise.reject(`La question est invalide:\n${errorMessages.join('\n')}`);
+            return Promise.reject(`${ERROR_INVALID_QUESTION}\n${errorMessages.join('\n')}`);
         }
         return true;
     }

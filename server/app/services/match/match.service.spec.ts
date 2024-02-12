@@ -1,6 +1,7 @@
 import { FIRST_CORRECT_CHOICE, INCORRECT_CHOICE, SECOND_CORRECT_CHOICE } from '@app/constants/choice-mocks';
 import { GAME_WITHOUT_IS_CORRECT_FIELD, GAME_WITH_IS_CORRECT_FIELD } from '@app/constants/game-mocks';
 import { getMockQuestionWithChoices } from '@app/constants/question-mocks';
+import { ERROR_GAME_NOT_FOUND } from '@app/constants/request-errors';
 import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
 import { Question } from '@app/model/database/question';
@@ -126,7 +127,7 @@ describe('MatchService', () => {
     it('saveBackupGame() should reject if gameService fails to fetch game', async () => {
         const spyGetGameById = jest.spyOn(gameService, 'getGameById').mockRejectedValue('');
         await service.saveBackupGame('').catch((error) => {
-            expect(error).toBe('Le jeu est introuvable.');
+            expect(error).toBe(`${ERROR_GAME_NOT_FOUND}`);
         });
         expect(spyGetGameById).toHaveBeenCalled();
     });
@@ -142,7 +143,7 @@ describe('MatchService', () => {
     it('deleteBackupGame() should reject if the game cannot be found', async () => {
         service.backupGames = [new Game()];
         await service.deleteBackupGame('').catch((error) => {
-            expect(error).toBe("La copie du jeu n'a pas pu être supprimée.");
+            expect(error).toBe(`${ERROR_GAME_NOT_FOUND}`);
         });
         expect(service.backupGames.length).toBe(1);
     });

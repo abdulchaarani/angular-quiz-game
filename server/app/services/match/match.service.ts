@@ -1,3 +1,4 @@
+import { ERROR_GAME_NOT_FOUND } from '@app/constants/request-errors';
 import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
 import { Question } from '@app/model/database/question';
@@ -61,7 +62,7 @@ export class MatchService {
             backupGame = this.removeIsCorrectField(backupGame);
             return backupGame;
         } catch (error) {
-            return Promise.reject('Le jeu est introuvable.');
+            return Promise.reject(`${ERROR_GAME_NOT_FOUND}`);
         }
     }
 
@@ -71,7 +72,7 @@ export class MatchService {
         if (deleteIndex !== notFoundIndex) {
             this.backupGames.splice(deleteIndex, 1);
         } else {
-            return Promise.reject("La copie du jeu n'a pas pu être supprimée.");
+            return Promise.reject(`${ERROR_GAME_NOT_FOUND}`);
         }
     }
 

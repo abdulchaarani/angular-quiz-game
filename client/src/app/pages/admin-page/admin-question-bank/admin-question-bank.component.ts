@@ -13,7 +13,6 @@ import { QuestionService } from '@app/services/question.service';
     templateUrl: './admin-question-bank.component.html',
     styleUrls: ['./admin-question-bank.component.scss'],
 })
-
 export class AdminQuestionBankComponent implements OnInit {
     sortAscending: string = '';
     @Output() createQuestionEventQuestionBank: EventEmitter<Question> = new EventEmitter<Question>();
@@ -28,7 +27,7 @@ export class AdminQuestionBankComponent implements OnInit {
         points: 20,
         lastModification: '2024-01-26T14:21:19+00:00',
     };
-    dialogState: any;
+    dialogState: unknown;
 
     constructor(
         public dialog: MatDialog,
@@ -67,32 +66,28 @@ export class AdminQuestionBankComponent implements OnInit {
         });
     }
 
-    createNewQuestionBank(newQuestion: Question){
+    createNewQuestionBank(newQuestion: Question) {
         this.createQuestionEventQuestionBank.subscribe((newQuestion: Question) => {
-            if (newQuestion){
+            if (newQuestion) {
                 this.questions.push(newQuestion);
             }
-        })
+        });
     }
-
-    dialogRef: any;
 
     openDialog() {
         if (!this.dialogState) {
-            this.dialogRef = this.dialog.open(CreateQuestionComponent, {
+            const dialogRef = this.dialog.open(CreateQuestionComponent, {
                 height: '70%',
                 width: '100%',
             });
-            this.dialogRef.componentInstance.createQuestionEvent.subscribe((newQuestion: Question) => {
+            dialogRef.componentInstance.createQuestionEvent.subscribe((newQuestion: Question) => {
                 if (newQuestion) {
                     this.addQuestion(newQuestion);
-                    this.dialogRef.close();
+                    dialogRef.close();
                 }
-                
+
                 this.dialogState = false;
             });
         }
     }
-
-
 }

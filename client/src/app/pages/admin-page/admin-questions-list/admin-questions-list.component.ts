@@ -34,6 +34,13 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
     isSideBarActive: boolean = false;
     isBankQuestionDragged: boolean = false;
     dialogState: boolean = false;
+    isValid: boolean = false;
+
+    bankMessages = {
+        unavailable: "👀 Aucune autre question valide de la banque n'est disponible! 👀",
+        available: '🖐 Glissez et déposez une question de la banque dans le jeu! 🖐',
+    };
+
     currentQuestion: Question;
     currentBankMessage = '';
     isPendingChanges: boolean;
@@ -125,6 +132,12 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
     }
 
     addNewQuestion(newQuestion: Question) {
+        this.gamesService.questionService.verifyQuestion(newQuestion).subscribe({
+            next: () => {
+                this.gamesService.displaySuccessMessage('Question vérifiée avec succès! 😺');
+            },
+            error: (error: HttpErrorResponse) => this.gamesService.displayErrorMessage(`Question non vérifiée 😿 \n ${error.message}`),
+        });
         this.game.questions.push(newQuestion);
         this.gamesService.markPendingChanges();
     }
@@ -159,6 +172,7 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
         }
     }
 
+    // https://stackoverflow.com/questions/47592364/usage-of-mat-dialog-close
     openCreateQuestionDialog() {
         if (!this.dialogState) {
             const dialogRef = this.gamesService.openCreateQuestionModal();

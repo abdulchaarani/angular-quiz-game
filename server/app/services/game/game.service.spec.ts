@@ -1,4 +1,4 @@
-import { gameMocks } from '@app/constants/game-mocks';
+import { getMockGame } from '@app/constants/game-mocks';
 import { Game, GameDocument } from '@app/model/database/game';
 import { GameValidationService } from '@app/services/game-validation/game-validation.service';
 import { Logger } from '@nestjs/common';
@@ -71,7 +71,7 @@ describe('GameService', () => {
         expect(spyPopulateDB).not.toHaveBeenCalled();
     });
     it('getAllGames() should return all games from database', async () => {
-        const mockGames = [gameMocks.getGame(), gameMocks.getGame()];
+        const mockGames = [getMockGame(), getMockGame()];
         const spyFind = jest.spyOn(gameModel, 'find').mockResolvedValue(mockGames);
         const returnedGames = await service.getAllGames();
         expect(spyFind).toHaveBeenCalledWith({});
@@ -79,7 +79,7 @@ describe('GameService', () => {
     });
 
     it('getAllVisibleGames() should return all visible games from database', async () => {
-        const mockGames = [gameMocks.getGame(), gameMocks.getGame()];
+        const mockGames = [getMockGame(), getMockGame()];
         const spyFind = jest.spyOn(gameModel, 'find').mockResolvedValue(mockGames);
         const returnedGames = await service.getAllVisibleGames();
         expect(spyFind).toHaveBeenCalledWith({ isVisible: true });
@@ -87,7 +87,7 @@ describe('GameService', () => {
     });
 
     it('getGameById should return the game with the corresponding ID', async () => {
-        const mockGame = gameMocks.getGame();
+        const mockGame = getMockGame();
         const spyFindOne = jest.spyOn(gameModel, 'findOne').mockResolvedValue(mockGame);
         const returnedGame = await service.getGameById(mockGame.id);
         expect(returnedGame).toEqual(mockGame);
@@ -103,7 +103,7 @@ describe('GameService', () => {
     });
 
     it('getGameByTitle should return the game with the corresponding title', async () => {
-        const mockGame = gameMocks.getGame();
+        const mockGame = getMockGame();
         const spyFindOne = jest.spyOn(gameModel, 'findOne').mockResolvedValue(mockGame);
         const returnedGame = await service.getGameByTitle(mockGame.title);
         expect(returnedGame).toEqual(mockGame);
@@ -111,7 +111,7 @@ describe('GameService', () => {
     });
 
     it('getChoices() should return the choices of the question in the game with the corresponding IDs', async () => {
-        const mockGame = gameMocks.getGame();
+        const mockGame = getMockGame();
         const mockQuestion = mockGame.questions[0];
         const mockChoices = mockQuestion.choices;
         const spyGet = jest.spyOn(service, 'getGameById').mockResolvedValue(mockGame);
@@ -120,7 +120,7 @@ describe('GameService', () => {
         expect(spyGet).toHaveBeenCalledWith(mockGame.id);
     });
     it('getChoices() should reject if question cannot be found in the game', async () => {
-        const mockGame = gameMocks.getGame();
+        const mockGame = getMockGame();
         const spyGet = jest.spyOn(service, 'getGameById').mockResolvedValue(mockGame);
         await service.getChoices(mockGame.id, '').catch((error) => {
             expect(error).toBe('La question est introuvable.');
@@ -129,7 +129,7 @@ describe('GameService', () => {
     });
 
     it('updateDateAndVisibility() should update the game date and make its visibility to false', async () => {
-        const mockGame = gameMocks.getGame();
+        const mockGame = getMockGame();
         const updatedGame = service.updateDateAndVisibility(mockGame);
         expect(updatedGame.id).toEqual(mockGame.id);
         expect(updatedGame.isVisible).toBeFalsy();
@@ -142,13 +142,13 @@ describe('GameService', () => {
     it('generateId() should generate an ID for game and its questions', () => {
         // Reference: https://stackoverflow.com/questions/51383177/how-to-mock-uuid-with-jest
         const uuidSpy = jest.spyOn(uuid, 'v4').mockReturnValue('mockedValue');
-        const mockGame = gameMocks.getGame();
+        const mockGame = getMockGame();
         const updatedGame = service.generateId(mockGame);
         expect(uuidSpy).toHaveBeenCalledTimes(1 + updatedGame.questions.length);
     });
 
     it('addGame() should add the game to the database if it is valid and has new title', async () => {
-        const mockGame = gameMocks.getGame();
+        const mockGame = getMockGame();
         const spyGet = jest.spyOn(service, 'getGameByTitle').mockResolvedValue(null);
         const spyCreate = jest.spyOn(gameModel, 'create').mockImplementation();
         const spyValidate = jest.spyOn(gameValidationService, 'findGameErrors').mockReturnValue([]);
@@ -186,7 +186,7 @@ describe('GameService', () => {
         expect(spyValidate).toHaveBeenCalledWith(mockGame);
     });
     it('addGame() should not add the game to the database if mongo query fails', async () => {
-        const mockGame = gameMocks.getGame();
+        const mockGame = getMockGame();
         const spyGet = jest.spyOn(service, 'getGameByTitle').mockResolvedValue(null);
         const spyCreate = jest.spyOn(gameModel, 'create').mockImplementation(async () => Promise.reject(''));
         const spyValidate = jest.spyOn(gameValidationService, 'findGameErrors').mockReturnValue([]);
@@ -203,7 +203,7 @@ describe('GameService', () => {
     });
 
     it('toggleGameVisibility() should make a visible game invisible', async () => {
-        const mockVisibleGame = gameMocks.getGame();
+        const mockVisibleGame = getMockGame();
         const spyGet = jest.spyOn(service, 'getGameById').mockResolvedValue(mockVisibleGame);
         const spyUpdate = jest.spyOn(gameModel, 'updateOne').mockImplementation();
         const updatedGame = await service.toggleGameVisibility(mockVisibleGame.id);
@@ -214,7 +214,7 @@ describe('GameService', () => {
     });
 
     it('toggleGameVisibility() should make an invisible game visible', async () => {
-        const mockVisibleGame = gameMocks.getGame();
+        const mockVisibleGame = getMockGame();
         mockVisibleGame.isVisible = false;
         const spyGet = jest.spyOn(service, 'getGameById').mockResolvedValue(mockVisibleGame);
         const spyUpdate = jest.spyOn(gameModel, 'updateOne').mockImplementation();
@@ -235,7 +235,7 @@ describe('GameService', () => {
     });
 
     it('upsertGame() should upsert the game if it is valid', async () => {
-        const mockGame = gameMocks.getGame();
+        const mockGame = getMockGame();
         const spyValidate = jest.spyOn(gameValidationService, 'findGameErrors').mockReturnValue([]);
         const spyDateVisibility = jest.spyOn(service, 'updateDateAndVisibility').mockReturnValue(mockGame);
         const spyModel = jest.spyOn(gameModel, 'findOneAndUpdate').mockImplementation();
@@ -247,7 +247,7 @@ describe('GameService', () => {
     });
 
     it('upsertGame() should fail if the game is not valid', async () => {
-        const mockGame = gameMocks.getGame();
+        const mockGame = getMockGame();
         const mockErrorMessages = ['mock'];
         const spyValidate = jest.spyOn(gameValidationService, 'findGameErrors').mockReturnValue(mockErrorMessages);
         await service.upsertGame(mockGame).catch((error) => {
@@ -257,7 +257,7 @@ describe('GameService', () => {
     });
 
     it('upsertGame() should fail if mongo query fails', async () => {
-        const mockGame = gameMocks.getGame();
+        const mockGame = getMockGame();
         const spyValidate = jest.spyOn(gameValidationService, 'findGameErrors').mockReturnValue([]);
         const spyDateVisibility = jest.spyOn(service, 'updateDateAndVisibility').mockReturnValue(mockGame);
         const spyModel = jest.spyOn(gameModel, 'findOneAndUpdate').mockRejectedValue('');

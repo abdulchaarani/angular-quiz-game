@@ -1,4 +1,14 @@
 import {
+    MAX_CHOICES_NUMBER,
+    MAX_DURATION,
+    MAX_POINTS,
+    MIN_CHOICES_NUMBER,
+    MIN_DURATION,
+    MIN_POINTS,
+    MIN_QUESTIONS_NUMBER,
+    STEP_POINTS,
+} from '@app/constants/game-validation-constraints';
+import {
     ERROR_CHOICES_NUMBER,
     ERROR_CHOICES_RATIO,
     ERROR_DURATION,
@@ -8,17 +18,7 @@ import {
     ERROR_POINTS,
     ERROR_QUESTIONS_NUMBER,
     ERROR_REPEAT_CHOICES,
-} from '@app/constants/game-error-messages';
-import {
-    MAX_CHOICES_NUMBER,
-    MAX_DURATION,
-    MAX_POINTS,
-    MIN_CHOICES_NUMBER,
-    MIN_DURATION,
-    MIN_POINTS,
-    MIN_QUESTIONS_NUMBER,
-    STEP_POINTS,
-} from '@app/constants/game-validation-constants';
+} from '@app/constants/game-validation-errors';
 import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question-dto';

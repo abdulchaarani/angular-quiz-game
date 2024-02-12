@@ -1,4 +1,12 @@
-import { MAX_CHOICES_NUMBER, MAX_DURATION, MAX_POINTS, MIN_CHOICES_NUMBER, MIN_DURATION, MIN_POINTS, STEP_POINTS } from './game-validation-constants';
+import {
+    MAX_CHOICES_NUMBER,
+    MAX_DURATION,
+    MAX_POINTS,
+    MIN_CHOICES_NUMBER,
+    MIN_DURATION,
+    MIN_POINTS,
+    STEP_POINTS,
+} from './game-validation-constraints';
 
 const ERROR_REPEAT_CHOICES = 'Il ne doit pas y avoir deux choix identiques dans une question.';
 const ERROR_CHOICES_NUMBER = `Il doit y avoir entre ${MIN_CHOICES_NUMBER} et ${MAX_CHOICES_NUMBER} choix.`;

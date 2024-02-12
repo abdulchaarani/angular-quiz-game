@@ -52,7 +52,7 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
         private readonly gamesService: GamesService,
         private route: ActivatedRoute,
         private router: Router,
-    ) {}
+    ) { }
 
     setGame() {
         return this.route.params.pipe(
@@ -126,6 +126,11 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
 
     addNewQuestion(newQuestion: Question) {
         this.game.questions.push(newQuestion);
+        this.gamesService.verifyGame(this.game).subscribe({
+            next: () => {
+            }
+        }
+        )
         this.gamesService.markPendingChanges();
     }
 

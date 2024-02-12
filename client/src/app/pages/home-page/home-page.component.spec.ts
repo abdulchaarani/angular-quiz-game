@@ -69,7 +69,7 @@ describe('HomePageComponent', () => {
     });
 
     it('host button should direct to "/host"', () => {
-        let href = fixture.debugElement.query(By.css('#host-button')).nativeElement.getAttribute('routerLink');
+        const href = fixture.debugElement.query(By.css('#host-button')).nativeElement.getAttribute('routerLink');
         expect(href).toEqual('/host');
     });
 

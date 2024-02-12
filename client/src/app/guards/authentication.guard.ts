@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { AuthenticationService } from '@app/services/authentication/authentication.service';
 import { NotificationService } from '@app/services/notification.service';
 
-export const AuthenticationGuard = (): boolean => {
+export const authenticationGuard = (): boolean => {
     const authenticationService = inject(AuthenticationService);
     const router = inject(Router);
     const notificationService = inject(NotificationService);

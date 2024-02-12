@@ -18,14 +18,13 @@ export class AuthenticationService {
     }
 
     validatePassword(inputUsername: string, inputPassword: string): void {
-        const contentJsonHeader = new HttpHeaders({
-            'Content-Type': 'application/json',
-        });
-
         this.http
             .post(`${environment.serverUrl}/login`, JSON.stringify({ username: inputUsername, password: inputPassword }), {
-                observe: 'response',
-                headers: contentJsonHeader,
+                headers: new HttpHeaders({
+                    contentType: 'application/json',
+                }),
+                observe: 'response' as const,
+                responseType: 'text' as const,
             })
             .subscribe({
                 next: () => {
@@ -34,7 +33,7 @@ export class AuthenticationService {
                 },
                 error: () => {
                     this.isAuthenticated = false;
-                    this.notificationService.displayErrorMessage(`Le mot de passe est invalide.`);
+                    this.notificationService.displayErrorMessage('Le mot de passe est invalide.');
                 },
             });
     }

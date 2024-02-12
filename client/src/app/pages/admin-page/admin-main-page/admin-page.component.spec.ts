@@ -149,7 +149,7 @@ describe('AdminPageComponent', () => {
         // Reference: https://stackoverflow.com/questions/64642547/how-can-i-test-the-filereader-onload-callback-function-in-angular-jasmine
         const addStringifiedGameSpy = spyOn(component, 'addStringifiedGame');
         const mockFile = new File([JSON.stringify(newMockGame)], 'file.json', { type: 'application/json' });
-        component.readFile(mockFile).then((data) => {
+        component.readFile(mockFile).then(() => {
             expect(addStringifiedGameSpy).toHaveBeenCalled();
         });
     }));

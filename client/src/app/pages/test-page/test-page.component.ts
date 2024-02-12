@@ -28,14 +28,6 @@ export class TestPageComponent implements OnInit {
     }
 
     ngOnInit() {
-        // this.matchService.
-        // this.gameService.getGameById(this.matchService.currentGame.id).subscribe((data: Game) => {
-        //     this.currentGame = data;
-        //     this.matchService.setGameId(data.id);
-        //     this.questions = data.questions;
-        //     this.currentQuestion = this.questions[0];
-        //     this.currentQuestionIndex = 0;
-        // });
         this.loadGame();
         this.subscription = this.matchService.questionAdvanced$.subscribe(() => {
             this.advanceQuestion();
@@ -50,16 +42,14 @@ export class TestPageComponent implements OnInit {
                 this.currentQuestion = this.questions[0];
                 this.currentQuestionIndex = 0;
             },
-            // TODO: handle error
-            error: () => console.log('caca'),
         });
     }
 
-    // ngOnDestroy(): void {
-    //     this.subscription.unsubscribe();
-    // }
+    ngOnDestroy(): void {
+        this.subscription.unsubscribe();
+    }
 
-    private advanceQuestion(): void {
+    advanceQuestion(): void {
         if (this.currentQuestionIndex < this.questions.length - 1) {
             this.currentQuestionIndex++;
             this.currentQuestion = this.questions[this.currentQuestionIndex];

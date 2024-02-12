@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
-import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { NotificationService } from './notification.service';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
-import { MatDialogMock } from '@app/testing/mat-dialog-mock';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { DialogConfirmComponent } from '@app/components/dialog-confirm/dialog-confirm.component';
 import { CreateQuestionComponent } from '@app/pages/create-question/create-question.component';
+import { MatDialogMock } from '@app/testing/mat-dialog-mock';
+import { NotificationService } from './notification.service';
 
-fdescribe('NotificationService', () => {
+describe('NotificationService', () => {
     let service: NotificationService;
     let snackBar: MatSnackBar;
     let dialog: MatDialog;

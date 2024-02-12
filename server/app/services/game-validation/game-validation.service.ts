@@ -1,5 +1,14 @@
 import { errorMessage } from '@app/constants/game-error-messages';
-import { constants } from '@app/constants/game-validation-constants';
+import {
+    MAX_CHOICES_NUMBER,
+    MAX_DURATION,
+    MAX_POINTS,
+    MIN_CHOICES_NUMBER,
+    MIN_DURATION,
+    MIN_POINTS,
+    MIN_QUESTIONS_NUMBER,
+    STEP_POINTS,
+} from '@app/constants/game-validation-constants';
 import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question-dto';
@@ -41,9 +50,9 @@ export class GameValidationService {
     findQuestionErrors(question: CreateQuestionDto): string[] {
         const errorMessages: string[] = [];
         const isUniqueChoices = this.isUniqueChoices(question.choices);
-        const isValidChoicesNumber = this.isValidRange(question.choices.length, constants.minimumChoicesNumber, constants.maximumChoicesNumber);
-        const isValidPointsRange = this.isValidRange(question.points, constants.minimumPoints, constants.maximumPoints);
-        const isValidPointsMultiple = question.points % constants.stepPoints === 0;
+        const isValidChoicesNumber = this.isValidRange(question.choices.length, MIN_CHOICES_NUMBER, MAX_CHOICES_NUMBER);
+        const isValidPointsRange = this.isValidRange(question.points, MIN_POINTS, MAX_POINTS);
+        const isValidPointsMultiple = question.points % STEP_POINTS === 0;
         const isValidQuestionName = this.isValidString(question.text);
         const isValidQuestionRatio = this.isValidChoicesRatio(question);
         if (!isValidChoicesNumber) {
@@ -68,8 +77,8 @@ export class GameValidationService {
         const errorMessages: string[] = [];
         const isValidTitle = this.isValidString(game.title);
         const isValidDescription = this.isValidString(game.description);
-        const isValidDuration = this.isValidRange(game.duration, constants.minimumDuration, constants.maximumDuration);
-        const isValidQuestionsNumber = game.questions.length >= constants.minimumQuestionsNumber;
+        const isValidDuration = this.isValidRange(game.duration, MIN_DURATION, MAX_DURATION);
+        const isValidQuestionsNumber = game.questions.length >= MIN_QUESTIONS_NUMBER;
 
         if (!isValidTitle) {
             errorMessages.push(errorMessage.gameEmptyTitle);

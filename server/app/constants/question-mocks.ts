@@ -1,5 +1,5 @@
 import { Question } from '@app/model/database/question';
-import { choiceMocks } from './choice-mocks';
+import { FIRST_CORRECT_CHOICE, INCORRECT_CHOICE, SECOND_CORRECT_CHOICE } from './choice-mocks';
 import { getRandomString } from './test-utils';
 
 const getQuestion = (): Question => ({
@@ -56,7 +56,7 @@ allFalseQuestion.choices = [
 
 export const getQuestionWithChoices = (): Question => {
     const mockQuestion = new Question();
-    mockQuestion.choices = [choiceMocks.firstCorrect, choiceMocks.secondCorrect, choiceMocks.incorrect];
+    mockQuestion.choices = [FIRST_CORRECT_CHOICE, SECOND_CORRECT_CHOICE, INCORRECT_CHOICE];
     return mockQuestion;
 };
 

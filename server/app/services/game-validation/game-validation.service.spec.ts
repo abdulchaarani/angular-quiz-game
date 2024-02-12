@@ -1,6 +1,6 @@
 import { errorMessage } from '@app/constants/game-error-messages';
 import { gameMocks } from '@app/constants/game-mocks';
-import { constants } from '@app/constants/game-validation-constants';
+import { MAX_CHOICES_NUMBER, MAX_DURATION, MAX_POINTS, MIN_CHOICES_NUMBER, MIN_DURATION, MIN_POINTS } from '@app/constants/game-validation-constants';
 import { questionMocks } from '@app/constants/question-mocks';
 import { Test, TestingModule } from '@nestjs/testing';
 import { GameValidationService } from './game-validation.service';
@@ -67,12 +67,8 @@ describe('GameValidationService', () => {
         const spyChoicesRatio = jest.spyOn(service, 'isValidChoicesRatio').mockReturnValue(true);
         const spyUniqueChoices = jest.spyOn(service, 'isUniqueChoices').mockReturnValue(true);
         expect(service.findQuestionErrors(questionMocks.validQuestion)).toEqual([]);
-        expect(spyRange).toHaveBeenCalledWith(
-            questionMocks.validQuestion.choices.length,
-            constants.minimumChoicesNumber,
-            constants.maximumChoicesNumber,
-        );
-        expect(spyRange).toHaveBeenCalledWith(questionMocks.validQuestion.points, constants.minimumPoints, constants.maximumPoints);
+        expect(spyRange).toHaveBeenCalledWith(questionMocks.validQuestion.choices.length, MIN_CHOICES_NUMBER, MAX_CHOICES_NUMBER);
+        expect(spyRange).toHaveBeenCalledWith(questionMocks.validQuestion.points, MIN_POINTS, MAX_POINTS);
         expect(spyValidString).toHaveBeenCalledWith(questionMocks.validQuestion.text);
         expect(spyChoicesRatio).toHaveBeenCalledWith(questionMocks.validQuestion);
         expect(spyUniqueChoices).toHaveBeenCalledWith(questionMocks.validQuestion.choices);
@@ -82,11 +78,7 @@ describe('GameValidationService', () => {
         const spyRange = jest.spyOn(service, 'isValidRange').mockReturnValue(false);
         const foundErrors = service.findQuestionErrors(questionMocks.validQuestion);
         expect(foundErrors.find((message: string) => message === errorMessage.choicesNumber)).toBeTruthy();
-        expect(spyRange).toHaveBeenCalledWith(
-            questionMocks.validQuestion.choices.length,
-            constants.minimumChoicesNumber,
-            constants.maximumChoicesNumber,
-        );
+        expect(spyRange).toHaveBeenCalledWith(questionMocks.validQuestion.choices.length, MIN_CHOICES_NUMBER, MAX_CHOICES_NUMBER);
     });
 
     it('findQuestionErrors() should return an array containing errorMessage.noRepeatChoice if there are duplicate choices', () => {
@@ -100,7 +92,7 @@ describe('GameValidationService', () => {
         const spyRange = jest.spyOn(service, 'isValidRange').mockReturnValue(false);
         const foundErrors = service.findQuestionErrors(questionMocks.validQuestion);
         expect(foundErrors.find((message: string) => message === errorMessage.points)).toBeTruthy();
-        expect(spyRange).toHaveBeenCalledWith(questionMocks.validQuestion.points, constants.minimumPoints, constants.maximumPoints);
+        expect(spyRange).toHaveBeenCalledWith(questionMocks.validQuestion.points, MIN_POINTS, MAX_POINTS);
     });
 
     it('findQuestionErrors() should return array containing errorMessage.points if number of points is not correct multiple', () => {
@@ -136,12 +128,8 @@ describe('GameValidationService', () => {
             errorMessage.questionEmptyText,
             errorMessage.choicesRatio,
         ]);
-        expect(spyRange).toHaveBeenCalledWith(
-            questionMocks.validQuestion.choices.length,
-            constants.minimumChoicesNumber,
-            constants.maximumChoicesNumber,
-        );
-        expect(spyRange).toHaveBeenCalledWith(questionMocks.validQuestion.points, constants.minimumPoints, constants.maximumPoints);
+        expect(spyRange).toHaveBeenCalledWith(questionMocks.validQuestion.choices.length, MIN_CHOICES_NUMBER, MAX_CHOICES_NUMBER);
+        expect(spyRange).toHaveBeenCalledWith(questionMocks.validQuestion.points, MIN_POINTS, MAX_POINTS);
         expect(spyValidString).toHaveBeenCalledWith(questionMocks.validQuestion.text);
         expect(spyChoicesRatio).toHaveBeenCalledWith(questionMocks.validQuestion);
         expect(spyUniqueChoices).toHaveBeenCalledWith(questionMocks.validQuestion.choices);
@@ -154,7 +142,7 @@ describe('GameValidationService', () => {
         expect(service.findGameErrors(gameMocks.gameValidQuestion)).toEqual([]);
         expect(spyValidString).toHaveBeenCalledWith(gameMocks.gameValidQuestion.title);
         expect(spyValidString).toHaveBeenCalledWith(gameMocks.gameValidQuestion.description);
-        expect(spyRange).toHaveBeenCalledWith(gameMocks.gameValidQuestion.duration, constants.minimumDuration, constants.maximumDuration);
+        expect(spyRange).toHaveBeenCalledWith(gameMocks.gameValidQuestion.duration, MIN_DURATION, MAX_DURATION);
         expect(spyValidateQuestion).toHaveBeenCalledTimes(gameMocks.gameValidQuestion.questions.length);
     });
 
@@ -176,7 +164,7 @@ describe('GameValidationService', () => {
         const spyRange = jest.spyOn(service, 'isValidRange').mockReturnValue(false);
         const foundErrors = service.findGameErrors(gameMocks.gameValidQuestion);
         expect(foundErrors.find((message: string) => message === errorMessage.gameDuration));
-        expect(spyRange).toHaveBeenCalledWith(gameMocks.gameValidQuestion.duration, constants.minimumDuration, constants.maximumDuration);
+        expect(spyRange).toHaveBeenCalledWith(gameMocks.gameValidQuestion.duration, MIN_DURATION, MAX_DURATION);
     });
 
     it('findGameErrors() should return an array containing errorMessage.gameQuestionsNumber if it contains no question', () => {
@@ -220,7 +208,7 @@ describe('GameValidationService', () => {
         ]);
         expect(spyValidString).toHaveBeenCalledWith(gameMocks.gameValidQuestion.title);
         expect(spyValidString).toHaveBeenCalledWith(gameMocks.gameValidQuestion.description);
-        expect(spyRange).toHaveBeenCalledWith(gameMocks.gameValidQuestion.duration, constants.minimumDuration, constants.maximumDuration);
+        expect(spyRange).toHaveBeenCalledWith(gameMocks.gameValidQuestion.duration, MIN_DURATION, MAX_DURATION);
         expect(spyValidateQuestion).toHaveBeenCalledTimes(gameMocks.gameValidQuestion.questions.length);
     });
 });

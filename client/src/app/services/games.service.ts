@@ -48,14 +48,6 @@ export class GamesService extends ApiService<Game> {
         return state === 'modify' ? this.replaceGame(game) : this.uploadGame(game);
     }
 
-    displaySuccessMessage(successMessage: string) {
-        this.notificationService.displaySuccessMessage(successMessage);
-    }
-
-    displayErrorMessage(errorMessage: string) {
-        this.notificationService.displayErrorMessage(errorMessage);
-    }
-
     markPendingChanges() {
         this.isPendingChangesSource.next(true);
     }

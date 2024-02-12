@@ -1,18 +1,18 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { AdminQuestionsListComponent } from './admin-questions-list.component';
-import { GamesService } from '@app/services/games.service';
 import { HttpClientModule, HttpResponse } from '@angular/common/http';
-import { ActivatedRoute } from '@angular/router';
-import { of } from 'rxjs';
-import { Game } from '@app/interfaces/game';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { SortByLastModificationPipe } from '@app/pipes/sort-by-last-modification.pipe';
+import { ActivatedRoute } from '@angular/router';
+import { Game } from '@app/interfaces/game';
 import { Question } from '@app/interfaces/question';
-import { QuestionService } from '@app/services/question.service';
+import { SortByLastModificationPipe } from '@app/pipes/sort-by-last-modification.pipe';
+import { GamesService } from '@app/services/games.service';
 import { NotificationService } from '@app/services/notification.service';
+import { QuestionService } from '@app/services/question.service';
+import { of } from 'rxjs';
+import { AdminQuestionsListComponent } from './admin-questions-list.component';
 
-xdescribe('AdminQuestionsListComponent', () => {
+fdescribe('AdminQuestionsListComponent', () => {
     let component: AdminQuestionsListComponent;
     let fixture: ComponentFixture<AdminQuestionsListComponent>;
     let gamesServiceSpy: jasmine.SpyObj<GamesService>;

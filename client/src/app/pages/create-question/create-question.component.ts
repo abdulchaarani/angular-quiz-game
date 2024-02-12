@@ -128,11 +128,12 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     ngOnInit(): void {
         if (this.modifyingForm) {
             this.questionForm.valueChanges.subscribe((formValue) => {
+                console.log("form",formValue);
                 this.question.text = formValue?.text;
                 this.question.type = formValue?.type;
                 this.question.points = formValue?.points;
-                //this.question.choices = formValue?.choices;
                 this.question.lastModification = new Date().toLocaleDateString();
+                this.question.choices = formValue.choices;
 
                 this.questionForm.get('choices')?.valueChanges.subscribe((choices) => {
                     console.log("quest",choices);

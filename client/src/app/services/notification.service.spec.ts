@@ -73,7 +73,7 @@ describe('NotificationService', () => {
         };
         const afterOpenSpy = spyOn(dialog, 'open').and.callThrough();
 
-        service.openConfirmDialog(config).subscribe((confirmResult) => {
+        service['openConfirmDialog'](config).subscribe((confirmResult) => {
             expect(confirmResult).toBe(true);
             expect(dialog.open).toHaveBeenCalledWith(DialogConfirmComponent, config);
         });

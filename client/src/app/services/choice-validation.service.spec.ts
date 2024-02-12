@@ -17,5 +17,10 @@ describe('ChoiceValidationService', () => {
         expect(service).toBeTruthy();
     });
 
-    it('should ');
+    it('should validate choices successfully', () => {
+        const choices = { selected: ['yes', 'no'] };
+        const spy = spyOn(service, 'add').and.callThrough();
+        service.validateChoices(choices, '0', '007');
+        expect(spy).toHaveBeenCalledOnceWith(choices, '0/questions/007/validate-choice');
+    });
 });

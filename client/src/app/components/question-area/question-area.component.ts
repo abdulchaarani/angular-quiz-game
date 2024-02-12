@@ -27,7 +27,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     bonus: number;
 
     private readonly multiplicationFactor = 100;
-    private readonly BONUSFACTOR = 0.2;
+    readonly BONUSFACTOR = 0.2;
     private readonly timeout = 3000;
 
     constructor(
@@ -53,8 +53,8 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         if (event.key === 'Enter' && this.isSelectionEnabled) {
             this.submitAnswers();
         } else {
-            const numKey = parseInt(event.key, 10);
-            if (numKey >= 1 && numKey <= (this.answers?.length ?? 0)) {
+            const numKey = parseInt(event.key, 4);
+            if (numKey >= 1 && numKey <= this.answers.length) {
                 const choiceIndex = numKey - 1;
                 const choice = this.answers?.[choiceIndex];
                 if (choice) {
@@ -67,8 +67,9 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     ngOnInit(): void {
         this.timeService.stopTimer();
         this.timeService.startTimer(this.gameDuration);
-        this.answers = this.currentQuestion.choices || [];
-
+        if (this.currentQuestion.choices) {
+            this.answers = this.currentQuestion.choices;
+        }
         if (this.currentQuestion.id) {
             // this.matchService.setQuestionId(this.currentQuestion.id);
             this.matchService.questionId = this.currentQuestion.id;
@@ -90,7 +91,9 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         if (changes.currentQuestion) {
             const newQuestion = changes.currentQuestion.currentValue;
             this.currentQuestion = newQuestion;
-            this.answers = this.currentQuestion.choices || [];
+            if (this.currentQuestion.choices) {
+                this.answers = this.currentQuestion.choices;
+            }
             if (this.currentQuestion.id) {
                 this.matchService.questionId = this.currentQuestion.id;
                 // this.matchService.setQuestionId(this.currentQuestion.id);
@@ -109,7 +112,6 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         this.matchService.validateChoices(choicesText).subscribe({
             next: (response: HttpResponse<string>) => {
                 if (response.body) {
-                    // console.log(typeof (response.body));
                     this.isCorrect = JSON.parse(response.body);
                     this.afterFeedback();
                 }
@@ -123,9 +125,6 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
 
     submitAnswers(): void {
         this.isSelectionEnabled = false;
-
-        this.timeService.stopTimer();
-        this.checkAnswers();
     }
 
     selectChoice(choice: Choice): void {
@@ -150,7 +149,6 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     }
 
     playerScoreUpdate(): void {
-        // console.log(this.isCorrect);
         if (this.isCorrect === true) {
             if (this.isTestPage === true) {
                 this.bonus = this.currentQuestion.points * this.BONUSFACTOR;

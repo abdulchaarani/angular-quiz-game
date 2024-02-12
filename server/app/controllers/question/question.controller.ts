@@ -60,4 +60,14 @@ export class QuestionController {
             response.status(HttpStatus.NOT_FOUND).send({ message: error });
         }
     }
+
+    @Post('/validate-question/')
+    async validateQuestion(@Body() createQuestionDto: CreateQuestionDto, @Res() response: Response) {
+        try {
+            const isValidQuestion = await this.questionService.validateNewQuestion(createQuestionDto);
+            response.status(HttpStatus.OK).send(isValidQuestion);
+        } catch (error) {
+            response.status(HttpStatus.BAD_REQUEST).send({ message: error });
+        }
+    }
 }

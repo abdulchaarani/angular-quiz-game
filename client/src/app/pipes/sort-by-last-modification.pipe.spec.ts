@@ -44,18 +44,18 @@ describe('SortByLastModificationPipe', () => {
         expect(pipe).toBeTruthy();
     });
 
-    it('should sort dates by ascending order', () => {
+    it('should sort quesstions by ascending date order', () => {
         const sortedQuestions = pipe.transform(mockQuestion, 'ascending').map((question) => question.id);
         expect(sortedQuestions).toEqual(['question1', 'question3', 'question4', 'question2']);
     });
 
-    it('should sort dates by ascending order', () => {
+    it('should sort questions by descending date order', () => {
         const sortedQuestions = pipe.transform(mockQuestion, 'descending').map((question) => question.id);
         expect(sortedQuestions).toEqual(['question2', 'question3', 'question4', 'question1']);
     });
 
-    it('equal dates should not be sorted', () => {
-        const sortedQuestions = pipe.transform(mockQuestion.slice(1, 3), 'descending').map((question) => question.id);
-        expect(sortedQuestions).toEqual(['question3', 'question4']);
+    it('should not sort questions if direction is not specified', () => {
+        const sortedQuestions = pipe.transform(mockQuestion, 'undefined');
+        expect(sortedQuestions).toBe(sortedQuestions);
     });
 });

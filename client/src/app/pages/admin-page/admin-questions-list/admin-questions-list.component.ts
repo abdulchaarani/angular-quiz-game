@@ -174,11 +174,8 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
 
     // https://stackoverflow.com/questions/47592364/usage-of-mat-dialog-close
     openCreateQuestionDialog() {
-        //console.log(this.dialogState);
         if (!this.dialogState) {
-            //console.log(this.dialogState);
             const dialogRef = this.gamesService.openCreateQuestionModal();
-
             dialogRef.componentInstance.createQuestionEvent.subscribe((newQuestion: Question) => {
                 if (!this.isDuplicateQuestion(newQuestion, this.game.questions)) {
                     this.addNewQuestion(newQuestion);

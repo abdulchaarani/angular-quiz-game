@@ -3,17 +3,19 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { AfterViewInit, Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { CanComponentDeactivate, CanDeactivateType } from '@app/interfaces/can-component-deactivate';
 import { Game } from '@app/interfaces/game';
 import { Question } from '@app/interfaces/question';
 import { GamesService } from '@app/services/games.service';
-import { Subscription, concatMap, iif, lastValueFrom } from 'rxjs';
+import { NotificationService } from '@app/services/notification.service';
+import { Subject, Subscription, concatMap, iif, lastValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-admin-questions-list',
     templateUrl: './admin-questions-list.component.html',
     styleUrls: ['./admin-questions-list.component.scss'],
 })
-export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDestroy {
+export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDestroy, CanComponentDeactivate {
     @Output() createQuestionEvent: EventEmitter<Question> = new EventEmitter<Question>();
     @Output() createQuestionEventQuestionBank: EventEmitter<Question> = new EventEmitter<Question>();
 
@@ -50,9 +52,28 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
 
     constructor(
         private readonly gamesService: GamesService,
+        private readonly notificationService: NotificationService,
         private route: ActivatedRoute,
         private router: Router,
     ) {}
+
+    canDeactivate(): CanDeactivateType {
+        if (this.isPendingChanges) {
+            const deactivateSubject = new Subject<boolean>();
+            this.notificationService
+                .openConfirmDialog({
+                    data: {
+                        icon: 'warning',
+                        title: 'Attention',
+                        text: 'Vous avec des modifications non sauvegardés. Êtes-vous certain de vouloir quitter?',
+                    },
+                })
+                .subscribe((confirm) => deactivateSubject.next(confirm));
+            return deactivateSubject;
+        } else {
+            return true;
+        }
+    }
 
     setGame() {
         return this.route.params.pipe(

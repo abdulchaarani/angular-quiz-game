@@ -1,47 +1,54 @@
+/* eslint-disable max-classes-per-file */
+// https://medium.com/ngconf/functional-candeactivate-guards-in-angular-2211f5da78c2
 import { TestBed } from '@angular/core/testing';
-// import { pendingChangesGuard } from './pending-changes.guard';
-import { GamesService } from '@app/services/games.service';
-import { NotificationService } from '@app/services/notification.service';
-// import { MatDialogRef } from '@angular/material/dialog';
-import { BehaviorSubject } from 'rxjs';
+import { Route, Router, provideRouter } from '@angular/router';
+import { pendingChangesGuard } from './pending-changes.guard';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { RouterTestingHarness } from '@angular/router/testing';
+import { Component } from '@angular/core';
 
-describe('PendingChangesGuard', () => {
-    // let guard: any; // Using 'any' to mock CanDeactivateFn type
-    let gamesServiceSpy: jasmine.SpyObj<GamesService>;
-    let notificationServiceSpy: jasmine.SpyObj<NotificationService>;
+@Component({ template: '' })
+class MockPendingChangesComponent {
+    canDeactivate() {
+        return false;
+    }
+}
+@Component({ template: '' })
+class MockHomeComponent {}
 
+describe('canDeactivateGuard', () => {
+    let routes: Route[] = [];
     beforeEach(() => {
-        const gamesServiceSpyObj = jasmine.createSpyObj('GamesService', ['markPendingChanges', 'resetPendingChanges']);
-        const notificationServiceSpyObj = jasmine.createSpyObj('NotificationService', ['openConfirmDialog']);
-
+        routes = [
+            { path: 'home', component: MockHomeComponent },
+            { path: 'pending-changes', canDeactivate: [pendingChangesGuard], component: MockPendingChangesComponent },
+        ];
         TestBed.configureTestingModule({
-            providers: [
-                { provide: GamesService, useValue: gamesServiceSpyObj },
-                { provide: NotificationService, useValue: notificationServiceSpyObj },
-            ],
+            imports: [HttpClientTestingModule],
+            providers: [provideRouter(routes)],
         });
-        // guard = TestBed.inject(pendingChangesGuard);
-        gamesServiceSpy = TestBed.inject(GamesService) as jasmine.SpyObj<GamesService>;
-        notificationServiceSpy = TestBed.inject(NotificationService) as jasmine.SpyObj<NotificationService>;
     });
 
-    // it('should be created', () => {
-    //     expect(guard).toBeTruthy();
-    // });
-
-    it('should return true if there are no pending changes', async () => {
-        // const result = await guard();
-        // expect(result).toBeTrue();
+    it('should not allow the component to deactivate if it a pending changes guard and the changes are not discarded', async () => {
+        const testRouter = TestBed.inject(Router);
+        spyOn(MockPendingChangesComponent.prototype, 'canDeactivate').and.returnValue(false);
+        await RouterTestingHarness.create('pending-changes');
+        await testRouter.navigateByUrl('home');
+        expect(testRouter.url).toEqual('/pending-changes');
     });
 
-    it('should open confirmation dialog if there are pending changes', async () => {
-        gamesServiceSpy.isPendingChangesSource = new BehaviorSubject<boolean>(true); // Set pending changes to true
-        const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
-        notificationServiceSpy.openConfirmDialog.and.returnValue(dialogRefSpy);
+    it('should allow the component to deactivate if it had a pending changes guard and the changes are discarded', async () => {
+        const testRouter = TestBed.inject(Router);
+        spyOn(MockPendingChangesComponent.prototype, 'canDeactivate').and.returnValue(true);
+        await RouterTestingHarness.create('pending-changes');
+        await testRouter.navigateByUrl('home');
+        expect(testRouter.url).toEqual('/home');
+    });
 
-        // const result = await guard();
-        //
-        expect(notificationServiceSpy.openConfirmDialog).toHaveBeenCalled();
-        // expect(result).toEqual(dialogRefSpy);
+    it('should allow the component to deactivate if it has no pending changes guard', async () => {
+        const testRouter = TestBed.inject(Router);
+        await RouterTestingHarness.create('/home');
+        await testRouter.navigateByUrl('pending-changes');
+        expect(testRouter.url).toEqual('/pending-changes');
     });
 });

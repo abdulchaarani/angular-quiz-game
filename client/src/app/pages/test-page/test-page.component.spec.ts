@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { Game } from '@app/interfaces/game';
+import { getMockGame } from '@app/constants/game-mocks';
 import { GamesService } from '@app/services/games.service';
 import { MatchService } from '@app/services/match.service';
 import { MatDialogMock } from '@app/testing/mat-dialog-mock';
@@ -16,32 +16,8 @@ describe('TestPageComponent', () => {
     let matchService: MatchService;
     let router: Router;
 
-    const mockGame: Game = {
-        id: '0',
-        title: 'title',
-        description: 'desc',
-        lastModification: 'new Date(YEAR, 1, 1)',
-        duration: 30,
-        isVisible: true,
-        questions: [
-            {
-                id: 'getRandomString',
-                type: 'QCM',
-                text: 'getRandomString',
-                points: 30,
-                choices: [],
-                lastModification: ' new Date(YEAR, 1, 1)',
-            },
-            {
-                id: 'getRandomStringl',
-                type: 'QCM',
-                text: 'getRandomStringl',
-                points: 30,
-                choices: [],
-                lastModification: ' new Date(YEAR, 1, 1)',
-            },
-        ],
-    };
+    const mockGame = getMockGame();
+
     beforeEach(() => {
         TestBed.configureTestingModule({
             declarations: [TestPageComponent],
@@ -91,26 +67,12 @@ describe('TestPageComponent', () => {
         component.currentGame = mockGame;
         component.currentQuestionIndex = 1;
         spyOn(router, 'navigate').and.returnValue(Promise.resolve(true));
-        let subSpy = spyOn(component.subscription, 'unsubscribe');
-        let deleteBackupGameSpy = spyOn(matchService, 'deleteBackupGame');
+        const subSpy = spyOn(component.subscription, 'unsubscribe');
+        const deleteBackupGameSpy = spyOn(matchService, 'deleteBackupGame');
         component.advanceQuestion();
         expect(router.navigate).toHaveBeenCalledWith(['/host']);
         expect(subSpy).toHaveBeenCalled();
         expect(deleteBackupGameSpy).toHaveBeenCalledWith(mockGame.id);
-    });
-
-    it('should generate an error when navigating to "/host" fails', async () => {
-        component.currentGame = mockGame;
-        component.currentQuestionIndex = 1;
-        spyOn(router, 'navigate').and.returnValue(Promise.reject('error'));
-        const spyConsoleError = spyOn(console, 'error');
-        const subSpy = spyOn(component.subscription, 'unsubscribe');
-        const deleteBackupGameSpy = spyOn(matchService, 'deleteBackupGame');
-        await component.advanceQuestion();
-        expect(router.navigate).toHaveBeenCalledWith(['/host']);
-        expect(subSpy).toHaveBeenCalled();
-        expect(deleteBackupGameSpy).toHaveBeenCalledWith(mockGame.id);
-        expect(spyConsoleError).toHaveBeenCalledWith('Navigation Error:', 'error');
     });
 
     it('should advance to the next question', () => {

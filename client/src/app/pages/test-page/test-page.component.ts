@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Game } from '@app/interfaces/game';
 import { Question } from '@app/interfaces/question';
@@ -11,7 +11,7 @@ import { Subscription } from 'rxjs';
     styleUrls: ['./test-page.component.scss'],
     providers: [GamesService],
 })
-export class TestPageComponent implements OnInit {
+export class TestPageComponent implements OnInit, OnDestroy {
     timeLimit: number;
     questions: Question[] = [];
     currentGame: Game;
@@ -19,7 +19,6 @@ export class TestPageComponent implements OnInit {
     currentQuestionIndex: number;
     subscription: Subscription;
     constructor(
-        // private gameService: GamesService,
         private matchService: MatchService,
         private router: Router,
     ) {
@@ -35,18 +34,17 @@ export class TestPageComponent implements OnInit {
     }
 
     loadGame(): void {
-        this.matchService.getBackupGame(this.matchService.currentGame.id).subscribe({
-            next: (data: Game) => {
-                this.currentGame = data;
-                this.questions = data.questions;
-                this.currentQuestion = this.questions[0];
-                this.currentQuestionIndex = 0;
-            },
+        this.matchService.getBackupGame(this.matchService.currentGame.id).subscribe((data: Game) => {
+            this.currentGame = data;
+            this.questions = data.questions;
+            this.currentQuestion = this.questions[0];
+            this.currentQuestionIndex = 0;
         });
     }
 
     ngOnDestroy(): void {
         this.subscription.unsubscribe();
+        this.matchService.deleteBackupGame(this.currentGame.id);
     }
 
     advanceQuestion(): void {
@@ -54,11 +52,8 @@ export class TestPageComponent implements OnInit {
             this.currentQuestionIndex++;
             this.currentQuestion = this.questions[this.currentQuestionIndex];
         } else {
-            this.router.navigate(['/host']).catch((error) => {
-                console.error('Navigation Error:', error);
-            });
-            this.subscription.unsubscribe();
-            this.matchService.deleteBackupGame(this.currentGame.id);
+            this.router.navigate(['/host']);
+            this.ngOnDestroy();
         }
     }
 }

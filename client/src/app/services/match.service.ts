@@ -9,14 +9,11 @@ import { ChoiceValidationService } from './choice-validation.service';
     providedIn: 'root',
 })
 export class MatchService extends ApiService<Game> {
-    private questionId: string;
-    // private gameId: string;
+    questionAdvanced: Subject<void>;
+    private currentQuestionId: string;
 
     private questionAdvanceSubject = new Subject<void>();
     private selectedGame: Game;
-
-    questionAdvanced$ = this.questionAdvanceSubject.asObservable();
-
     constructor(
         http: HttpClient,
         private readonly choiceValidationService: ChoiceValidationService,
@@ -24,24 +21,31 @@ export class MatchService extends ApiService<Game> {
         super(http, 'match');
     }
 
+    get questionAdvanced$() {
+        return this.questionAdvanceSubject.asObservable();
+    }
+
     get currentGame() {
         return this.selectedGame;
     }
 
+    get questionId() {
+        return this.currentQuestionId;
+    }
     set currentGame(game: Game) {
         this.selectedGame = game;
     }
 
-    advanceQuestion() {
-        this.questionAdvanceSubject.next();
+    set questionId(id: string) {
+        this.currentQuestionId = id;
     }
 
-    // setGameId(id: string) {
-    //     this.gameId = id;
-    // }
+    getAllGames() {
+        return this.getAll('games');
+    }
 
-    setQuestionId(id: string) {
-        this.questionId = id;
+    advanceQuestion() {
+        this.questionAdvanceSubject.next();
     }
 
     getBackupGame(id: string) {

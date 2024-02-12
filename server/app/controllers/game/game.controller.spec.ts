@@ -1,5 +1,4 @@
 import { Game } from '@app/model/database/game';
-import { Question } from '@app/model/database/question';
 import { GameService } from '@app/services/game/game.service';
 import { HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -98,7 +97,7 @@ describe('GamesController', () => {
         await controller.addGame(new Game(), res);
     });
 
-    it('addGame() should return BAD_REQUEST when service is not able to find the course', async () => {
+    it('addGame() should return BAD_REQUEST when the game cannot be added.', async () => {
         gameService.addGame.rejects();
         const res = {} as unknown as Response;
         res.status = (code) => {
@@ -109,26 +108,17 @@ describe('GamesController', () => {
         await controller.addGame(new Game(), res);
     });
 
-    it('validateQuestion() should return OK if the question is valid.', async () => {
-        gameService.validateQuestion.resolves();
+    it('addGame() should return CONFLICT if the game already exists.', async () => {
+        jest.spyOn(gameService, 'addGame').mockImplementationOnce(async () => {
+            return Promise.reject('Un jeu du même titre existe déjà.');
+        });
         const res = {} as unknown as Response;
         res.status = (code) => {
-            expect(code).toEqual(HttpStatus.OK);
+            expect(code).toEqual(HttpStatus.CONFLICT);
             return res;
         };
         res.send = () => res;
-        await controller.validateQuestion(new Question(), res);
-    });
-
-    it('validateQuestion() should return BAD_REQUEST if the question is invalid.', async () => {
-        gameService.validateQuestion.rejects();
-        const res = {} as unknown as Response;
-        res.status = (code) => {
-            expect(code).toEqual(HttpStatus.BAD_REQUEST);
-            return res;
-        };
-        res.send = () => res;
-        await controller.validateQuestion(new Question(), res);
+        await controller.addGame(new Game(), res);
     });
 
     it('toggleGameVisibility() should succeed if service is able to modify the game', async () => {

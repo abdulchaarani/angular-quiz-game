@@ -1,19 +1,39 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { HttpClientModule } from '@angular/common/http';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
+import { DialogAdminPasswordComponent } from '@app/components/dialog-admin-password/dialog-admin-password.component';
+import { AuthenticationService } from '@app/services/authentication/authentication.service';
+import { of } from 'rxjs';
 import { HomePageComponent } from './home-page.component';
-
-// TODO: Test Admin Password: open Dialog (lines 23-31)
+import SpyObj = jasmine.SpyObj;
 describe('HomePageComponent', () => {
     let component: HomePageComponent;
     let fixture: ComponentFixture<HomePageComponent>;
+    let dialogMock: SpyObj<MatDialog>;
+    let authenticationSpy: SpyObj<AuthenticationService>;
 
     beforeEach(() => {
+        dialogMock = jasmine.createSpyObj({
+            open: jasmine.createSpyObj({
+                afterClosed: of('mockResult'),
+            }),
+        });
+        authenticationSpy = jasmine.createSpyObj('AuthenticationService', ['validatePassword']);
         TestBed.configureTestingModule({
-            imports: [MatDialogModule, HttpClientModule, MatSnackBarModule],
+            imports: [HttpClientModule, MatSnackBarModule],
+            providers: [
+                {
+                    provide: MatDialog,
+                    useValue: dialogMock,
+                },
+                {
+                    provide: AuthenticationService,
+                    useValue: authenticationSpy,
+                },
+            ],
             declarations: [HomePageComponent],
         });
         fixture = TestBed.createComponent(HomePageComponent);
@@ -51,5 +71,22 @@ describe('HomePageComponent', () => {
     it('host button should direct to "/host"', () => {
         let href = fixture.debugElement.query(By.css('#host-button')).nativeElement.getAttribute('routerLink');
         expect(href).toEqual('/host');
+    });
+
+    it('openDialog() should open a dialog and allow to submit password', () => {
+        const submitPasswordSpy = spyOn(component, 'submitPassword');
+        component.password = 'mock';
+        component.openDialog();
+        expect(dialogMock.open).toHaveBeenCalledWith(DialogAdminPasswordComponent, { data: { username: 'admin', password: 'mock' } });
+        dialogMock.closeAll;
+        expect(submitPasswordSpy).toHaveBeenCalled();
+    });
+
+    it('submitPassword() should call validatePassword and reset the input password', () => {
+        const mockPassword = 'mockPassword';
+        component.username = '';
+        component.submitPassword(mockPassword);
+        expect(authenticationSpy.validatePassword).toHaveBeenCalledWith(component.username, mockPassword);
+        expect(component.password).toEqual('');
     });
 });

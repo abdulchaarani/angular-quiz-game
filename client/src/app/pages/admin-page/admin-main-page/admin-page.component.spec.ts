@@ -1,7 +1,8 @@
-import { HttpClient, HttpHandler, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHandler, HttpResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { DialogRenameGameComponent } from '@app/components/dialog-rename-game/dialog-rename-game.component';
 import { Game } from '@app/interfaces/game';
 import { GamesService } from '@app/services/games.service';
 import { NotificationService } from '@app/services/notification.service';
@@ -9,16 +10,21 @@ import { of, throwError } from 'rxjs';
 import { AdminPageComponent } from './admin-page.component';
 import SpyObj = jasmine.SpyObj;
 
-// TODO: Add tests for JSON upload
-// Lines: 56-69
+// TODO: 53
 describe('AdminPageComponent', () => {
     let component: AdminPageComponent;
     let fixture: ComponentFixture<AdminPageComponent>;
     let gamesServiceSpy: SpyObj<GamesService>;
     let notificationServiceSpy: SpyObj<NotificationService>;
     const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK' });
+    let dialogMock: SpyObj<MatDialog>;
 
     beforeEach(waitForAsync(() => {
+        dialogMock = jasmine.createSpyObj({
+            open: jasmine.createSpyObj({
+                afterClosed: of('mockResult'),
+            }),
+        });
         gamesServiceSpy = jasmine.createSpyObj('GamesService', [
             'getGames',
             'getGameById',
@@ -39,6 +45,7 @@ describe('AdminPageComponent', () => {
             providers: [
                 HttpClient,
                 HttpHandler,
+                { provide: MatDialog, useValue: dialogMock },
                 { provide: GamesService, useValue: gamesServiceSpy },
                 { provide: NotificationService, useValue: notificationServiceSpy },
             ],
@@ -95,27 +102,82 @@ describe('AdminPageComponent', () => {
         expect(notificationServiceSpy.displaySuccessMessage).toHaveBeenCalled();
     });
 
+    it('should not add the game if it already exists and open dialog to ask to rename the game title', () => {
+        const httpError = new HttpErrorResponse({
+            status: 409,
+            error: { code: '409', message: 'Requête add\n Un jeu du même titre existe déjà.' },
+        });
+        gamesServiceSpy.uploadGame.and.returnValue(throwError(() => httpError));
+        const openDialogSpy = spyOn(component, 'openDialog');
+        component.addGame(newMockGame);
+        expect(openDialogSpy).toHaveBeenCalledWith(newMockGame);
+        expect(notificationServiceSpy.displayErrorMessage).not.toHaveBeenCalled();
+    });
+
+    it('should not add the game if it already exists and open dialog to ask to rename the game title', () => {
+        const httpError = new HttpErrorResponse({
+            status: 400,
+            statusText: 'Bad Request',
+        });
+        gamesServiceSpy.uploadGame.and.returnValue(throwError(() => httpError));
+        component.addGame(newMockGame);
+        expect(notificationServiceSpy.displayErrorMessage).toHaveBeenCalled();
+    });
+
     it('should open a snackbar if addGame fails', () => {
         gamesServiceSpy.uploadGame.and.returnValue(throwError(() => new Error('error')));
         component.addGame(newMockGame);
         expect(notificationServiceSpy.displayErrorMessage).toHaveBeenCalled();
     });
 
-    it('should add game from JSON', () => {
-        // TODO (maybe console.log the event, event.target, and event.target.files[0] for debugging purposes)
-        /*
+    it('onFileSelected should call readFile()', () => {
+        const readFileSpy = spyOn(component, 'readFile');
         const event = new Event('InputEvent');
         const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(new File([JSON.stringify(newMockGame)], 'file.json', { type: 'application/json' }));
+        const mockFile = new File([JSON.stringify(newMockGame)], 'file.json', { type: 'application/json' });
+        dataTransfer.items.add(mockFile);
         const mockEvent = {
             ...event,
             dataTransfer: dataTransfer,
-            target: { ...files: dataTransfer },
-        } as InputEvent;
+            target: { files: dataTransfer },
+        } as unknown as InputEvent;
 
         component.onFileSelected(mockEvent);
-        expect(component.addGame).toHaveBeenCalled();
-        */
+        expect(readFileSpy).toHaveBeenCalled();
+    });
+
+    it('readFile should call addStringifiedGame()', waitForAsync(() => {
+        // Reference: https://stackoverflow.com/questions/64642547/how-can-i-test-the-filereader-onload-callback-function-in-angular-jasmine
+        const addStringifiedGameSpy = spyOn(component, 'addStringifiedGame');
+        const mockFile = new File([JSON.stringify(newMockGame)], 'file.json', { type: 'application/json' });
+        component.readFile(mockFile).then((data) => {
+            expect(addStringifiedGameSpy).toHaveBeenCalled();
+        });
+    }));
+
+    it('addStringifiedGame() should parse the stringified game and call addGame()', () => {
+        const addGameSpy = spyOn(component, 'addGame');
+        const mockGameStringified = JSON.stringify(newMockGame);
+        component.addStringifiedGame(mockGameStringified);
+        expect(addGameSpy).toHaveBeenCalledWith(JSON.parse(mockGameStringified));
+    });
+
+    it('addStringifiedGame() should not add the game if it is undefined', () => {
+        const addGameSpy = spyOn(component, 'addGame');
+        component.addStringifiedGame('');
+        expect(addGameSpy).not.toHaveBeenCalled();
+    });
+
+    it('openDialog() should open a dialog asking to change the game title and resubmit the updated game', () => {
+        const addGameSpy = spyOn(component, 'addGame');
+        component.openDialog(newMockGame);
+        expect(dialogMock.open).toHaveBeenCalledWith(DialogRenameGameComponent, {
+            data: '',
+        });
+        dialogMock.closeAll;
+        const changedTitleMockGame = newMockGame;
+        changedTitleMockGame.title = 'mockResult';
+        expect(addGameSpy).toHaveBeenCalledWith(changedTitleMockGame);
     });
 });
 

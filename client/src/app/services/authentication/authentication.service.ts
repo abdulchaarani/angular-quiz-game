@@ -1,8 +1,8 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
+import { NotificationService } from '@app/services/notification.service';
 import { environment } from 'src/environments/environment';
-import { NotificationService } from '../notification.service';
 
 @Injectable({
     providedIn: 'root',
@@ -30,7 +30,7 @@ export class AuthenticationService {
             .subscribe({
                 next: () => {
                     this.isAuthenticated = true;
-                    this.router.navigate(['/admin/games']);
+                    this.router.navigateByUrl('/admin/games');
                 },
                 error: () => {
                     this.isAuthenticated = false;

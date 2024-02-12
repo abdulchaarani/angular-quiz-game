@@ -3,6 +3,8 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { AdminQuestionsListComponent } from '@app/pages/admin-page/admin-questions-list/admin-questions-list.component';
 
 export interface DialogData {
+    icon: string;
+    title: string;
     text: string;
 }
 
@@ -15,10 +17,12 @@ export class DialogConfirmComponent {
     constructor(
         public dialogRef: MatDialogRef<AdminQuestionsListComponent>,
         @Inject(MAT_DIALOG_DATA) public data: DialogData,
-    ) {}
+    ) {
+        dialogRef.disableClose = true;
+    }
 
     onCancel(): void {
-        this.dialogRef.close();
+        this.dialogRef.close(false);
     }
 
     onConfirm(): void {

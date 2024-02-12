@@ -118,7 +118,6 @@ describe('QuestionController', () => {
         await controller.updateQuestion(new Question(), res);
     });
 
-    // TODO: Check what happens if we edit question from a deleted game
     it('updateQuestion() should return NOT_FOUND when service cannot update the question', async () => {
         questionService.updateQuestion.rejects();
         const res = {} as unknown as Response;
@@ -150,5 +149,27 @@ describe('QuestionController', () => {
         };
         res.send = () => res;
         await controller.deleteQuestion('', res);
+    });
+
+    it('validateQuestion() should return OK if the question is valid.', async () => {
+        questionService.validateNewQuestion.resolves();
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.OK);
+            return res;
+        };
+        res.send = () => res;
+        await controller.validateQuestion(new Question(), res);
+    });
+
+    it('validateQuestion() should return BAD_REQUEST if the question is invalid.', async () => {
+        questionService.validateNewQuestion.rejects();
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.BAD_REQUEST);
+            return res;
+        };
+        res.send = () => res;
+        await controller.validateQuestion(new Question(), res);
     });
 });

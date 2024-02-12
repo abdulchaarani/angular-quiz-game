@@ -1,6 +1,5 @@
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
-import { CreateQuestionDto } from '@app/model/dto/question/create-question-dto';
 import { GameService } from '@app/services/game/game.service';
 import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Put, Res } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
@@ -37,17 +36,11 @@ export class GameController {
             const newGame = await this.gameService.addGame(createGameDto);
             response.status(HttpStatus.CREATED).send(JSON.stringify(newGame));
         } catch (error) {
-            response.status(HttpStatus.BAD_REQUEST).send({ message: error });
-        }
-    }
-
-    @Post('/validate-question/')
-    async validateQuestion(@Body() createQuestionDto: CreateQuestionDto, @Res() response: Response) {
-        try {
-            const isValidQuestion = await this.gameService.validateQuestion(createQuestionDto);
-            response.status(HttpStatus.OK).send(isValidQuestion);
-        } catch (error) {
-            response.status(HttpStatus.BAD_REQUEST).send({ message: error });
+            if (error === 'Un jeu du même titre existe déjà.') {
+                response.status(HttpStatus.CONFLICT).send({ message: error });
+            } else {
+                response.status(HttpStatus.BAD_REQUEST).send({ message: error });
+            }
         }
     }
 

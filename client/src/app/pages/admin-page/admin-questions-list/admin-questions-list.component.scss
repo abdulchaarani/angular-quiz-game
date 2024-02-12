@@ -108,3 +108,10 @@
 .question-buttons {
     justify-content: space-between;
 }
+.page-title,
+.pending-changes {
+    display: inline-block;
+}
+.pending-changes {
+    color: #4758b8;
+}

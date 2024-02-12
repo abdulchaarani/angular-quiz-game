@@ -36,4 +36,11 @@ describe('DialogAdminPasswordComponent', () => {
         component.onNoClick();
         expect(matDialogSpy.close).toHaveBeenCalled();
     });
+
+    it('should submit password on Keyboard Enter', () => {
+        const eventData: KeyboardEventInit = { key: 'Enter' };
+        const keyboardEvent = new KeyboardEvent('keyup', eventData);
+        window.dispatchEvent(keyboardEvent);
+        expect(matDialogSpy.close).toHaveBeenCalled();
+    });
 });

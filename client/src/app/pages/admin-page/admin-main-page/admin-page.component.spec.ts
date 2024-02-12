@@ -131,25 +131,22 @@ describe('AdminPageComponent', () => {
 
     it('onFileSelected should call readFile()', () => {
         const readFileSpy = spyOn(component, 'readFile');
-        const event = new Event('InputEvent');
         const dataTransfer = new DataTransfer();
         const mockFile = new File([JSON.stringify(newMockGame)], 'file.json', { type: 'application/json' });
         dataTransfer.items.add(mockFile);
         const mockEvent = {
-            ...event,
-            dataTransfer: dataTransfer,
+            dataTransfer,
             target: { files: dataTransfer },
         } as unknown as InputEvent;
-
         component.onFileSelected(mockEvent);
         expect(readFileSpy).toHaveBeenCalled();
     });
 
-    it('readFile should call addStringifiedGame()', waitForAsync(() => {
+    it('readFile() should call addStringifiedGame()', waitForAsync(async () => {
         // Reference: https://stackoverflow.com/questions/64642547/how-can-i-test-the-filereader-onload-callback-function-in-angular-jasmine
         const addStringifiedGameSpy = spyOn(component, 'addStringifiedGame');
         const mockFile = new File([JSON.stringify(newMockGame)], 'file.json', { type: 'application/json' });
-        component.readFile(mockFile).then(() => {
+        await component.readFile(mockFile).then(() => {
             expect(addStringifiedGameSpy).toHaveBeenCalled();
         });
     }));

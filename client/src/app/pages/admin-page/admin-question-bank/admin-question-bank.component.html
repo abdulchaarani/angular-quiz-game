@@ -1,8 +1,7 @@
 <div class="main-container">
     <h1 class="page-title">Banque de questions</h1>
     <div class="buttons-container">
-        <button id="add-question-button" mat-raised-button color="primary" (click)="openDialog()">
-                <app-create-question *ngIf="dialogState" (createQuestionEvent)="addQuestion($event)"></app-create-question>
+        <button id="add-question-button" mat-raised-button color="primary" (click)="openDialog()" >
             <mat-icon>add</mat-icon>Ajouter une nouvelle question
         </button>
     </div>
@@ -20,11 +19,13 @@
                 *ngFor="let question of questions | sortByLastModification: 'ascending'"
                 [question]="question"
                 [isLastModifiedDateVisible]="true"
-                [isEditable]="false"
+                [isEditable]="true"
                 (deleteQuestionEvent)="deleteQuestion($event)"
+                (questionUpdated)="updateQuestion($event)"
                 cdkDrag
             >
                 <div cdkDragHandle></div>
+                
             </app-question-list-item>
         </mat-accordion>
 

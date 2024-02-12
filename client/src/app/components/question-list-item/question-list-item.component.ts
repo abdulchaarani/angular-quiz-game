@@ -14,11 +14,13 @@ export class QuestionListItemComponent {
     @Input() isLastModifiedDateVisible: boolean;
     @Input() isEditable: boolean;
     @Output() deleteQuestionEvent = new EventEmitter<string>();
+    @Output() questionUpdated = new EventEmitter<Question>();
 
     response: string = '';
 
+    isCreateQuestionComponent: boolean = false;
+
     questions: Question[] = [];
-    // constructor(private readonly questionService: QuestionService) {}
 
     isPanelExpanded: boolean = false;
 
@@ -30,13 +32,7 @@ export class QuestionListItemComponent {
         this.deleteQuestionEvent.emit(this.question.id);
     }
 
-    addQuestion() {
-        console.log('addQuestion');
+    closeComponent() {
+        this.questionUpdated.emit(this.question);
     }
-
-    onPointsChanged(newPoints: number) {
-        console.log(`Points changed: ${newPoints}`);
-    }
-
-    onQuestionModified() {}
 }

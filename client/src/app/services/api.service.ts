@@ -42,9 +42,9 @@ export class ApiService<T> {
             .pipe(catchError(this.handleError<HttpResponse<string>>('delete')));
     }
 
-    update(endpoint: string): Observable<HttpResponse<string>> {
+    update(payload: T, endpoint: string): Observable<HttpResponse<string>> {
         return this.http
-            .patch(`${this.serverUrl}/${this.baseUrl}/${endpoint}`, {}, this.httpOptions)
+            .patch(`${this.serverUrl}/${this.baseUrl}/${endpoint}`,payload, this.httpOptions)
             .pipe(catchError(this.handleError<HttpResponse<string>>('update')));
     }
 

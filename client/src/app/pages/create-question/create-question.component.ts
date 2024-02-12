@@ -3,7 +3,6 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange
 import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Question } from '@app/interfaces/question';
-//import { GamesService } from '@app/services/games.service';
 
 @Component({
     selector: 'app-create-question',
@@ -23,7 +22,6 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     private readonly snackBarDisplayTime = 2000;
     private readonly minChoices = 2;
     private readonly maxChoices = 4;
-    private readonly base36 = 36;
     color: any;
     checked: any;
     disabled: any;
@@ -87,7 +85,6 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     onSubmitQuestionBank() {
         if (this.questionForm.valid) {
             const newQuestion: Question = this.questionForm.value;
-            newQuestion.id = this.getRandomString();
             this.createQuestionEventQuestionBank.emit(newQuestion);
         }
     }
@@ -96,7 +93,6 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
         if (this.questionForm.valid) {
             const newQuestion: Question = this.questionForm.value;
             newQuestion.lastModification = new Date().toLocaleString();
-            newQuestion.id = this.getRandomString();
             this.createQuestionEvent.emit(newQuestion);
         }
     }
@@ -110,8 +106,6 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
             return;
         }
     }
-
-    getRandomString = (): string => (Math.random() + 1).toString(this.base36).substring(2);
 
     updateChoiceNumbers() {
         this.choices.controls.forEach((control, index) => {
@@ -128,7 +122,6 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     ngOnInit(): void {
         if (this.modifyingForm) {
             this.questionForm.valueChanges.subscribe((formValue) => {
-                console.log("form",formValue);
                 this.question.text = formValue?.text;
                 this.question.type = formValue?.type;
                 this.question.points = formValue?.points;
@@ -136,7 +129,6 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
                 this.question.choices = formValue.choices;
 
                 this.questionForm.get('choices')?.valueChanges.subscribe((choices) => {
-                    console.log("quest",choices);
                     if (this.question) {
                         this.updateChoices(choices);
                     }
@@ -150,7 +142,7 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
         choices.forEach((choice) => {
             this.question.choices!.push({
                 text: choice.text,
-                isCorrect: choice.isCorrect
+                isCorrect: choice.isCorrect,
             });
         });
     }
@@ -189,17 +181,20 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
             points: this.question?.points,
             type: this.question?.type,
             lastModification: this.question?.lastModification,
+            //choices: this.question?.choices,
         });
 
         const choicesArray = this.questionForm.get('choices') as FormArray;
         choicesArray.clear();
         this.question.choices?.forEach((choice) => {
-            choicesArray.push(
-                this.fb.group({
-                    text: choice.text,
-                    isCorrect: choice.isCorrect,
-                }),
-            );
+            if (choice.text.trim() !== '') {
+                choicesArray.push(
+                    this.fb.group({
+                        text: choice.text,
+                        isCorrect: choice.isCorrect,
+                    }),
+                );
+            }
         });
     }
 }

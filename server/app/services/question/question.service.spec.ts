@@ -191,4 +191,20 @@ describe('QuestionService', () => {
         });
         expect(spyGet).toHaveBeenCalled();
     });
+
+    it('validateNewQuestion() should return true if the question is valid (does not have any error messages)', async () => {
+        const spyValidate = jest.spyOn(gameValidationService, 'findQuestionErrors').mockReturnValue([]);
+        const mockQuestion = new Question();
+        expect(service.validateNewQuestion(mockQuestion)).toBeTruthy();
+        expect(spyValidate).toHaveBeenCalledWith(mockQuestion);
+    });
+    it('validateNewQuestion should return the error messages if question is invalid', async () => {
+        const mockErrorMessages = ['mock', 'message'];
+        const spyValidate = jest.spyOn(gameValidationService, 'findQuestionErrors').mockReturnValue(mockErrorMessages);
+        const mockQuestion = new Question();
+        await service.validateNewQuestion(mockQuestion).catch((error) => {
+            expect(error).toBe('La question est invalide:\nmock\nmessage');
+        });
+        expect(spyValidate).toHaveBeenCalledWith(mockQuestion);
+    });
 });

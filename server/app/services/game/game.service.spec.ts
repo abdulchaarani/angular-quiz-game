@@ -1,6 +1,5 @@
 import { gameMocks } from '@app/constants/game-mocks';
 import { Game, GameDocument } from '@app/model/database/game';
-import { Question } from '@app/model/database/question';
 import { GameValidationService } from '@app/services/game-validation/game-validation.service';
 import { Logger } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
@@ -295,21 +294,5 @@ describe('GameService', () => {
         });
         expect(spyGet).toHaveBeenCalledWith(mockGame.id);
         expect(spyDelete).toHaveBeenCalledWith({ id: mockGame.id });
-    });
-
-    it('validateQuestion() should return true if the question is valid (does not have any error messages)', async () => {
-        const spyValidate = jest.spyOn(gameValidationService, 'findQuestionErrors').mockReturnValue([]);
-        const mockQuestion = new Question();
-        expect(service.validateQuestion(mockQuestion)).toBeTruthy();
-        expect(spyValidate).toHaveBeenCalledWith(mockQuestion);
-    });
-    it('validateQuestion should return the error messages if question is invalid', async () => {
-        const mockErrorMessages = ['mock', 'message'];
-        const spyValidate = jest.spyOn(gameValidationService, 'findQuestionErrors').mockReturnValue(mockErrorMessages);
-        const mockQuestion = new Question();
-        await service.validateQuestion(mockQuestion).catch((error) => {
-            expect(error).toBe('La question est invalide:\nmock\nmessage');
-        });
-        expect(spyValidate).toHaveBeenCalledWith(mockQuestion);
     });
 });

@@ -1,5 +1,4 @@
 import { Game } from '@app/model/database/game';
-import { Question } from '@app/model/database/question';
 import { GameService } from '@app/services/game/game.service';
 import { HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -120,28 +119,6 @@ describe('GamesController', () => {
         };
         res.send = () => res;
         await controller.addGame(new Game(), res);
-    });
-
-    it('validateQuestion() should return OK if the question is valid.', async () => {
-        gameService.validateQuestion.resolves();
-        const res = {} as unknown as Response;
-        res.status = (code) => {
-            expect(code).toEqual(HttpStatus.OK);
-            return res;
-        };
-        res.send = () => res;
-        await controller.validateQuestion(new Question(), res);
-    });
-
-    it('validateQuestion() should return BAD_REQUEST if the question is invalid.', async () => {
-        gameService.validateQuestion.rejects();
-        const res = {} as unknown as Response;
-        res.status = (code) => {
-            expect(code).toEqual(HttpStatus.BAD_REQUEST);
-            return res;
-        };
-        res.send = () => res;
-        await controller.validateQuestion(new Question(), res);
     });
 
     it('toggleGameVisibility() should succeed if service is able to modify the game', async () => {

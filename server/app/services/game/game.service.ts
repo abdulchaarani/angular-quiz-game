@@ -3,7 +3,6 @@ import { Choice } from '@app/model/database/choice';
 import { Game, GameDocument } from '@app/model/database/game';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
-import { CreateQuestionDto } from '@app/model/dto/question/create-question-dto';
 import { GameValidationService } from '@app/services/game-validation/game-validation.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -135,13 +134,5 @@ export class GameService {
         } catch (error) {
             return Promise.reject(`Le jeu n'a pas pu être supprimé: ${error}`);
         }
-    }
-
-    async validateQuestion(question: CreateQuestionDto): Promise<boolean> {
-        const errorMessages = this.validation.findQuestionErrors(question);
-        if (errorMessages.length !== 0) {
-            return Promise.reject(`La question est invalide:\n${errorMessages.join('\n')}`);
-        }
-        return true;
     }
 }

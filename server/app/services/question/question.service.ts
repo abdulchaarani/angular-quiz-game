@@ -89,4 +89,12 @@ export class QuestionService {
             return Promise.reject(`La question n'a pas pu être supprimée: ${error}`);
         }
     }
+
+    async validateNewQuestion(question: CreateQuestionDto): Promise<boolean> {
+        const errorMessages = this.validation.findQuestionErrors(question);
+        if (errorMessages.length !== 0) {
+            return Promise.reject(`La question est invalide:\n${errorMessages.join('\n')}`);
+        }
+        return true;
+    }
 }

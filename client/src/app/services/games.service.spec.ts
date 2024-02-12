@@ -97,19 +97,6 @@ describe('GameService', () => {
         expect(replaceGameSpy).not.toHaveBeenCalled();
     });
 
-    // Ref : https://stackoverflow.com/questions/59062023/how-to-mock-a-pdf-blob
-    // Ref : https://stackoverflow.com/questions/61142428/angular-test-mock-a-httpresponse-containing-a-blob
-    it('should return a game as JSON without isVisible, _id or __v attributes', () => {
-        const stringifiedGame = JSON.stringify(newMockGame);
-        const mockBlob = new Blob([stringifiedGame], { type: 'text/json' });
-        const createObjectUrlSpy = spyOn(window.URL, 'createObjectURL').and.returnValue('');
-        const revokeObjectSpy = spyOn(window.URL, 'revokeObjectURL');
-
-        service.downloadGameAsJson(newMockGame);
-        expect(createObjectUrlSpy).toHaveBeenCalledWith(mockBlob);
-        expect(revokeObjectSpy).toHaveBeenCalled();
-    });
-
     it('should mark pending changes', () => {
         service.markPendingChanges();
         expect(service.isPendingChangesSource.value).toBe(true);

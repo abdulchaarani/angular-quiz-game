@@ -1,6 +1,7 @@
-import { choiceMocks } from '@app/constants/choice-mocks';
-import { gameMocks } from '@app/constants/game-mocks';
-import { questionMocks } from '@app/constants/question-mocks';
+import { FIRST_CORRECT_CHOICE, INCORRECT_CHOICE, SECOND_CORRECT_CHOICE } from '@app/constants/choice-mocks';
+import { GAME_WITHOUT_IS_CORRECT_FIELD, GAME_WITH_IS_CORRECT_FIELD } from '@app/constants/game-mocks';
+import { getMockQuestionWithChoices } from '@app/constants/question-mocks';
+import { ERROR_GAME_NOT_FOUND } from '@app/constants/request-errors';
 import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
 import { Question } from '@app/model/database/question';
@@ -86,29 +87,25 @@ describe('MatchService', () => {
     });
 
     it('validatePlayerChoice() should return true only if all choices from player are correct', () => {
-        const mockQuestion = questionMocks.getQuestionWithChoices();
+        const mockQuestion = getMockQuestionWithChoices();
         const spyGetBackupQuestion = jest.spyOn(service, 'getBackupQuestion').mockReturnValue(mockQuestion);
-        const correctPlayerTry = service.validatePlayerChoice('', '', [choiceMocks.firstCorrect.text, choiceMocks.secondCorrect.text]);
+        const correctPlayerTry = service.validatePlayerChoice('', '', [FIRST_CORRECT_CHOICE.text, SECOND_CORRECT_CHOICE.text]);
         expect(correctPlayerTry).toBe(true);
         expect(spyGetBackupQuestion).toHaveBeenCalled();
     });
 
     it('validatePlayerChoice() should return false if at least one choice from player is incorrect', () => {
-        const mockQuestion = questionMocks.getQuestionWithChoices();
+        const mockQuestion = getMockQuestionWithChoices();
         const spyGetBackupQuestion = jest.spyOn(service, 'getBackupQuestion').mockReturnValue(mockQuestion);
-        const correctPlayerTry = service.validatePlayerChoice('', '', [
-            choiceMocks.firstCorrect.text,
-            choiceMocks.secondCorrect.text,
-            choiceMocks.incorrect.text,
-        ]);
+        const correctPlayerTry = service.validatePlayerChoice('', '', [FIRST_CORRECT_CHOICE.text, SECOND_CORRECT_CHOICE.text, INCORRECT_CHOICE.text]);
         expect(correctPlayerTry).toBe(false);
         expect(spyGetBackupQuestion).toHaveBeenCalled();
     });
 
     it('validatePlayerChoice() should return false if the player does not submit ALL correct choices.', () => {
-        const mockQuestion = questionMocks.getQuestionWithChoices();
+        const mockQuestion = getMockQuestionWithChoices();
         const spyGetBackupQuestion = jest.spyOn(service, 'getBackupQuestion').mockReturnValue(mockQuestion);
-        const correctPlayerTry = service.validatePlayerChoice('', '', [choiceMocks.firstCorrect.text]);
+        const correctPlayerTry = service.validatePlayerChoice('', '', [FIRST_CORRECT_CHOICE.text]);
         expect(correctPlayerTry).toBe(false);
         expect(spyGetBackupQuestion).toHaveBeenCalled();
     });
@@ -130,7 +127,7 @@ describe('MatchService', () => {
     it('saveBackupGame() should reject if gameService fails to fetch game', async () => {
         const spyGetGameById = jest.spyOn(gameService, 'getGameById').mockRejectedValue('');
         await service.saveBackupGame('').catch((error) => {
-            expect(error).toBe('Le jeu est introuvable.');
+            expect(error).toBe(`${ERROR_GAME_NOT_FOUND}`);
         });
         expect(spyGetGameById).toHaveBeenCalled();
     });
@@ -146,16 +143,16 @@ describe('MatchService', () => {
     it('deleteBackupGame() should reject if the game cannot be found', async () => {
         service.backupGames = [new Game()];
         await service.deleteBackupGame('').catch((error) => {
-            expect(error).toBe("La copie du jeu n'a pas pu être supprimée.");
+            expect(error).toBe(`${ERROR_GAME_NOT_FOUND}`);
         });
         expect(service.backupGames.length).toBe(1);
     });
 
     it('removeIsCorrectField should return a game without the field isCorrect in question choices', () => {
-        const game = service.removeIsCorrectField(gameMocks.gameWithIsCorrectField);
-        expect(JSON.stringify(game)).toBe(JSON.stringify(gameMocks.gameWithoutIsCorrectField));
+        const game = service.removeIsCorrectField(GAME_WITH_IS_CORRECT_FIELD);
+        expect(JSON.stringify(game)).toBe(JSON.stringify(GAME_WITHOUT_IS_CORRECT_FIELD));
 
-        const gameNoIsCorrect = service.removeIsCorrectField(gameMocks.gameWithoutIsCorrectField);
-        expect(JSON.stringify(gameNoIsCorrect)).toBe(JSON.stringify(gameMocks.gameWithoutIsCorrectField));
+        const gameNoIsCorrect = service.removeIsCorrectField(GAME_WITHOUT_IS_CORRECT_FIELD);
+        expect(JSON.stringify(gameNoIsCorrect)).toBe(JSON.stringify(GAME_WITHOUT_IS_CORRECT_FIELD));
     });
 });

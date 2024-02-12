@@ -1,4 +1,5 @@
-import { questionMocks } from '@app/constants/question-mocks';
+import { getMockQuestion } from '@app/constants/question-mocks';
+import { ERROR_DEFAULT, ERROR_INVALID_QUESTION, ERROR_QUESTION_BANK_SAME_TITLE, ERROR_QUESTION_NOT_FOUND } from '@app/constants/request-errors';
 import { stringifyQuestionPublicValues } from '@app/constants/test-utils';
 import { Question, QuestionDocument } from '@app/model/database/question';
 import { GameValidationService } from '@app/services/game-validation/game-validation.service';
@@ -59,21 +60,21 @@ describe('QuestionService', () => {
         expect(spyPopulateDB).not.toHaveBeenCalled();
     });
     it('getAllQuestions() should return all questions in database', async () => {
-        const mockQuestions = [questionMocks.getQuestion(), questionMocks.getQuestion()];
+        const mockQuestions = [getMockQuestion(), getMockQuestion()];
         const spyFind = jest.spyOn(questionModel, 'find').mockResolvedValue(mockQuestions);
         const returnedQuestions = await service.getAllQuestions();
         expect(spyFind).toHaveBeenCalledWith({});
         expect(returnedQuestions).toEqual(mockQuestions);
     });
     it('getQuestionByName() should return question with the corresponding text', async () => {
-        const mockQuestion = questionMocks.getQuestion();
+        const mockQuestion = getMockQuestion();
         const spyFindOne = jest.spyOn(questionModel, 'findOne').mockResolvedValue(mockQuestion);
         const returnedQuestion = await service.getQuestionByName(mockQuestion.text);
         expect(returnedQuestion).toEqual(mockQuestion);
         expect(spyFindOne).toHaveBeenCalledWith({ text: mockQuestion.text });
     });
     it('getQuestionById() should return question with the corresponding ID', async () => {
-        const mockQuestion = questionMocks.getQuestion();
+        const mockQuestion = getMockQuestion();
         const spyFindOne = jest.spyOn(questionModel, 'findOne').mockResolvedValue(mockQuestion);
         const returnedQuestion = await service.getQuestionById(mockQuestion.id);
         expect(returnedQuestion).toEqual(mockQuestion);
@@ -81,7 +82,7 @@ describe('QuestionService', () => {
     });
 
     it('addQuestion() should add the question to the database with new ID and lastModification', async () => {
-        const mockQuestion = questionMocks.getQuestion();
+        const mockQuestion = getMockQuestion();
         const pastYear = 2020;
         mockQuestion.lastModification = new Date(pastYear, 1, 1);
         const spyGet = jest.spyOn(service, 'getQuestionByName');
@@ -101,7 +102,7 @@ describe('QuestionService', () => {
         const spyCreate = jest.spyOn(questionModel, 'create').mockImplementation(async () => Promise.reject(''));
         const mockQuestion = new Question();
         await service.addQuestion({ ...mockQuestion }).catch((error) => {
-            expect(error).toBe("La question n'a pas pu être ajoutée: ");
+            expect(error).toBe(`${ERROR_DEFAULT} `);
         });
         expect(spyGet).toHaveBeenCalled();
         expect(spyValidate).toHaveBeenCalled();
@@ -113,7 +114,7 @@ describe('QuestionService', () => {
         const testQuestion = new Question();
         testQuestion.id = mockQuestion.id;
         await service.addQuestion(testQuestion).catch((error) => {
-            expect(error).toBe('La question existe déjà dans la banque.');
+            expect(error).toBe(`${ERROR_QUESTION_BANK_SAME_TITLE}`);
         });
         expect(spyGetQuestionByName).toHaveBeenCalledWith(testQuestion.text);
     });
@@ -122,7 +123,7 @@ describe('QuestionService', () => {
         const spyValidate = jest.spyOn(gameValidationService, 'findQuestionErrors').mockReturnValue(mockErrorMessages);
         const mockQuestion = new Question();
         await service.addQuestion(mockQuestion).catch((error) => {
-            expect(error).toBe('La question est invalide:\nmock');
+            expect(error).toBe(`${ERROR_INVALID_QUESTION}\nmock`);
         });
         expect(spyValidate).toBeCalledWith(mockQuestion);
     });
@@ -143,7 +144,7 @@ describe('QuestionService', () => {
     it('updateQuestion() should fail if question cannot be found in database.', async () => {
         const spyGet = jest.spyOn(service, 'getQuestionById').mockResolvedValue(null);
         await service.updateQuestion(new Question()).catch((error) => {
-            expect(error).toBe('La question est introuvable.');
+            expect(error).toBe(`${ERROR_QUESTION_NOT_FOUND}`);
         });
         expect(spyGet).toHaveBeenCalled();
     });
@@ -152,7 +153,7 @@ describe('QuestionService', () => {
         const spyValidate = jest.spyOn(gameValidationService, 'findQuestionErrors').mockReturnValue(mockErrorMessages);
         const spyGet = jest.spyOn(service, 'getQuestionById').mockResolvedValue(new Question());
         await service.updateQuestion(new Question()).catch((error) => {
-            expect(error).toBe('La question est invalide:\nmock');
+            expect(error).toBe(`${ERROR_INVALID_QUESTION}\nmock`);
         });
         expect(spyValidate).toHaveBeenCalled();
         expect(spyGet).toHaveBeenCalled();
@@ -162,14 +163,14 @@ describe('QuestionService', () => {
         const spyValidate = jest.spyOn(gameValidationService, 'findQuestionErrors').mockReturnValue([]);
         const spyGet = jest.spyOn(service, 'getQuestionById').mockResolvedValue(new Question());
         await service.updateQuestion(new Question()).catch((error) => {
-            expect(error).toBe("La question n'a pas été mise à jour: ");
+            expect(error).toBe(`${ERROR_DEFAULT} `);
         });
         expect(spyValidate).toHaveBeenCalled();
         expect(spyGet).toHaveBeenCalled();
         expect(spyUpdate).toHaveBeenCalled();
     });
     it('deleteQuestion() should delete the corresponding question', async () => {
-        const mockQuestion = questionMocks.getQuestion();
+        const mockQuestion = getMockQuestion();
         const spyGet = jest.spyOn(service, 'getQuestionById').mockResolvedValue(mockQuestion);
         const spyDeleteOne = jest.spyOn(questionModel, 'deleteOne').mockResolvedValue({ acknowledged: true, deletedCount: 1 });
         await service.deleteQuestion(mockQuestion.id);
@@ -179,7 +180,7 @@ describe('QuestionService', () => {
     it('deleteQuestion() should fail if question cannot be found', async () => {
         const spyGet = jest.spyOn(service, 'getQuestionById').mockResolvedValue(null);
         await service.deleteQuestion('').catch((error) => {
-            expect(error).toBe('La question est introuvable.');
+            expect(error).toBe(`${ERROR_QUESTION_NOT_FOUND}`);
         });
         expect(spyGet).toHaveBeenCalled();
     });
@@ -187,7 +188,7 @@ describe('QuestionService', () => {
         const spyGet = jest.spyOn(service, 'getQuestionById').mockResolvedValue(new Question());
         jest.spyOn(questionModel, 'deleteOne').mockRejectedValue('');
         await service.deleteQuestion('').catch((error) => {
-            expect(error).toBe("La question n'a pas pu être supprimée: ");
+            expect(error).toBe(`${ERROR_DEFAULT} `);
         });
         expect(spyGet).toHaveBeenCalled();
     });
@@ -203,7 +204,7 @@ describe('QuestionService', () => {
         const spyValidate = jest.spyOn(gameValidationService, 'findQuestionErrors').mockReturnValue(mockErrorMessages);
         const mockQuestion = new Question();
         await service.validateNewQuestion(mockQuestion).catch((error) => {
-            expect(error).toBe('La question est invalide:\nmock\nmessage');
+            expect(error).toBe(`${ERROR_INVALID_QUESTION}\nmock\nmessage`);
         });
         expect(spyValidate).toHaveBeenCalledWith(mockQuestion);
     });

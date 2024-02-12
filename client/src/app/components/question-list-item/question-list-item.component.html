@@ -29,9 +29,9 @@
             </div>
         </mat-panel-description>
     </mat-expansion-panel-header>
-    <button mat-icon-button color="primary" aria-label="Example icon button with a menu icon" appClickStopPropagation (click)="togglePanel()">
+    <button mat-icon-button color="primary" aria-label="Example icon button with a menu icon" appClickStopPropagation (click)="togglePanel()" (click)="closeComponent()">
         <mat-icon>create</mat-icon>
     </button>
-    <app-create-question *ngIf="isEditable && isPanelExpanded" [question]="question"> </app-create-question>
+    <app-create-question *ngIf="isEditable && isPanelExpanded" [createNewQuestionButton] ="false" [createNewQuestionToBankButton] ="false" [question]="question" > </app-create-question>
     <p>{{ question.text }}</p>
 </mat-expansion-panel>

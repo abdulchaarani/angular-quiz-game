@@ -131,7 +131,6 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
                 this.question.text = formValue?.text;
                 this.question.type = formValue?.type;
                 this.question.points = formValue?.points;
-                //this.question.choices = formValue?.choices;
                 this.question.lastModification = new Date().toLocaleDateString();
 
                 this.questionForm.get('choices')?.valueChanges.subscribe((choices) => {
@@ -156,7 +155,6 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
                     isCorrect: choice.isCorrect
                 });
             }
-            console.log(this.question.choices);
         });
     }
 
@@ -194,7 +192,6 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
             points: this.question?.points,
             type: this.question?.type,
             lastModification: this.question?.lastModification,
-            //choices: this.question?.choices,
         });
 
         const choicesArray = this.questionForm.get('choices') as FormArray;

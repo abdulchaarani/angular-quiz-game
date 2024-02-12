@@ -23,7 +23,7 @@ export class QuestionService extends ApiService<Question> {
     createQuestion(question: Question): Observable<HttpResponse<string>> {
         return this.add(question);
     }
-    
+
     deleteQuestion(questionId: string): Observable<HttpResponse<string>> {
         return this.delete(questionId);
     }

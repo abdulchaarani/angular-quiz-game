@@ -3,7 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { AfterViewInit, Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BankMessages } from '@app/feedback-messages';
+import { BankStatus, QuestionStatus } from '@app/feedback-messages';
 import { CanComponentDeactivate, CanDeactivateType } from '@app/interfaces/can-component-deactivate';
 import { Game } from '@app/interfaces/game';
 import { Question } from '@app/interfaces/question';
@@ -54,6 +54,7 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
 
     private isPendingChangesSubscription: Subscription = new Subscription();
 
+    // eslint-disable-next-line max-params
     constructor(
         private readonly gamesService: GamesService,
         private readonly notificationService: NotificationService,
@@ -145,9 +146,9 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
     addNewQuestion(newQuestion: Question) {
         this.questionService.verifyQuestion(newQuestion).subscribe({
             next: () => {
-                this.notificationService.displaySuccessMessage('Question vérifiée avec succès! 😺');
+                this.notificationService.displaySuccessMessage(QuestionStatus.VERIFIED);
             },
-            error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`Question non vérifiée 😿 \n ${error.message}`),
+            error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`${QuestionStatus.UNVERIFIED} \n ${error.message}`),
         });
         this.game.questions.push(newQuestion);
         this.gamesService.markPendingChanges();
@@ -172,14 +173,15 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
 
     addQuestionToBank(newQuestion: Question) {
         if (!this.isDuplicateQuestion(newQuestion, this.originalBankQuestions)) {
-            this.questionService.createQuestion(newQuestion).subscribe({
+            this.questionService.createQuestion(this.currentQuestion).subscribe({
                 next: () => {
-                    this.notificationService.displaySuccessMessage('Question ajoutée à la banque avec succès! 😺');
-                    this.originalBankQuestions.unshift(newQuestion);
+                    this.notificationService.displaySuccessMessage(BankStatus.SUCCESS);
+                    this.originalBankQuestions.unshift(this.currentQuestion);
                 },
+                error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`${BankStatus.FAILURE}\n ${error.message}`),
             });
-        } else if (this.isDuplicateQuestion(newQuestion, this.originalBankQuestions)) {
-            this.notificationService.displayErrorMessage('Cette question fait déjà partie de la banque! 😾');
+        } else {
+            this.notificationService.displayErrorMessage(BankStatus.DUPLICATE);
         }
     }
 
@@ -210,21 +212,8 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
     async openConfirmDialog() {
         const confirmation$ = this.notificationService.confirmBankUpload(this.currentQuestion.text);
         const confirmation = await lastValueFrom(confirmation$);
-
         if (!confirmation) return;
-
-        if (!this.isDuplicateQuestion(this.currentQuestion, this.originalBankQuestions)) {
-            this.questionService.createQuestion(this.currentQuestion).subscribe({
-                next: () => {
-                    this.notificationService.displaySuccessMessage('Question ajoutée à la banque avec succès! 😺');
-                    this.originalBankQuestions.unshift(this.currentQuestion);
-                },
-                error: (error: HttpErrorResponse) =>
-                    this.notificationService.displayErrorMessage(`La question n'a pas pu être ajoutée. 😿 \n ${error.message}`),
-            });
-        } else {
-            this.notificationService.displayErrorMessage('Cette question fait déjà partie de la banque! 😾');
-        }
+        this.addQuestionToBank(this.currentQuestion);
     }
 
     dropInQuizList(event: CdkDragDrop<Question[]>) {
@@ -260,7 +249,7 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
     }
 
     private setBankMessage() {
-        this.currentBankMessage = this.bankQuestions.length === 0 ? BankMessages.UNAVAILABLE : BankMessages.AVAILABLE;
+        this.currentBankMessage = this.bankQuestions.length === 0 ? BankStatus.UNAVAILABLE : BankStatus.AVAILABLE;
     }
 
     private isDuplicateQuestion(newQuestion: Question, questionList: Question[]): boolean {

@@ -20,13 +20,13 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     modifyingForm: boolean = false;
     questionFormControl = new FormControl('', [Validators.required]);
     questionForm: FormGroup;
+    color: unknown;
+    checked: unknown;
+    disabled: unknown;
 
     private readonly snackBarDisplayTime = 2000;
     private readonly minChoices = 2;
     private readonly maxChoices = 4;
-    color: any;
-    checked: any;
-    disabled: any;
 
     constructor(
         private snackBar: MatSnackBar,
@@ -48,7 +48,6 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
 
     validateChoicesLength(control: AbstractControl): ValidationErrors | null {
         const choices = control.get('choices') as FormArray;
-
         let hasCorrect = false;
         let hasIncorrect = false;
 
@@ -81,7 +80,10 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
 
     drop(event: CdkDragDrop<this>) {
         moveItemInArray(this.choices.controls, event.previousIndex, event.currentIndex);
-        this.updateChoiceNumbers();
+        this.choices.controls.forEach((control, index) => {
+            control.patchValue({ number: index + 1 }, { emitEvent: false });
+        });
+        this.question.choices = this.choices.value;
     }
 
     onSubmitQuestionBank() {
@@ -109,12 +111,6 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
         }
     }
 
-    updateChoiceNumbers() {
-        this.choices.controls.forEach((control, index) => {
-            control.get('number')?.setValue(index + 1);
-        });
-    }
-
     openSnackBar(message: string, duration: number = 0) {
         this.snackBar.open(message, undefined, {
             duration,
@@ -129,24 +125,8 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
                 this.question.points = formValue?.points;
                 this.question.lastModification = new Date().toLocaleDateString();
                 this.question.choices = formValue.choices;
-
-                this.questionForm.get('choices')?.valueChanges.subscribe((choices) => {
-                    if (this.question) {
-                        this.updateChoices(choices);
-                    }
-                });
             });
         }
-    }
-
-    updateChoices(choices: any[]): void {
-        this.question.choices = [];
-        choices.forEach((choice) => {
-            this.question.choices!.push({
-                text: choice.text,
-                isCorrect: choice.isCorrect,
-            });
-        });
     }
 
     ngOnChanges(changes: SimpleChanges): void {

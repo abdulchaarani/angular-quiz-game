@@ -4,7 +4,6 @@ import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Valida
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ManagementState } from '@app/constants/states';
-import { Choice } from '@app/interfaces/choice';
 import { Question } from '@app/interfaces/question';
 export interface DialogManagement {
     modificationState: ManagementState;
@@ -32,7 +31,7 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
 
     constructor(
         private snackBar: MatSnackBar,
-        private fb: FormBuilder,
+        private formBuilder: FormBuilder,
         @Optional() @Inject(MAT_DIALOG_DATA) public dialogData: DialogManagement,
     ) {
         this.initializeForm();
@@ -46,7 +45,7 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     }
 
     buildChoices(): FormGroup {
-        return this.fb.group({
+        return this.formBuilder.group({
             text: ['', Validators.required],
             isCorrect: [false, Validators.required],
         });
@@ -85,8 +84,15 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     }
 
     drop(event: CdkDragDrop<this>) {
-        moveItemInArray(this.choices.controls, event.previousIndex, event.currentIndex);
-        this.updateChoiceNumbers();
+        if (this.questionForm) {
+            moveItemInArray(this.choices.controls, event.previousIndex, event.currentIndex);
+            this.choices.controls.forEach((control, index) => {
+                control.patchValue({ number: index + 1 }, { emitEvent: false });
+            });
+        }
+        if (this.question) {
+            this.question.choices = this.questionForm.value.choices;
+        }
     }
 
     onSubmit() {
@@ -111,12 +117,6 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
         }
     }
 
-    updateChoiceNumbers() {
-        this.choices.controls.forEach((control, index) => {
-            control.get('number')?.setValue(index + 1);
-        });
-    }
-
     openSnackBar(message: string, duration: number = 0) {
         this.snackBar.open(message, undefined, {
             duration,
@@ -133,18 +133,6 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
                 this.question.choices = formValue.choices;
             });
         }
-    }
-
-    updateChoices(choices: Choice[]): void {
-        this.question.choices = [];
-        choices.forEach((choice) => {
-            if (this.question.choices) {
-                this.question.choices.push({
-                    text: choice.text,
-                    isCorrect: choice.isCorrect,
-                });
-            }
-        });
     }
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -172,17 +160,17 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     }
 
     private initializeForm(): void {
-        this.questionForm = this.fb.group(
+        this.questionForm = this.formBuilder.group(
             {
                 text: ['', Validators.required],
                 points: ['', Validators.required],
                 type: ['QCM'],
-                choices: this.fb.array([
-                    this.fb.group({
+                choices: this.formBuilder.array([
+                    this.formBuilder.group({
                         text: ['', Validators.required],
                         isCorrect: [true, Validators.required],
                     }),
-                    this.fb.group({
+                    this.formBuilder.group({
                         text: ['', Validators.required],
                         isCorrect: [false, Validators.required],
                     }),
@@ -205,7 +193,7 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
         this.question.choices?.forEach((choice) => {
             if (choice.text.trim() !== '') {
                 choicesArray.push(
-                    this.fb.group({
+                    this.formBuilder.group({
                         text: choice.text,
                         isCorrect: choice.isCorrect,
                     }),

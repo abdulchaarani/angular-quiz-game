@@ -74,7 +74,6 @@
                         [index]="game.questions.indexOf(question) + 1"
                         [question]="question"
                         [isBankQuestion]="false"
-                        [isLastModifiedDateVisible]="true"
                         (deleteQuestionEvent)="deleteQuestion($event)"
                         (cdkDragStarted)="dragQuizQuestion(question)"
                         (cdkDragEnded)="dropQuizQuestion($event)"

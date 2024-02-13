@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { QuestionManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
 // import { QuestionService } from '@app/services/question.service';
@@ -9,10 +9,9 @@ import { Question } from '@app/interfaces/question';
     templateUrl: './question-list-item.component.html',
     styleUrls: ['./question-list-item.component.scss'],
 })
-export class QuestionListItemComponent {
+export class QuestionListItemComponent implements OnInit {
     @Input() question: Question;
     @Input() index: number;
-    @Input() isLastModifiedDateVisible: boolean;
     @Input() isBankQuestion: boolean;
     @Output() deleteQuestionEvent = new EventEmitter<string>();
     @Output() questionUpdated = new EventEmitter<Question>();
@@ -23,7 +22,7 @@ export class QuestionListItemComponent {
 
     modificationState: QuestionManagementState;
 
-    constructor() {
+    ngOnInit() {
         this.modificationState = this.isBankQuestion ? QuestionManagementState.BankModify : QuestionManagementState.GameModify;
     }
 

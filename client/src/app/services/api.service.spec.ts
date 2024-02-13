@@ -125,12 +125,11 @@ describe('ApiService', () => {
             statusText: 'Not Found',
         });
 
-        const handleErrorFn = gamesService.handleError('TestRequest');
+        const handleErrorFn = gamesService.handleError();
         const errorObservable = handleErrorFn(mockError);
 
         errorObservable.subscribe({
             error: (error) => {
-                expect(error.message).toContain('TestRequest');
                 expect(error.message).toContain('Mock error message');
             },
         });

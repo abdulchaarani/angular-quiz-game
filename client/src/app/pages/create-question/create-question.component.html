@@ -52,10 +52,10 @@
                         Ajouter à la banque de questions
                     </mat-slide-toggle>
                 </div> -->
-                <div *ngIf="createNewQuestionButton">
+                <div>
                     <button mat-raised-button color="primary" type="submit" class="submit-button" [disabled]="!questionForm.valid">
                         <mat-icon>check</mat-icon>
-                        {{ this.modificationState ? 'Ajouter la question à la banque' : 'Vérifier si la question est valide' }}
+                        {{ getButtonText() }}
                     </button>
                 </div>
             </div>

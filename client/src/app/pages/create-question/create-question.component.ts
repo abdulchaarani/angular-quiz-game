@@ -5,7 +5,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { QuestionManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
-export interface DialogCreate {
+export interface DialogManagement {
     modificationState: QuestionManagementState;
 }
 @Component({
@@ -34,7 +34,7 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     constructor(
         private snackBar: MatSnackBar,
         private fb: FormBuilder,
-        @Optional() @Inject(MAT_DIALOG_DATA) public dialogData: DialogCreate,
+        @Optional() @Inject(MAT_DIALOG_DATA) public dialogData: DialogManagement,
     ) {
         this.initializeForm();
         if (dialogData) {
@@ -140,6 +140,17 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
         if (changes.question && this.question) {
             this.modifyingForm = true;
             this.updateFormValues();
+        }
+    }
+
+    getButtonText() {
+        switch (this.modificationState) {
+            case QuestionManagementState.BankCreate:
+                return 'Ajouter la question à la banque';
+            case QuestionManagementState.GameCreate:
+                return 'Vérifier si la question est valide';
+            case QuestionManagementState.Modify:
+                return 'Modifier la question';
         }
     }
 

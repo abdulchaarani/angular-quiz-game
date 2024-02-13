@@ -88,26 +88,24 @@ describe('MatchService', () => {
 
     it('validatePlayerChoice() should return true only if all choices from player are correct', () => {
         const mockQuestion = getMockQuestionWithChoices();
-        const spyGetBackupQuestion = jest.spyOn(service, 'getBackupQuestion').mockReturnValue(mockQuestion);
-        const correctPlayerTry = service.validatePlayerChoice('', '', [FIRST_CORRECT_CHOICE.text, SECOND_CORRECT_CHOICE.text]);
+        const correctPlayerTry = service.validatePlayerChoice(mockQuestion, [FIRST_CORRECT_CHOICE.text, SECOND_CORRECT_CHOICE.text]);
         expect(correctPlayerTry).toBe(true);
-        expect(spyGetBackupQuestion).toHaveBeenCalled();
     });
 
     it('validatePlayerChoice() should return false if at least one choice from player is incorrect', () => {
         const mockQuestion = getMockQuestionWithChoices();
-        const spyGetBackupQuestion = jest.spyOn(service, 'getBackupQuestion').mockReturnValue(mockQuestion);
-        const correctPlayerTry = service.validatePlayerChoice('', '', [FIRST_CORRECT_CHOICE.text, SECOND_CORRECT_CHOICE.text, INCORRECT_CHOICE.text]);
+        const correctPlayerTry = service.validatePlayerChoice(mockQuestion, [
+            FIRST_CORRECT_CHOICE.text,
+            SECOND_CORRECT_CHOICE.text,
+            INCORRECT_CHOICE.text,
+        ]);
         expect(correctPlayerTry).toBe(false);
-        expect(spyGetBackupQuestion).toHaveBeenCalled();
     });
 
     it('validatePlayerChoice() should return false if the player does not submit ALL correct choices.', () => {
         const mockQuestion = getMockQuestionWithChoices();
-        const spyGetBackupQuestion = jest.spyOn(service, 'getBackupQuestion').mockReturnValue(mockQuestion);
-        const correctPlayerTry = service.validatePlayerChoice('', '', [FIRST_CORRECT_CHOICE.text]);
+        const correctPlayerTry = service.validatePlayerChoice(mockQuestion, [FIRST_CORRECT_CHOICE.text]);
         expect(correctPlayerTry).toBe(false);
-        expect(spyGetBackupQuestion).toHaveBeenCalled();
     });
 
     it('saveBackupGame() should get the game from database, add it to the backup data, and return the game without isCorrect property', async () => {
@@ -132,19 +130,19 @@ describe('MatchService', () => {
         expect(spyGetGameById).toHaveBeenCalled();
     });
 
-    it('deleteBackupGame() should delete one game with the corresponding ID from the backup data', async () => {
+    it('deleteBackupGame() should delete one game with the corresponding ID from the backup data', () => {
         const mockGame = new Game();
         mockGame.id = '0';
         service.backupGames = [mockGame, mockGame];
-        await service.deleteBackupGame('0');
+        const isDeleted = service.deleteBackupGame('0');
+        expect(isDeleted).toBeTruthy();
         expect(service.backupGames.length).toBe(1);
     });
 
-    it('deleteBackupGame() should reject if the game cannot be found', async () => {
+    it('deleteBackupGame() should reject if the game cannot be found', () => {
         service.backupGames = [new Game()];
-        await service.deleteBackupGame('').catch((error) => {
-            expect(error).toBe(`${ERROR_GAME_NOT_FOUND}`);
-        });
+        const isDeleted = service.deleteBackupGame('');
+        expect(isDeleted).toBeFalsy();
         expect(service.backupGames.length).toBe(1);
     });
 

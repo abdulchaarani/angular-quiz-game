@@ -78,7 +78,10 @@ describe('HomePageComponent', () => {
         component.password = 'mock';
         component.openDialog();
         expect(dialogMock.open).toHaveBeenCalledWith(DialogAdminPasswordComponent, { data: { password: 'mock' } });
-        dialogMock.closeAll;
+        const closeDialog = () => {
+            return dialogMock.closeAll;
+        };
+        closeDialog();
         expect(submitPasswordSpy).toHaveBeenCalled();
     });
 

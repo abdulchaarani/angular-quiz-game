@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
-import { QuestionManagementState } from '@app/constants/states';
+import { ManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
 
 @Component({
@@ -15,10 +15,10 @@ export class QuestionListItemComponent implements OnInit {
     @Output() updateQuestionEvent = new EventEmitter<Question>();
 
     questions: Question[] = [];
-    modificationState: QuestionManagementState;
+    modificationState: ManagementState;
 
     ngOnInit() {
-        this.modificationState = this.isBankQuestion ? QuestionManagementState.BankModify : QuestionManagementState.GameModify;
+        this.modificationState = this.isBankQuestion ? ManagementState.BankModify : ManagementState.GameModify;
     }
 
     deleteQuestion() {

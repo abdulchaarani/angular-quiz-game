@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Question } from '@app/interfaces/question';
 import { ApiService } from './api.service';
-import { QuestionManagementState } from '@app/constants/states';
+import { ManagementState } from '@app/constants/states';
 import { CreateQuestionComponent, DialogManagement } from '@app/pages/create-question/create-question.component';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 @Injectable({
@@ -42,7 +42,7 @@ export class QuestionService extends ApiService<Question> {
         return this.update(modifiedQuestion, modifiedQuestion.id);
     }
 
-    openCreateQuestionModal(modificationState: QuestionManagementState) {
+    openCreateQuestionModal(modificationState: ManagementState) {
         const manageConfig: MatDialogConfig<DialogManagement> = {
             data: {
                 modificationState,

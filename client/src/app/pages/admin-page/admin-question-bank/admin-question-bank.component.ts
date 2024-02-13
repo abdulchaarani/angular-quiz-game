@@ -1,7 +1,7 @@
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { QuestionManagementState } from '@app/constants/states';
+import { ManagementState } from '@app/constants/states';
 import { BankStatus } from '@app/constants/feedback-messages';
 import { Question } from '@app/interfaces/question';
 import { NotificationService } from '@app/services/notification.service';
@@ -77,7 +77,7 @@ export class AdminQuestionBankComponent implements OnInit {
 
     openDialog() {
         if (!this.dialogState) {
-            const dialogRef = this.questionService.openCreateQuestionModal(QuestionManagementState.BankCreate);
+            const dialogRef = this.questionService.openCreateQuestionModal(ManagementState.BankCreate);
 
             dialogRef.componentInstance.createQuestionEvent.subscribe((newQuestion: Question) => {
                 if (newQuestion) {

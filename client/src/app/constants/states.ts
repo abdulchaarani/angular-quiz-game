@@ -1,4 +1,4 @@
-export enum QuestionManagementState {
+export enum ManagementState {
     BankCreate,
     GameCreate,
     BankModify,

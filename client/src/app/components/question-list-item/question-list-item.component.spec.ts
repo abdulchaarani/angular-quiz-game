@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Question } from '@app/interfaces/question';
 import { QuestionListItemComponent } from './question-list-item.component';
-import { QuestionManagementState } from '@app/constants/states';
+import { ManagementState } from '@app/constants/states';
 
 describe('QuestionListItemComponent', () => {
     let component: QuestionListItemComponent;
@@ -60,12 +60,12 @@ describe('QuestionListItemComponent', () => {
     it('should set modificationState to BankModify if it is a bank question', () => {
         component.isBankQuestion = true;
         component.ngOnInit();
-        expect(component.modificationState).toBe(QuestionManagementState.BankModify);
+        expect(component.modificationState).toBe(ManagementState.BankModify);
     });
 
     it('should set modificationState to GameModify if it is not a bank question', () => {
         component.isBankQuestion = false;
         component.ngOnInit();
-        expect(component.modificationState).toBe(QuestionManagementState.GameModify);
+        expect(component.modificationState).toBe(ManagementState.GameModify);
     });
 });

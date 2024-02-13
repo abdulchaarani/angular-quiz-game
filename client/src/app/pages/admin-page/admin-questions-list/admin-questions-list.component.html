@@ -1,6 +1,6 @@
 <div class="main-container" [class.sidenav-active]="isSideBarActive">
     <mat-drawer-container class="bank-container container" autosize>
-        <h1 class="page-title">{{ this.state === 'modify' ? 'Modification' : 'Création' }} du jeu</h1>
+        <h1 class="page-title">{{ getTitle() }} du jeu</h1>
         <mat-icon class="pending-changes" *ngIf="this.isPendingChanges">circle</mat-icon>
 
         <div class="buttons-container buttons-rack">
@@ -12,7 +12,7 @@
                     (click)="handleSubmit()"
                     [disabled]="gameForm.invalid || game.questions.length === 0"
                 >
-                    <mat-icon>done</mat-icon> {{ this.state === 'modify' ? 'Appliquer les modifications' : 'Créer le jeu' }}
+                    <mat-icon>done</mat-icon> {{ getButtonText() }}
                 </button>
             </div>
 

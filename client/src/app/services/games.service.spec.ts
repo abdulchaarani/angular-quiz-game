@@ -6,6 +6,7 @@ import { Game } from '@app/interfaces/game';
 import { MatDialogMock } from '@app/testing/mat-dialog-mock';
 import { of } from 'rxjs';
 import { GamesService } from './games.service';
+import { ManagementState } from '@app/constants/states';
 
 describe('GameService', () => {
     let service: GamesService;
@@ -84,15 +85,15 @@ describe('GameService', () => {
     it('should submit a modified game if in modify state', () => {
         const replaceGameSpy = spyOn(service, 'replaceGame').and.callThrough();
         const uploadGameSpy = spyOn(service, 'uploadGame').and.callThrough();
-        service.submitGame(newMockGame, 'modify');
+        service.submitGame(newMockGame, ManagementState.GameModify);
         expect(replaceGameSpy).toHaveBeenCalledWith(newMockGame);
         expect(uploadGameSpy).not.toHaveBeenCalled();
     });
 
-    it('should upload a game if not in modify state', () => {
+    it('should upload a game if not in create state', () => {
         const replaceGameSpy = spyOn(service, 'replaceGame').and.callThrough();
         const uploadGameSpy = spyOn(service, 'uploadGame').and.callThrough();
-        service.submitGame(newMockGame, 'notModify');
+        service.submitGame(newMockGame, ManagementState.GameCreate);
         expect(uploadGameSpy).toHaveBeenCalledWith(newMockGame);
         expect(replaceGameSpy).not.toHaveBeenCalled();
     });

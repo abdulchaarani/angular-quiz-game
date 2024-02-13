@@ -7,6 +7,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Question } from '@app/interfaces/question';
 import { CreateQuestionComponent } from './create-question.component';
+import { QuestionManagementState } from '@app/constants/states';
 
 const mockQuestion: Question = {
     id: '1',
@@ -39,7 +40,6 @@ describe('CreateQuestionComponent', () => {
         snackBarSpy = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
         fixture = TestBed.createComponent(CreateQuestionComponent);
         component = fixture.componentInstance;
-
         fixture.detectChanges();
 
         component.questionForm.setValue({
@@ -201,5 +201,23 @@ describe('CreateQuestionComponent', () => {
             component.addChoice();
         }
         expect(snackBarSpy.open).toHaveBeenCalled();
+    it('should return the correct button text for BankCreate state', () => {
+        component.modificationState = QuestionManagementState.BankCreate;
+        expect(component.getButtonText()).toBe('Ajouter la question à la banque');
+    });
+
+    it('should return the correct button text for GameCreate state', () => {
+        component.modificationState = QuestionManagementState.GameCreate;
+        expect(component.getButtonText()).toBe('Vérifier si la question est valide');
+    });
+
+    it('should return the correct button text for BankModify state', () => {
+        component.modificationState = QuestionManagementState.BankModify;
+        expect(component.getButtonText()).toBe('Modifier la question');
+    });
+
+    it('should return an empty string for an GameModify state', () => {
+        component.modificationState = QuestionManagementState.GameModify;
+        expect(component.getButtonText()).toBe('Modifier la question');
     });
 });

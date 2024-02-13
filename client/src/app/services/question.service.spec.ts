@@ -2,7 +2,6 @@ import { TestBed } from '@angular/core/testing';
 import { QuestionService } from './question.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Question } from '@app/interfaces/question';
-// import { Observable } from 'rxjs';
 
 describe('QuestionService', () => {
     let questionService: QuestionService;

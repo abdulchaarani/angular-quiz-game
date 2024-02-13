@@ -66,14 +66,14 @@ export class MatchService {
         }
     }
 
-    async deleteBackupGame(gameToDeleteId: string): Promise<void> {
+    deleteBackupGame(gameToDeleteId: string): boolean {
         const deleteIndex = this.backupGames.findIndex((game: Game) => game.id === gameToDeleteId);
         const notFoundIndex = -1;
         if (deleteIndex !== notFoundIndex) {
             this.backupGames.splice(deleteIndex, 1);
-        } else {
-            return Promise.reject(`${ERROR_GAME_NOT_FOUND}`);
+            return true;
         }
+        return false;
     }
 
     removeIsCorrectField(game: Game): Game {

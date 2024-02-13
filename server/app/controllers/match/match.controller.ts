@@ -1,3 +1,4 @@
+import { ERROR_GAME_NOT_FOUND, ERROR_QUESTION_NOT_FOUND } from '@app/constants/request-errors';
 import { MatchService } from '@app/services/match/match.service';
 import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Res } from '@nestjs/common';
 import { Response } from 'express';
@@ -31,12 +32,12 @@ export class MatchController {
     }
 
     @Get('/backups/:gameId/questions/:questionId/choices')
-    async allChoices(@Param('gameId') gameId: string, @Param('questionId') questionId: string, @Res() response: Response) {
-        try {
-            const choices = await this.matchService.getChoices(gameId, questionId);
+    allChoices(@Param('gameId') gameId: string, @Param('questionId') questionId: string, @Res() response: Response) {
+        const choices = this.matchService.getChoices(gameId, questionId);
+        if (choices) {
             response.status(HttpStatus.OK).json(choices);
-        } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send({ message: error.message });
+        } else {
+            response.status(HttpStatus.NOT_FOUND).send({ message: ERROR_QUESTION_NOT_FOUND });
         }
     }
 
@@ -56,12 +57,12 @@ export class MatchController {
     }
 
     @Get('/backups/:gameId')
-    async getBackupGame(@Param('gameId') gameId: string, @Res() response: Response) {
-        try {
-            const backupGame = await this.matchService.getBackupGame(gameId);
+    getBackupGame(@Param('gameId') gameId: string, @Res() response: Response) {
+        const backupGame = this.matchService.getBackupGame(gameId);
+        if (backupGame) {
             response.status(HttpStatus.OK).json(backupGame);
-        } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send({ message: error.message });
+        } else {
+            response.status(HttpStatus.NOT_FOUND).send({ message: ERROR_GAME_NOT_FOUND });
         }
     }
 
@@ -77,11 +78,11 @@ export class MatchController {
 
     @Delete('/backups/:gameId')
     async deleteBackupGame(@Param('gameId') gameId: string, @Res() response: Response) {
-        try {
-            await this.matchService.deleteBackupGame(gameId);
+        const isDeleted = this.matchService.deleteBackupGame(gameId);
+        if (isDeleted) {
             response.status(HttpStatus.NO_CONTENT).send();
-        } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send({ message: error.message });
+        } else {
+            response.status(HttpStatus.NOT_FOUND).send({ message: ERROR_GAME_NOT_FOUND });
         }
     }
 }

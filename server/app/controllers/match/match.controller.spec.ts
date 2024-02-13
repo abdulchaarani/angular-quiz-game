@@ -84,9 +84,9 @@ describe('MatchController', () => {
         await controller.gameByIdWithoutIsCorrect('', res);
     });
 
-    it('allChoices() should return all question choices', async () => {
+    it('allChoices() should return all question choices', () => {
         const mockChoices = [new Choice(), new Choice()];
-        matchService.getChoices.resolves(mockChoices);
+        const spyGetChoices = jest.spyOn(matchService, 'getChoices').mockReturnValue(mockChoices);
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.OK);
@@ -96,18 +96,20 @@ describe('MatchController', () => {
             expect(choices).toEqual(mockChoices);
             return res;
         };
-        await controller.allChoices('', '', res);
+        controller.allChoices('', '', res);
+        expect(spyGetChoices).toHaveBeenCalled();
     });
 
-    it('allChoices() should return NOT_FOUND if service cannot get choices', async () => {
-        matchService.getChoices.rejects();
+    it('allChoices() should return NOT_FOUND if service cannot get choices', () => {
+        const spyGetChoices = jest.spyOn(matchService, 'getChoices').mockReturnValue(undefined);
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.NOT_FOUND);
             return res;
         };
         res.send = () => res;
-        await controller.allChoices('', '', res);
+        controller.allChoices('', '', res);
+        expect(spyGetChoices).toHaveBeenCalled();
     });
 
     it('validatePlayerChoice() should return OK with true value in body if validatePlayerChoice returns true', async () => {
@@ -149,9 +151,9 @@ describe('MatchController', () => {
         await controller.validatePlayerChoice('', '', { selected: [''] }, res);
     });
 
-    it('getBackupGame() should return the backup game with the corresponding ID', async () => {
+    it('getBackupGame() should return the backup game with the corresponding ID', () => {
         const mockGame = new Game();
-        matchService.getBackupGame.resolves(mockGame);
+        const spyGet = jest.spyOn(matchService, 'getBackupGame').mockReturnValue(mockGame);
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.OK);
@@ -161,17 +163,19 @@ describe('MatchController', () => {
             expect(game).toEqual(mockGame);
             return res;
         };
-        await controller.getBackupGame('', res);
+        controller.getBackupGame('', res);
+        expect(spyGet).toHaveBeenCalled();
     });
-    it('getBackupGame() should return NOT_FOUND if the backup game cannot be found', async () => {
-        matchService.getBackupGame.rejects();
+    it('getBackupGame() should return NOT_FOUND if the backup game cannot be found', () => {
+        const spyGet = jest.spyOn(matchService, 'getBackupGame').mockReturnValue(undefined);
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.NOT_FOUND);
             return res;
         };
         res.send = () => res;
-        await controller.getBackupGame('', res);
+        controller.getBackupGame('', res);
+        expect(spyGet).toHaveBeenCalled();
     });
     it('saveBackupGame() should save ("create") backup game locally in the server and return a copy of the game', async () => {
         const mockGame = new Game();
@@ -197,24 +201,26 @@ describe('MatchController', () => {
         res.send = () => res;
         await controller.saveBackupGame('', res);
     });
-    it('deleteBackupGame() should delete the backup and return NO CONTENT', async () => {
-        matchService.deleteBackupGame.resolves();
+    it('deleteBackupGame() should delete the backup and return NO CONTENT', () => {
+        const spyDelete = jest.spyOn(matchService, 'deleteBackupGame').mockReturnValue(true);
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.NO_CONTENT);
             return res;
         };
         res.send = () => res;
-        await controller.deleteBackupGame('', res);
+        controller.deleteBackupGame('', res);
+        expect(spyDelete).toHaveBeenCalled();
     });
-    it('deleteBackupGame() should return NOT FOUND if backup cannot be deleted', async () => {
-        matchService.deleteBackupGame.rejects();
+    it('deleteBackupGame() should return NOT FOUND if backup cannot be deleted', () => {
+        const spyDelete = jest.spyOn(matchService, 'deleteBackupGame').mockReturnValue(false);
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.NOT_FOUND);
             return res;
         };
         res.send = () => res;
-        await controller.deleteBackupGame('', res);
+        controller.deleteBackupGame('', res);
+        expect(spyDelete).toHaveBeenCalled();
     });
 });

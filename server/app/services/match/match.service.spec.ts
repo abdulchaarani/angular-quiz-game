@@ -132,19 +132,19 @@ describe('MatchService', () => {
         expect(spyGetGameById).toHaveBeenCalled();
     });
 
-    it('deleteBackupGame() should delete one game with the corresponding ID from the backup data', async () => {
+    it('deleteBackupGame() should delete one game with the corresponding ID from the backup data', () => {
         const mockGame = new Game();
         mockGame.id = '0';
         service.backupGames = [mockGame, mockGame];
-        await service.deleteBackupGame('0');
+        const isDeleted = service.deleteBackupGame('0');
+        expect(isDeleted).toBeTruthy();
         expect(service.backupGames.length).toBe(1);
     });
 
-    it('deleteBackupGame() should reject if the game cannot be found', async () => {
+    it('deleteBackupGame() should reject if the game cannot be found', () => {
         service.backupGames = [new Game()];
-        await service.deleteBackupGame('').catch((error) => {
-            expect(error).toBe(`${ERROR_GAME_NOT_FOUND}`);
-        });
+        const isDeleted = service.deleteBackupGame('');
+        expect(isDeleted).toBeFalsy();
         expect(service.backupGames.length).toBe(1);
     });
 

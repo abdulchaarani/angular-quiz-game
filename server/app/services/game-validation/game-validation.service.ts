@@ -19,6 +19,7 @@ import {
     ERROR_QUESTIONS_NUMBER,
     ERROR_REPEAT_CHOICES,
 } from '@app/constants/game-validation-errors';
+import { questionTypes } from '@app/constants/question-types';
 import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question-dto';
@@ -108,10 +109,10 @@ export class GameValidationService {
             errorMessages.push(ERROR_QUESTIONS_NUMBER);
         }
         game.questions.forEach((question: CreateQuestionDto, index: number) => {
-            let questionErrorMessages;
-            if (question.type === 'QRL') {
+            let questionErrorMessages: string[];
+            if (question.type === questionTypes.LONG) {
                 questionErrorMessages = this.findGeneralQuestionErrors(question);
-            } else if (question.type === 'QCM') {
+            } else if (question.type === questionTypes.CHOICE) {
                 questionErrorMessages = this.findChoicesQuestionErrors(question);
             }
             if (questionErrorMessages.length !== 0) {

@@ -10,7 +10,7 @@ import {
 
 const ERROR_REPEAT_CHOICES = 'Il ne doit pas y avoir deux choix identiques dans une question.';
 const ERROR_CHOICES_NUMBER = `Il doit y avoir entre ${MIN_CHOICES_NUMBER} et ${MAX_CHOICES_NUMBER} choix.`;
-const ERROR_POINTS = `Les ERROR_POINTS doivent être entre ${MIN_POINTS} et ${MAX_POINTS} et divisibles par ${STEP_POINTS}`;
+const ERROR_POINTS = `Les points doivent être entre ${MIN_POINTS} et ${MAX_POINTS} et divisibles par ${STEP_POINTS}`;
 const ERROR_EMPTY_QUESTION = 'Le texte de la question ne doit pas être vide.';
 const ERROR_CHOICES_RATIO = 'Il doit y avoir au moins un choix valide et un choix invalide.';
 const ERROR_EMPTY_TITLE = 'Le titre du jeu est vide.';

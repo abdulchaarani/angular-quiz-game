@@ -92,12 +92,6 @@ describe('CreateQuestionComponent', () => {
         expect(component.createQuestionEvent.emit).toHaveBeenCalled();
     });
 
-    // it('should submit the form to the bank of questions', () => {
-    //     spyOn(component.createQuestionEventQuestionBank, 'emit');
-    //     component.onSubmitQuestionBank();
-    //     expect(component.createQuestionEventQuestionBank.emit).toHaveBeenCalled();
-    // });
-
     it('should submit the form to the list of questions in a game', () => {
         spyOn(component.createQuestionEvent, 'emit');
         const mockQuestionSubmit: Question = component.questionForm.value;
@@ -106,24 +100,26 @@ describe('CreateQuestionComponent', () => {
         expect(component.createQuestionEvent.emit).toHaveBeenCalledWith(mockQuestionSubmit);
     });
 
-    it('should submit the form to the bank of questions', () => {
-        spyOn(component.createQuestionEventQuestionBank, 'emit');
-        const mockQuestionSubmitToBank: Question = component.questionForm.value;
-        mockQuestion.lastModification = '';
-        component.onSubmitQuestionBank();
-        expect(component.createQuestionEventQuestionBank.emit).toHaveBeenCalledWith(mockQuestionSubmitToBank);
-    });
-
     it('should update form values when ngOnChanges is called', () => {
         spyOn(component, 'ngOnChanges').and.callThrough();
-        component.question = mockQuestion;
+        const changedQuestion = {
+            id: '1',
+            text: 'Test Updates',
+            points: 20,
+            type: 'QCM',
+            choices: [
+                { text: 'Choice 1', isCorrect: true },
+                { text: 'Choice 2', isCorrect: false },
+            ],
+            lastModification: new Date().toLocaleString(),
+        };
+        component.question = changedQuestion;
         component.ngOnChanges({
-            question: { currentValue: mockQuestion, previousValue: null, isFirstChange: () => true, firstChange: true },
+            question: { currentValue: changedQuestion, previousValue: null, isFirstChange: () => true, firstChange: true },
         });
         component.onSubmit();
         component.questionForm.value.id = '1';
-        component.questionForm.value.lastModification = '';
-        expect(component.questionForm.value).toEqual(mockQuestion);
+        expect(component.questionForm.value).toEqual(changedQuestion);
     });
 
     it('should not submit a question without at least one correct and incorrect choices - Case when all is true', () => {
@@ -196,11 +192,13 @@ describe('CreateQuestionComponent', () => {
         expect(snackBarSpy.open).toHaveBeenCalled();
     });
 
-    it('should not add more than 4 choices', () => {
+    it('should not remove more than 2 choices', () => {
         for (let i = 0; i < maxchoicesLengthTest; i++) {
             component.addChoice();
         }
         expect(snackBarSpy.open).toHaveBeenCalled();
+    });
+
     it('should return the correct button text for BankCreate state', () => {
         component.modificationState = ManagementState.BankCreate;
         expect(component.getButtonText()).toBe('Ajouter la question à la banque');

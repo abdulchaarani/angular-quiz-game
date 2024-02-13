@@ -54,7 +54,7 @@ export class AdminQuestionBankComponent implements OnInit {
             next: (response: HttpResponse<string>) => {
                 if (response.body) {
                     newQuestion = JSON.parse(response.body);
-                    this.questions.unshift(newQuestion);
+                    this.questions.push(newQuestion);
                     this.notificationService.displaySuccessMessage(BankStatus.SUCCESS);
                 }
             },

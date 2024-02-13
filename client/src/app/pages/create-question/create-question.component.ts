@@ -111,6 +111,12 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
         }
     }
 
+    updateChoiceNumbers() {
+        this.choices.controls.forEach((control, index) => {
+            control.get('number')?.setValue(index + 1);
+        });
+    }
+
     openSnackBar(message: string, duration: number = 0) {
         this.snackBar.open(message, undefined, {
             duration,

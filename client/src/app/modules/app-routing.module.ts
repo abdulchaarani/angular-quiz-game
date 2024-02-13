@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { ManagementState } from '@app/constants/states';
-import { AuthenticationGuard } from '@app/guards/authentication.guard';
+import { authenticationGuard } from '@app/guards/authentication.guard';
 import { pendingChangesGuard } from '@app/guards/pending-changes.guard';
 import { AdminPageComponent } from '@app/pages/admin-page/admin-main-page/admin-page.component';
 import { AdminQuestionBankComponent } from '@app/pages/admin-page/admin-question-bank/admin-question-bank.component';
@@ -18,7 +18,7 @@ const routes: Routes = [
     { path: 'home', component: HomePageComponent },
     {
         path: 'admin',
-        canActivate: [AuthenticationGuard],
+        canActivate: [authenticationGuard],
         children: [
             { path: 'bank', component: AdminQuestionBankComponent },
             { path: 'games', component: AdminPageComponent },

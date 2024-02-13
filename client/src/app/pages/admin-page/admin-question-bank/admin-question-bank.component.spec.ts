@@ -123,9 +123,9 @@ describe('AdminQuestionBankComponent', () => {
     it('should keep ordering by earliest date after adding a question', () => {
         component.addQuestion(newQuestionMock);
 
-        expect(component.questions[0]).toEqual(newQuestionMock);
-        expect(component.questions[1]).toEqual(mockQuestions[1]);
-        expect(component.questions[2]).toEqual(mockQuestions[0]);
+        expect(component.questions[0]).toEqual(mockQuestions[1]);
+        expect(component.questions[1]).toEqual(mockQuestions[0]);
+        expect(component.questions[2]).toEqual(newQuestionMock);
     });
 
     it('should return false when questionList is empty', () => {

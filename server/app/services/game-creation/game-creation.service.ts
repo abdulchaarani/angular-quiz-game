@@ -30,7 +30,7 @@ export class GameCreationService {
     completeIsCorrectChoice(question: Question): Question {
         if (question.type !== 'QRL') {
             question.choices.forEach((choice: Choice) => {
-                if (choice.isCorrect !== true && choice.isCorrect !== false) {
+                if (choice.isCorrect !== true) {
                     choice.isCorrect = false;
                 }
             });

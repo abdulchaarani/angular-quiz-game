@@ -86,10 +86,7 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
 
     drop(event: CdkDragDrop<this>) {
         moveItemInArray(this.choices.controls, event.previousIndex, event.currentIndex);
-        this.choices.controls.forEach((control, index) => {
-            control.patchValue({ number: index + 1 }, { emitEvent: false });
-        });
-        this.question.choices = this.choices.value;
+        this.updateChoiceNumbers();
     }
 
     onSubmit() {
@@ -130,6 +127,18 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
                 this.question.choices = formValue.choices;
             });
         }
+    }
+
+    updateChoices(choices: Choice[]): void {
+        this.question.choices = [];
+        choices.forEach((choice) => {
+            if (this.question.choices) {
+                this.question.choices.push({
+                    text: choice.text,
+                    isCorrect: choice.isCorrect,
+                });
+            }
+        });
     }
 
     ngOnChanges(changes: SimpleChanges): void {

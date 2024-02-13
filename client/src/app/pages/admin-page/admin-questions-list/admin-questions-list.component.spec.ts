@@ -12,7 +12,7 @@ import { SortByLastModificationPipe } from '@app/pipes/sort-by-last-modification
 import { GamesService } from '@app/services/games.service';
 import { NotificationService } from '@app/services/notification.service';
 import { QuestionService } from '@app/services/question.service';
-import { of, throwError } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 import { AdminQuestionsListComponent } from './admin-questions-list.component';
 import { BankStatus, GameStatus, QuestionStatus } from '@app/feedback-messages';
 import { CdkDragDrop, CdkDragEnd } from '@angular/cdk/drag-drop';
@@ -184,18 +184,21 @@ describe('AdminQuestionsListComponent', () => {
         expect(result).toBeTrue();
     });
 
-    // it('should return a Subject<boolean> when there are pending changes', () => {
-    //     component.isPendingChanges = true;
+    it('should return a subject when there are pending changes', () => {
+        component.isPendingChanges = true;
+        const confirmSubject = new Subject<boolean>();
+        notificationServiceSpy.openPendingChangesConfirmDialog.and.returnValue(confirmSubject);
+        const result = component.canDeactivate();
+        expect(result instanceof Subject).toBeTrue();
+    });
 
-    //     const confirmSubject = new Subject<boolean>();
-    //     notificationServiceSpy.openPendingChangesConfirmDialog.and.returnValue(confirmSubject);
-
-    //     const result = component.canDeactivate();
-
-    //     expect(result).toBeInstanceOf(Subject);
-
-    //     confirmSubject.complete();
-    // });
+    it('should call openPendingChangesConfirmDialog when there are pending changes', () => {
+        component.isPendingChanges = true;
+        const confirmSubject = new Subject<boolean>();
+        notificationServiceSpy.openPendingChangesConfirmDialog.and.returnValue(confirmSubject);
+        component.canDeactivate();
+        expect(notificationServiceSpy.openPendingChangesConfirmDialog).toHaveBeenCalled();
+    });
 
     it('should set game and form values correctly', () => {
         gamesServiceSpy.getGameById.and.returnValue(of(mockGame));
@@ -450,5 +453,22 @@ describe('AdminQuestionsListComponent', () => {
 
         component.dropInQuizList(mockDragDropEvent);
         expect(component['notificationService'].displayErrorMessage).toHaveBeenCalled();
+    });
+
+    it('should prompt user to confirm adding question to bank', async () => {
+        const mockConfirmation = true;
+        component.currentQuestion = mockBankQuestions[0];
+        notificationServiceSpy.confirmBankUpload.and.returnValue(of(mockConfirmation));
+        await component.openConfirmDialog();
+        expect(notificationServiceSpy.confirmBankUpload).toHaveBeenCalled();
+    });
+
+    it('should not add question to bank if user cancels on confirmation dialog', async () => {
+        const mockConfirmation = false;
+        component.currentQuestion = mockBankQuestions[0];
+        notificationServiceSpy.confirmBankUpload.and.returnValue(of(mockConfirmation));
+        await component.openConfirmDialog();
+        expect(notificationServiceSpy.confirmBankUpload).toHaveBeenCalled();
+        expect(questionServiceSpy.createQuestion).not.toHaveBeenCalled();
     });
 });

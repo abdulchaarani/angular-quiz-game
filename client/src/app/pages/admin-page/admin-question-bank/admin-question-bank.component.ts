@@ -88,7 +88,7 @@ export class AdminQuestionBankComponent implements OnInit {
 
     openDialog() {
         if (!this.dialogState) {
-            const dialogRef = this.notificationService.openCreateQuestionModal(QuestionManagementState.BankCreate);
+            const dialogRef = this.questionService.openCreateQuestionModal(QuestionManagementState.BankCreate);
 
             dialogRef.componentInstance.createQuestionEvent.subscribe((newQuestion: Question) => {
                 if (newQuestion) {

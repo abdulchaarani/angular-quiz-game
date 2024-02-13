@@ -141,16 +141,14 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
     }
 
     addQuestionToGame(newQuestion: Question) {
-        if (!this.isDuplicateQuestion(newQuestion, this.game.questions)) {
-            this.questionService.verifyQuestion(newQuestion).subscribe({
-                next: () => {
-                    this.notificationService.displaySuccessMessage(QuestionStatus.VERIFIED);
-                    this.game.questions.push(newQuestion);
-                    this.gamesService.markPendingChanges();
-                },
-                error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`${QuestionStatus.UNVERIFIED} \n ${error.message}`),
-            });
-        } else this.notificationService.displayErrorMessage(GameStatus.DUPLICATE);
+        this.questionService.verifyQuestion(newQuestion).subscribe({
+            next: () => {
+                this.notificationService.displaySuccessMessage(QuestionStatus.VERIFIED);
+                this.game.questions.push(newQuestion);
+                this.gamesService.markPendingChanges();
+            },
+            error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`${QuestionStatus.UNVERIFIED} \n ${error.message}`),
+        });
     }
 
     addQuestionToBank(newQuestion: Question) {
@@ -186,7 +184,7 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
 
     openCreateQuestionDialog() {
         if (!this.dialogState) {
-            const dialogRef = this.notificationService.openCreateQuestionModal(QuestionManagementState.GameCreate);
+            const dialogRef = this.questionService.openCreateQuestionModal(QuestionManagementState.GameCreate);
 
             dialogRef.componentInstance.createQuestionEvent.subscribe((newQuestion: Question) => {
                 this.addQuestionToGame(newQuestion);

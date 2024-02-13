@@ -3,10 +3,8 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { DialogConfirmComponent } from '@app/components/dialog-confirm/dialog-confirm.component';
-import { CreateQuestionComponent, DialogManagement } from '@app/pages/create-question/create-question.component';
 import { MatDialogMock } from '@app/testing/mat-dialog-mock';
 import { NotificationService } from './notification.service';
-import { QuestionManagementState } from '@app/constants/states';
 
 describe('NotificationService', () => {
     let service: NotificationService;
@@ -79,22 +77,6 @@ describe('NotificationService', () => {
             expect(dialog.open).toHaveBeenCalledWith(DialogConfirmComponent, config);
         });
 
-        expect(afterOpenSpy).toHaveBeenCalled();
-    });
-
-    it('should open a question creation modal', () => {
-        const config: MatDialogConfig<DialogManagement> = {
-            data: {
-                modificationState: 0,
-            },
-            height: '70%',
-            width: '100%',
-        };
-        const afterOpenSpy = spyOn(dialog, 'open').and.callThrough();
-
-        service.openCreateQuestionModal(QuestionManagementState.BankCreate);
-
-        expect(dialog.open).toHaveBeenCalledWith(CreateQuestionComponent, config);
         expect(afterOpenSpy).toHaveBeenCalled();
     });
 });

@@ -1,4 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { QuestionManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
 // import { QuestionService } from '@app/services/question.service';
 // import { HttpResponse } from '@angular/common/http';
@@ -16,13 +17,10 @@ export class QuestionListItemComponent {
     @Output() deleteQuestionEvent = new EventEmitter<string>();
     @Output() questionUpdated = new EventEmitter<Question>();
 
-    response: string = '';
-
-    isCreateQuestionComponent: boolean = false;
-
     questions: Question[] = [];
-
+    isCreateQuestionComponent: boolean = false;
     isPanelExpanded: boolean = false;
+    modificationState: QuestionManagementState = QuestionManagementState.Modify;
 
     togglePanel() {
         this.isPanelExpanded = !this.isPanelExpanded;

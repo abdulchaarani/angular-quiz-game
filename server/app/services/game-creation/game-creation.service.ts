@@ -1,4 +1,6 @@
+import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
+import { Question } from '@app/model/database/question';
 import { Injectable } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -19,13 +21,20 @@ export class GameCreationService {
     }
 
     completeIsCorrectField(game: Game): Game {
-        game.questions.forEach((question) => {
-            question.choices.forEach((choice) => {
-                if (choice.isCorrect === null || choice.isCorrect === undefined) {
+        game.questions.forEach((question: Question) => {
+            question = this.completeIsCorrectFieldQuestion(question);
+        });
+        return game;
+    }
+
+    completeIsCorrectFieldQuestion(question: Question): Question {
+        if (question.type !== 'QRL') {
+            question.choices.forEach((choice: Choice) => {
+                if (choice.isCorrect !== true && choice.isCorrect !== false) {
                     choice.isCorrect = false;
                 }
             });
-        });
-        return game;
+        }
+        return question;
     }
 }

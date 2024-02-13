@@ -4,7 +4,7 @@ import { AfterViewInit, Component, EventEmitter, OnDestroy, OnInit, Output } fro
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { QuestionManagementState } from '@app/constants/states';
-import { BankStatus, GameStatus, QuestionStatus } from '@app/feedback-messages';
+import { BankStatus, GameStatus, QuestionStatus } from '@app/constants/feedback-messages';
 import { CanComponentDeactivate, CanDeactivateType } from '@app/interfaces/can-component-deactivate';
 import { Game } from '@app/interfaces/game';
 import { Question } from '@app/interfaces/question';

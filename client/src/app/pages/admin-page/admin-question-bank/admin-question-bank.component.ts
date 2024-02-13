@@ -1,9 +1,8 @@
-// import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { QuestionManagementState } from '@app/constants/states';
-import { BankStatus } from '@app/feedback-messages';
+import { BankStatus } from '@app/constants/feedback-messages';
 import { Question } from '@app/interfaces/question';
 import { NotificationService } from '@app/services/notification.service';
 import { QuestionService } from '@app/services/question.service';

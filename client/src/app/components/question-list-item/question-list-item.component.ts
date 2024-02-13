@@ -1,8 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { QuestionManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
-// import { QuestionService } from '@app/services/question.service';
-// import { HttpResponse } from '@angular/common/http';
 
 @Component({
     selector: 'app-question-list-item',

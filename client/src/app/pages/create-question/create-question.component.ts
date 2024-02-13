@@ -24,6 +24,9 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     checked: unknown;
     disabled: unknown;
 
+    // color: any;
+    checked: any;
+    disabled: any;
     private readonly snackBarDisplayTime = 2000;
     private readonly minChoices = 2;
     private readonly maxChoices = 4;

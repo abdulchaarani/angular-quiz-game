@@ -1,6 +1,6 @@
 // import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Question } from '@app/interfaces/question';
@@ -59,9 +59,12 @@ export class AdminQuestionBankComponent implements OnInit {
 
     addQuestion(newQuestion: Question = this.newQuestion) {
         this.questionService.createQuestion(newQuestion).subscribe({
-            next: () => {
-                this.questions.unshift(newQuestion);
-                this.notificationService.displaySuccessMessage('Question ajoutée avec succès! 😺');
+            next: (response: HttpResponse<string>) => {
+                if (response.body) {
+                    newQuestion = JSON.parse(response.body);
+                    this.questions.unshift(newQuestion);
+                    this.notificationService.displaySuccessMessage('Question ajoutée avec succès! 😺');
+                }
             },
             error: (error: HttpErrorResponse) =>
                 this.notificationService.displayErrorMessage(`La question n'a pas pu être ajoutée. 😿 \n ${error.message}`),
@@ -70,8 +73,7 @@ export class AdminQuestionBankComponent implements OnInit {
 
     updateQuestion(newQuestion: Question) {
         this.questionService.updateQuestion(newQuestion).subscribe({
-            next: () => {
-            },
+            next: () => {},
             error: (error: HttpErrorResponse) =>
                 this.notificationService.displayErrorMessage(`La question n'a pas pu être modifiée. 😿 \n ${error.message}`),
         });

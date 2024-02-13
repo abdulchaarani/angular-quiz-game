@@ -25,7 +25,6 @@ export class QuestionService extends ApiService<Question> {
     }
 
     deleteQuestion(questionId: string): Observable<HttpResponse<string>> {
-        //console.log(request)
         return this.delete(questionId);
     }
 

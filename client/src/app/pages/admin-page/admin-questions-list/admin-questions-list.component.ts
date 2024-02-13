@@ -11,7 +11,6 @@ import { GamesService } from '@app/services/games.service';
 import { NotificationService } from '@app/services/notification.service';
 import { QuestionService } from '@app/services/question.service';
 import { Subject, Subscription, concatMap, iif, lastValueFrom } from 'rxjs';
-
 @Component({
     selector: 'app-admin-questions-list',
     templateUrl: './admin-questions-list.component.html',
@@ -40,7 +39,7 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
     currentQuestion: Question;
     currentBankMessage = '';
     addToBank: boolean;
-    addToBankToggleButtonState: boolean = false;
+    // addToBankToggleButtonState: boolean = false;
 
     gameForm = new FormGroup({
         title: new FormControl('', Validators.required),
@@ -140,15 +139,31 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
         }
     }
 
-    addNewQuestion(newQuestion: Question) {
-        this.questionService.verifyQuestion(newQuestion).subscribe({
-            next: () => {
-                this.notificationService.displaySuccessMessage(QuestionStatus.VERIFIED);
-            },
-            error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`${QuestionStatus.UNVERIFIED} \n ${error.message}`),
-        });
-        this.game.questions.push(newQuestion);
-        this.gamesService.markPendingChanges();
+    addQuestionToGame(newQuestion: Question) {
+        if (!this.isDuplicateQuestion(newQuestion, this.game.questions)) {
+            this.questionService.verifyQuestion(newQuestion).subscribe({
+                next: () => {
+                    this.notificationService.displaySuccessMessage(QuestionStatus.VERIFIED);
+                    this.game.questions.push(newQuestion);
+                    this.gamesService.markPendingChanges();
+                },
+                error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`${QuestionStatus.UNVERIFIED} \n ${error.message}`),
+            });
+        } else this.notificationService.displayErrorMessage(GameStatus.DUPLICATE);
+    }
+
+    addQuestionToBank(newQuestion: Question) {
+        if (!this.isDuplicateQuestion(newQuestion, this.originalBankQuestions)) {
+            this.questionService.createQuestion(this.currentQuestion).subscribe({
+                next: () => {
+                    this.notificationService.displaySuccessMessage(BankStatus.SUCCESS);
+                    this.originalBankQuestions.unshift(this.currentQuestion);
+                },
+                error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`${BankStatus.FAILURE}\n ${error.message}`),
+            });
+        } else {
+            this.notificationService.displayErrorMessage(BankStatus.DUPLICATE);
+        }
     }
 
     deleteQuestion(questionId: string) {
@@ -168,40 +183,23 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
         this.isSideBarActive = !this.isSideBarActive;
     }
 
-    addQuestionToBank(newQuestion: Question) {
-        if (!this.isDuplicateQuestion(newQuestion, this.originalBankQuestions)) {
-            this.questionService.createQuestion(this.currentQuestion).subscribe({
-                next: () => {
-                    this.notificationService.displaySuccessMessage(BankStatus.SUCCESS);
-                    this.originalBankQuestions.unshift(this.currentQuestion);
-                },
-                error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`${BankStatus.FAILURE}\n ${error.message}`),
-            });
-        } else {
-            this.notificationService.displayErrorMessage(BankStatus.DUPLICATE);
-        }
-    }
-
     openCreateQuestionDialog() {
         if (!this.dialogState) {
             const dialogRef = this.notificationService.openCreateQuestionModal();
 
             dialogRef.componentInstance.createQuestionEvent.subscribe((newQuestion: Question) => {
-                if (!this.isDuplicateQuestion(newQuestion, this.game.questions)) {
-                    this.addNewQuestion(newQuestion);
-                    if (this.addToBankToggleButtonState) {
-                        this.addQuestionToBank(newQuestion);
-                    }
-                    dialogRef.close();
-                } else {
-                    this.notificationService.displayErrorMessage(GameStatus.DUPLICATE);
-                }
+                this.addQuestionToGame(newQuestion);
+                // if (this.addToBankToggleButtonState) {
+                //     this.addQuestionToBank(newQuestion);
+                //     console.log('ADDE TO BANK');
+                // }
+                dialogRef.close();
             });
 
-            dialogRef.componentInstance.createQuestionEventQuestionBank.subscribe(() => {
-                this.addToBankToggleButtonState = !this.addToBankToggleButtonState;
-                this.dialogState = false;
-            });
+            // dialogRef.componentInstance.createQuestionEventQuestionBank.subscribe(() => {
+            //     this.addToBankToggleButtonState = !this.addToBankToggleButtonState;
+            //     this.dialogState = false;
+            // });
         }
     }
 

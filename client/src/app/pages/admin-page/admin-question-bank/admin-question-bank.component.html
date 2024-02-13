@@ -16,7 +16,7 @@
         <mat-accordion cdkDropList class="list bank-list" [cdkDropListData]="questions" (cdkDropListDropped)="drop($event)" multi="false">
             <app-question-list-item
                 class="question bank-question"
-                *ngFor="let question of questions | sortByLastModification: 'ascending'"
+                *ngFor="let question of questions | sortByLastModification: 'descending'"
                 [question]="question"
                 [isBankQuestion]="true"
                 (deleteQuestionEvent)="deleteQuestion($event)"

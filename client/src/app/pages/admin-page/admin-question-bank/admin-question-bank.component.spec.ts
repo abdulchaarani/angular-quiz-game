@@ -21,14 +21,14 @@ describe('AdminQuestionBankComponent', () => {
             type: 'QCM',
             text: 'Combien de motifs blancs et noirs y a-t-il respectivement sur un ballon de soccer?',
             points: 20,
-            lastModification: '2018-11-13T20:20:39+00:00',
+            lastModification: '2024-11-13T20:20:39+00:00',
         },
         {
             id: '2',
             type: 'QCM',
             text: "Le ratio d'or est de 1:1.618, mais connaissez-vous le ratio d'argent?",
             points: 40,
-            lastModification: '2024-01-20T14:17:39+00:00',
+            lastModification: '2018-01-20T14:17:39+00:00',
         },
     ];
 
@@ -69,7 +69,7 @@ describe('AdminQuestionBankComponent', () => {
         expect(component.questions.length).toEqual(mockQuestions.length);
     });
 
-    it('should order questions by latest modification date', () => {
+    it('should order questions by earliest modification date', () => {
         expect(component.questions[0]).toEqual(mockQuestions[1]);
         expect(component.questions[1]).toEqual(mockQuestions[0]);
     });
@@ -107,7 +107,7 @@ describe('AdminQuestionBankComponent', () => {
         expect(component.questions.length).toBe(mockQuestions.length + 1);
     });
 
-    it('should keep ordering by latest date after adding a question', () => {
+    it('should keep ordering by earliest date after adding a question', () => {
         component.addQuestion(newMockQuestion);
 
         expect(component.questions[0]).toEqual(newMockQuestion);

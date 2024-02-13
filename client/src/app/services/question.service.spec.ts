@@ -2,9 +2,14 @@ import { TestBed } from '@angular/core/testing';
 import { QuestionService } from './question.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Question } from '@app/interfaces/question';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { MatDialogMock } from '@app/testing/mat-dialog-mock';
+import { CreateQuestionComponent, DialogManagement } from '@app/pages/create-question/create-question.component';
 
 describe('QuestionService', () => {
     let questionService: QuestionService;
+    let dialog: MatDialog;
+
     const mockQuestion: Question = {
         id: 'questionID',
         type: 'QCM',
@@ -17,9 +22,11 @@ describe('QuestionService', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             imports: [HttpClientTestingModule],
-            providers: [QuestionService],
+            providers: [QuestionService, { provide: MatDialog, useClass: MatDialogMock }],
         });
+
         questionService = TestBed.inject(QuestionService);
+        dialog = TestBed.inject(MatDialog);
     });
 
     it('should be created', () => {
@@ -42,5 +49,30 @@ describe('QuestionService', () => {
         const spy = spyOn(questionService, 'delete').and.callThrough();
         questionService.deleteQuestion(mockQuestion.id);
         expect(spy).toHaveBeenCalledWith(mockQuestion.id);
+    });
+
+    it('should verify a new question', () => {
+        const spy = spyOn(questionService, 'add').and.callThrough();
+        questionService.verifyQuestion(mockQuestion);
+        expect(spy).toHaveBeenCalledWith(mockQuestion);
+    });
+
+    it('should modify a question', () => {
+        const spy = spyOn(questionService, 'update').and.callThrough();
+        questionService.updateQuestion(mockQuestion);
+        expect(spy).toHaveBeenCalledWith(mockQuestion, '');
+    });
+
+    it('should open a game creation dialog', () => {
+        const manageConfig: MatDialogConfig<DialogManagement> = {
+            data: {
+                modificationState: 0,
+            },
+            height: '70%',
+            width: '100%',
+        };
+        spyOn(dialog, 'open').and.callThrough();
+        questionService.openCreateQuestionModal(0);
+        expect(dialog.open).toHaveBeenCalledWith(CreateQuestionComponent, manageConfig);
     });
 });

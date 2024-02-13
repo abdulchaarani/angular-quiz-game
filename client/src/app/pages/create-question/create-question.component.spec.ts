@@ -1,13 +1,29 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule, FormBuilder } from '@angular/forms';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CreateQuestionComponent } from './create-question.component';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { Question } from '@app/interfaces/question';
 
-xdescribe('CreateQuestionComponent', () => {
+const mockQuestion: Question = {
+    id: '1',
+    text: 'Test Question',
+    points: 10,
+    type: 'QCM',
+    choices: [
+        { text: 'Choice 1', isCorrect: true },
+        { text: 'Choice 2', isCorrect: false },
+    ],
+    lastModification: new Date().toLocaleString(),
+};
+
+const maxchoicesLengthTest = 5;
+const minchoicesLengthTest = 3;
+
+fdescribe('CreateQuestionComponent', () => {
     let component: CreateQuestionComponent;
     let fixture: ComponentFixture<CreateQuestionComponent>;
     let snackBarSpy: jasmine.SpyObj<MatSnackBar>;
@@ -17,7 +33,7 @@ xdescribe('CreateQuestionComponent', () => {
         TestBed.configureTestingModule({
             declarations: [CreateQuestionComponent],
             imports: [ReactiveFormsModule, FormsModule, MatSnackBarModule, MatSelectModule, MatFormFieldModule, MatInputModule, NoopAnimationsModule],
-            providers: [{ provide: MatSnackBar, useValue: snackBarSpyObj }],
+            providers: [{ provide: MatSnackBar, useValue: snackBarSpyObj }, FormBuilder],
         });
 
         snackBarSpy = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
@@ -49,9 +65,33 @@ xdescribe('CreateQuestionComponent', () => {
         expect(component.questionForm.get('choices')).toBeTruthy();
     });
 
+    it('should update question choices when form value changes', () => {
+        component.question = mockQuestion;
+        component.modifyingForm = true;
+
+        component.ngOnInit();
+
+        component.questionForm.patchValue({
+            text: 'New Test',
+            points: 10,
+            type: 'QCM',
+            choices: [
+                { text: 'New Choice 1', isCorrect: false },
+                { text: 'New Choice 2', isCorrect: true },
+            ],
+        });
+
+        expect(component.question.text).toEqual('New Test');
+        expect(component.question.type).toEqual('QCM');
+        expect(component.question.points).toEqual(10);
+        expect(component.question.choices).toEqual([
+            { text: 'New Choice 1', isCorrect: false },
+            { text: 'New Choice 2', isCorrect: true },
+        ]);
+    });
+
     it('should submit the form to the list of questions in a game', () => {
         spyOn(component.createQuestionEvent, 'emit');
-
         component.onSubmit();
         expect(component.createQuestionEvent.emit).toHaveBeenCalled();
     });
@@ -62,40 +102,31 @@ xdescribe('CreateQuestionComponent', () => {
         expect(component.createQuestionEventQuestionBank.emit).toHaveBeenCalled();
     });
 
-    it('should not submit a question without at least one correct and incorrect choices - Case when all is false', () => {
+    it('should submit the form to the list of questions in a game', () => {
         spyOn(component.createQuestionEvent, 'emit');
-        component.questionForm.setValue({
-            text: 'Test ',
-            points: 10,
-            type: 'QCM',
-            choices: [
-                { text: 'Choice 1', isCorrect: false },
-                { text: 'Choice 2', isCorrect: false },
-            ],
-        });
+        const mockQuestion: Question = component.questionForm.value;
+        mockQuestion.lastModification = new Date().toLocaleString();
         component.onSubmit();
-        expect(component.createQuestionEvent.emit).not.toHaveBeenCalled();
+        expect(component.createQuestionEvent.emit).toHaveBeenCalledWith(mockQuestion);
+    });
+
+    it('should submit the form to the bank of questions', () => {
+        spyOn(component.createQuestionEventQuestionBank, 'emit');
+        const mockQuestion: Question = component.questionForm.value;
+        mockQuestion.lastModification = new Date().toLocaleString();
+        component.onSubmitQuestionBank();
+        expect(component.createQuestionEventQuestionBank.emit).toHaveBeenCalledWith(mockQuestion);
     });
 
     it('should update form values when ngOnChanges is called', () => {
         spyOn(component, 'ngOnChanges').and.callThrough();
-        const mockQuestion = {
-            id: '1',
-            text: 'Test Updates',
-            points: 20,
-            type: 'QCM',
-            choices: [
-                { text: 'Choice 1', isCorrect: true },
-                { text: 'Choice 2', isCorrect: false },
-            ],
-            lastModification: new Date().toLocaleString(),
-        };
         component.question = mockQuestion;
         component.ngOnChanges({
             question: { currentValue: mockQuestion, previousValue: null, isFirstChange: () => true, firstChange: true },
         });
         component.onSubmit();
         component.questionForm.value.id = '1';
+        component.questionForm.value.lastModification = new Date().toLocaleDateString();
         expect(component.questionForm.value).toEqual(mockQuestion);
     });
 
@@ -108,6 +139,21 @@ xdescribe('CreateQuestionComponent', () => {
             choices: [
                 { text: 'Choice 1', isCorrect: true },
                 { text: 'Choice 2', isCorrect: true },
+            ],
+        });
+        component.onSubmit();
+        expect(component.createQuestionEvent.emit).not.toHaveBeenCalled();
+    });
+
+    it('should not submit a question without at least one correct and incorrect choices - Case when all is false', () => {
+        spyOn(component.createQuestionEvent, 'emit');
+        component.questionForm.setValue({
+            text: 'Test ',
+            points: 10,
+            type: 'QCM',
+            choices: [
+                { text: 'Choice 1', isCorrect: false },
+                { text: 'Choice 2', isCorrect: false },
             ],
         });
         component.onSubmit();
@@ -129,25 +175,17 @@ xdescribe('CreateQuestionComponent', () => {
         expect(component.createQuestionEvent.emit).not.toHaveBeenCalled();
     });
 
-    it('should add choice to form', () => {
+    it('should add a choice to form', () => {
         const initialChoicesLength = component.choices.length;
         component.addChoice();
         expect(component.choices.length).toBe(initialChoicesLength + 1);
     });
 
-    it('should remove choice from form', () => {
+    it('should remove a choice from form', () => {
         component.addChoice();
         const initialChoicesLength = component.choices.length;
         component.removeChoice(0);
         expect(component.choices.length).toBe(initialChoicesLength - 1);
-    });
-
-    it('should not add more than 4 choices', () => {
-        const choicesLength = 5;
-        for (let i = 0; i < choicesLength; i++) {
-            component.addChoice();
-        }
-        expect(snackBarSpy.open).toHaveBeenCalled();
     });
 
     it('should open snack bar with the specified message : General case', () => {
@@ -156,8 +194,15 @@ xdescribe('CreateQuestionComponent', () => {
     });
 
     it('should not remove more than 2 choices', () => {
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < minchoicesLengthTest; i++) {
             component.removeChoice(i);
+        }
+        expect(snackBarSpy.open).toHaveBeenCalled();
+    });
+
+    it('should not add more than 4 choices', () => {
+        for (let i = 0; i < maxchoicesLengthTest; i++) {
+            component.addChoice();
         }
         expect(snackBarSpy.open).toHaveBeenCalled();
     });

@@ -1,7 +1,7 @@
 // import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Question } from '@app/interfaces/question';
 import { CreateQuestionComponent } from '@app/pages/create-question/create-question.component';
@@ -16,6 +16,8 @@ import { QuestionService } from '@app/services/question.service';
 export class AdminQuestionBankComponent implements OnInit {
     sortAscending: string = '';
     @Output() createQuestionEventQuestionBank: EventEmitter<Question> = new EventEmitter<Question>();
+    @Input() createNewQuestionButton: boolean = false;
+    @Input() createNewQuestionToBankButton: boolean = false;
 
     questions: Question[] = [];
 
@@ -66,6 +68,15 @@ export class AdminQuestionBankComponent implements OnInit {
         });
     }
 
+    updateQuestion(newQuestion: Question) {
+        this.questionService.updateQuestion(newQuestion).subscribe({
+            next: () => {
+            },
+            error: (error: HttpErrorResponse) =>
+                this.notificationService.displayErrorMessage(`La question n'a pas pu être modifiée. 😿 \n ${error.message}`),
+        });
+    }
+
     createNewQuestionBank(newQuestion: Question) {
         this.createQuestionEventQuestionBank.subscribe((newQuestion: Question) => {
             if (newQuestion) {
@@ -79,13 +90,17 @@ export class AdminQuestionBankComponent implements OnInit {
             const dialogRef = this.dialog.open(CreateQuestionComponent, {
                 height: '70%',
                 width: '100%',
+                // data: {
+                //     createNewQuestionToBankButton: false,
+                //     createNewQuestionButton: true,
+                // },
             });
+
             dialogRef.componentInstance.createQuestionEvent.subscribe((newQuestion: Question) => {
                 if (newQuestion) {
                     this.addQuestion(newQuestion);
                     dialogRef.close();
                 }
-
                 this.dialogState = false;
             });
         }

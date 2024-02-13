@@ -42,17 +42,18 @@ export class MatchController {
     }
 
     @Post('/backups/:gameId/questions/:questionId/validate-choice')
-    async validatePlayerChoice(
+    validatePlayerChoice(
         @Param('gameId') gameId: string,
         @Param('questionId') questionId: string,
         @Body() choicesDto: SentChoicesText,
         @Res() response: Response,
     ) {
-        try {
-            const isValidChoice = await this.matchService.validatePlayerChoice(gameId, questionId, choicesDto.selected);
+        const question = this.matchService.getBackupQuestion(gameId, questionId);
+        if (!question) {
+            response.status(HttpStatus.NOT_FOUND).send({ message: ERROR_QUESTION_NOT_FOUND });
+        } else {
+            const isValidChoice = this.matchService.validatePlayerChoice(question, choicesDto.selected);
             response.status(HttpStatus.OK).json(isValidChoice);
-        } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send({ message: error.message });
         }
     }
 

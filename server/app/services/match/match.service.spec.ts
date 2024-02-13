@@ -88,26 +88,24 @@ describe('MatchService', () => {
 
     it('validatePlayerChoice() should return true only if all choices from player are correct', () => {
         const mockQuestion = getMockQuestionWithChoices();
-        const spyGetBackupQuestion = jest.spyOn(service, 'getBackupQuestion').mockReturnValue(mockQuestion);
-        const correctPlayerTry = service.validatePlayerChoice('', '', [FIRST_CORRECT_CHOICE.text, SECOND_CORRECT_CHOICE.text]);
+        const correctPlayerTry = service.validatePlayerChoice(mockQuestion, [FIRST_CORRECT_CHOICE.text, SECOND_CORRECT_CHOICE.text]);
         expect(correctPlayerTry).toBe(true);
-        expect(spyGetBackupQuestion).toHaveBeenCalled();
     });
 
     it('validatePlayerChoice() should return false if at least one choice from player is incorrect', () => {
         const mockQuestion = getMockQuestionWithChoices();
-        const spyGetBackupQuestion = jest.spyOn(service, 'getBackupQuestion').mockReturnValue(mockQuestion);
-        const correctPlayerTry = service.validatePlayerChoice('', '', [FIRST_CORRECT_CHOICE.text, SECOND_CORRECT_CHOICE.text, INCORRECT_CHOICE.text]);
+        const correctPlayerTry = service.validatePlayerChoice(mockQuestion, [
+            FIRST_CORRECT_CHOICE.text,
+            SECOND_CORRECT_CHOICE.text,
+            INCORRECT_CHOICE.text,
+        ]);
         expect(correctPlayerTry).toBe(false);
-        expect(spyGetBackupQuestion).toHaveBeenCalled();
     });
 
     it('validatePlayerChoice() should return false if the player does not submit ALL correct choices.', () => {
         const mockQuestion = getMockQuestionWithChoices();
-        const spyGetBackupQuestion = jest.spyOn(service, 'getBackupQuestion').mockReturnValue(mockQuestion);
-        const correctPlayerTry = service.validatePlayerChoice('', '', [FIRST_CORRECT_CHOICE.text]);
+        const correctPlayerTry = service.validatePlayerChoice(mockQuestion, [FIRST_CORRECT_CHOICE.text]);
         expect(correctPlayerTry).toBe(false);
-        expect(spyGetBackupQuestion).toHaveBeenCalled();
     });
 
     it('saveBackupGame() should get the game from database, add it to the backup data, and return the game without isCorrect property', async () => {

@@ -44,8 +44,7 @@ export class MatchService {
         return this.getBackupQuestion(gameId, questionId).choices;
     }
 
-    validatePlayerChoice(gameId: string, questionId: string, selectedChoices: string[]): boolean {
-        const question = this.getBackupQuestion(gameId, questionId);
+    validatePlayerChoice(question: Question, selectedChoices: string[]): boolean {
         const expectedChoices: string[] = [];
         question.choices.forEach((choice) => {
             if (choice.isCorrect) {

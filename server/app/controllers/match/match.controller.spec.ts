@@ -1,3 +1,4 @@
+import { getMockQuestion } from '@app/constants/question-mocks';
 import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
 import { MatchService } from '@app/services/match/match.service';
@@ -112,8 +113,9 @@ describe('MatchController', () => {
         expect(spyGetChoices).toHaveBeenCalled();
     });
 
-    it('validatePlayerChoice() should return OK with true value in body if validatePlayerChoice returns true', async () => {
-        matchService.validatePlayerChoice.resolves(true);
+    it('validatePlayerChoice() should return OK with true value in body if validatePlayerChoice returns true', () => {
+        const spyGet = jest.spyOn(matchService, 'getBackupQuestion').mockReturnValue(getMockQuestion());
+        const spyValidate = jest.spyOn(matchService, 'validatePlayerChoice').mockReturnValue(true);
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.OK);
@@ -123,11 +125,14 @@ describe('MatchController', () => {
             expect(isValid).toEqual(true);
             return res;
         };
-        await controller.validatePlayerChoice('', '', { selected: [''] }, res);
+        controller.validatePlayerChoice('', '', { selected: [''] }, res);
+        expect(spyGet).toHaveBeenCalled();
+        expect(spyValidate).toHaveBeenCalled();
     });
 
-    it('validatePlayerChoice() should return OK with false value in body if validatePlayerChoice returns false', async () => {
-        matchService.validatePlayerChoice.resolves(false);
+    it('validatePlayerChoice() should return OK with false value in body if validatePlayerChoice returns false', () => {
+        const spyGet = jest.spyOn(matchService, 'getBackupQuestion').mockReturnValue(getMockQuestion());
+        const spyValidate = jest.spyOn(matchService, 'validatePlayerChoice').mockReturnValue(false);
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.OK);
@@ -137,18 +142,23 @@ describe('MatchController', () => {
             expect(isValid).toEqual(false);
             return res;
         };
-        await controller.validatePlayerChoice('', '', { selected: [''] }, res);
+        controller.validatePlayerChoice('', '', { selected: [''] }, res);
+        expect(spyGet).toHaveBeenCalled();
+        expect(spyValidate).toHaveBeenCalled();
     });
 
-    it('validatePlayerChoice() should return NOT FOUND if validatePlayerChoice does not resolve', async () => {
-        matchService.validatePlayerChoice.rejects();
+    it('validatePlayerChoice() should return NOT FOUND if validatePlayerChoice does not resolve', () => {
+        const spyGet = jest.spyOn(matchService, 'getBackupQuestion').mockReturnValue(undefined);
+        const spyValidate = jest.spyOn(matchService, 'validatePlayerChoice');
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.NOT_FOUND);
             return res;
         };
         res.send = () => res;
-        await controller.validatePlayerChoice('', '', { selected: [''] }, res);
+        controller.validatePlayerChoice('', '', { selected: [''] }, res);
+        expect(spyGet).toHaveBeenCalled();
+        expect(spyValidate).not.toHaveBeenCalled();
     });
 
     it('getBackupGame() should return the backup game with the corresponding ID', () => {

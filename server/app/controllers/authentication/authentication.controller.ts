@@ -2,7 +2,7 @@ import { AuthenticationService } from '@app/services/authentication/authenticati
 import { Body, Controller, HttpStatus, Post, Res } from '@nestjs/common';
 import { Response } from 'express';
 
-interface authentificationInfo {
+interface AuthentificationInfo {
     password: string;
 }
 
@@ -11,7 +11,7 @@ export class AuthenticationController {
     constructor(private authService: AuthenticationService) {}
 
     @Post('/')
-    signIn(@Body() signInInfo: authentificationInfo, @Res() response: Response) {
+    signIn(@Body() signInInfo: AuthentificationInfo, @Res() response: Response) {
         if (this.authService.isValidPassword(signInInfo.password)) {
             response.status(HttpStatus.OK).send();
         } else {

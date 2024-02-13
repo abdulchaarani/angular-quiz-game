@@ -83,13 +83,4 @@ export class QuestionService {
         }
         return true;
     }
-
-    completeIsCorrectField(question: Question | CreateQuestionDto): Question | CreateQuestionDto {
-        question.choices.forEach((choice) => {
-            if (choice.isCorrect === null || choice.isCorrect === undefined) {
-                choice.isCorrect = false;
-            }
-        });
-        return question;
-    }
 }

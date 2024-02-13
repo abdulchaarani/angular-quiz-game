@@ -13,15 +13,14 @@ import { GameValidationService } from '@app/services/game-validation/game-valida
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { v4 as uuidv4 } from 'uuid';
-import { QuestionService } from '../question/question.service';
+import { GameCreationService } from '../game-creation/game-creation.service';
 
 @Injectable()
 export class GameService {
     constructor(
         @InjectModel(Game.name) public gameModel: Model<GameDocument>,
         private validation: GameValidationService,
-        private questionService: QuestionService,
+        private creationService: GameCreationService,
     ) {}
 
     async getAllGames(): Promise<Game[]> {
@@ -53,33 +52,13 @@ export class GameService {
         return question ? question.choices : Promise.reject(ERROR_QUESTION_NOT_FOUND);
     }
 
-    updateDateAndVisibility(game: Game): Game {
-        const currentDate = new Date();
-        game.isVisible = false;
-        game.lastModification = currentDate;
-        game.questions.forEach((question) => (question.lastModification = currentDate));
-        return game;
-    }
-
-    generateId(game: Game): Game {
-        game.id = uuidv4();
-        game.questions.forEach((question) => (question.id = uuidv4()));
-        return game;
-    }
-
-    completeIsCorrectField(game: Game) {
-        game.questions.forEach((question) => {
-            question = this.questionService.completeIsCorrectField(question);
-        });
-        return game;
-    }
-
     async addGame(newGame: CreateGameDto): Promise<Game> {
         if (await this.getGameByTitle(newGame.title)) {
             return Promise.reject(ERROR_GAME_SAME_TITLE);
         }
-        newGame = this.updateDateAndVisibility(this.generateId(newGame));
-        newGame = this.completeIsCorrectField(newGame);
+        newGame = this.creationService.updateDateAndVisibility(newGame);
+        newGame = this.creationService.generateId(newGame);
+        newGame = this.creationService.completeIsCorrectField(newGame);
 
         try {
             const errorMessages = this.validation.findGameErrors(newGame);
@@ -113,7 +92,7 @@ export class GameService {
             if (errorMessages.length !== 0) {
                 return Promise.reject(`${ERROR_INVALID_GAME}\n${errorMessages.join('\n')}`);
             }
-            game = this.updateDateAndVisibility(game);
+            game = this.creationService.updateDateAndVisibility(game);
 
             await this.gameModel.findOneAndUpdate(filterQuery, game, {
                 new: true,

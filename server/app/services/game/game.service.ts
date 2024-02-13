@@ -14,12 +14,14 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
+import { QuestionService } from '../question/question.service';
 
 @Injectable()
 export class GameService {
     constructor(
         @InjectModel(Game.name) public gameModel: Model<GameDocument>,
         private validation: GameValidationService,
+        private questionService: QuestionService,
     ) {}
 
     async getAllGames(): Promise<Game[]> {
@@ -65,11 +67,19 @@ export class GameService {
         return game;
     }
 
+    completeIsCorrectField(game: Game) {
+        game.questions.forEach((question) => {
+            question = this.questionService.completeIsCorrectField(question);
+        });
+        return game;
+    }
+
     async addGame(newGame: CreateGameDto): Promise<Game> {
         if (await this.getGameByTitle(newGame.title)) {
             return Promise.reject(ERROR_GAME_SAME_TITLE);
         }
         newGame = this.updateDateAndVisibility(this.generateId(newGame));
+        newGame = this.completeIsCorrectField(newGame);
 
         try {
             const errorMessages = this.validation.findGameErrors(newGame);

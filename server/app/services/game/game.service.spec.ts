@@ -8,6 +8,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { Model } from 'mongoose';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import * as uuid from 'uuid';
+import { QuestionService } from '../question/question.service';
 import { GameService } from './game.service';
 jest.mock('uuid');
 
@@ -17,8 +18,10 @@ describe('GameService', () => {
     let service: GameService;
     let gameModel: Model<GameDocument>;
     let gameValidationService: SinonStubbedInstance<GameValidationService>;
+    let questionService: SinonStubbedInstance<QuestionService>;
 
     beforeEach(async () => {
+        questionService = createStubInstance(QuestionService);
         gameValidationService = createStubInstance(GameValidationService);
         gameModel = {
             countDocuments: jest.fn(),
@@ -43,6 +46,10 @@ describe('GameService', () => {
                 {
                     provide: GameValidationService,
                     useValue: gameValidationService,
+                },
+                {
+                    provide: QuestionService,
+                    useValue: questionService,
                 },
             ],
         }).compile();

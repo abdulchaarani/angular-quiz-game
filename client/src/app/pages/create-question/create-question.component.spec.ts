@@ -24,7 +24,7 @@ const mockQuestion: Question = {
 const maxchoicesLengthTest = 5;
 const minchoicesLengthTest = 3;
 
-fdescribe('CreateQuestionComponent', () => {
+describe('CreateQuestionComponent', () => {
     let component: CreateQuestionComponent;
     let fixture: ComponentFixture<CreateQuestionComponent>;
     let snackBarSpy: jasmine.SpyObj<MatSnackBar>;

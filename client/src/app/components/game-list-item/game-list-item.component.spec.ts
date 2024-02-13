@@ -13,7 +13,7 @@ import SpyObj = jasmine.SpyObj;
 
 const MOCK_GAME = getMockGame();
 
-fdescribe('GameListItemComponent', () => {
+describe('GameListItemComponent', () => {
     let component: GameListItemComponent;
     let fixture: ComponentFixture<GameListItemComponent>;
     let gamesServiceSpy: SpyObj<GamesService>;

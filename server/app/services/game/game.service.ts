@@ -9,11 +9,11 @@ import { Choice } from '@app/model/database/choice';
 import { Game, GameDocument } from '@app/model/database/game';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
+import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameValidationService } from '@app/services/game-validation/game-validation.service';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { GameCreationService } from '../game-creation/game-creation.service';
 
 @Injectable()
 export class GameService {

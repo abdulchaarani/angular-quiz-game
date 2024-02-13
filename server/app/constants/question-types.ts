@@ -1,4 +1,4 @@
-export enum questionTypes {
+export enum QuestionTypes {
     CHOICE = 'QCM',
     LONG = 'QRL',
 }

@@ -1,4 +1,4 @@
-import { questionTypes } from '@app/constants/question-types';
+import { QuestionTypes } from '@app/constants/question-types';
 import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
 import { Question } from '@app/model/database/question';
@@ -23,13 +23,13 @@ export class GameCreationService {
 
     completeIsCorrectField(game: Game): Game {
         game.questions.forEach((question: Question) => {
-            question = this.completeIsCorrectChoice(question);
+            this.completeIsCorrectChoice(question);
         });
         return game;
     }
 
     completeIsCorrectChoice(question: Question): Question {
-        if (question.type !== questionTypes.LONG) {
+        if (question.type !== QuestionTypes.LONG) {
             question.choices.forEach((choice: Choice) => {
                 if (choice.isCorrect !== true) {
                     choice.isCorrect = false;

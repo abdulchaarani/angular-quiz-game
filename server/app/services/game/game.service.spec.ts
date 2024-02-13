@@ -7,13 +7,13 @@ import {
     ERROR_QUESTION_NOT_FOUND,
 } from '@app/constants/request-errors';
 import { Game, GameDocument } from '@app/model/database/game';
+import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameValidationService } from '@app/services/game-validation/game-validation.service';
 import { Logger } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Model } from 'mongoose';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
-import { GameCreationService } from '../game-creation/game-creation.service';
 import { GameService } from './game.service';
 
 describe('GameService', () => {

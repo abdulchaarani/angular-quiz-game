@@ -20,7 +20,7 @@ import {
     ERROR_REPEAT_CHOICES,
 } from '@app/constants/game-validation-errors';
 import { ALL_FALSE_QUESTION, ALL_TRUE_QUESTION, FOUR_CHOICES_QUESTION, VALID_QUESTION, getMockQuestion } from '@app/constants/question-mocks';
-import { questionTypes } from '@app/constants/question-types';
+import { QuestionTypes } from '@app/constants/question-types';
 import { Test, TestingModule } from '@nestjs/testing';
 import { GameValidationService } from './game-validation.service';
 describe('GameValidationService', () => {
@@ -154,7 +154,6 @@ describe('GameValidationService', () => {
         const mockMessage = 'mock';
         const spyGeneralErrors = jest.spyOn(service, 'findGeneralQuestionErrors').mockReturnValue([mockMessage, mockMessage]);
         const spyRange = jest.spyOn(service, 'isValidRange').mockReturnValue(false);
-        const spyValidString = jest.spyOn(service, 'isValidString').mockReturnValue(false);
         const spyChoicesRatio = jest.spyOn(service, 'isValidChoicesRatio').mockReturnValue(false);
         const spyUniqueChoices = jest.spyOn(service, 'isUniqueChoices').mockReturnValue(false);
         expect(service.findChoicesQuestionErrors(VALID_QUESTION)).toEqual([
@@ -233,7 +232,7 @@ describe('GameValidationService', () => {
         const invalidQuestionsGame = GAME_VALID_QUESTION;
         invalidQuestionsGame.questions = [];
         for (let i = 0; i < 2; i++) {
-            let newQuestion = VALID_QUESTION;
+            const newQuestion = VALID_QUESTION;
             newQuestion.type = 'QRL';
             invalidQuestionsGame.questions.push(newQuestion);
         }
@@ -254,7 +253,7 @@ describe('GameValidationService', () => {
         const spyValidateLongQuestion = jest.spyOn(service, 'findGeneralQuestionErrors').mockImplementation(() => []);
         const mockGame = getMockGame();
         const mockQuestion = getMockQuestion();
-        mockQuestion.type = questionTypes.CHOICE;
+        mockQuestion.type = QuestionTypes.CHOICE;
         mockGame.questions = [mockQuestion];
         expect(service.findGameErrors(mockGame)).toEqual([ERROR_EMPTY_TITLE, ERROR_EMPTY_DESCRIPTION, ERROR_DURATION]);
         expect(spyValidString).toHaveBeenCalledWith(mockGame.title);

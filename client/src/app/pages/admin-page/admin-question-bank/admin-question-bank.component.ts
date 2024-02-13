@@ -1,5 +1,4 @@
 // import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -37,23 +36,17 @@ export class AdminQuestionBankComponent implements OnInit {
         private readonly notificationService: NotificationService,
     ) {}
 
-    drop(event: CdkDragDrop<Question[]>) {
-        moveItemInArray(this.questions, event.previousIndex, event.currentIndex);
-    }
-
     ngOnInit() {
         this.questionService.getAllQuestions().subscribe({
             next: (data: Question[]) => (this.questions = [...data]),
-            error: (error: HttpErrorResponse) =>
-                this.notificationService.displayErrorMessage(`Échec d'obtention des questions 😿\n ${error.message}`),
+            error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`${BankStatus.UNRETRIEVED}\n ${error.message}`),
         });
     }
 
     deleteQuestion(questionId: string) {
         this.questionService.deleteQuestion(questionId).subscribe({
             next: () => (this.questions = this.questions.filter((question: Question) => question.id !== questionId)),
-            error: (error: HttpErrorResponse) =>
-                this.notificationService.displayErrorMessage(`Échec de supression de la question 😿\n ${error.message}`),
+            error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`${BankStatus.STILL}\n ${error.message}`),
         });
     }
 
@@ -63,11 +56,10 @@ export class AdminQuestionBankComponent implements OnInit {
                 if (response.body) {
                     newQuestion = JSON.parse(response.body);
                     this.questions.unshift(newQuestion);
-                    this.notificationService.displaySuccessMessage('Question ajoutée avec succès! 😺');
+                    this.notificationService.displaySuccessMessage(BankStatus.SUCCESS);
                 }
             },
-            error: (error: HttpErrorResponse) =>
-                this.notificationService.displayErrorMessage(`La question n'a pas pu être ajoutée. 😿 \n ${error.message}`),
+            error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`${BankStatus.STILL}\n ${error.message}`),
         });
     }
 
@@ -75,10 +67,9 @@ export class AdminQuestionBankComponent implements OnInit {
         if (!this.isDuplicateQuestion(newQuestion, this.questions)) {
             this.questionService.updateQuestion(newQuestion).subscribe({
                 next: () => {
-                    this.notificationService.displaySuccessMessage('Question modifiée avec succès! 😺');
+                    this.notificationService.displaySuccessMessage(BankStatus.MODIFIED);
                 },
-                error: (error: HttpErrorResponse) =>
-                    this.notificationService.displayErrorMessage(`La question n'a pas pu être modifiée. 😿 \n ${error.message}`),
+                error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`${BankStatus.UNMODIFIED} \n ${error.message}`),
             });
         } else {
             this.notificationService.displayErrorMessage(BankStatus.DUPLICATE);

@@ -13,7 +13,7 @@
             </mat-card-content>
         </mat-card>
 
-        <mat-accordion cdkDropList class="list bank-list" [cdkDropListData]="questions" (cdkDropListDropped)="drop($event)" multi="false">
+        <mat-accordion class="list bank-list" multi="false">
             <app-question-list-item
                 class="question bank-question"
                 *ngFor="let question of questions | sortByLastModification: 'descending'"
@@ -21,7 +21,6 @@
                 [isBankQuestion]="true"
                 (deleteQuestionEvent)="deleteQuestion($event)"
                 (updateQuestionEvent)="updateQuestion($event)"
-                cdkDrag
             >
                 <div cdkDragHandle></div>
             </app-question-list-item>

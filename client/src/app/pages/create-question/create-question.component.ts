@@ -4,6 +4,7 @@ import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Valida
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { QuestionManagementState } from '@app/constants/states';
+import { Choice } from '@app/interfaces/choice';
 import { Question } from '@app/interfaces/question';
 export interface DialogManagement {
     modificationState: QuestionManagementState;
@@ -23,8 +24,8 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     modifyingForm: boolean = false;
     questionFormControl = new FormControl('', [Validators.required]);
     questionForm: FormGroup;
-    checked: any;
-    disabled: any;
+    checked: boolean;
+    disabled: boolean;
 
     private readonly snackBarDisplayTime = 2000;
     private readonly minChoices = 2;
@@ -94,9 +95,11 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
         if (this.questionForm.valid) {
             const newQuestion: Question = this.questionForm.value;
             newQuestion.lastModification = new Date().toLocaleString();
-            this.modificationState === QuestionManagementState.BankModify || this.modificationState === QuestionManagementState.GameModify
-                ? this.modifyQuestionEvent.emit(newQuestion)
-                : this.createQuestionEvent.emit(newQuestion);
+            if (this.modificationState === QuestionManagementState.BankModify) {
+                this.modifyQuestionEvent.emit(newQuestion);
+            } else {
+                this.createQuestionEvent.emit(newQuestion);
+            }
         }
     }
 
@@ -140,13 +143,15 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
         }
     }
 
-    updateChoices(choices: any[]): void {
+    updateChoices(choices: Choice[]): void {
         this.question.choices = [];
         choices.forEach((choice) => {
-            this.question.choices!.push({
-                text: choice.text,
-                isCorrect: choice.isCorrect,
-            });
+            if (this.question.choices) {
+                this.question.choices.push({
+                    text: choice.text,
+                    isCorrect: choice.isCorrect,
+                });
+            }
         });
     }
 
@@ -165,8 +170,8 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
                 return 'Vérifier si la question est valide';
             case QuestionManagementState.BankModify:
                 return 'Modifier la question';
-            default:
-                return '';
+            case QuestionManagementState.GameModify:
+                return 'Modifier la question';
         }
     }
 

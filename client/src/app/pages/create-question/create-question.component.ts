@@ -91,7 +91,6 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     }
 
     onSubmit() {
-        console.log(this.modificationState);
         if (this.questionForm.valid) {
             const newQuestion: Question = this.questionForm.value;
             newQuestion.lastModification = new Date().toLocaleString();

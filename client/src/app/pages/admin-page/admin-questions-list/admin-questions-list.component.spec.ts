@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import { HttpClientModule, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -14,6 +15,7 @@ import { QuestionService } from '@app/services/question.service';
 import { of, throwError } from 'rxjs';
 import { AdminQuestionsListComponent } from './admin-questions-list.component';
 import { BankStatus, GameStatus, QuestionStatus } from '@app/feedback-messages';
+import { CdkDragDrop, CdkDragEnd } from '@angular/cdk/drag-drop';
 
 describe('AdminQuestionsListComponent', () => {
     let component: AdminQuestionsListComponent;
@@ -63,9 +65,9 @@ describe('AdminQuestionsListComponent', () => {
         questions: mockQuestions,
     };
 
-    const newQuestionMock = { id: '3', text: 'Question 3', type: 'QCM', points: 10, lastModification: '' };
+    const mockNewQuestion = { id: '3', text: 'Question 3', type: 'QCM', points: 10, lastModification: '' };
 
-    const httpResponseMock: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK', body: JSON.stringify(newQuestionMock) });
+    const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK', body: JSON.stringify(mockNewQuestion) });
 
     beforeEach(() => {
         routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -93,13 +95,19 @@ describe('AdminQuestionsListComponent', () => {
             'isPendingChangesObservable',
         ]);
 
-        questionServiceSpy = jasmine.createSpyObj('QuestionService', ['getAllQuestions', 'createQuestion', 'verifyQuestion']);
+        questionServiceSpy = jasmine.createSpyObj('QuestionService', [
+            'getAllQuestions',
+            'createQuestion',
+            'verifyQuestion',
+            'openCreateQuestionModal',
+        ]);
         notificationServiceSpy = jasmine.createSpyObj('NotificationService', [
             'openPendingChangesConfirmDialog',
             'displayErrorMessage',
             'displaySuccessMessage',
+            'confirmBankUpload',
         ]);
-        questionServiceSpy.createQuestion.and.returnValue(of(httpResponseMock));
+        questionServiceSpy.createQuestion.and.returnValue(of(mockHttpResponse));
         gamesServiceSpy.isPendingChangesObservable = of(false);
 
         TestBed.configureTestingModule({
@@ -119,9 +127,10 @@ describe('AdminQuestionsListComponent', () => {
         fixture = TestBed.createComponent(AdminQuestionsListComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
-        component.game = mockGame;
+        component.game = JSON.parse(JSON.stringify(mockGame));
+        component.originalBankQuestions = JSON.parse(JSON.stringify(mockBankQuestions));
         questionServiceSpy.getAllQuestions.and.returnValue(of(mockBankQuestions));
-        gamesServiceSpy.submitGame.and.returnValue(of(httpResponseMock));
+        gamesServiceSpy.submitGame.and.returnValue(of(mockHttpResponse));
     });
 
     it('should create', () => {
@@ -149,9 +158,19 @@ describe('AdminQuestionsListComponent', () => {
         expect(routerSpy.navigate).toHaveBeenCalledWith(['/admin/games/']);
     });
 
-    it('should handle submit error', () => {
+    it('should handle modify submit error', () => {
         component.gameForm.setValue({ title: 'Test', description: 'Test', duration: '10' });
         component.state = 'modify';
+        const errorMessage = 'Error submitting game';
+        gamesServiceSpy.submitGame.and.returnValue(throwError(() => new HttpErrorResponse({ error: errorMessage })));
+        component.handleSubmit();
+        expect(gamesServiceSpy.submitGame).toHaveBeenCalled();
+        expect(notificationServiceSpy.displayErrorMessage).toHaveBeenCalled();
+    });
+
+    it('should handle create submit error', () => {
+        component.gameForm.setValue({ title: 'Test', description: 'Test', duration: '10' });
+        component.state = 'create';
         const errorMessage = 'Error submitting game';
         gamesServiceSpy.submitGame.and.returnValue(throwError(() => new HttpErrorResponse({ error: errorMessage })));
         component.handleSubmit();
@@ -165,10 +184,17 @@ describe('AdminQuestionsListComponent', () => {
         expect(result).toBeTrue();
     });
 
-    // it('should return false when there are pending changes', () => {
+    // it('should return a Subject<boolean> when there are pending changes', () => {
     //     component.isPendingChanges = true;
+
+    //     const confirmSubject = new Subject<boolean>();
+    //     notificationServiceSpy.openPendingChangesConfirmDialog.and.returnValue(confirmSubject);
+
     //     const result = component.canDeactivate();
-    //     expect(result instanceof Observable).toBeTrue();
+
+    //     expect(result).toBeInstanceOf(Subject);
+
+    //     confirmSubject.complete();
     // });
 
     it('should set game and form values correctly', () => {
@@ -187,6 +213,7 @@ describe('AdminQuestionsListComponent', () => {
     it('should filter the bank questions when state is "modify"', () => {
         component.state = 'modify';
         spyOn(component, 'setGame').and.returnValue(of(mockQuestions));
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         spyOn<any>(component, 'filterBankQuestions').and.returnValue(mockQuestions);
         component.ngAfterViewInit();
 
@@ -233,7 +260,7 @@ describe('AdminQuestionsListComponent', () => {
     });
 
     it('should return false if new question doesn not have a duplicate in the bank', () => {
-        const isDuplicate = component['isDuplicateQuestion'](newQuestionMock, mockBankQuestions);
+        const isDuplicate = component['isDuplicateQuestion'](mockNewQuestion, mockBankQuestions);
         expect(isDuplicate).toBeFalse();
     });
 
@@ -250,54 +277,53 @@ describe('AdminQuestionsListComponent', () => {
     });
 
     it('should add verified question to game and mark pending changes', () => {
-        questionServiceSpy.verifyQuestion.and.returnValue(of(httpResponseMock));
-        component.addQuestionToGame(newQuestionMock);
+        questionServiceSpy.verifyQuestion.and.returnValue(of(mockHttpResponse));
+        component.addQuestionToGame(mockNewQuestion);
         expect(notificationServiceSpy.displaySuccessMessage).toHaveBeenCalledWith(QuestionStatus.VERIFIED);
-        expect(component.game.questions).toContain(newQuestionMock);
+        expect(component.game.questions).toContain(mockNewQuestion);
         expect(component['gamesService'].markPendingChanges).toHaveBeenCalled();
     });
 
     it('should display error message when verification fails', () => {
         const errorMessage = 'Question should contain at least 1 wrong and 1 right answer';
         questionServiceSpy.verifyQuestion.and.returnValue(throwError(() => new Error(errorMessage)));
-        component.addQuestionToGame(newQuestionMock);
+        component.addQuestionToGame(mockNewQuestion);
         expect(notificationServiceSpy.displayErrorMessage).toHaveBeenCalledWith(`${QuestionStatus.UNVERIFIED} \n ${errorMessage}`);
     });
 
     it('should add question to bank and display success message', () => {
-        component.currentQuestion = newQuestionMock;
+        component.currentQuestion = mockNewQuestion;
         component.originalBankQuestions = [];
-        questionServiceSpy.createQuestion.and.returnValue(of(httpResponseMock)); // Mock successful creation
-        component.addQuestionToBank(newQuestionMock);
+        questionServiceSpy.createQuestion.and.returnValue(of(mockHttpResponse)); // Mock successful creation
+        component.addQuestionToBank(mockNewQuestion);
         expect(notificationServiceSpy.displaySuccessMessage).toHaveBeenCalledWith(BankStatus.SUCCESS);
         expect(component.originalBankQuestions.length).toBe(1);
-        expect(component.originalBankQuestions[0]).toEqual(newQuestionMock);
+        expect(component.originalBankQuestions[0]).toEqual(mockNewQuestion);
     });
 
     it('should display duplicate error message when question is a duplicate', () => {
-        component.currentQuestion = newQuestionMock;
-        component.originalBankQuestions = [newQuestionMock];
-        component.addQuestionToBank(newQuestionMock);
+        component.currentQuestion = mockNewQuestion;
+        component.originalBankQuestions = [mockNewQuestion];
+        component.addQuestionToBank(mockNewQuestion);
         expect(notificationServiceSpy.displayErrorMessage).toHaveBeenCalledWith(BankStatus.DUPLICATE);
         expect(questionServiceSpy.createQuestion).not.toHaveBeenCalled();
     });
 
     it('should display error message when question creation fails', () => {
-        component.currentQuestion = newQuestionMock;
+        component.currentQuestion = mockNewQuestion;
         component.originalBankQuestions = [];
         const errorMessage = 'Error creating question';
         questionServiceSpy.createQuestion.and.returnValue(throwError(() => new Error(errorMessage)));
-        component.addQuestionToBank(newQuestionMock);
+        component.addQuestionToBank(mockNewQuestion);
         expect(notificationServiceSpy.displayErrorMessage).toHaveBeenCalledWith(`${BankStatus.FAILURE}\n ${errorMessage}`);
         expect(component.originalBankQuestions.length).toBe(0);
     });
 
-    it('should be able to delete a question from the list', () => {
-        const questionToDeleteId = component.game.questions[0]?.id;
-        if (questionToDeleteId) {
-            component.deleteQuestion(questionToDeleteId);
-        }
-        expect(component.game.questions.length).toBe(mockGame.questions.length);
+    it('should be able to delete a question from the list and update bank question list', () => {
+        component.game.questions = Object.assign([], mockBankQuestions);
+        component.deleteQuestion('1');
+        expect(component.game.questions.length).toBe(1);
+        expect(component.bankQuestions.length).toBe(1);
     });
 
     it('should be able to change title and description', () => {
@@ -336,19 +362,93 @@ describe('AdminQuestionsListComponent', () => {
         expect(component.isSideBarActive).toBeTrue();
     });
 
-    // it('should open create question dialog and handle new question', () => {
-    //     const dialogRefSpyObj = spyOn(dialog, 'open').and.callThrough();
-    //     // dialogRefSpyObj.afterClosed.and.returnValue(of(newQuestionMock));
-    //     component.openCreateQuestionDialog();
-    //     expect(questionServiceSpy.openCreateQuestionModal).toHaveBeenCalledWith(QuestionManagementState.GameCreate);
-    //     expect(dialogRefSpyObj.componentInstance.createQuestionEvent.subscribe).toHaveBeenCalled();
-    //     expect(component.addQuestionToGame).toHaveBeenCalledWith(newQuestionMock);
-    //     // expect(dialogRefSpyObj.close).toHaveBeenCalled();
+    it('should not open create question dialog if dialog state is true', () => {
+        component.dialogState = true;
+        component.openCreateQuestionDialog();
+        expect(questionServiceSpy.openCreateQuestionModal).not.toHaveBeenCalled();
+    });
+
+    it('should set currentQuestion on dragQuizQuestion', () => {
+        const mockQuestion: Question = { id: '1', text: 'Test question', type: 'QCM', points: 10, lastModification: '' };
+        component.dragQuizQuestion(mockQuestion);
+        expect(component.currentQuestion).toEqual(mockQuestion);
+    });
+
+    it('should call openConfirmDialog on dropQuizQuestion if container is present', () => {
+        const mockEvent = { event: { target: { closest: () => true } } } as unknown as CdkDragEnd<Question[]>;
+        spyOn(component, 'openConfirmDialog');
+        component.dropQuizQuestion(mockEvent);
+        expect(component.openConfirmDialog).toHaveBeenCalled();
+    });
+
+    it('should not call openConfirmDialog on dropQuizQuestion if container is not present', () => {
+        const mockEvent = {
+            event: { target: { closest: () => false } },
+        } as unknown as CdkDragEnd<Question[]>;
+
+        spyOn(component, 'openConfirmDialog');
+        component.dropQuizQuestion(mockEvent);
+        expect(component.openConfirmDialog).not.toHaveBeenCalled();
+    });
+
+    it('should set isBankQuestionDragged to true on dragBankQuestion', () => {
+        component.dragBankQuestion();
+        expect(component.isBankQuestionDragged).toBeTrue();
+    });
+
+    it('should set isBankQuestionDragged to false on dropBankQuestion', () => {
+        component.dropBankQuestion();
+        expect(component.isBankQuestionDragged).toBeFalse();
+    });
+
+    // it('should move question within the quiz list and mark changes', () => {
+    //     const mockListQuestions: Question[] = [
+    //         { id: '1', text: 'Question 1', type: 'QCM', points: 10, lastModification: '' },
+    //         { id: '2', text: 'Question 2', type: 'QCM', points: 20, lastModification: '' },
+    //         { id: '3', text: 'Question 3', type: 'QCM', points: 30, lastModification: '' },
+    //     ];
+    //     component.game.questions = [...mockListQuestions];
+
+    //     const mockDragDropEvent = {
+    //         previousContainer: { data: component.game.questions },
+    //         container: { data: component.game.questions },
+    //         previousIndex: 0,
+    //         currentIndex: 1,
+    //     } as unknown as CdkDragDrop<Question[]>;
+    //     fixture.detectChanges();
+    //     component.dropInQuizList(mockDragDropEvent);
+    //     expect(component.game.questions[0]).toEqual(mockListQuestions[1]);
+    //     expect(component.game.questions[1]).toEqual(mockListQuestions[0]);
     // });
 
-    // it('should not open create question dialog if dialog state is true', () => {
-    //     component.dialogState = true;
-    //     component.openCreateQuestionDialog();
-    //     expect(questionServiceSpy.openCreateQuestionModal).not.toHaveBeenCalled();
-    // });
+    it('should transfer question to another list if not duplicate and mark changes', () => {
+        const mockDragDropEvent = {
+            previousContainer: { data: [...mockBankQuestions] },
+            container: { data: component.game.questions },
+            previousIndex: 0,
+            currentIndex: 0,
+        } as unknown as CdkDragDrop<Question[]>;
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        spyOn<any>(component, 'isDuplicateQuestion').and.returnValue(false);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        spyOn<any>(component, 'setBankMessage');
+
+        component.dropInQuizList(mockDragDropEvent);
+
+        expect(component['setBankMessage']).toHaveBeenCalled();
+        expect(component['gamesService'].markPendingChanges).toHaveBeenCalled();
+    });
+
+    it('should display error message if dropping duplicate question in quiz list', () => {
+        const mockDragDropEvent = {
+            previousContainer: { data: [...mockBankQuestions] },
+            container: { data: [...mockQuestions] },
+            previousIndex: 0,
+            currentIndex: 0,
+        } as unknown as CdkDragDrop<Question[]>;
+
+        component.dropInQuizList(mockDragDropEvent);
+        expect(component['notificationService'].displayErrorMessage).toHaveBeenCalled();
+    });
 });

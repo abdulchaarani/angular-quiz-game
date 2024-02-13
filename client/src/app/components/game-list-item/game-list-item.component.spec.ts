@@ -3,11 +3,14 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { By } from '@angular/platform-browser';
+import { getMockGame } from '@app/constants/game-mocks';
 import { DownloadGameService } from '@app/services/download-game.service';
 import { GamesService } from '@app/services/games.service';
 import { of } from 'rxjs';
 import { GameListItemComponent } from './game-list-item.component';
 import SpyObj = jasmine.SpyObj;
+
+const MOCK_GAME = getMockGame();
 
 describe('GameListItemComponent', () => {
     let component: GameListItemComponent;
@@ -34,7 +37,7 @@ describe('GameListItemComponent', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(GameListItemComponent);
         component = fixture.componentInstance;
-        component.game = mockGame;
+        component.game = MOCK_GAME;
         fixture.detectChanges();
     });
 
@@ -45,7 +48,7 @@ describe('GameListItemComponent', () => {
     it('should display game title and last modification', () => {
         fixture.detectChanges();
         const dom = fixture.nativeElement;
-        expect(dom.textContent).toContain(mockGame.title);
+        expect(dom.textContent).toContain(MOCK_GAME.title);
         const lastModificationLabel = 'Dernière modification';
         expect(dom.textContent).toContain(lastModificationLabel);
     });
@@ -55,7 +58,7 @@ describe('GameListItemComponent', () => {
         component.isAdminMode = true;
         component.deleteGame();
         expect(spy).toHaveBeenCalled();
-        expect(spy).toHaveBeenCalledWith(mockGame.id);
+        expect(spy).toHaveBeenCalledWith(MOCK_GAME.id);
     });
 
     it('should display admin buttons if in admin mode', () => {
@@ -94,33 +97,3 @@ describe('GameListItemComponent', () => {
         expect(downloadSpy.downloadGameAsJson).not.toHaveBeenCalled();
     });
 });
-
-const BASE_36 = 36;
-const getRandomString = (): string => (Math.random() + 1).toString(BASE_36).substring(2);
-const mockGame = {
-    id: getRandomString(),
-    title: getRandomString(),
-    description: getRandomString(),
-    lastModification: new Date().toLocaleString(),
-    duration: 30,
-    isVisible: true,
-    questions: [
-        {
-            id: getRandomString(),
-            type: 'QCM',
-            text: getRandomString(),
-            points: 30,
-            choices: [
-                {
-                    text: getRandomString(),
-                    isCorrect: true,
-                },
-                {
-                    text: getRandomString(),
-                    isCorrect: false,
-                },
-            ],
-            lastModification: new Date().toLocaleString(),
-        },
-    ],
-};

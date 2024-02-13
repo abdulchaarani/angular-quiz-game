@@ -5,7 +5,7 @@ export const getMockGame = (): Game => ({
     id: getRandomString(),
     title: getRandomString(),
     description: getRandomString(),
-    lastModification: getRandomString(),
+    lastModification: new Date().toString(),
     duration: 30,
     isVisible: true,
     questions: [
@@ -24,7 +24,7 @@ export const getMockGame = (): Game => ({
                     isCorrect: false,
                 },
             ],
-            lastModification: getRandomString(),
+            lastModification: new Date().toString(),
         },
         {
             id: getRandomString(),
@@ -41,7 +41,7 @@ export const getMockGame = (): Game => ({
                     isCorrect: false,
                 },
             ],
-            lastModification: getRandomString(),
+            lastModification: new Date().toString(),
         },
     ],
 });

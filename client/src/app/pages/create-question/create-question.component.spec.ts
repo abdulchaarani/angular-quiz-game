@@ -1,12 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ReactiveFormsModule, FormsModule, FormBuilder } from '@angular/forms';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { CreateQuestionComponent } from './create-question.component';
-import { MatSelectModule } from '@angular/material/select';
-import { MatInputModule } from '@angular/material/input';
+import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Question } from '@app/interfaces/question';
+import { CreateQuestionComponent } from './create-question.component';
 
 const mockQuestion: Question = {
     id: '1',
@@ -23,7 +23,7 @@ const mockQuestion: Question = {
 const maxchoicesLengthTest = 5;
 const minchoicesLengthTest = 3;
 
-fdescribe('CreateQuestionComponent', () => {
+describe('CreateQuestionComponent', () => {
     let component: CreateQuestionComponent;
     let fixture: ComponentFixture<CreateQuestionComponent>;
     let snackBarSpy: jasmine.SpyObj<MatSnackBar>;
@@ -100,7 +100,7 @@ fdescribe('CreateQuestionComponent', () => {
 
     it('should submit the form to the list of questions in a game', () => {
         spyOn(component.createQuestionEvent, 'emit');
-        const mockQuestionSubmit : Question = component.questionForm.value;
+        const mockQuestionSubmit: Question = component.questionForm.value;
         mockQuestion.lastModification = '';
         component.onSubmit();
         expect(component.createQuestionEvent.emit).toHaveBeenCalledWith(mockQuestionSubmit);

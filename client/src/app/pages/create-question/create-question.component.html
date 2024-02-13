@@ -55,7 +55,7 @@
                 <div *ngIf="createNewQuestionButton">
                     <button mat-raised-button color="primary" type="submit" class="submit-button" [disabled]="!questionForm.valid">
                         <mat-icon>check</mat-icon>
-                        Vérifier si la question est valide
+                        {{ this.modificationState ? 'Ajouter la question à la banque' : 'Vérifier si la question est valide' }}
                     </button>
                 </div>
             </div>

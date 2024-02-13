@@ -1,9 +1,13 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Inject, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { QuestionManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
-
+export interface DialogCreate {
+    modificationState: QuestionManagementState;
+}
 @Component({
     selector: 'app-create-question',
     templateUrl: './create-question.component.html',
@@ -20,13 +24,9 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     modifyingForm: boolean = false;
     questionFormControl = new FormControl('', [Validators.required]);
     questionForm: FormGroup;
-    color: unknown;
-    checked: unknown;
-    disabled: unknown;
-
-    // color: any;
-    checked: any;
-    disabled: any;
+    modificationState: QuestionManagementState;
+    checked: boolean;
+    disabled: boolean;
     private readonly snackBarDisplayTime = 2000;
     private readonly minChoices = 2;
     private readonly maxChoices = 4;
@@ -34,8 +34,10 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     constructor(
         private snackBar: MatSnackBar,
         private fb: FormBuilder,
+        @Inject(MAT_DIALOG_DATA) public data: DialogCreate,
     ) {
         this.initializeForm();
+        this.modificationState = data.modificationState;
     }
 
     get choices(): FormArray {

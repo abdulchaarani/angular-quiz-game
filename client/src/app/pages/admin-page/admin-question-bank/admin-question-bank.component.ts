@@ -3,8 +3,8 @@ import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { QuestionManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
-import { CreateQuestionComponent } from '@app/pages/create-question/create-question.component';
 import { NotificationService } from '@app/services/notification.service';
 import { QuestionService } from '@app/services/question.service';
 
@@ -14,11 +14,11 @@ import { QuestionService } from '@app/services/question.service';
     styleUrls: ['./admin-question-bank.component.scss'],
 })
 export class AdminQuestionBankComponent implements OnInit {
-    sortAscending: string = '';
     @Output() createQuestionEventQuestionBank: EventEmitter<Question> = new EventEmitter<Question>();
     @Input() createNewQuestionButton: boolean = false;
     @Input() createNewQuestionToBankButton: boolean = false;
 
+    sortAscending: string = '';
     questions: Question[] = [];
 
     response: string = '';
@@ -89,14 +89,7 @@ export class AdminQuestionBankComponent implements OnInit {
 
     openDialog() {
         if (!this.dialogState) {
-            const dialogRef = this.dialog.open(CreateQuestionComponent, {
-                height: '70%',
-                width: '100%',
-                // data: {
-                //     createNewQuestionToBankButton: false,
-                //     createNewQuestionButton: true,
-                // },
-            });
+            const dialogRef = this.notificationService.openCreateQuestionModal(QuestionManagementState.BankCreate);
 
             dialogRef.componentInstance.createQuestionEvent.subscribe((newQuestion: Question) => {
                 if (newQuestion) {

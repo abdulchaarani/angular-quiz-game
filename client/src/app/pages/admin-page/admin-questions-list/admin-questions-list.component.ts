@@ -3,6 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { AfterViewInit, Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { QuestionManagementState } from '@app/constants/states';
 import { BankStatus, GameStatus, QuestionStatus } from '@app/feedback-messages';
 import { CanComponentDeactivate, CanDeactivateType } from '@app/interfaces/can-component-deactivate';
 import { Game } from '@app/interfaces/game';
@@ -185,21 +186,12 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
 
     openCreateQuestionDialog() {
         if (!this.dialogState) {
-            const dialogRef = this.notificationService.openCreateQuestionModal();
+            const dialogRef = this.notificationService.openCreateQuestionModal(QuestionManagementState.GameCreate);
 
             dialogRef.componentInstance.createQuestionEvent.subscribe((newQuestion: Question) => {
                 this.addQuestionToGame(newQuestion);
-                // if (this.addToBankToggleButtonState) {
-                //     this.addQuestionToBank(newQuestion);
-                //     console.log('ADDE TO BANK');
-                // }
                 dialogRef.close();
             });
-
-            // dialogRef.componentInstance.createQuestionEventQuestionBank.subscribe(() => {
-            //     this.addToBankToggleButtonState = !this.addToBankToggleButtonState;
-            //     this.dialogState = false;
-            // });
         }
     }
 

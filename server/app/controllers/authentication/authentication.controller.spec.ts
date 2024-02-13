@@ -1,27 +1,27 @@
-import { AuthService } from '@app/services/authentication/auth.service';
+import { AuthenticationService } from '@app/services/authentication/authentication.service';
 import { HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Response } from 'express';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
-import { AuthController } from './auth.controller';
+import { AuthenticationController } from './authentication.controller';
 
-describe('AuthController', () => {
-    let controller: AuthController;
-    let authService: SinonStubbedInstance<AuthService>;
+describe('AuthenticationController', () => {
+    let controller: AuthenticationController;
+    let authService: SinonStubbedInstance<AuthenticationService>;
 
     beforeEach(async () => {
-        authService = createStubInstance(AuthService);
+        authService = createStubInstance(AuthenticationService);
         const module: TestingModule = await Test.createTestingModule({
-            controllers: [AuthController],
+            controllers: [AuthenticationController],
             providers: [
                 {
-                    provide: AuthService,
+                    provide: AuthenticationService,
                     useValue: authService,
                 },
             ],
         }).compile();
 
-        controller = module.get<AuthController>(AuthController);
+        controller = module.get<AuthenticationController>(AuthenticationController);
     });
 
     it('should be defined', () => {

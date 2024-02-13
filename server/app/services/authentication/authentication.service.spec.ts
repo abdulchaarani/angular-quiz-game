@@ -1,16 +1,16 @@
 import { ADMIN_PASSWORD } from '@app/constants/admin-auth-info';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService } from './auth.service';
+import { AuthenticationService } from './authentication.service';
 
-describe('AuthService', () => {
-    let service: AuthService;
+describe('AuthenticationService', () => {
+    let service: AuthenticationService;
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
-            providers: [AuthService],
+            providers: [AuthenticationService],
         }).compile();
 
-        service = module.get<AuthService>(AuthService);
+        service = module.get<AuthenticationService>(AuthenticationService);
     });
 
     it('should be defined', () => {

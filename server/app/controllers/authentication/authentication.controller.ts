@@ -1,4 +1,4 @@
-import { AuthService } from '@app/services/authentication/auth.service';
+import { AuthenticationService } from '@app/services/authentication/authentication.service';
 import { Body, Controller, HttpStatus, Post, Res } from '@nestjs/common';
 import { Response } from 'express';
 
@@ -7,8 +7,8 @@ interface authentificationInfo {
 }
 
 @Controller('/login')
-export class AuthController {
-    constructor(private authService: AuthService) {}
+export class AuthenticationController {
+    constructor(private authService: AuthenticationService) {}
 
     @Post('/')
     signIn(@Body() signInInfo: authentificationInfo, @Res() response: Response) {

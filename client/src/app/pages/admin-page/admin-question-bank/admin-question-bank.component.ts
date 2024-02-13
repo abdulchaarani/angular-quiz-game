@@ -19,7 +19,6 @@ export class AdminQuestionBankComponent implements OnInit {
     @Input() createNewQuestionButton: boolean = false;
     @Input() createNewQuestionToBankButton: boolean = false;
 
-    sortAscending: string = '';
     questions: Question[] = [];
 
     response: string = '';

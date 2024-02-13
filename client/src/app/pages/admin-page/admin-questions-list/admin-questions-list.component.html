@@ -97,7 +97,7 @@
                 >
                     <app-short-question
                         class="question short-question"
-                        *ngFor="let question of bankQuestions | sortByLastModification: 'ascending'"
+                        *ngFor="let question of bankQuestions | sortByLastModification: 'descending'"
                         [question]="question"
                         cdkDrag
                         [cdkDragData]="question"

@@ -78,14 +78,6 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
         }
     }
 
-    drop(event: CdkDragDrop<this>) {
-        moveItemInArray(this.choices.controls, event.previousIndex, event.currentIndex);
-        this.choices.controls.forEach((control, index) => {
-            control.patchValue({ number: index + 1 }, { emitEvent: false });
-        });
-        this.question.choices = this.choices.value;
-    }
-
     onSubmitQuestionBank() {
         if (this.questionForm.valid) {
             const newQuestion: Question = this.questionForm.value;
@@ -96,7 +88,7 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     onSubmit() {
         if (this.questionForm.valid) {
             const newQuestion: Question = this.questionForm.value;
-            newQuestion.lastModification = new Date().toLocaleString();
+            newQuestion.lastModification = new Date().toString();
             this.createQuestionEvent.emit(newQuestion);
         }
     }
@@ -123,7 +115,7 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
                 this.question.text = formValue?.text;
                 this.question.type = formValue?.type;
                 this.question.points = formValue?.points;
-                this.question.lastModification = new Date().toLocaleDateString();
+                this.question.lastModification = new Date().toString();
                 this.question.choices = formValue.choices;
             });
         }
@@ -133,6 +125,18 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
         if (changes.question && this.question) {
             this.modifyingForm = true;
             this.updateFormValues();
+        }
+    }
+
+    drop(event: CdkDragDrop<this>) {
+        if (this.questionForm) {
+            moveItemInArray(this.choices.controls, event.previousIndex, event.currentIndex);
+            this.choices.controls.forEach((control, index) => {
+                control.patchValue({ number: index + 1 }, { emitEvent: false });
+            });
+        }
+        if (this.question) {
+            this.question.choices = this.questionForm.value.choices;
         }
     }
 
@@ -179,10 +183,3 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
         });
     }
 }
-
-// References:
-// https://stackoverflow.com/questions/49782253/angular-reactive-form
-// https://stackoverflow.com/questions/53362983/angular-reactiveforms-nested-formgroup-within-formarray-no-control-found?rq=3
-// https://stackblitz.com/edit/angular-nested-formarray-dynamic-forms?file=src%2Fapp%2Fapp.component.html
-// https://stackoverflow.com/questions/67834802/template-error-type-abstractcontrol-is-not-assignable-to-type-formcontrol
-// https://stackoverflow.com/questions/39679637/angular-2-form-cannot-find-control-with-path

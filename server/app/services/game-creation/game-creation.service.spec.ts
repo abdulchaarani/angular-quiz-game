@@ -1,4 +1,5 @@
-import { getMockGame } from '@app/constants/game-mocks';
+import { GAME_WITH_IS_CORRECT_FIELD, getMockGame } from '@app/constants/game-mocks';
+import { getMockQuestion } from '@app/constants/question-mocks';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as uuid from 'uuid';
 import { GameCreationService } from './game-creation.service';
@@ -46,5 +47,35 @@ describe('GameCreationService', () => {
         const mockGame = getMockGame();
         const updatedGame = service.generateId(mockGame);
         expect(uuidSpy).toHaveBeenCalledTimes(1 + updatedGame.questions.length);
+    });
+    it('completeIsCorrectField() should call completeIsCorrectChoice for each question', () => {
+        const spyComplete = jest.spyOn(service, 'completeIsCorrectChoice');
+        service.completeIsCorrectField(GAME_WITH_IS_CORRECT_FIELD);
+        expect(spyComplete).toHaveBeenCalledTimes(GAME_WITH_IS_CORRECT_FIELD.questions.length);
+    });
+
+    it('completeIsCorrectChoice() should return the question if it is of QRL type', () => {
+        const mockQuestion = getMockQuestion();
+        mockQuestion.type = 'QRL';
+        expect(service.completeIsCorrectChoice(mockQuestion)).toEqual(mockQuestion);
+    });
+
+    it('completeIsCorrectChoice() should complete isCorrect property by false if it is not defined or null', () => {
+        const mockQuestion = getMockQuestion();
+        mockQuestion.choices = [
+            { text: 'mock' },
+            { text: 'mock', isCorrect: null },
+            { text: 'mock', isCorrect: true },
+            { text: 'mock', isCorrect: false },
+        ];
+        const expectedQuestion = mockQuestion;
+        expectedQuestion.choices = [
+            { text: 'mock', isCorrect: false },
+            { text: 'mock', isCorrect: false },
+            { text: 'mock', isCorrect: true },
+            { text: 'mock', isCorrect: false },
+        ];
+        const result = service.completeIsCorrectChoice(mockQuestion);
+        expect(result).toEqual(expectedQuestion);
     });
 });

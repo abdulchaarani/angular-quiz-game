@@ -22,12 +22,12 @@ export class GameCreationService {
 
     completeIsCorrectField(game: Game): Game {
         game.questions.forEach((question: Question) => {
-            question = this.completeIsCorrectFieldQuestion(question);
+            question = this.completeIsCorrectChoice(question);
         });
         return game;
     }
 
-    completeIsCorrectFieldQuestion(question: Question): Question {
+    completeIsCorrectChoice(question: Question): Question {
         if (question.type !== 'QRL') {
             question.choices.forEach((choice: Choice) => {
                 if (choice.isCorrect !== true && choice.isCorrect !== false) {

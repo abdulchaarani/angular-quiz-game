@@ -139,10 +139,10 @@ describe('GameValidationService', () => {
         const spyChoicesRatio = jest.spyOn(service, 'isValidChoicesRatio').mockReturnValue(false);
         const spyUniqueChoices = jest.spyOn(service, 'isUniqueChoices').mockReturnValue(false);
         expect(service.findChoicesQuestionErrors(VALID_QUESTION)).toEqual([
-            ERROR_CHOICES_NUMBER,
-            ERROR_REPEAT_CHOICES,
             ERROR_POINTS,
             ERROR_EMPTY_QUESTION,
+            ERROR_CHOICES_NUMBER,
+            ERROR_REPEAT_CHOICES,
             ERROR_CHOICES_RATIO,
         ]);
         expect(spyRange).toHaveBeenCalledWith(VALID_QUESTION.choices.length, MIN_CHOICES_NUMBER, MAX_CHOICES_NUMBER);

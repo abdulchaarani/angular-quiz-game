@@ -1,10 +1,10 @@
 import { Game } from '@app/model/database/game';
-import { questionMocks } from './question-mocks';
+import { VALID_QUESTION } from './question-mocks';
 import { getRandomString } from './test-utils';
 
 const gameYear = 2020;
 
-const getGame = (): Game => ({
+const getMockGame = (): Game => ({
     id: getRandomString(),
     title: getRandomString(),
     description: getRandomString(),
@@ -32,11 +32,11 @@ const getGame = (): Game => ({
     ],
 });
 
-const gameValidQuestion = getGame();
-gameValidQuestion.questions = [questionMocks.validQuestion];
+const GAME_VALID_QUESTION = getMockGame();
+GAME_VALID_QUESTION.questions = [VALID_QUESTION];
 
 const pastYear = 2020;
-const gameWithIsCorrectField: Game = {
+const GAME_WITH_IS_CORRECT_FIELD: Game = {
     id: '',
     title: '',
     description: '',
@@ -81,7 +81,7 @@ const gameWithIsCorrectField: Game = {
     ],
 };
 
-const gameWithoutIsCorrectField: Game = {
+const GAME_WITHOUT_IS_CORRECT_FIELD: Game = {
     id: '',
     title: '',
     description: '',
@@ -122,9 +122,4 @@ const gameWithoutIsCorrectField: Game = {
     ],
 };
 
-export const gameMocks = {
-    getGame,
-    gameValidQuestion,
-    gameWithIsCorrectField,
-    gameWithoutIsCorrectField,
-};
+export { GAME_VALID_QUESTION, GAME_WITHOUT_IS_CORRECT_FIELD, GAME_WITH_IS_CORRECT_FIELD, getMockGame };

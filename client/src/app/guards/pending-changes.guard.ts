@@ -1,24 +1,8 @@
-import { inject } from '@angular/core';
+// https://medium.com/ngconf/functional-candeactivate-guards-in-angular-2211f5da78c2
+
 import { CanDeactivateFn } from '@angular/router';
-import { GamesService } from '@app/services/games.service';
-import { NotificationService } from '@app/services/notification.service';
-import { lastValueFrom } from 'rxjs';
+import { CanComponentDeactivate } from '@app/interfaces/can-component-deactivate';
 
-export const pendingChangesGuard: CanDeactivateFn<unknown> = async () => {
-    const gameService = inject(GamesService);
-    const notificationService = inject(NotificationService);
-
-    const pendingChange = gameService.isPendingChangesSource.getValue();
-    if (pendingChange) {
-        const confirmation$ = notificationService.openConfirmDialog({
-            data: {
-                icon: 'warning',
-                title: 'Attention',
-                text: 'Vous avec des modifications non sauvegardés. Êtes-vous certain de vouloir quitter?',
-            },
-        });
-        return await lastValueFrom(confirmation$);
-    }
-
-    return true;
+export const pendingChangesGuard: CanDeactivateFn<CanComponentDeactivate> = (component: CanComponentDeactivate) => {
+    return component.canDeactivate();
 };

@@ -6,26 +6,14 @@ import { Game } from '@app/interfaces/game';
 import { MatDialogMock } from '@app/testing/mat-dialog-mock';
 import { of } from 'rxjs';
 import { GamesService } from './games.service';
-import { NotificationService } from './notification.service';
 
 describe('GameService', () => {
     let service: GamesService;
-    let notificationService: NotificationService;
-
     beforeEach(() => {
         TestBed.configureTestingModule({
-            providers: [
-                GamesService,
-                HttpClient,
-                HttpHandler,
-                MatSnackBar,
-                MatDialog,
-                NotificationService,
-                { provide: MatDialog, useClass: MatDialogMock },
-            ],
+            providers: [GamesService, HttpClient, HttpHandler, MatSnackBar, MatDialog, { provide: MatDialog, useClass: MatDialogMock }],
         });
         service = TestBed.inject(GamesService);
-        notificationService = TestBed.inject(NotificationService);
     });
 
     it('should be created', () => {
@@ -107,51 +95,6 @@ describe('GameService', () => {
         service.submitGame(newMockGame, 'notModify');
         expect(uploadGameSpy).toHaveBeenCalledWith(newMockGame);
         expect(replaceGameSpy).not.toHaveBeenCalled();
-    });
-
-    // Ref : https://stackoverflow.com/questions/59062023/how-to-mock-a-pdf-blob
-    // Ref : https://stackoverflow.com/questions/61142428/angular-test-mock-a-httpresponse-containing-a-blob
-    it('should return a game as JSON without isVisible, _id or __v attributes', () => {
-        const stringifiedGame = JSON.stringify(newMockGame);
-        const mockBlob = new Blob([stringifiedGame], { type: 'text/json' });
-        const createObjectUrlSpy = spyOn(window.URL, 'createObjectURL').and.returnValue('');
-        const revokeObjectSpy = spyOn(window.URL, 'revokeObjectURL');
-
-        service.downloadGameAsJson(newMockGame);
-        expect(createObjectUrlSpy).toHaveBeenCalledWith(mockBlob);
-        expect(revokeObjectSpy).toHaveBeenCalled();
-    });
-
-    it('should open a snackbar to display a success message', () => {
-        const notificationSpy = spyOn(notificationService, 'displaySuccessMessage');
-        const mockMessage = 'mock';
-        service.displaySuccessMessage(mockMessage);
-        expect(notificationSpy).toHaveBeenCalledWith(mockMessage);
-    });
-
-    it('should displayErrorMessage() should display an error message', () => {
-        const notificationSpy = spyOn(notificationService, 'displayErrorMessage');
-        const mockMessage = 'mock';
-        service.displayErrorMessage(mockMessage);
-        expect(notificationSpy).toHaveBeenCalledWith(mockMessage);
-    });
-
-    it('should open confirm dialog to confirm bank upload', () => {
-        const notificationSpy = spyOn(notificationService, 'openConfirmDialog');
-        const mockTitle = 'mockTitle';
-        service.confirmBankUpload(mockTitle);
-        const mockData = {
-            icon: 'info_outline',
-            title: 'Êtes-vous certain de vouloir ajouter cette question à la banque de questions?',
-            text: mockTitle,
-        };
-        expect(notificationSpy).toHaveBeenCalledWith({ data: mockData });
-    });
-
-    it('should open create question modal', () => {
-        const notificationSpy = spyOn(notificationService, 'openCreateQuestionModal');
-        service.openCreateQuestionModal();
-        expect(notificationSpy).toHaveBeenCalled();
     });
 
     it('should mark pending changes', () => {

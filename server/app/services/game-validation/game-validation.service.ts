@@ -1,5 +1,24 @@
-import { errorMessage } from '@app/constants/game-error-messages';
-import { constants } from '@app/constants/game-validation-constants';
+import {
+    MAX_CHOICES_NUMBER,
+    MAX_DURATION,
+    MAX_POINTS,
+    MIN_CHOICES_NUMBER,
+    MIN_DURATION,
+    MIN_POINTS,
+    MIN_QUESTIONS_NUMBER,
+    STEP_POINTS,
+} from '@app/constants/game-validation-constraints';
+import {
+    ERROR_CHOICES_NUMBER,
+    ERROR_CHOICES_RATIO,
+    ERROR_DURATION,
+    ERROR_EMPTY_DESCRIPTION,
+    ERROR_EMPTY_QUESTION,
+    ERROR_EMPTY_TITLE,
+    ERROR_POINTS,
+    ERROR_QUESTIONS_NUMBER,
+    ERROR_REPEAT_CHOICES,
+} from '@app/constants/game-validation-errors';
 import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question-dto';
@@ -41,25 +60,25 @@ export class GameValidationService {
     findQuestionErrors(question: CreateQuestionDto): string[] {
         const errorMessages: string[] = [];
         const isUniqueChoices = this.isUniqueChoices(question.choices);
-        const isValidChoicesNumber = this.isValidRange(question.choices.length, constants.minimumChoicesNumber, constants.maximumChoicesNumber);
-        const isValidPointsRange = this.isValidRange(question.points, constants.minimumPoints, constants.maximumPoints);
-        const isValidPointsMultiple = question.points % constants.stepPoints === 0;
+        const isValidChoicesNumber = this.isValidRange(question.choices.length, MIN_CHOICES_NUMBER, MAX_CHOICES_NUMBER);
+        const isValidPointsRange = this.isValidRange(question.points, MIN_POINTS, MAX_POINTS);
+        const isValidPointsMultiple = question.points % STEP_POINTS === 0;
         const isValidQuestionName = this.isValidString(question.text);
         const isValidQuestionRatio = this.isValidChoicesRatio(question);
         if (!isValidChoicesNumber) {
-            errorMessages.push(errorMessage.choicesNumber);
+            errorMessages.push(ERROR_CHOICES_NUMBER);
         }
         if (!isUniqueChoices) {
-            errorMessages.push(errorMessage.noRepeatChoice);
+            errorMessages.push(ERROR_REPEAT_CHOICES);
         }
         if (!isValidPointsRange || !isValidPointsMultiple) {
-            errorMessages.push(errorMessage.points);
+            errorMessages.push(ERROR_POINTS);
         }
         if (!isValidQuestionName) {
-            errorMessages.push(errorMessage.questionEmptyText);
+            errorMessages.push(ERROR_EMPTY_QUESTION);
         }
         if (!isValidQuestionRatio) {
-            errorMessages.push(errorMessage.choicesRatio);
+            errorMessages.push(ERROR_CHOICES_RATIO);
         }
         return errorMessages;
     }
@@ -68,20 +87,20 @@ export class GameValidationService {
         const errorMessages: string[] = [];
         const isValidTitle = this.isValidString(game.title);
         const isValidDescription = this.isValidString(game.description);
-        const isValidDuration = this.isValidRange(game.duration, constants.minimumDuration, constants.maximumDuration);
-        const isValidQuestionsNumber = game.questions.length >= constants.minimumQuestionsNumber;
+        const isValidDuration = this.isValidRange(game.duration, MIN_DURATION, MAX_DURATION);
+        const isValidQuestionsNumber = game.questions.length >= MIN_QUESTIONS_NUMBER;
 
         if (!isValidTitle) {
-            errorMessages.push(errorMessage.gameEmptyTitle);
+            errorMessages.push(ERROR_EMPTY_TITLE);
         }
         if (!isValidDescription) {
-            errorMessages.push(errorMessage.gameEmptyDescription);
+            errorMessages.push(ERROR_EMPTY_DESCRIPTION);
         }
         if (!isValidDuration) {
-            errorMessages.push(errorMessage.gameDuration);
+            errorMessages.push(ERROR_DURATION);
         }
         if (!isValidQuestionsNumber) {
-            errorMessages.push(errorMessage.gameQuestionsNumber);
+            errorMessages.push(ERROR_QUESTIONS_NUMBER);
         }
         game.questions.forEach((question: CreateQuestionDto, index: number) => {
             const questionErrorMessages = this.findQuestionErrors(question);

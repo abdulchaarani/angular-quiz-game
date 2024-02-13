@@ -1,4 +1,11 @@
 import { GAMES_TO_POPULATE } from '@app/constants/populate-constants';
+import {
+    ERROR_DEFAULT,
+    ERROR_GAME_NOT_FOUND,
+    ERROR_GAME_SAME_TITLE,
+    ERROR_INVALID_GAME,
+    ERROR_QUESTION_NOT_FOUND,
+} from '@app/constants/request-errors';
 import { Choice } from '@app/model/database/choice';
 import { Game, GameDocument } from '@app/model/database/game';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
@@ -41,7 +48,7 @@ export class GameService {
     async getGameById(gameId: string): Promise<Game> {
         const game = await this.gameModel.findOne({ id: gameId });
         if (!game) {
-            return Promise.reject('Le jeu est introuvable.');
+            return Promise.reject(ERROR_GAME_NOT_FOUND);
         } else {
             return game;
         }
@@ -56,7 +63,7 @@ export class GameService {
         const question = game.questions.find((currentQuestion) => {
             return currentQuestion.id === questionId;
         });
-        return question ? question.choices : Promise.reject('La question est introuvable.');
+        return question ? question.choices : Promise.reject(ERROR_QUESTION_NOT_FOUND);
     }
 
     updateDateAndVisibility(game: Game): Game {
@@ -75,7 +82,7 @@ export class GameService {
 
     async addGame(newGame: CreateGameDto): Promise<Game> {
         if (await this.getGameByTitle(newGame.title)) {
-            return Promise.reject('Un jeu du même titre existe déjà.');
+            return Promise.reject(ERROR_GAME_SAME_TITLE);
         }
         newGame = this.updateDateAndVisibility(this.generateId(newGame));
 
@@ -85,10 +92,10 @@ export class GameService {
                 await this.gameModel.create(newGame);
                 return newGame;
             } else {
-                return Promise.reject(`Le jeu est invalide:\n${errorMessages.join('\n')}`);
+                return Promise.reject(`${ERROR_INVALID_GAME}\n${errorMessages.join('\n')}`);
             }
         } catch (error) {
-            return Promise.reject(`Le jeu n'a pas pu être ajouté: ${error}`);
+            return Promise.reject(`${ERROR_DEFAULT} ${error}`);
         }
     }
 
@@ -100,7 +107,7 @@ export class GameService {
             await this.gameModel.updateOne(filterQuery, gameToToggleVisibility);
             return gameToToggleVisibility;
         } catch (error) {
-            return Promise.reject(`Erreur: ${error}`);
+            return Promise.reject(`${ERROR_DEFAULT} ${error}`);
         }
     }
 
@@ -109,7 +116,7 @@ export class GameService {
         try {
             const errorMessages = this.validation.findGameErrors(game);
             if (errorMessages.length !== 0) {
-                return Promise.reject(`Le jeu est invalide:\n${errorMessages.join('\n')}`);
+                return Promise.reject(`${ERROR_INVALID_GAME}\n${errorMessages.join('\n')}`);
             }
             game = this.updateDateAndVisibility(game);
 
@@ -119,7 +126,7 @@ export class GameService {
             });
             return game;
         } catch (error) {
-            return Promise.reject(`Le jeu n'a pas pu être modifié: ${error}`);
+            return Promise.reject(`${ERROR_DEFAULT} ${error}`);
         }
     }
 
@@ -127,12 +134,12 @@ export class GameService {
         try {
             await this.getGameById(gameId);
         } catch (error) {
-            return Promise.reject(`Erreur: ${error}`);
+            return Promise.reject(`${ERROR_DEFAULT} ${error}`);
         }
         try {
             await this.gameModel.deleteOne({ id: gameId });
         } catch (error) {
-            return Promise.reject(`Le jeu n'a pas pu être supprimé: ${error}`);
+            return Promise.reject(`${ERROR_DEFAULT} ${error}`);
         }
     }
 }

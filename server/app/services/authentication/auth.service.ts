@@ -8,7 +8,6 @@ export class AuthService {
     isValidPassword(password: string): boolean {
         // The point is to use the common interface Message to generate common folder and avoid compilation errors.
         const message: Message = { title: '', body: '' };
-        console.log(message.title);
-        return this.password === password;
+        return this.password === password && message.title === '';
     }
 }

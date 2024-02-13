@@ -3,8 +3,6 @@ import { Injectable } from '@angular/core';
 import { Game } from '@app/interfaces/game';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { ApiService } from './api.service';
-import { NotificationService } from './notification.service';
-import { QuestionService } from './question.service';
 
 @Injectable({
     providedIn: 'root',
@@ -13,11 +11,7 @@ export class GamesService extends ApiService<Game> {
     isPendingChangesObservable: Observable<boolean>;
     isPendingChangesSource = new BehaviorSubject<boolean>(false);
 
-    constructor(
-        private readonly notificationService: NotificationService,
-        public questionService: QuestionService,
-        http: HttpClient,
-    ) {
+    constructor(http: HttpClient) {
         super(http, 'admin/games');
         this.isPendingChangesObservable = this.isPendingChangesSource.asObservable();
     }
@@ -50,50 +44,11 @@ export class GamesService extends ApiService<Game> {
         return state === 'modify' ? this.replaceGame(game) : this.uploadGame(game);
     }
 
-    downloadGameAsJson(gameToStringify: Game) {
-        const stringifiedGame = JSON.stringify(gameToStringify, (key, value) => {
-            if (key !== 'isVisible' && key !== '_id' && key !== '__v') {
-                return value;
-            }
-        });
-        const blob = new Blob([stringifiedGame], { type: 'text/json' });
-        // Reference: https://runninghill.azurewebsites.net/downloading-objects-as-json-files-in-angular/
-        const url = window.URL.createObjectURL(blob);
-        const downloadLink = document.createElement('a');
-        downloadLink.href = url;
-        downloadLink.download = `${gameToStringify.title}.json`;
-        downloadLink.click();
-        window.URL.revokeObjectURL(url);
-        downloadLink.remove();
-    }
-
-    displaySuccessMessage(successMessage: string) {
-        this.notificationService.displaySuccessMessage(successMessage);
-    }
-
-    displayErrorMessage(errorMessage: string) {
-        this.notificationService.displayErrorMessage(errorMessage);
-    }
-
     markPendingChanges() {
-        this.isPendingChangesSource.next(true); // TODO: Test
+        this.isPendingChangesSource.next(true);
     }
 
     resetPendingChanges() {
-        this.isPendingChangesSource.next(false); // TODO: Test
-    }
-
-    confirmBankUpload(questionTitle: string) {
-        return this.notificationService.openConfirmDialog({
-            data: {
-                icon: 'info_outline',
-                title: 'Êtes-vous certain de vouloir ajouter cette question à la banque de questions?',
-                text: questionTitle,
-            },
-        });
-    }
-
-    openCreateQuestionModal() {
-        return this.notificationService.openCreateQuestionModal();
+        this.isPendingChangesSource.next(false);
     }
 }

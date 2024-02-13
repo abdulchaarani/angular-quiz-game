@@ -36,7 +36,7 @@ describe('AuthController', () => {
             return res;
         };
         res.send = () => res;
-        controller.signIn({ username: '', password: '' }, res);
+        controller.signIn({ password: '' }, res);
         expect(authService.isValidPassword.calledOnce).toBe(true);
     });
 
@@ -48,7 +48,7 @@ describe('AuthController', () => {
             return res;
         };
         res.send = () => res;
-        controller.signIn({ username: '', password: '' }, res);
+        controller.signIn({ password: '' }, res);
         expect(authService.isValidPassword.calledOnce).toBe(true);
     });
 });

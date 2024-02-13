@@ -17,15 +17,19 @@ export class AuthenticationService {
         this.isAuthenticated = false;
     }
 
-    validatePassword(inputUsername: string, inputPassword: string): void {
+    validatePassword(password: string): void {
         this.http
-            .post(`${environment.serverUrl}/login`, JSON.stringify({ username: inputUsername, password: inputPassword }), {
-                headers: new HttpHeaders({
-                    contentType: 'application/json',
-                }),
-                observe: 'response' as const,
-                responseType: 'text' as const,
-            })
+            .post(
+                `${environment.serverUrl}/login`,
+                { password },
+                {
+                    headers: new HttpHeaders({
+                        contentType: 'application/json',
+                    }),
+                    observe: 'response' as const,
+                    responseType: 'text' as const,
+                },
+            )
             .subscribe({
                 next: () => {
                     this.isAuthenticated = true;

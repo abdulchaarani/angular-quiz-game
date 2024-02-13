@@ -1,4 +1,3 @@
-import { GAMES_TO_POPULATE } from '@app/constants/populate-constants';
 import {
     ERROR_DEFAULT,
     ERROR_GAME_NOT_FOUND,
@@ -11,7 +10,7 @@ import { Game, GameDocument } from '@app/model/database/game';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 import { GameValidationService } from '@app/services/game-validation/game-validation.service';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
@@ -21,21 +20,7 @@ export class GameService {
     constructor(
         @InjectModel(Game.name) public gameModel: Model<GameDocument>,
         private validation: GameValidationService,
-        private readonly logger: Logger,
-    ) {
-        this.start();
-    }
-
-    async start() {
-        if ((await this.gameModel.countDocuments()) === 0) {
-            await this.populateDB();
-        }
-    }
-
-    async populateDB(): Promise<void> {
-        this.logger.log('THIS ADDS DATA TO THE DATABASE, DO NOT USE OTHERWISE');
-        await this.gameModel.insertMany(GAMES_TO_POPULATE);
-    }
+    ) {}
 
     async getAllGames(): Promise<Game[]> {
         return await this.gameModel.find({});

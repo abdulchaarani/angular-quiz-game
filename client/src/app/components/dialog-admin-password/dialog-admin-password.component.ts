@@ -3,7 +3,6 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { HomePageComponent } from '@app/pages/home-page/home-page.component';
 
 export interface DialogData {
-    username: string;
     password: string;
 }
 

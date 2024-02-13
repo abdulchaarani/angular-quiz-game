@@ -1,3 +1,4 @@
+import { ADMIN_PASSWORD } from '@app/constants/admin-auth-info';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
 
@@ -17,9 +18,8 @@ describe('AuthService', () => {
     });
 
     it('isValidPassword() should return true if the password in parameter is the right one, else false', () => {
-        const RIGHT_PASSWORD = 'log2990-305'; // TODO: Mock instead?
         const WRONG_CASE_PASSWORD = 'LOG2990-305';
-        expect(service.isValidPassword(RIGHT_PASSWORD)).toBeTruthy();
+        expect(service.isValidPassword(ADMIN_PASSWORD)).toBeTruthy();
         expect(service.isValidPassword(WRONG_CASE_PASSWORD)).toBeFalsy();
     });
 });

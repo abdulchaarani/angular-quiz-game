@@ -9,7 +9,6 @@ import { AuthenticationService } from '@app/services/authentication/authenticati
     styleUrls: ['./home-page.component.scss'],
 })
 export class HomePageComponent {
-    username: string = 'admin';
     password: string;
     constructor(
         private dialog: MatDialog,
@@ -17,7 +16,7 @@ export class HomePageComponent {
     ) {}
     openDialog(): void {
         const dialogRef = this.dialog.open(DialogAdminPasswordComponent, {
-            data: { username: this.username, password: this.password },
+            data: { password: this.password },
         });
 
         dialogRef.afterClosed().subscribe((result: string) => {
@@ -26,7 +25,7 @@ export class HomePageComponent {
     }
 
     submitPassword(password: string): void {
-        this.authenticationService.validatePassword(this.username, password);
+        this.authenticationService.validatePassword(password);
         this.password = '';
     }
 }

@@ -36,14 +36,14 @@ describe('AuthenticationService', () => {
 
     it('validatePassword() should redirect to /admin/games if password is valid', () => {
         httpClientSpy.post.and.returnValue(of({ status: 200 }));
-        service.validatePassword('', '');
+        service.validatePassword('');
         expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/admin/games');
         expect(service.getIsAuthenticated()).toBeTrue();
     });
 
     it('validatePassword() should display error message if wrong password', () => {
         httpClientSpy.post.and.returnValue(throwError(() => new HttpErrorResponse({ status: 401 })));
-        service.validatePassword('', '');
+        service.validatePassword('');
         expect(routerSpy.navigateByUrl).not.toHaveBeenCalledWith('/admin/games');
         expect(notificationSpy.displayErrorMessage).toHaveBeenCalled();
         expect(service.getIsAuthenticated()).toBeFalse();

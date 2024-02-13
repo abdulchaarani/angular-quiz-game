@@ -11,8 +11,8 @@ import * as uuid from 'uuid';
 import { GameService } from './game.service';
 jest.mock('uuid');
 
-const mockYear = 2024;
-const mockDate = new Date(mockYear, 1, 1);
+const MOCK_YEAR = 2024;
+const MOCK_DATE = new Date(MOCK_YEAR, 1, 1);
 describe('GameService', () => {
     let service: GameService;
     let gameModel: Model<GameDocument>;
@@ -50,7 +50,7 @@ describe('GameService', () => {
     });
     beforeAll(() => {
         jest.useFakeTimers();
-        jest.setSystemTime(mockDate);
+        jest.setSystemTime(MOCK_DATE);
     });
 
     afterAll(() => {
@@ -59,18 +59,7 @@ describe('GameService', () => {
     it('should be defined', () => {
         expect(service).toBeDefined();
     });
-    it('database should be populated when there is no data', async () => {
-        jest.spyOn(gameModel, 'countDocuments').mockResolvedValue(0);
-        const spyPopulateDB = jest.spyOn(service, 'populateDB');
-        await service.start();
-        expect(spyPopulateDB).toHaveBeenCalled();
-    });
-    it('database should not be populated when there is some data', async () => {
-        jest.spyOn(gameModel, 'countDocuments').mockResolvedValue(1);
-        const spyPopulateDB = jest.spyOn(service, 'populateDB');
-        await service.start();
-        expect(spyPopulateDB).not.toHaveBeenCalled();
-    });
+
     it('getAllGames() should return all games from database', async () => {
         const mockGames = [getMockGame(), getMockGame()];
         const spyFind = jest.spyOn(gameModel, 'find').mockResolvedValue(mockGames);
@@ -134,9 +123,9 @@ describe('GameService', () => {
         const updatedGame = service.updateDateAndVisibility(mockGame);
         expect(updatedGame.id).toEqual(mockGame.id);
         expect(updatedGame.isVisible).toBeFalsy();
-        expect(updatedGame.lastModification).toEqual(mockDate);
+        expect(updatedGame.lastModification).toEqual(MOCK_DATE);
         updatedGame.questions.forEach((question) => {
-            expect(question.lastModification).toEqual(mockDate);
+            expect(question.lastModification).toEqual(MOCK_DATE);
         });
     });
 

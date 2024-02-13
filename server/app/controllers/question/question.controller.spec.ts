@@ -1,3 +1,4 @@
+import { ERROR_QUESTION_NOT_FOUND } from '@app/constants/request-errors';
 import { Question } from '@app/model/database/question';
 import { QuestionService } from '@app/services/question/question.service';
 import { HttpStatus } from '@nestjs/common';
@@ -118,11 +119,24 @@ describe('QuestionController', () => {
         await controller.updateQuestion(new Question(), res);
     });
 
-    it('updateQuestion() should return NOT_FOUND when service cannot update the question', async () => {
-        questionService.updateQuestion.rejects();
+    it('updateQuestion() should return NOT_FOUND when service cannot find the question', async () => {
+        jest.spyOn(questionService, 'updateQuestion').mockImplementationOnce(async () => {
+            return Promise.reject(ERROR_QUESTION_NOT_FOUND);
+        });
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.NOT_FOUND);
+            return res;
+        };
+        res.send = () => res;
+        await controller.updateQuestion(new Question(), res);
+    });
+
+    it('updateQuestion() should return BAD_REQUEST when service cannot update the question', async () => {
+        questionService.updateQuestion.rejects();
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.BAD_REQUEST);
             return res;
         };
         res.send = () => res;

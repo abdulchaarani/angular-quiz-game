@@ -1,3 +1,4 @@
+import { ERROR_GAME_SAME_TITLE } from '@app/constants/request-errors';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 import { GameService } from '@app/services/game/game.service';
@@ -36,7 +37,7 @@ export class GameController {
             const newGame = await this.gameService.addGame(createGameDto);
             response.status(HttpStatus.CREATED).send(JSON.stringify(newGame));
         } catch (error) {
-            if (error === 'Un jeu du même titre existe déjà.') {
+            if (error === ERROR_GAME_SAME_TITLE) {
                 response.status(HttpStatus.CONFLICT).send({ message: error });
             } else {
                 response.status(HttpStatus.BAD_REQUEST).send({ message: error });

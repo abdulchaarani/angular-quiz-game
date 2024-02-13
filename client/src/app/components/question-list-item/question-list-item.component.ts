@@ -13,14 +13,19 @@ export class QuestionListItemComponent {
     @Input() question: Question;
     @Input() index: number;
     @Input() isLastModifiedDateVisible: boolean;
-    @Input() isEditable: boolean;
+    @Input() isBankQuestion: boolean;
     @Output() deleteQuestionEvent = new EventEmitter<string>();
     @Output() questionUpdated = new EventEmitter<Question>();
 
     questions: Question[] = [];
     isCreateQuestionComponent: boolean = false;
     isPanelExpanded: boolean = false;
-    modificationState: QuestionManagementState = QuestionManagementState.Modify;
+
+    modificationState: QuestionManagementState;
+
+    constructor() {
+        this.modificationState = this.isBankQuestion ? QuestionManagementState.BankModify : QuestionManagementState.GameModify;
+    }
 
     togglePanel() {
         this.isPanelExpanded = !this.isPanelExpanded;
@@ -30,7 +35,7 @@ export class QuestionListItemComponent {
         this.deleteQuestionEvent.emit(this.question.id);
     }
 
-    closeComponent() {
+    dispatchNewQuestion(newQuestion: Question) {
         this.questionUpdated.emit(this.question);
     }
 }

@@ -19,7 +19,7 @@
                 *ngFor="let question of questions | sortByLastModification: 'ascending'"
                 [question]="question"
                 [isLastModifiedDateVisible]="true"
-                [isEditable]="true"
+                [isBankQuestion]="true"
                 (deleteQuestionEvent)="deleteQuestion($event)"
                 (questionUpdated)="updateQuestion($event)"
                 cdkDrag

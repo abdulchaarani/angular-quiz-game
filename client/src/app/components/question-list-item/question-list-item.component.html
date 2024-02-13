@@ -29,21 +29,9 @@
             </div>
         </mat-panel-description>
     </mat-expansion-panel-header>
-    <!-- <button
-        mat-icon-button
-        color="primary"
-        aria-label="Example icon button with a menu icon"
-        appClickStopPropagation
-        (click)="togglePanel()"
-        (click)="closeComponent()"
-    >
-        <mat-icon>create</mat-icon>
-    </button> -->
     <app-create-question
-        [createNewQuestionButton]="false"
-        [createNewQuestionToBankButton]="false"
         [question]="question"
         [modificationState]="modificationState"
-    >
-    </app-create-question>
+        (modifyQuestionEvent)="dispatchNewQuestion($event)"
+    ></app-create-question>
 </mat-expansion-panel>

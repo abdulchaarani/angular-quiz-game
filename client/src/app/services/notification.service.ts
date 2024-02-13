@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarConfig, MatSnackBarRef, TextOnlySnackBar } from '@angular/material/snack-bar';
 import { DialogConfirmComponent, DialogData } from '@app/components/dialog-confirm/dialog-confirm.component';
+import { QuestionManagementState } from '@app/constants/states';
 import { CreateQuestionComponent } from '@app/pages/create-question/create-question.component';
 import { Observable } from 'rxjs';
 
@@ -43,8 +44,11 @@ export class NotificationService {
         return this.openConfirmDialog(pendingChangesConfig);
     }
 
-    openCreateQuestionModal() {
+    openCreateQuestionModal(location: QuestionManagementState) {
         return this.dialog.open(CreateQuestionComponent, {
+            data: {
+                location,
+            },
             height: '70%',
             width: '100%',
         });

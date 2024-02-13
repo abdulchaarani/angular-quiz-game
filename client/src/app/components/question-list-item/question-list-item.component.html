@@ -29,7 +29,7 @@
             </div>
         </mat-panel-description>
     </mat-expansion-panel-header>
-    <button
+    <!-- <button
         mat-icon-button
         color="primary"
         aria-label="Example icon button with a menu icon"
@@ -38,13 +38,12 @@
         (click)="closeComponent()"
     >
         <mat-icon>create</mat-icon>
-    </button>
+    </button> -->
     <app-create-question
-        *ngIf="isEditable && isPanelExpanded"
         [createNewQuestionButton]="false"
         [createNewQuestionToBankButton]="false"
         [question]="question"
+        [modificationState]="modificationState"
     >
     </app-create-question>
-    <p>{{ question.text }}</p>
 </mat-expansion-panel>

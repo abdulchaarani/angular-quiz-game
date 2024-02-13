@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Question } from '@app/interfaces/question';
 import { QuestionListItemComponent } from './question-list-item.component';
+import { QuestionManagementState } from '@app/constants/states';
 
 describe('QuestionListItemComponent', () => {
     let component: QuestionListItemComponent;
@@ -45,5 +46,26 @@ describe('QuestionListItemComponent', () => {
 
         expect(spy).toHaveBeenCalled();
         expect(spy).toHaveBeenCalledWith(mockQuestion.id);
+    });
+
+    it('should emit updateQuestionEvent when dispatchQuestion is called', () => {
+        const spy = spyOn(component.updateQuestionEvent, 'emit').and.callThrough();
+
+        component.dispatchModifiedQuestion();
+
+        expect(spy).toHaveBeenCalled();
+        expect(spy).toHaveBeenCalledWith(mockQuestion);
+    });
+
+    it('should set modificationState to BankModify if it is a bank question', () => {
+        component.isBankQuestion = true;
+        component.ngOnInit();
+        expect(component.modificationState).toBe(QuestionManagementState.BankModify);
+    });
+
+    it('should set modificationState to GameModify if it is not a bank question', () => {
+        component.isBankQuestion = false;
+        component.ngOnInit();
+        expect(component.modificationState).toBe(QuestionManagementState.GameModify);
     });
 });

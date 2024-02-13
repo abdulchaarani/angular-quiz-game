@@ -14,27 +14,20 @@ export class QuestionListItemComponent implements OnInit {
     @Input() index: number;
     @Input() isBankQuestion: boolean;
     @Output() deleteQuestionEvent = new EventEmitter<string>();
-    @Output() questionUpdated = new EventEmitter<Question>();
+    @Output() updateQuestionEvent = new EventEmitter<Question>();
 
     questions: Question[] = [];
-    isCreateQuestionComponent: boolean = false;
-    isPanelExpanded: boolean = false;
-
     modificationState: QuestionManagementState;
 
     ngOnInit() {
         this.modificationState = this.isBankQuestion ? QuestionManagementState.BankModify : QuestionManagementState.GameModify;
     }
 
-    togglePanel() {
-        this.isPanelExpanded = !this.isPanelExpanded;
-    }
-
     deleteQuestion() {
         this.deleteQuestionEvent.emit(this.question.id);
     }
 
-    dispatchNewQuestion(newQuestion: Question) {
-        this.questionUpdated.emit(this.question);
+    dispatchModifiedQuestion() {
+        this.updateQuestionEvent.emit(this.question);
     }
 }

@@ -32,6 +32,6 @@
     <app-create-question
         [question]="question"
         [modificationState]="modificationState"
-        (modifyQuestionEvent)="dispatchNewQuestion($event)"
+        (modifyQuestionEvent)="dispatchModifiedQuestion()"
     ></app-create-question>
 </mat-expansion-panel>

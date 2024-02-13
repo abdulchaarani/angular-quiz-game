@@ -115,10 +115,10 @@ export class GameValidationService {
         }
         game.questions.forEach((question: CreateQuestionDto, index: number) => {
             let questionErrorMessages: string[];
-            if (question.type === QuestionTypes.LONG) {
-                questionErrorMessages = this.findGeneralQuestionErrors(question);
-            } else if (question.type === QuestionTypes.CHOICE) {
+            if (question.type === QuestionTypes.CHOICE) {
                 questionErrorMessages = this.findChoicesQuestionErrors(question);
+            } else {
+                questionErrorMessages = this.findGeneralQuestionErrors(question);
             }
             if (questionErrorMessages.length !== 0) {
                 errorMessages.push(`La question ${index + 1} est invalide:`);

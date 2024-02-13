@@ -59,7 +59,6 @@ export class GameService {
         newGame = this.creationService.updateDateAndVisibility(newGame);
         newGame = this.creationService.generateId(newGame);
         newGame = this.creationService.completeIsCorrectField(newGame);
-
         try {
             const errorMessages = this.validation.findGameErrors(newGame);
             if (errorMessages.length === 0) {

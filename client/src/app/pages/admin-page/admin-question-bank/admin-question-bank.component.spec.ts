@@ -9,14 +9,12 @@ import { SortByLastModificationPipe } from '@app/pipes/sort-by-last-modification
 import { NotificationService } from '@app/services/notification.service';
 import { of } from 'rxjs';
 
-
 describe('AdminQuestionBankComponent', () => {
     let component: AdminQuestionBankComponent;
     let fixture: ComponentFixture<AdminQuestionBankComponent>;
     let questionServiceSpy: jasmine.SpyObj<QuestionService>;
     let notificationServiceSpy: jasmine.SpyObj<NotificationService>;
 
-    const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK' });
     const mockQuestions: Question[] = [
         {
             id: '1',
@@ -41,6 +39,7 @@ describe('AdminQuestionBankComponent', () => {
         points: 20,
         lastModification: '2024-01-26T14:21:19+00:00',
     };
+    const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK', body: JSON.stringify(newMockQuestion) });
 
     beforeEach(() => {
         questionServiceSpy = jasmine.createSpyObj('QuestionService', ['getAllQuestions', 'deleteQuestion', 'createQuestion']);
@@ -54,7 +53,7 @@ describe('AdminQuestionBankComponent', () => {
             providers: [
                 { provide: QuestionService, useValue: questionServiceSpy },
                 { provide: NotificationService, useValue: notificationServiceSpy },
-                {provide: MatDialog, useValue: {}}
+                { provide: MatDialog, useValue: {} },
             ],
         });
         fixture = TestBed.createComponent(AdminQuestionBankComponent);
@@ -109,7 +108,6 @@ describe('AdminQuestionBankComponent', () => {
     });
 
     it('should keep ordering by latest date after adding a question', () => {
-        questionServiceSpy.createQuestion.and.returnValue(of(mockHttpResponse));
         component.addQuestion(newMockQuestion);
 
         expect(component.questions[0]).toEqual(newMockQuestion);

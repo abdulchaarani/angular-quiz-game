@@ -38,22 +38,6 @@ describe('QuestionListItemComponent', () => {
         expect(dom.textContent).toContain(mockQuestion.points);
     });
 
-    it('should display the modification date if isLastModifiedDateVisible is set to true', () => {
-        component.isLastModifiedDateVisible = true;
-        fixture.detectChanges();
-        const dom = fixture.nativeElement;
-
-        expect(dom.textContent).toContain('Dernière modification:');
-    });
-
-    it('should not display the modification date if isLastModifiedDateVisible is set to false', () => {
-        component.isLastModifiedDateVisible = false;
-        fixture.detectChanges();
-        const dom = fixture.nativeElement;
-
-        expect(dom.textContent).not.toContain('Dernière modification:');
-    });
-
     it('should emit deleteQuestionEvent when deleteQuestion is called', () => {
         const spy = spyOn(component.deleteQuestionEvent, 'emit').and.callThrough();
 

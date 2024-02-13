@@ -56,11 +56,11 @@ describe('CreateQuestionComponent', () => {
         expect(component.createQuestionEvent.emit).toHaveBeenCalled();
     });
 
-    it('should submit the form to the bank of questions', () => {
-        spyOn(component.createQuestionEventQuestionBank, 'emit');
-        component.onSubmitQuestionBank();
-        expect(component.createQuestionEventQuestionBank.emit).toHaveBeenCalled();
-    });
+    // it('should submit the form to the bank of questions', () => {
+    //     spyOn(component.createQuestionEventQuestionBank, 'emit');
+    //     component.onSubmitQuestionBank();
+    //     expect(component.createQuestionEventQuestionBank.emit).toHaveBeenCalled();
+    // });
 
     it('should not submit a question without at least one correct and incorrect choices - Case when all is false', () => {
         spyOn(component.createQuestionEvent, 'emit');

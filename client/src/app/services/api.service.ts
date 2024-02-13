@@ -44,7 +44,7 @@ export class ApiService<T> {
 
     update(payload: T, endpoint: string): Observable<HttpResponse<string>> {
         return this.http
-            .patch(`${this.serverUrl}/${this.baseUrl}/${endpoint}`,payload, this.httpOptions)
+            .patch(`${this.serverUrl}/${this.baseUrl}/${endpoint}`, payload, this.httpOptions)
             .pipe(catchError(this.handleError<HttpResponse<string>>('update')));
     }
 

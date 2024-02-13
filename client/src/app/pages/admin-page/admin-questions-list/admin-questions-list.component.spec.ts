@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { HttpClientModule, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -96,7 +97,6 @@ describe('AdminQuestionsListComponent', () => {
         notificationServiceSpy = jasmine.createSpyObj('NotificationService', ['displayErrorMessage', 'displaySuccessMessage']);
         questionServiceSpy.createQuestion.and.returnValue(of(mockHttpResponse));
         gamesServiceSpy.isPendingChangesObservable = of(false);
-        gamesServiceSpy.questionService = questionServiceSpy;
 
         TestBed.configureTestingModule({
             imports: [HttpClientModule, MatDialogModule, RouterTestingModule],
@@ -130,8 +130,7 @@ describe('AdminQuestionsListComponent', () => {
     });
 
     it('should be able to change duration', () => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const event: any = { target: { value: '20' } };
+        const event: Event = { target: { value: '20' } } as unknown as Event;
         component.changeDuration(event);
         expect(component.game.duration).toEqual(20);
     });
@@ -142,7 +141,7 @@ describe('AdminQuestionsListComponent', () => {
         component.handleSubmit();
 
         expect(gamesServiceSpy.submitGame).toHaveBeenCalled();
-        expect(gamesServiceSpy.displaySuccessMessage).toHaveBeenCalledWith('Jeux modifié avec succès! 😺');
+        expect(notificationServiceSpy.displaySuccessMessage).toHaveBeenCalledWith('Jeux modifié avec succès! 😺');
         expect(gamesServiceSpy.resetPendingChanges).toHaveBeenCalled();
         expect(routerSpy.navigate).toHaveBeenCalledWith(['/admin/games/']);
     });
@@ -151,10 +150,10 @@ describe('AdminQuestionsListComponent', () => {
         component.gameForm.setValue({ title: 'Test', description: 'Test', duration: '10' });
         component.state = 'modify';
         const errorMessage = 'Error submitting game';
-        gamesServiceSpy.submitGame.and.returnValue(throwError(new HttpErrorResponse({ error: errorMessage })));
+        gamesServiceSpy.submitGame.and.returnValue(throwError(() => new HttpErrorResponse({ error: errorMessage })));
         component.handleSubmit();
         expect(gamesServiceSpy.submitGame).toHaveBeenCalled();
-        expect(gamesServiceSpy.displayErrorMessage).toHaveBeenCalled();
+        expect(notificationServiceSpy.displayErrorMessage).toHaveBeenCalled();
     });
 
     // it('should add a new question to the current game', () => {

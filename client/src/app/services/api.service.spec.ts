@@ -96,7 +96,7 @@ describe('ApiService', () => {
 
     it('should update data of type T via a PATCH request', () => {
         const mockResponse = 'Resource modified';
-        gamesService.update(mockGame,endpoint).subscribe((data) => {
+        gamesService.update(mockGame, endpoint).subscribe((data) => {
             expect(data.body).toEqual(mockResponse);
         });
 

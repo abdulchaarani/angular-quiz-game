@@ -32,10 +32,15 @@ export class NotificationService {
         return this.openSnackBar(errorMessage, action);
     }
 
-    openConfirmDialog(config: MatDialogConfig<DialogData>): Observable<boolean> {
-        const dialogRef = this.dialog.open(DialogConfirmComponent, config);
-
-        return dialogRef.afterClosed().pipe((confirm) => confirm);
+    openPendingChangesConfirmDialog(): Observable<boolean> {
+        const pendingChangesConfig: MatDialogConfig<DialogData> = {
+            data: {
+                icon: 'warning',
+                title: 'Attention',
+                text: 'Vous avec des modifications non sauvegardés. Êtes-vous certain de vouloir quitter?',
+            },
+        };
+        return this.openConfirmDialog(pendingChangesConfig);
     }
 
     openCreateQuestionModal() {
@@ -45,7 +50,23 @@ export class NotificationService {
         });
     }
 
+    confirmBankUpload(questionTitle: string) {
+        const bankUploadConfig: MatDialogConfig<DialogData> = {
+            data: {
+                icon: 'info_outline',
+                title: 'Êtes-vous certain de vouloir ajouter cette question à la banque de questions?',
+                text: questionTitle,
+            },
+        };
+        return this.openConfirmDialog(bankUploadConfig);
+    }
+
     private openSnackBar(message: string, action: string, options?: MatSnackBarConfig): MatSnackBarRef<TextOnlySnackBar> {
         return this.snackBar.open(message, action, options);
+    }
+
+    private openConfirmDialog(config: MatDialogConfig<DialogData>): Observable<boolean> {
+        const dialogRef = this.dialog.open(DialogConfirmComponent, config);
+        return dialogRef.afterClosed().pipe((confirm) => confirm);
     }
 }

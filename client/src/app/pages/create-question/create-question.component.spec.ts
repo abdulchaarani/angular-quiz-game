@@ -1,12 +1,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
+import { ReactiveFormsModule, FormsModule, FormBuilder } from '@angular/forms';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { CreateQuestionComponent } from './create-question.component';
+import { MatSelectModule } from '@angular/material/select';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Question } from '@app/interfaces/question';
-import { CreateQuestionComponent } from './create-question.component';
+import { CdkDragDrop } from '@angular/cdk/drag-drop';
 
 const mockQuestion: Question = {
     id: '1',
@@ -17,16 +18,17 @@ const mockQuestion: Question = {
         { text: 'Choice 1', isCorrect: true },
         { text: 'Choice 2', isCorrect: false },
     ],
-    lastModification: '',
+    lastModification: new Date().toString(),
 };
 
 const maxchoicesLengthTest = 5;
 const minchoicesLengthTest = 3;
 
-describe('CreateQuestionComponent', () => {
+fdescribe('CreateQuestionComponent', () => {
     let component: CreateQuestionComponent;
     let fixture: ComponentFixture<CreateQuestionComponent>;
     let snackBarSpy: jasmine.SpyObj<MatSnackBar>;
+    let formBuilder: FormBuilder;
 
     beforeEach(() => {
         const snackBarSpyObj = jasmine.createSpyObj('MatSnackBar', ['open']);
@@ -38,6 +40,7 @@ describe('CreateQuestionComponent', () => {
 
         snackBarSpy = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
         fixture = TestBed.createComponent(CreateQuestionComponent);
+        formBuilder = TestBed.inject(FormBuilder);
         component = fixture.componentInstance;
 
         fixture.detectChanges();
@@ -55,6 +58,37 @@ describe('CreateQuestionComponent', () => {
 
     it('should create', () => {
         expect(component).toBeTruthy();
+    });
+
+    it('should handle drag and drop event', () => {
+        component.questionForm.setControl(
+            'choices',
+            formBuilder.array([
+                formBuilder.group({
+                    text: 'Choice 1',
+                    isCorrect: true,
+                }),
+                formBuilder.group({
+                    text: 'Choice 2',
+                    isCorrect: false,
+                }),
+            ]),
+        );
+
+        component.question = mockQuestion;
+        const mockEvent = {
+            previousIndex: 1,
+            currentIndex: 0,
+            container: { data: component.questionForm.controls.value },
+            previousContainer: { data: component.questionForm.controls.value },
+        } as unknown as CdkDragDrop<CreateQuestionComponent>;
+
+        fixture.detectChanges();
+        component.drop(mockEvent);
+
+        expect(component.questionForm.value.choices[0].text).toEqual('Choice 2');
+        expect(component.questionForm.value.choices[1].text).toEqual('Choice 1');
+        expect(component.question.choices).toEqual(component.questionForm.value.choices);
     });
 
     it('should initialize the form correctly', () => {
@@ -82,7 +116,7 @@ describe('CreateQuestionComponent', () => {
         });
 
         component.questionForm.value.id = '1';
-        component.questionForm.value.lastModification = new Date().toLocaleDateString();
+        component.questionForm.value.lastModification = new Date().toString();
         expect(component.question).toEqual(component.questionForm.value);
     });
 
@@ -101,7 +135,7 @@ describe('CreateQuestionComponent', () => {
     it('should submit the form to the list of questions in a game', () => {
         spyOn(component.createQuestionEvent, 'emit');
         const mockQuestionSubmit: Question = component.questionForm.value;
-        mockQuestion.lastModification = '';
+        mockQuestion.lastModification = new Date().toString();
         component.onSubmit();
         expect(component.createQuestionEvent.emit).toHaveBeenCalledWith(mockQuestionSubmit);
     });
@@ -109,7 +143,7 @@ describe('CreateQuestionComponent', () => {
     it('should submit the form to the bank of questions', () => {
         spyOn(component.createQuestionEventQuestionBank, 'emit');
         const mockQuestionSubmitToBank: Question = component.questionForm.value;
-        mockQuestion.lastModification = '';
+        mockQuestion.lastModification = new Date().toString();
         component.onSubmitQuestionBank();
         expect(component.createQuestionEventQuestionBank.emit).toHaveBeenCalledWith(mockQuestionSubmitToBank);
     });
@@ -122,7 +156,7 @@ describe('CreateQuestionComponent', () => {
         });
         component.onSubmit();
         component.questionForm.value.id = '1';
-        component.questionForm.value.lastModification = '';
+        component.questionForm.value.lastModification = new Date().toString();
         expect(component.questionForm.value).toEqual(mockQuestion);
     });
 

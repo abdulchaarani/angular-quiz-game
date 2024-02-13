@@ -34,11 +34,7 @@ export class MatchController {
     @Get('/backups/:gameId/questions/:questionId/choices')
     allChoices(@Param('gameId') gameId: string, @Param('questionId') questionId: string, @Res() response: Response) {
         const choices = this.matchService.getChoices(gameId, questionId);
-        if (choices) {
-            response.status(HttpStatus.OK).json(choices);
-        } else {
-            response.status(HttpStatus.NOT_FOUND).send({ message: ERROR_QUESTION_NOT_FOUND });
-        }
+        choices ? response.status(HttpStatus.OK).json(choices) : response.status(HttpStatus.NOT_FOUND).send({ message: ERROR_QUESTION_NOT_FOUND });
     }
 
     @Post('/backups/:gameId/questions/:questionId/validate-choice')
@@ -49,22 +45,18 @@ export class MatchController {
         @Res() response: Response,
     ) {
         const question = this.matchService.getBackupQuestion(gameId, questionId);
-        if (!question) {
-            response.status(HttpStatus.NOT_FOUND).send({ message: ERROR_QUESTION_NOT_FOUND });
-        } else {
+        if (question) {
             const isValidChoice = this.matchService.validatePlayerChoice(question, choicesDto.selected);
             response.status(HttpStatus.OK).json(isValidChoice);
+        } else {
+            response.status(HttpStatus.NOT_FOUND).send({ message: ERROR_QUESTION_NOT_FOUND });
         }
     }
 
     @Get('/backups/:gameId')
     getBackupGame(@Param('gameId') gameId: string, @Res() response: Response) {
         const backupGame = this.matchService.getBackupGame(gameId);
-        if (backupGame) {
-            response.status(HttpStatus.OK).json(backupGame);
-        } else {
-            response.status(HttpStatus.NOT_FOUND).send({ message: ERROR_GAME_NOT_FOUND });
-        }
+        backupGame ? response.status(HttpStatus.OK).json(backupGame) : response.status(HttpStatus.NOT_FOUND).send({ message: ERROR_GAME_NOT_FOUND });
     }
 
     @Post('/backups/:gameId')
@@ -80,10 +72,6 @@ export class MatchController {
     @Delete('/backups/:gameId')
     async deleteBackupGame(@Param('gameId') gameId: string, @Res() response: Response) {
         const isDeleted = this.matchService.deleteBackupGame(gameId);
-        if (isDeleted) {
-            response.status(HttpStatus.NO_CONTENT).send();
-        } else {
-            response.status(HttpStatus.NOT_FOUND).send({ message: ERROR_GAME_NOT_FOUND });
-        }
+        isDeleted ? response.status(HttpStatus.NO_CONTENT).send() : response.status(HttpStatus.NOT_FOUND).send({ message: ERROR_GAME_NOT_FOUND });
     }
 }

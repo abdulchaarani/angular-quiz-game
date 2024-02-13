@@ -14,7 +14,7 @@ import { NotificationService } from '@app/services/notification.service';
 import { QuestionService } from '@app/services/question.service';
 import { Subject, of, throwError } from 'rxjs';
 import { AdminQuestionsListComponent } from './admin-questions-list.component';
-import { BankStatus, GameStatus, QuestionStatus } from '@app/feedback-messages';
+import { BankStatus, GameStatus, QuestionStatus } from '@app/constants/feedback-messages';
 import { CdkDragDrop, CdkDragEnd } from '@angular/cdk/drag-drop';
 
 describe('AdminQuestionsListComponent', () => {

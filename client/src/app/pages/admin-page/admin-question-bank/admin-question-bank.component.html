@@ -18,7 +18,6 @@
                 class="question bank-question"
                 *ngFor="let question of questions | sortByLastModification: 'ascending'"
                 [question]="question"
-                [isLastModifiedDateVisible]="true"
                 [isBankQuestion]="true"
                 (deleteQuestionEvent)="deleteQuestion($event)"
                 (questionUpdated)="updateQuestion($event)"

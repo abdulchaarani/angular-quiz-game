@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { DialogConfirmComponent } from '@app/components/dialog-confirm/dialog-confirm.component';
+import { DialogConfirmComponent, DialogData } from '@app/components/dialog-confirm/dialog-confirm.component';
 import { MatDialogMock } from '@app/testing/mat-dialog-mock';
 import { NotificationService } from './notification.service';
 
@@ -67,9 +67,10 @@ describe('NotificationService', () => {
             data: {
                 icon: 'warning',
                 title: 'warning',
-                text: 'warning',
+                text: 'questionTitle',
             },
         };
+
         const afterOpenSpy = spyOn(dialog, 'open').and.callThrough();
 
         service['openConfirmDialog'](config).subscribe((confirmResult) => {
@@ -78,5 +79,39 @@ describe('NotificationService', () => {
         });
 
         expect(afterOpenSpy).toHaveBeenCalled();
+    });
+    it('should open a pending changes confirmation dialog', () => {
+        const pendingChangesConfig: MatDialogConfig<DialogData> = {
+            data: {
+                icon: 'warning',
+                title: 'Attention',
+                text: 'Vous avec des modifications non sauvegardés. Êtes-vous certain de vouloir quitter?',
+            },
+        };
+
+        const afterOpenSpy = spyOn(dialog, 'open').and.callThrough();
+
+        service.openPendingChangesConfirmDialog().subscribe((confirmResult) => {
+            expect(confirmResult).toBe(true);
+            expect(dialog.open).toHaveBeenCalledWith(DialogConfirmComponent, pendingChangesConfig);
+        });
+
+        expect(afterOpenSpy).toHaveBeenCalled();
+    });
+
+    it('should open a bank upload confirmation dialog', () => {
+        const bankUploadConfig: MatDialogConfig<DialogData> = {
+            data: {
+                icon: 'info_outline',
+                title: 'Êtes-vous certain de vouloir ajouter cette question à la banque de questions?',
+                text: 'questionTitle',
+            },
+        };
+
+        spyOn(dialog, 'open').and.callThrough();
+        service.confirmBankUpload('questionTitle').subscribe((confirmResult) => {
+            expect(confirmResult).toBe(true);
+            expect(dialog.open).toHaveBeenCalledWith(DialogConfirmComponent, bankUploadConfig);
+        });
     });
 });

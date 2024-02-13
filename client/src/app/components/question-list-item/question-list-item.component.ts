@@ -35,6 +35,6 @@ export class QuestionListItemComponent implements OnInit {
     }
 
     dispatchNewQuestion(newQuestion: Question) {
-        this.questionUpdated.emit(this.question);
+        this.questionUpdated.emit(newQuestion);
     }
 }

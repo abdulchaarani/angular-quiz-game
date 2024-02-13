@@ -17,6 +17,7 @@ const ERROR_EMPTY_TITLE = 'Le titre du jeu est vide.';
 const ERROR_EMPTY_DESCRIPTION = 'La description du jeu est vide.';
 const ERROR_DURATION = `La durée doit être entre ${MIN_DURATION} et ${MAX_DURATION} secondes.`;
 const ERROR_QUESTIONS_NUMBER = 'Le jeu doit avoir au moins une question.';
+const ERROR_QUESTION_TYPE = 'Le type de la question doit être QCM ou QRL';
 
 export {
     ERROR_CHOICES_NUMBER,
@@ -27,5 +28,6 @@ export {
     ERROR_EMPTY_TITLE,
     ERROR_POINTS,
     ERROR_QUESTIONS_NUMBER,
+    ERROR_QUESTION_TYPE,
     ERROR_REPEAT_CHOICES,
 };

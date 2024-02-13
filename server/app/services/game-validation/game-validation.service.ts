@@ -17,6 +17,7 @@ import {
     ERROR_EMPTY_TITLE,
     ERROR_POINTS,
     ERROR_QUESTIONS_NUMBER,
+    ERROR_QUESTION_TYPE,
     ERROR_REPEAT_CHOICES,
 } from '@app/constants/game-validation-errors';
 import { questionTypes } from '@app/constants/question-types';
@@ -63,11 +64,15 @@ export class GameValidationService {
         const isValidPointsRange = this.isValidRange(question.points, MIN_POINTS, MAX_POINTS);
         const isValidPointsMultiple = question.points % STEP_POINTS === 0;
         const isValidQuestionName = this.isValidString(question.text);
+        const isCorrectType = question.type === questionTypes.CHOICE || question.type === questionTypes.LONG;
         if (!isValidPointsRange || !isValidPointsMultiple) {
             errorMessages.push(ERROR_POINTS);
         }
         if (!isValidQuestionName) {
             errorMessages.push(ERROR_EMPTY_QUESTION);
+        }
+        if (!isCorrectType) {
+            errorMessages.push(ERROR_QUESTION_TYPE);
         }
         return errorMessages;
     }

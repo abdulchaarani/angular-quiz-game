@@ -16,6 +16,7 @@ import {
     ERROR_EMPTY_TITLE,
     ERROR_POINTS,
     ERROR_QUESTIONS_NUMBER,
+    ERROR_QUESTION_TYPE,
     ERROR_REPEAT_CHOICES,
 } from '@app/constants/game-validation-errors';
 import { ALL_FALSE_QUESTION, ALL_TRUE_QUESTION, FOUR_CHOICES_QUESTION, VALID_QUESTION, getMockQuestion } from '@app/constants/question-mocks';
@@ -104,6 +105,13 @@ describe('GameValidationService', () => {
         const foundErrors = service.findChoicesQuestionErrors(VALID_QUESTION);
         expect(foundErrors.find((message: string) => message === ERROR_REPEAT_CHOICES)).toBeTruthy();
         expect(spyUniqueChoices).toHaveBeenCalledWith(VALID_QUESTION.choices);
+    });
+
+    it('findGeneralQuestionErrors() should return an array containing ERROR_QUESTION_TYPE if the type of the question is invalid', () => {
+        const mockQuestion = getMockQuestion();
+        mockQuestion.type = 'mock';
+        const foundErrors = service.findGeneralQuestionErrors(mockQuestion);
+        expect(foundErrors.find((message: string) => message === ERROR_QUESTION_TYPE)).toBeTruthy();
     });
 
     it('findGeneralQuestionErrors() should return an array containing ERROR_POINTS if the number of points is not in correct range', () => {

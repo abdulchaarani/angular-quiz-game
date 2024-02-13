@@ -121,7 +121,7 @@ describe('MatchController', () => {
             expect(isValid).toEqual(true);
             return res;
         };
-        await controller.validatePlayerChoice('', '', { mock: [''] }, res);
+        await controller.validatePlayerChoice('', '', { selected: [''] }, res);
     });
 
     it('validatePlayerChoice() should return OK with false value in body if validatePlayerChoice returns false', async () => {
@@ -135,7 +135,7 @@ describe('MatchController', () => {
             expect(isValid).toEqual(false);
             return res;
         };
-        await controller.validatePlayerChoice('', '', { mock: [''] }, res);
+        await controller.validatePlayerChoice('', '', { selected: [''] }, res);
     });
 
     it('validatePlayerChoice() should return NOT FOUND if validatePlayerChoice does not resolve', async () => {
@@ -146,7 +146,7 @@ describe('MatchController', () => {
             return res;
         };
         res.send = () => res;
-        await controller.validatePlayerChoice('', '', { mock: [''] }, res);
+        await controller.validatePlayerChoice('', '', { selected: [''] }, res);
     });
 
     it('getBackupGame() should return the backup game with the corresponding ID', async () => {

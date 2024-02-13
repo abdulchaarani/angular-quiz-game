@@ -4,6 +4,7 @@ import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { QuestionManagementState } from '@app/constants/states';
+import { BankStatus } from '@app/feedback-messages';
 import { Question } from '@app/interfaces/question';
 import { NotificationService } from '@app/services/notification.service';
 import { QuestionService } from '@app/services/question.service';
@@ -72,19 +73,17 @@ export class AdminQuestionBankComponent implements OnInit {
     }
 
     updateQuestion(newQuestion: Question) {
-        this.questionService.updateQuestion(newQuestion).subscribe({
-            next: () => {},
-            error: (error: HttpErrorResponse) =>
-                this.notificationService.displayErrorMessage(`La question n'a pas pu être modifiée. 😿 \n ${error.message}`),
-        });
-    }
-
-    createNewQuestionBank(newQuestion: Question) {
-        this.createQuestionEventQuestionBank.subscribe((newQuestion: Question) => {
-            if (newQuestion) {
-                this.questions.push(newQuestion);
-            }
-        });
+        if (!this.isDuplicateQuestion(newQuestion, this.questions)) {
+            this.questionService.updateQuestion(newQuestion).subscribe({
+                next: () => {
+                    this.notificationService.displaySuccessMessage('Question modifiée avec succès! 😺');
+                },
+                error: (error: HttpErrorResponse) =>
+                    this.notificationService.displayErrorMessage(`La question n'a pas pu être modifiée. 😿 \n ${error.message}`),
+            });
+        } else {
+            this.notificationService.displayErrorMessage(BankStatus.DUPLICATE);
+        }
     }
 
     openDialog() {
@@ -99,5 +98,9 @@ export class AdminQuestionBankComponent implements OnInit {
                 this.dialogState = false;
             });
         }
+    }
+
+    private isDuplicateQuestion(newQuestion: Question, questionList: Question[]): boolean {
+        return !!questionList.find((question) => question.text === newQuestion.text && question.id !== newQuestion.id);
     }
 }

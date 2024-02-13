@@ -1,5 +1,6 @@
 export enum QuestionManagementState {
     BankCreate,
     GameCreate,
-    Modify,
+    BankModify,
+    GameModify,
 }

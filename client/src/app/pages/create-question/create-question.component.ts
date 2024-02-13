@@ -15,19 +15,17 @@ export interface DialogManagement {
 })
 export class CreateQuestionComponent implements OnInit, OnChanges {
     @Input() question: Question;
-    @Output() createQuestionEvent: EventEmitter<Question> = new EventEmitter<Question>();
-    @Output() createQuestionEventQuestionBank: EventEmitter<Question> = new EventEmitter<Question>();
-    @Input() createNewQuestionButton: boolean = true;
-    @Input() createNewQuestionToBankButton: boolean = true;
     @Input() modificationState: QuestionManagementState;
+    @Output() createQuestionEvent: EventEmitter<Question> = new EventEmitter<Question>();
+    @Output() modifyQuestionEvent: EventEmitter<Question> = new EventEmitter<Question>();
 
     response: string = '';
     modifyingForm: boolean = false;
     questionFormControl = new FormControl('', [Validators.required]);
     questionForm: FormGroup;
-    // color: any;
     checked: any;
     disabled: any;
+
     private readonly snackBarDisplayTime = 2000;
     private readonly minChoices = 2;
     private readonly maxChoices = 4;
@@ -92,18 +90,14 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
         this.updateChoiceNumbers();
     }
 
-    onSubmitQuestionBank() {
-        if (this.questionForm.valid) {
-            const newQuestion: Question = this.questionForm.value;
-            this.createQuestionEventQuestionBank.emit(newQuestion);
-        }
-    }
-
     onSubmit() {
+        console.log(this.modificationState);
         if (this.questionForm.valid) {
             const newQuestion: Question = this.questionForm.value;
             newQuestion.lastModification = new Date().toLocaleString();
-            this.createQuestionEvent.emit(newQuestion);
+            this.modificationState === QuestionManagementState.BankModify || this.modificationState === QuestionManagementState.GameModify
+                ? this.modifyQuestionEvent.emit(newQuestion)
+                : this.createQuestionEvent.emit(newQuestion);
         }
     }
 
@@ -170,9 +164,15 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
                 return 'Ajouter la question à la banque';
             case QuestionManagementState.GameCreate:
                 return 'Vérifier si la question est valide';
-            case QuestionManagementState.Modify:
+            case QuestionManagementState.BankModify:
                 return 'Modifier la question';
+            default:
+                return '';
         }
+    }
+
+    isActiveSubmit() {
+        return this.modificationState !== QuestionManagementState.GameModify;
     }
 
     private initializeForm(): void {

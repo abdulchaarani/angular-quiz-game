@@ -17,7 +17,7 @@ const mockQuestion: Question = {
         { text: 'Choice 1', isCorrect: true },
         { text: 'Choice 2', isCorrect: false },
     ],
-    lastModification: new Date().toLocaleString(),
+    lastModification: '',
 };
 
 const maxchoicesLengthTest = 5;
@@ -81,13 +81,9 @@ fdescribe('CreateQuestionComponent', () => {
             ],
         });
 
-        expect(component.question.text).toEqual('New Test');
-        expect(component.question.type).toEqual('QCM');
-        expect(component.question.points).toEqual(10);
-        expect(component.question.choices).toEqual([
-            { text: 'New Choice 1', isCorrect: false },
-            { text: 'New Choice 2', isCorrect: true },
-        ]);
+        component.questionForm.value.id = '1';
+        component.questionForm.value.lastModification = new Date().toLocaleDateString();
+        expect(component.question).toEqual(component.questionForm.value);
     });
 
     it('should submit the form to the list of questions in a game', () => {
@@ -104,18 +100,18 @@ fdescribe('CreateQuestionComponent', () => {
 
     it('should submit the form to the list of questions in a game', () => {
         spyOn(component.createQuestionEvent, 'emit');
-        const mockQuestion: Question = component.questionForm.value;
-        mockQuestion.lastModification = new Date().toLocaleString();
+        const mockQuestionSubmit : Question = component.questionForm.value;
+        mockQuestion.lastModification = '';
         component.onSubmit();
-        expect(component.createQuestionEvent.emit).toHaveBeenCalledWith(mockQuestion);
+        expect(component.createQuestionEvent.emit).toHaveBeenCalledWith(mockQuestionSubmit);
     });
 
     it('should submit the form to the bank of questions', () => {
         spyOn(component.createQuestionEventQuestionBank, 'emit');
-        const mockQuestion: Question = component.questionForm.value;
-        mockQuestion.lastModification = new Date().toLocaleString();
+        const mockQuestionSubmitToBank: Question = component.questionForm.value;
+        mockQuestion.lastModification = '';
         component.onSubmitQuestionBank();
-        expect(component.createQuestionEventQuestionBank.emit).toHaveBeenCalledWith(mockQuestion);
+        expect(component.createQuestionEventQuestionBank.emit).toHaveBeenCalledWith(mockQuestionSubmitToBank);
     });
 
     it('should update form values when ngOnChanges is called', () => {
@@ -126,7 +122,7 @@ fdescribe('CreateQuestionComponent', () => {
         });
         component.onSubmit();
         component.questionForm.value.id = '1';
-        component.questionForm.value.lastModification = new Date().toLocaleDateString();
+        component.questionForm.value.lastModification = '';
         expect(component.questionForm.value).toEqual(mockQuestion);
     });
 

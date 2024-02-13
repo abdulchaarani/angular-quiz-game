@@ -20,13 +20,13 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
     modifyingForm: boolean = false;
     questionFormControl = new FormControl('', [Validators.required]);
     questionForm: FormGroup;
+    color: unknown;
+    checked: unknown;
+    disabled: unknown;
 
     private readonly snackBarDisplayTime = 2000;
     private readonly minChoices = 2;
     private readonly maxChoices = 4;
-    color: any;
-    checked: any;
-    disabled: any;
 
     constructor(
         private snackBar: MatSnackBar,

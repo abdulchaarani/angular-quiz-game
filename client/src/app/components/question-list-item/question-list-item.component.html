@@ -5,7 +5,7 @@
         </mat-panel-title>
         <mat-panel-description class="question-options">
             <p>{{ question.points }} points</p>
-            <p>Dernière modification: {{ question.lastModification | date }}</p>
+            <p>Dernière modification: {{ question.lastModification | date: 'dd/MM/yyyy, hh:mm:ss' }}</p>
             <div class="question-buttons-container">
                 <button
                     mat-icon-button

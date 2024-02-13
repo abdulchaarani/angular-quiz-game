@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Game } from '@app/interfaces/game';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { ApiService } from './api.service';
+import { ManagementState } from '@app/constants/states';
 
 @Injectable({
     providedIn: 'root',
@@ -40,8 +41,8 @@ export class GamesService extends ApiService<Game> {
         return this.replace(modifiedGame, modifiedGame.id);
     }
 
-    submitGame(game: Game, state: string) {
-        return state === 'modify' ? this.replaceGame(game) : this.uploadGame(game);
+    submitGame(game: Game, state: ManagementState) {
+        return state === ManagementState.GameModify ? this.replaceGame(game) : this.uploadGame(game);
     }
 
     markPendingChanges() {

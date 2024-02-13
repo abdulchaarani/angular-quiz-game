@@ -3,11 +3,11 @@ import { Component, EventEmitter, Inject, Input, OnChanges, OnInit, Optional, Ou
 import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { QuestionManagementState } from '@app/constants/states';
+import { ManagementState } from '@app/constants/states';
 import { Choice } from '@app/interfaces/choice';
 import { Question } from '@app/interfaces/question';
 export interface DialogManagement {
-    modificationState: QuestionManagementState;
+    modificationState: ManagementState;
 }
 @Component({
     selector: 'app-create-question',
@@ -16,7 +16,7 @@ export interface DialogManagement {
 })
 export class CreateQuestionComponent implements OnInit, OnChanges {
     @Input() question: Question;
-    @Input() modificationState: QuestionManagementState;
+    @Input() modificationState: ManagementState;
     @Output() createQuestionEvent: EventEmitter<Question> = new EventEmitter<Question>();
     @Output() modifyQuestionEvent: EventEmitter<Question> = new EventEmitter<Question>();
 
@@ -96,7 +96,7 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
         if (this.questionForm.valid) {
             const newQuestion: Question = this.questionForm.value;
             newQuestion.lastModification = new Date().toLocaleString();
-            if (this.modificationState === QuestionManagementState.BankModify) {
+            if (this.modificationState === ManagementState.BankModify) {
                 this.modifyQuestionEvent.emit(newQuestion);
             } else {
                 this.createQuestionEvent.emit(newQuestion);
@@ -141,19 +141,19 @@ export class CreateQuestionComponent implements OnInit, OnChanges {
 
     getButtonText() {
         switch (this.modificationState) {
-            case QuestionManagementState.BankCreate:
+            case ManagementState.BankCreate:
                 return 'Ajouter la question à la banque';
-            case QuestionManagementState.GameCreate:
+            case ManagementState.GameCreate:
                 return 'Vérifier si la question est valide';
-            case QuestionManagementState.BankModify:
+            case ManagementState.BankModify:
                 return 'Modifier la question';
-            case QuestionManagementState.GameModify:
+            case ManagementState.GameModify:
                 return 'Modifier la question';
         }
     }
 
     isActiveSubmit() {
-        return this.modificationState !== QuestionManagementState.GameModify;
+        return this.modificationState !== ManagementState.GameModify;
     }
 
     private initializeForm(): void {

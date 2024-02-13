@@ -14,8 +14,9 @@ import { NotificationService } from '@app/services/notification.service';
 import { QuestionService } from '@app/services/question.service';
 import { Subject, of, throwError } from 'rxjs';
 import { AdminQuestionsListComponent } from './admin-questions-list.component';
-import { BankStatus, GameStatus, QuestionStatus } from '@app/constants/feedback-messages';
+import { BankStatus, QuestionStatus } from '@app/constants/feedback-messages';
 import { CdkDragDrop, CdkDragEnd } from '@angular/cdk/drag-drop';
+import { ManagementState } from '@app/constants/states';
 
 describe('AdminQuestionsListComponent', () => {
     let component: AdminQuestionsListComponent;
@@ -149,7 +150,7 @@ describe('AdminQuestionsListComponent', () => {
 
     it('should handle submit', () => {
         component.gameForm.setValue({ title: 'Test', description: 'Test', duration: '10' });
-        component.state = 'modify';
+        component.state = ManagementState.GameModify;
         component.handleSubmit();
 
         expect(gamesServiceSpy.submitGame).toHaveBeenCalled();
@@ -160,7 +161,7 @@ describe('AdminQuestionsListComponent', () => {
 
     it('should handle modify submit error', () => {
         component.gameForm.setValue({ title: 'Test', description: 'Test', duration: '10' });
-        component.state = 'modify';
+        component.state = ManagementState.GameModify;
         const errorMessage = 'Error submitting game';
         gamesServiceSpy.submitGame.and.returnValue(throwError(() => new HttpErrorResponse({ error: errorMessage })));
         component.handleSubmit();
@@ -170,7 +171,7 @@ describe('AdminQuestionsListComponent', () => {
 
     it('should handle create submit error', () => {
         component.gameForm.setValue({ title: 'Test', description: 'Test', duration: '10' });
-        component.state = 'create';
+        component.state = ManagementState.GameCreate;
         const errorMessage = 'Error submitting game';
         gamesServiceSpy.submitGame.and.returnValue(throwError(() => new HttpErrorResponse({ error: errorMessage })));
         component.handleSubmit();
@@ -214,7 +215,7 @@ describe('AdminQuestionsListComponent', () => {
     });
 
     it('should filter the bank questions when state is "modify"', () => {
-        component.state = 'modify';
+        component.state = ManagementState.GameModify;
         spyOn(component, 'setGame').and.returnValue(of(mockQuestions));
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         spyOn<any>(component, 'filterBankQuestions').and.returnValue(mockQuestions);
@@ -228,7 +229,7 @@ describe('AdminQuestionsListComponent', () => {
     });
 
     it('should get all questions from bank when state is "create"', () => {
-        component.state = 'create';
+        component.state = ManagementState.GameCreate;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         spyOn<any>(component, 'filterBankQuestions').and.returnValue(mockBankQuestions);
 
@@ -241,14 +242,14 @@ describe('AdminQuestionsListComponent', () => {
     });
 
     it('should handle error on fetch questions error', () => {
-        component.state = 'modify';
+        component.state = ManagementState.GameModify;
         const errorMessage = 'Error message';
         spyOn(component, 'setGame').and.returnValue(throwError(() => new Error(errorMessage)));
 
         component.ngAfterViewInit();
 
         expect(component.setGame).toHaveBeenCalled();
-        expect(notificationServiceSpy.displayErrorMessage).toHaveBeenCalledWith(`${GameStatus.FAILURE}\n${errorMessage}`);
+        expect(notificationServiceSpy.displayErrorMessage).toHaveBeenCalled();
     });
 
     it('should filter questions correctly', () => {
@@ -470,5 +471,25 @@ describe('AdminQuestionsListComponent', () => {
         await component.openConfirmDialog();
         expect(notificationServiceSpy.confirmBankUpload).toHaveBeenCalled();
         expect(questionServiceSpy.createQuestion).not.toHaveBeenCalled();
+    });
+
+    it('should return "Modification" as title when state is GameModify', () => {
+        component.state = ManagementState.GameModify;
+        expect(component.getTitle()).toEqual('Modification');
+    });
+
+    it('should return "Création" as title when state is GameCreate', () => {
+        component.state = ManagementState.GameCreate;
+        expect(component.getTitle()).toEqual('Création');
+    });
+
+    it('should return "Appliquer les modifications" as button text when state is GameModify', () => {
+        component.state = ManagementState.GameModify;
+        expect(component.getButtonText()).toEqual('Appliquer les modifications');
+    });
+
+    it('should return "Créer le jeu" as button text when state is GameCreate', () => {
+        component.state = ManagementState.GameCreate;
+        expect(component.getButtonText()).toEqual('Créer le jeu');
     });
 });

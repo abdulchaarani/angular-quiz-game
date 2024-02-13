@@ -3,7 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { AfterViewInit, Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { QuestionManagementState } from '@app/constants/states';
+import { ManagementState } from '@app/constants/states';
 import { BankStatus, GameStatus, QuestionStatus } from '@app/constants/feedback-messages';
 import { CanComponentDeactivate, CanDeactivateType } from '@app/interfaces/can-component-deactivate';
 import { Game } from '@app/interfaces/game';
@@ -31,7 +31,7 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
         questions: [],
     };
 
-    state: string = '';
+    state: ManagementState;
     originalBankQuestions: Question[] = [];
     bankQuestions: Question[] = [];
     isSideBarActive: boolean = false;
@@ -93,7 +93,7 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
     }
 
     ngAfterViewInit() {
-        const isModifyState = iif(() => this.state === 'modify', this.setGame(), this.questionService.getAllQuestions());
+        const isModifyState = iif(() => this.state === ManagementState.GameModify, this.setGame(), this.questionService.getAllQuestions());
 
         isModifyState.subscribe({
             next: (data: Question[]) => {
@@ -128,13 +128,15 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
 
             this.gamesService.submitGame(this.game, this.state).subscribe({
                 next: () => {
-                    this.notificationService.displaySuccessMessage(`Jeux ${this.state === 'modify' ? 'modifié' : 'créé'} avec succès! 😺`);
+                    this.notificationService.displaySuccessMessage(
+                        `Jeux ${this.state === ManagementState.GameModify ? 'modifié' : 'créé'} avec succès! 😺`,
+                    );
                     this.gamesService.resetPendingChanges();
                     this.router.navigate(['/admin/games/']);
                 },
                 error: (error: HttpErrorResponse) =>
                     this.notificationService.displayErrorMessage(
-                        `Le jeu n'a pas pu être ${this.state === 'modify' ? 'modifié' : 'créé'}. 😿 \n ${error.message}`,
+                        `Le jeu n'a pas pu être ${this.state === ManagementState.GameModify ? 'modifié' : 'créé'}. 😿 \n ${error.message}`,
                     ),
             });
         }
@@ -184,7 +186,7 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
 
     openCreateQuestionDialog() {
         if (!this.dialogState) {
-            const dialogRef = this.questionService.openCreateQuestionModal(QuestionManagementState.GameCreate);
+            const dialogRef = this.questionService.openCreateQuestionModal(ManagementState.GameCreate);
 
             dialogRef.componentInstance.createQuestionEvent.subscribe((newQuestion: Question) => {
                 this.addQuestionToGame(newQuestion);
@@ -230,6 +232,14 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
 
     dropBankQuestion(): void {
         this.isBankQuestionDragged = false;
+    }
+
+    getTitle() {
+        return this.state === ManagementState.GameModify ? 'Modification' : 'Création';
+    }
+
+    getButtonText() {
+        return this.state === ManagementState.GameModify ? 'Appliquer les modifications' : 'Créer le jeu';
     }
 
     private setBankMessage() {

@@ -5,9 +5,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { ManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
 import { CreateQuestionComponent } from './create-question.component';
-import { QuestionManagementState } from '@app/constants/states';
 
 const mockQuestion: Question = {
     id: '1',
@@ -202,22 +202,22 @@ describe('CreateQuestionComponent', () => {
         }
         expect(snackBarSpy.open).toHaveBeenCalled();
     it('should return the correct button text for BankCreate state', () => {
-        component.modificationState = QuestionManagementState.BankCreate;
+        component.modificationState = ManagementState.BankCreate;
         expect(component.getButtonText()).toBe('Ajouter la question à la banque');
     });
 
     it('should return the correct button text for GameCreate state', () => {
-        component.modificationState = QuestionManagementState.GameCreate;
+        component.modificationState = ManagementState.GameCreate;
         expect(component.getButtonText()).toBe('Vérifier si la question est valide');
     });
 
     it('should return the correct button text for BankModify state', () => {
-        component.modificationState = QuestionManagementState.BankModify;
+        component.modificationState = ManagementState.BankModify;
         expect(component.getButtonText()).toBe('Modifier la question');
     });
 
     it('should return an empty string for an GameModify state', () => {
-        component.modificationState = QuestionManagementState.GameModify;
+        component.modificationState = ManagementState.GameModify;
         expect(component.getButtonText()).toBe('Modifier la question');
     });
 });

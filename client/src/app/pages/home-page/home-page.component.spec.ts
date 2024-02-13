@@ -69,7 +69,7 @@ describe('HomePageComponent', () => {
     });
 
     it('host button should direct to "/host"', () => {
-        let href = fixture.debugElement.query(By.css('#host-button')).nativeElement.getAttribute('routerLink');
+        const href = fixture.debugElement.query(By.css('#host-button')).nativeElement.getAttribute('routerLink');
         expect(href).toEqual('/host');
     });
 
@@ -77,16 +77,15 @@ describe('HomePageComponent', () => {
         const submitPasswordSpy = spyOn(component, 'submitPassword');
         component.password = 'mock';
         component.openDialog();
-        expect(dialogMock.open).toHaveBeenCalledWith(DialogAdminPasswordComponent, { data: { username: 'admin', password: 'mock' } });
+        expect(dialogMock.open).toHaveBeenCalledWith(DialogAdminPasswordComponent, { data: { password: 'mock' } });
         dialogMock.closeAll;
         expect(submitPasswordSpy).toHaveBeenCalled();
     });
 
     it('submitPassword() should call validatePassword and reset the input password', () => {
         const mockPassword = 'mockPassword';
-        component.username = '';
         component.submitPassword(mockPassword);
-        expect(authenticationSpy.validatePassword).toHaveBeenCalledWith(component.username, mockPassword);
+        expect(authenticationSpy.validatePassword).toHaveBeenCalledWith(mockPassword);
         expect(component.password).toEqual('');
     });
 });

@@ -2,6 +2,10 @@ import { MatchService } from '@app/services/match/match.service';
 import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Res } from '@nestjs/common';
 import { Response } from 'express';
 
+interface SentChoicesText {
+    selected: string[];
+}
+
 @Controller('match')
 export class MatchController {
     constructor(private readonly matchService: MatchService) {}
@@ -36,12 +40,11 @@ export class MatchController {
         }
     }
 
-    // TODO: Add DTO for Body which would contain a list of choices
     @Post('/backups/:gameId/questions/:questionId/validate-choice')
     async validatePlayerChoice(
         @Param('gameId') gameId: string,
         @Param('questionId') questionId: string,
-        @Body() choicesDto: Record<string, string[]>,
+        @Body() choicesDto: SentChoicesText,
         @Res() response: Response,
     ) {
         try {

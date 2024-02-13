@@ -3,9 +3,9 @@ import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
+import { NotificationService } from '@app/services/notification.service';
 import { MatDialogMock } from '@app/testing/mat-dialog-mock';
 import { of, throwError } from 'rxjs';
-import { NotificationService } from '../notification.service';
 import { AuthenticationService } from './authentication.service';
 import SpyObj = jasmine.SpyObj;
 describe('AuthenticationService', () => {
@@ -36,14 +36,14 @@ describe('AuthenticationService', () => {
 
     it('validatePassword() should redirect to /admin/games if password is valid', () => {
         httpClientSpy.post.and.returnValue(of({ status: 200 }));
-        service.validatePassword('', '');
+        service.validatePassword('');
         expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/admin/games');
         expect(service.getIsAuthenticated()).toBeTrue();
     });
 
     it('validatePassword() should display error message if wrong password', () => {
         httpClientSpy.post.and.returnValue(throwError(() => new HttpErrorResponse({ status: 401 })));
-        service.validatePassword('', '');
+        service.validatePassword('');
         expect(routerSpy.navigateByUrl).not.toHaveBeenCalledWith('/admin/games');
         expect(notificationSpy.displayErrorMessage).toHaveBeenCalled();
         expect(service.getIsAuthenticated()).toBeFalse();

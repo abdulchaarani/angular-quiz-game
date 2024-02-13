@@ -1,4 +1,4 @@
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpResponse, HttpStatusCode } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogRenameGameComponent } from '@app/components/dialog-rename-game/dialog-rename-game.component';
@@ -49,7 +49,7 @@ export class AdminPageComponent implements OnInit {
                 this.notificationService.displaySuccessMessage('Jeu ajouté avec succès! 😺');
             },
             error: (error: HttpErrorResponse) => {
-                if (error.message === 'Requête add\n Un jeu du même titre existe déjà.' || error.status === 409) {
+                if (error.message === 'Requête add\n Un jeu du même titre existe déjà.' || error.status === HttpStatusCode.Conflict) {
                     this.openDialog(newGame);
                 } else {
                     this.notificationService.displayErrorMessage(`Le jeu n'a pas pu être ajouté. 😿 \n ${error}`);
@@ -66,7 +66,7 @@ export class AdminPageComponent implements OnInit {
         this.readFile(file);
     }
 
-    readFile(file: File): Promise<void | undefined> {
+    async readFile(file: File): Promise<void | undefined> {
         // Reference: https://stackoverflow.com/questions/47581687/read-a-file-and-parse-its-content
         return new Promise<void>(() => {
             const fileReader = new FileReader();

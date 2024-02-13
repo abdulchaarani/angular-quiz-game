@@ -17,16 +17,19 @@ export class AuthenticationService {
         this.isAuthenticated = false;
     }
 
-    validatePassword(inputUsername: string, inputPassword: string): void {
-        const contentJsonHeader = new HttpHeaders({
-            'Content-Type': 'application/json',
-        });
-
+    validatePassword(password: string): void {
         this.http
-            .post(`${environment.serverUrl}/login`, JSON.stringify({ username: inputUsername, password: inputPassword }), {
-                observe: 'response',
-                headers: contentJsonHeader,
-            })
+            .post(
+                `${environment.serverUrl}/login`,
+                { password },
+                {
+                    headers: new HttpHeaders({
+                        contentType: 'application/json',
+                    }),
+                    observe: 'response' as const,
+                    responseType: 'text' as const,
+                },
+            )
             .subscribe({
                 next: () => {
                     this.isAuthenticated = true;
@@ -34,7 +37,7 @@ export class AuthenticationService {
                 },
                 error: () => {
                     this.isAuthenticated = false;
-                    this.notificationService.displayErrorMessage(`Le mot de passe est invalide.`);
+                    this.notificationService.displayErrorMessage('Le mot de passe est invalide.');
                 },
             });
     }

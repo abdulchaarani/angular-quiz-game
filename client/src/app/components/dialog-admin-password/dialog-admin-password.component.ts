@@ -3,7 +3,6 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { HomePageComponent } from '@app/pages/home-page/home-page.component';
 
 export interface DialogData {
-    username: string;
     password: string;
 }
 
@@ -13,7 +12,7 @@ export interface DialogData {
     styleUrls: ['./dialog-admin-password.component.scss'],
 })
 export class DialogAdminPasswordComponent {
-    public isHiddenPassword: boolean;
+    isHiddenPassword: boolean;
     constructor(
         private dialogRef: MatDialogRef<HomePageComponent>,
         @Inject(MAT_DIALOG_DATA) public data: DialogData,

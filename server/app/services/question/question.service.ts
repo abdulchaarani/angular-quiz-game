@@ -1,10 +1,9 @@
-import { QUESTIONS_TO_POPULATE } from '@app/constants/populate-constants';
 import { ERROR_DEFAULT, ERROR_INVALID_QUESTION, ERROR_QUESTION_BANK_SAME_TITLE, ERROR_QUESTION_NOT_FOUND } from '@app/constants/request-errors';
 import { Question, QuestionDocument } from '@app/model/database/question';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question-dto';
 import { UpdateQuestionDto } from '@app/model/dto/question/update-question-dto';
 import { GameValidationService } from '@app/services/game-validation/game-validation.service';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
@@ -13,22 +12,8 @@ import { v4 as uuidv4 } from 'uuid';
 export class QuestionService {
     constructor(
         @InjectModel(Question.name) public questionModel: Model<QuestionDocument>,
-        private readonly logger: Logger,
         private validation: GameValidationService,
-    ) {
-        this.start();
-    }
-
-    async start() {
-        if ((await this.questionModel.countDocuments()) === 0) {
-            await this.populateDB();
-        }
-    }
-
-    async populateDB(): Promise<void> {
-        this.logger.log('THIS ADDS DATA TO THE DATABASE, DO NOT USE OTHERWISE');
-        await this.questionModel.insertMany(QUESTIONS_TO_POPULATE);
-    }
+    ) {}
 
     async getAllQuestions(): Promise<Question[]> {
         return await this.questionModel.find({});

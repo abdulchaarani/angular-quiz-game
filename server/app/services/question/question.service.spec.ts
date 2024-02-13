@@ -47,18 +47,7 @@ describe('QuestionService', () => {
     it('should be defined', () => {
         expect(service).toBeDefined();
     });
-    it('database should be populated when there is no data', async () => {
-        jest.spyOn(questionModel, 'countDocuments').mockResolvedValue(0);
-        const spyPopulateDB = jest.spyOn(service, 'populateDB');
-        await service.start();
-        expect(spyPopulateDB).toHaveBeenCalled();
-    });
-    it('database should not be populated when there is some data', async () => {
-        jest.spyOn(questionModel, 'countDocuments').mockResolvedValue(1);
-        const spyPopulateDB = jest.spyOn(service, 'populateDB');
-        await service.start();
-        expect(spyPopulateDB).not.toHaveBeenCalled();
-    });
+
     it('getAllQuestions() should return all questions in database', async () => {
         const mockQuestions = [getMockQuestion(), getMockQuestion()];
         const spyFind = jest.spyOn(questionModel, 'find').mockResolvedValue(mockQuestions);

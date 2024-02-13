@@ -34,7 +34,9 @@ export class MatchController {
     @Get('/backups/:gameId/questions/:questionId/choices')
     allChoices(@Param('gameId') gameId: string, @Param('questionId') questionId: string, @Res() response: Response) {
         const choices = this.matchService.getChoices(gameId, questionId);
-        choices ? response.status(HttpStatus.OK).json(choices) : response.status(HttpStatus.NOT_FOUND).send({ message: ERROR_QUESTION_NOT_FOUND });
+        return choices
+            ? response.status(HttpStatus.OK).json(choices)
+            : response.status(HttpStatus.NOT_FOUND).send({ message: ERROR_QUESTION_NOT_FOUND });
     }
 
     @Post('/backups/:gameId/questions/:questionId/validate-choice')
@@ -56,7 +58,9 @@ export class MatchController {
     @Get('/backups/:gameId')
     getBackupGame(@Param('gameId') gameId: string, @Res() response: Response) {
         const backupGame = this.matchService.getBackupGame(gameId);
-        backupGame ? response.status(HttpStatus.OK).json(backupGame) : response.status(HttpStatus.NOT_FOUND).send({ message: ERROR_GAME_NOT_FOUND });
+        return backupGame
+            ? response.status(HttpStatus.OK).json(backupGame)
+            : response.status(HttpStatus.NOT_FOUND).send({ message: ERROR_GAME_NOT_FOUND });
     }
 
     @Post('/backups/:gameId')
@@ -72,6 +76,8 @@ export class MatchController {
     @Delete('/backups/:gameId')
     async deleteBackupGame(@Param('gameId') gameId: string, @Res() response: Response) {
         const isDeleted = this.matchService.deleteBackupGame(gameId);
-        isDeleted ? response.status(HttpStatus.NO_CONTENT).send() : response.status(HttpStatus.NOT_FOUND).send({ message: ERROR_GAME_NOT_FOUND });
+        return isDeleted
+            ? response.status(HttpStatus.NO_CONTENT).send()
+            : response.status(HttpStatus.NOT_FOUND).send({ message: ERROR_GAME_NOT_FOUND });
     }
 }

@@ -57,8 +57,8 @@ export class MatchService {
     async saveBackupGame(gameId: string): Promise<Game> {
         try {
             let backupGame = await this.gameService.getGameById(gameId);
-            this.backupGames.push(backupGame);
             backupGame = this.removeIsCorrectField(backupGame);
+            this.backupGames.push(backupGame);
             return backupGame;
         } catch (error) {
             return Promise.reject(`${ERROR_GAME_NOT_FOUND}`);

@@ -26,10 +26,9 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatCardModule } from '@angular/material/card';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { CdkDragDrop, CdkDragEnd } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, CdkDragEnd, DragDropModule } from '@angular/cdk/drag-drop';
 import { MatInputModule } from '@angular/material/input';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { DragDropModule } from '@angular/cdk/drag-drop';
 
 describe('AdminQuestionsListComponent', () => {
     let component: AdminQuestionsListComponent;
@@ -125,7 +124,22 @@ describe('AdminQuestionsListComponent', () => {
         gamesServiceSpy.isPendingChangesObservable = of(false);
 
         TestBed.configureTestingModule({
-            imports: [HttpClientModule, MatDialogModule, RouterTestingModule, MatIconModule, MatCardModule, MatExpansionModule, MatFormFieldModule, MatInputModule, BrowserAnimationsModule, DragDropModule, ReactiveFormsModule, MatSidenavModule, ScrollingModule, MatSliderModule],
+            imports: [
+                HttpClientModule,
+                MatDialogModule,
+                RouterTestingModule,
+                MatIconModule,
+                MatCardModule,
+                MatExpansionModule,
+                MatFormFieldModule,
+                MatInputModule,
+                BrowserAnimationsModule,
+                DragDropModule,
+                ReactiveFormsModule,
+                MatSidenavModule,
+                ScrollingModule,
+                MatSliderModule,
+            ],
             declarations: [AdminQuestionsListComponent, SortByLastModificationPipe],
             providers: [
                 { provide: GamesService, useValue: gamesServiceSpy },

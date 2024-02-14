@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 import { getMockGame } from '@app/constants/game-mocks';
 import { GamesService } from '@app/services/games.service';
 import { MatchService } from '@app/services/match.service';
-import { MatDialogMock } from '@app/testing/mat-dialog-mock';
+import { MatDialogMock } from '@app/constants/mat-dialog-mock';
 import { of } from 'rxjs';
 import { TestPageComponent } from './test-page.component';
 

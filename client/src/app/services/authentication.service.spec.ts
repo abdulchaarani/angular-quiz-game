@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { NotificationService } from '@app/services/notification.service';
-import { MatDialogMock } from '@app/testing/mat-dialog-mock';
+import { MatDialogMock } from '@app/constants/mat-dialog-mock';
 import { of, throwError } from 'rxjs';
 import { AuthenticationService } from './authentication.service';
 import SpyObj = jasmine.SpyObj;

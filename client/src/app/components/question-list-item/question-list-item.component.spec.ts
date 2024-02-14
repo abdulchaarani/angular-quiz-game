@@ -2,6 +2,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Question } from '@app/interfaces/question';
 import { QuestionListItemComponent } from './question-list-item.component';
 import { ManagementState } from '@app/constants/states';
+import { CreateQuestionComponent } from '@app/pages/create-question/create-question.component';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 describe('QuestionListItemComponent', () => {
     let component: QuestionListItemComponent;
@@ -17,7 +19,8 @@ describe('QuestionListItemComponent', () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            declarations: [QuestionListItemComponent],
+            declarations: [QuestionListItemComponent, CreateQuestionComponent],
+            imports: [MatSnackBarModule],
         });
 
         fixture = TestBed.createComponent(QuestionListItemComponent);

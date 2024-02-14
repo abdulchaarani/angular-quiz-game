@@ -1,4 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { ChatComponent } from './chat.component';
 
@@ -9,6 +13,7 @@ describe('ChatComponent', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             declarations: [ChatComponent],
+            imports: [MatIconModule, MatFormFieldModule, MatInputModule, BrowserAnimationsModule],
         });
         fixture = TestBed.createComponent(ChatComponent);
         component = fixture.componentInstance;

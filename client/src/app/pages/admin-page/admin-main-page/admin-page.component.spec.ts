@@ -6,7 +6,9 @@ import { DialogRenameGameComponent } from '@app/components/dialog-rename-game/di
 import { getMockGame } from '@app/constants/game-mocks';
 import { GamesService } from '@app/services/games.service';
 import { NotificationService } from '@app/services/notification.service';
+import { MatIconModule } from '@angular/material/icon';
 import { of, throwError } from 'rxjs';
+import { GameListItemComponent } from '@app/components/game-list-item/game-list-item.component';
 import { AdminPageComponent } from './admin-page.component';
 import SpyObj = jasmine.SpyObj;
 
@@ -42,8 +44,8 @@ describe('AdminPageComponent', () => {
         gamesServiceSpy.deleteGame.and.returnValue(of(mockHttpResponse));
 
         TestBed.configureTestingModule({
-            imports: [MatDialogModule, MatSnackBarModule],
-            declarations: [AdminPageComponent],
+            imports: [MatDialogModule, MatSnackBarModule, MatIconModule],
+            declarations: [AdminPageComponent, GameListItemComponent],
             providers: [
                 HttpClient,
                 HttpHandler,

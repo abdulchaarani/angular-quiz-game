@@ -2,21 +2,34 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import { HttpClientModule, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
+import { Subject, of, throwError } from 'rxjs';
+
 import { Game } from '@app/interfaces/game';
 import { Question } from '@app/interfaces/question';
 import { SortByLastModificationPipe } from '@app/pipes/sort-by-last-modification.pipe';
 import { GamesService } from '@app/services/games.service';
 import { NotificationService } from '@app/services/notification.service';
 import { QuestionService } from '@app/services/question.service';
-import { Subject, of, throwError } from 'rxjs';
 import { AdminQuestionsListComponent } from './admin-questions-list.component';
 import { BankStatus, QuestionStatus } from '@app/constants/feedback-messages';
-import { CdkDragDrop, CdkDragEnd } from '@angular/cdk/drag-drop';
 import { ManagementState } from '@app/constants/states';
+
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSliderModule } from '@angular/material/slider';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ScrollingModule } from '@angular/cdk/scrolling';
+import { MatCardModule } from '@angular/material/card';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { CdkDragDrop, CdkDragEnd } from '@angular/cdk/drag-drop';
+import { MatInputModule } from '@angular/material/input';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 describe('AdminQuestionsListComponent', () => {
     let component: AdminQuestionsListComponent;
@@ -112,7 +125,7 @@ describe('AdminQuestionsListComponent', () => {
         gamesServiceSpy.isPendingChangesObservable = of(false);
 
         TestBed.configureTestingModule({
-            imports: [HttpClientModule, MatDialogModule, RouterTestingModule],
+            imports: [HttpClientModule, MatDialogModule, RouterTestingModule, MatIconModule, MatCardModule, MatExpansionModule, MatFormFieldModule, MatInputModule, BrowserAnimationsModule, DragDropModule, ReactiveFormsModule, MatSidenavModule, ScrollingModule, MatSliderModule],
             declarations: [AdminQuestionsListComponent, SortByLastModificationPipe],
             providers: [
                 { provide: GamesService, useValue: gamesServiceSpy },

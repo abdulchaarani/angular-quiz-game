@@ -1,6 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatDialogModule } from '@angular/material/dialog';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { DialogRenameGameComponent } from './dialog-rename-game.component';
 
 describe('DialogRenameGameComponent', () => {
@@ -11,6 +16,7 @@ describe('DialogRenameGameComponent', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             declarations: [DialogRenameGameComponent],
+            imports: [MatDialogModule, FormsModule, MatFormFieldModule, MatInputModule, BrowserAnimationsModule],
             providers: [
                 {
                     provide: MatDialogRef,

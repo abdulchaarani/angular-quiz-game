@@ -74,6 +74,7 @@ import { SortByLastModificationPipe } from './pipes/sort-by-last-modification.pi
         ReactiveFormsModule,
     ],
     providers: [],
+    exports: [QuestionListItemComponent, GameListItemComponent, CreateQuestionComponent],
     bootstrap: [AppComponent],
 })
 export class AppModule {}

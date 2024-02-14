@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { HttpClientModule } from '@angular/common/http';
+import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
@@ -23,7 +24,7 @@ describe('HomePageComponent', () => {
         });
         authenticationSpy = jasmine.createSpyObj('AuthenticationService', ['validatePassword']);
         TestBed.configureTestingModule({
-            imports: [HttpClientModule, MatSnackBarModule],
+            imports: [HttpClientModule, MatSnackBarModule, MatIconModule],
             providers: [
                 {
                     provide: MatDialog,

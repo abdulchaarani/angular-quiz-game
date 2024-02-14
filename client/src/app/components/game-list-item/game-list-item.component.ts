@@ -8,12 +8,10 @@ import { GamesService } from '@app/services/games.service';
     templateUrl: './game-list-item.component.html',
     styleUrls: ['./game-list-item.component.scss'],
 })
-
 export class GameListItemComponent {
     @Input() game: Game;
     @Input() isAdminMode: boolean;
     @Output() deleteGameFromList: EventEmitter<string> = new EventEmitter<string>();
-
 
     constructor(
         private gamesService: GamesService,

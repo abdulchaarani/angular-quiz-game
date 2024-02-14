@@ -41,7 +41,16 @@ describe('CreateQuestionComponent', () => {
         const snackBarSpyObj = jasmine.createSpyObj('MatSnackBar', ['open']);
         TestBed.configureTestingModule({
             declarations: [CreateQuestionComponent, QuestionListItemComponent],
-            imports: [ReactiveFormsModule, FormsModule, MatSnackBarModule, MatSelectModule, MatFormFieldModule, MatInputModule, NoopAnimationsModule, MatIconModule],
+            imports: [
+                ReactiveFormsModule,
+                FormsModule,
+                MatSnackBarModule,
+                MatSelectModule,
+                MatFormFieldModule,
+                MatInputModule,
+                NoopAnimationsModule,
+                MatIconModule,
+            ],
             providers: [{ provide: MatSnackBar, useValue: snackBarSpyObj }, FormBuilder, { provide: MAT_DIALOG_DATA, useValue: dialogData }],
         });
 

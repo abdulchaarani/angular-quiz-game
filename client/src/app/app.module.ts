@@ -28,7 +28,6 @@ import { HostPageComponent } from './pages/host-page/host-page.component';
 import { PlayerPageComponent } from './pages/player-page/player-page.component';
 import { TestPageComponent } from './pages/test-page/test-page.component';
 import { WaitPageComponent } from './pages/wait-page/wait-page.component';
-import { FormControlPipe } from './pipes/form-control.pipe';
 import { SortByLastModificationPipe } from './pipes/sort-by-last-modification.pipe';
 /**
  * Main module that is used in main.ts.
@@ -53,7 +52,6 @@ import { SortByLastModificationPipe } from './pipes/sort-by-last-modification.pi
         CreateQuestionComponent,
         SortByLastModificationPipe,
         ClickStopPropagationDirective,
-        FormControlPipe,
         TestPageComponent,
         ChatComponent,
         FeedbackComponent,

@@ -58,7 +58,7 @@ export class AdminQuestionBankComponent implements OnInit {
                     this.notificationService.displaySuccessMessage(BankStatus.SUCCESS);
                 }
             },
-            error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`${BankStatus.STILL}\n ${error.message}`),
+            error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`${BankStatus.FAILURE}\n ${error.message}`),
         });
     }
 

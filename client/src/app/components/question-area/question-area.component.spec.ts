@@ -33,6 +33,8 @@ describe('QuestionAreaComponent', () => {
 
     let matchService: MatchService;
 
+    const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK', body: JSON.stringify(true) });
+
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [QuestionAreaComponent],
@@ -161,7 +163,7 @@ describe('QuestionAreaComponent', () => {
     });
 
     it('should check answers', () => {
-        const spy = spyOn(component, 'checkAnswers');
+        const spy = spyOn(matchService, 'validateChoices').and.returnValue(of(mockHttpResponse));
         component.checkAnswers();
         expect(spy).toHaveBeenCalled();
     });
@@ -265,6 +267,7 @@ describe('QuestionAreaComponent', () => {
     }));
 
     it('should not check answers when pressing the enter key if the timer has not run out', () => {
+        spyOn(matchService, 'validateChoices').and.returnValue(of(mockHttpResponse));
         const spy = spyOn(component, 'checkAnswers');
         const event = new KeyboardEvent('keydown', { key: 'Enter' });
         component.handleKeyboardEvent(event);
@@ -272,6 +275,7 @@ describe('QuestionAreaComponent', () => {
     });
 
     it('should not check answers when clicking the submit button if the timer has not run out', () => {
+        spyOn(matchService, 'validateChoices').and.returnValue(of(mockHttpResponse));
         const spy = spyOn(component, 'checkAnswers');
         const button = fixture.nativeElement.querySelector('#submitButton');
         button.click();
@@ -291,6 +295,8 @@ describe('QuestionAreaComponent', () => {
     }));
 
     it('should check answers on ngInit if the timer has run out', () => {
+        spyOn(matchService, 'validateChoices').and.returnValue(of(mockHttpResponse));
+
         const spy = spyOn(component, 'checkAnswers');
         component.timeService.timerFinished$.next(true);
         component.ngOnInit();
@@ -298,6 +304,8 @@ describe('QuestionAreaComponent', () => {
     });
 
     it('should not check answers on ngInit if the timer has not run out', () => {
+        spyOn(matchService, 'validateChoices').and.returnValue(of(mockHttpResponse));
+
         const spy = spyOn(component, 'checkAnswers');
         component.timeService.timerFinished$.next(false);
         component.ngOnInit();

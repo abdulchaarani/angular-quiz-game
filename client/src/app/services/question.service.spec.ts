@@ -5,6 +5,10 @@ import { Question } from '@app/interfaces/question';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { MatDialogMock } from '@app/testing/mat-dialog-mock';
 import { CreateQuestionComponent, DialogManagement } from '@app/pages/create-question/create-question.component';
+import { HttpResponse } from '@angular/common/http';
+import { of } from 'rxjs';
+
+const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK', body: JSON.stringify(true) });
 
 describe('QuestionService', () => {
     let questionService: QuestionService;
@@ -34,31 +38,31 @@ describe('QuestionService', () => {
     });
 
     it('should get all Questions', () => {
-        const spy = spyOn(questionService, 'getAll').and.callThrough();
+        const spy = spyOn(questionService, 'getAll').and.returnValue(of([mockQuestion]));
         questionService.getAllQuestions();
         expect(spy).toHaveBeenCalled();
     });
 
     it('should create a new question', () => {
-        const spy = spyOn(questionService, 'add').and.callThrough();
+        const spy = spyOn(questionService, 'add').and.returnValue(of(mockHttpResponse));
         questionService.createQuestion(mockQuestion);
         expect(spy).toHaveBeenCalledWith(mockQuestion);
     });
 
     it('should create a delete question', () => {
-        const spy = spyOn(questionService, 'delete').and.callThrough();
+        const spy = spyOn(questionService, 'delete').and.returnValue(of(mockHttpResponse));
         questionService.deleteQuestion(mockQuestion.id);
         expect(spy).toHaveBeenCalledWith(mockQuestion.id);
     });
 
     it('should verify a new question', () => {
-        const spy = spyOn(questionService, 'add').and.callThrough();
+        const spy = spyOn(questionService, 'add').and.returnValue(of(mockHttpResponse));
         questionService.verifyQuestion(mockQuestion);
         expect(spy).toHaveBeenCalled();
     });
 
     it('should modify a question', () => {
-        const spy = spyOn(questionService, 'update').and.callThrough();
+        const spy = spyOn(questionService, 'update').and.returnValue(of(mockHttpResponse));
         questionService.updateQuestion(mockQuestion);
         expect(spy).toHaveBeenCalled();
     });

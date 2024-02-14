@@ -9,6 +9,7 @@ import { MatchService } from '@app/services/match.service';
 import { NotificationService } from '@app/services/notification.service';
 import { MatDialogMock } from '@app/testing/mat-dialog-mock';
 import { of, throwError } from 'rxjs';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 import { HostPageComponent } from './host-page.component';
 
 describe('HostPageComponent', () => {
@@ -43,7 +44,7 @@ describe('HostPageComponent', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             declarations: [HostPageComponent],
-            imports: [HttpClientTestingModule, BrowserAnimationsModule],
+            imports: [HttpClientTestingModule, BrowserAnimationsModule, ScrollingModule],
             providers: [MatSnackBar, GamesService, NotificationService, MatchService, { provide: MatDialog, useClass: MatDialogMock }],
         });
         fixture = TestBed.createComponent(HostPageComponent);

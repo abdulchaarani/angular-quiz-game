@@ -5,7 +5,7 @@
         </mat-panel-title>
         <mat-panel-description class="question-options">
             <p>{{ question.points }} points</p>
-            <p *ngIf="isLastModifiedDateVisible">Dernière modification: {{ question.lastModification | date }}</p>
+            <p>Dernière modification: {{ question.lastModification | date: 'dd/MM/yyyy, hh:mm:ss' }}</p>
             <div class="question-buttons-container">
                 <button
                     mat-icon-button
@@ -18,7 +18,7 @@
                 </button>
             </div>
 
-            <div class="drag-container">
+            <div *ngIf="!isBankQuestion" class="drag-container">
                 <ng-content></ng-content>
                 <div class="drag-handle">
                     <svg class="svg" width="20px" fill="currentColor" viewBox="0 0 24 24">
@@ -29,9 +29,9 @@
             </div>
         </mat-panel-description>
     </mat-expansion-panel-header>
-    <button mat-icon-button color="primary" aria-label="Example icon button with a menu icon" appClickStopPropagation (click)="togglePanel()" (click)="closeComponent()">
-        <mat-icon>create</mat-icon>
-    </button>
-    <app-create-question *ngIf="isEditable && isPanelExpanded" [createNewQuestionButton] ="false" [createNewQuestionToBankButton] ="false" [question]="question" > </app-create-question>
-    <p>{{ question.text }}</p>
+    <app-create-question
+        [question]="question"
+        [modificationState]="modificationState"
+        (modifyQuestionEvent)="dispatchModifiedQuestion()"
+    ></app-create-question>
 </mat-expansion-panel>

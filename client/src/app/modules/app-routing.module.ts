@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { ManagementState } from '@app/constants/states';
 import { authenticationGuard } from '@app/guards/authentication.guard';
 import { pendingChangesGuard } from '@app/guards/pending-changes.guard';
 import { AdminPageComponent } from '@app/pages/admin-page/admin-main-page/admin-page.component';
@@ -21,8 +22,18 @@ const routes: Routes = [
         children: [
             { path: 'bank', component: AdminQuestionBankComponent },
             { path: 'games', component: AdminPageComponent },
-            { path: 'games/new', component: AdminQuestionsListComponent, data: { state: 'create' }, canDeactivate: [pendingChangesGuard] },
-            { path: 'games/:id', component: AdminQuestionsListComponent, data: { state: 'modify' }, canDeactivate: [pendingChangesGuard] },
+            {
+                path: 'games/new',
+                component: AdminQuestionsListComponent,
+                data: { state: ManagementState.GameCreate },
+                canDeactivate: [pendingChangesGuard],
+            },
+            {
+                path: 'games/:id',
+                component: AdminQuestionsListComponent,
+                data: { state: ManagementState.GameModify },
+                canDeactivate: [pendingChangesGuard],
+            },
         ],
     },
     { path: 'host', component: HostPageComponent },

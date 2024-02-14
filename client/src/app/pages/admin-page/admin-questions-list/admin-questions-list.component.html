@@ -1,6 +1,6 @@
 <div class="main-container" [class.sidenav-active]="isSideBarActive">
     <mat-drawer-container class="bank-container container" autosize>
-        <h1 class="page-title">{{ this.state === 'modify' ? 'Modification' : 'Création' }} du jeu</h1>
+        <h1 class="page-title">{{ getTitle() }} du jeu</h1>
         <mat-icon class="pending-changes" *ngIf="this.isPendingChanges">circle</mat-icon>
 
         <div class="buttons-container buttons-rack">
@@ -12,7 +12,7 @@
                     (click)="handleSubmit()"
                     [disabled]="gameForm.invalid || game.questions.length === 0"
                 >
-                    <mat-icon>done</mat-icon> {{ this.state === 'modify' ? 'Appliquer les modifications' : 'Créer le jeu' }}
+                    <mat-icon>done</mat-icon> {{ getButtonText() }}
                 </button>
             </div>
 
@@ -26,7 +26,6 @@
                 </button>
             </div>
         </div>
-
         <div>
             <form [formGroup]="gameForm">
                 <div class="game-form-details">
@@ -55,7 +54,6 @@
             <div class="drop-destination" [class.visible]="isBankQuestionDragged">
                 <h3 class="">👇 Déposez la question dans la liste! 👇</h3>
             </div>
-
             <div
                 id="quiz-questions"
                 class="list game-questions-list"
@@ -65,29 +63,31 @@
                 (cdkDropListDropped)="dropInQuizList($event)"
                 [class.empty-list]="game.questions.length === 0"
             >
-                <p *ngIf="game.questions.length === 0" class="create-notice">
-                    Le jeu doit contenir au moins 1 question. Clicker sur Ajouter une nouvelle question ou importer une question de la banque.
-                </p>
-                <app-question-list-item
-                    class="question game-question"
-                    *ngFor="let question of game.questions"
-                    [index]="game.questions.indexOf(question) + 1"
-                    [question]="question"
-                    [isEditable]="true"
-                    [isLastModifiedDateVisible]="true"
-                    (deleteQuestionEvent)="deleteQuestion($event)"
-                    (cdkDragStarted)="dragQuizQuestion(question)"
-                    (cdkDragEnded)="dropQuizQuestion($event)"
-                    cdkDrag
-                >
-                    <div cdkDragHandle></div>
-                </app-question-list-item>
+                <mat-accordion>
+                    <p *ngIf="game.questions.length === 0" class="create-notice">
+                        Le jeu doit contenir au moins 1 question. Clicker sur Ajouter une nouvelle question ou importer une question de la banque.
+                    </p>
+                    <app-question-list-item
+                        class="question game-question"
+                        *ngFor="let question of game.questions"
+                        [index]="game.questions.indexOf(question) + 1"
+                        [question]="question"
+                        [isBankQuestion]="false"
+                        (deleteQuestionEvent)="deleteQuestion($event)"
+                        (cdkDragStarted)="dragQuizQuestion(question)"
+                        (cdkDragEnded)="dropQuizQuestion($event)"
+                        cdkDrag
+                    >
+                        <div cdkDragHandle></div>
+                    </app-question-list-item>
+                </mat-accordion>
             </div>
         </div>
 
         <mat-drawer #drawer class="sidenav" mode="side" position="end" id="test">
+            <h3 class="bank-message">{{ currentBankMessage }}</h3>
+            <h3 class="bank-message">Déposez une question ci-bas pour l'ajouter à la banque</h3>
             <cdk-virtual-scroll-viewport class="bank-sidenav" itemSize="50" style="height: 100vh">
-                <h3 class="bank-message">{{ currentBankMessage }}</h3>
                 <div
                     id="bank-questions"
                     cdkDropList
@@ -97,7 +97,7 @@
                 >
                     <app-short-question
                         class="question short-question"
-                        *ngFor="let question of bankQuestions | sortByLastModification: 'ascending'"
+                        *ngFor="let question of bankQuestions | sortByLastModification: 'descending'"
                         [question]="question"
                         cdkDrag
                         [cdkDragData]="question"

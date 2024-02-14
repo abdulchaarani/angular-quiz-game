@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Game } from '@app/interfaces/game';
-import { MatDialogMock } from '@app/testing/mat-dialog-mock';
+import { MatDialogMock } from '@app/constants/mat-dialog-mock';
 import { of } from 'rxjs';
 import { GamesService } from './games.service';
 import { ManagementState } from '@app/constants/states';

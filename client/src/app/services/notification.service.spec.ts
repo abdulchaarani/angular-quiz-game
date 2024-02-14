@@ -3,7 +3,7 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { DialogConfirmComponent, DialogData } from '@app/components/dialog-confirm/dialog-confirm.component';
-import { MatDialogMock } from '@app/testing/mat-dialog-mock';
+import { MatDialogMock } from '@app/constants/mat-dialog-mock';
 import { NotificationService } from './notification.service';
 
 describe('NotificationService', () => {

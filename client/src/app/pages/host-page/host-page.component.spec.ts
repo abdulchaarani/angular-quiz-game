@@ -7,7 +7,7 @@ import { Game } from '@app/interfaces/game';
 import { GamesService } from '@app/services/games.service';
 import { MatchService } from '@app/services/match.service';
 import { NotificationService } from '@app/services/notification.service';
-import { MatDialogMock } from '@app/testing/mat-dialog-mock';
+import { MatDialogMock } from '@app/constants/mat-dialog-mock';
 import { of, throwError } from 'rxjs';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { HostPageComponent } from './host-page.component';

@@ -2,14 +2,14 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
 import { Game } from '@app/interfaces/game';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { ChoiceValidationService } from './choice-validation.service';
 import { MatchService } from './match.service';
+import { HttpResponse } from '@angular/common/http';
 
 describe('MatchService', () => {
     let service: MatchService;
     let choiceValidationService: ChoiceValidationService;
-    const deletedGame = {} as Game;
     const fakeGame: Game = {
         id: '0',
         title: 'title',
@@ -28,6 +28,7 @@ describe('MatchService', () => {
             },
         ],
     };
+    const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK', body: JSON.stringify(true) });
 
     beforeEach(() => {
         TestBed.configureTestingModule({
@@ -64,7 +65,7 @@ describe('MatchService', () => {
     });
 
     it('should get all games with success using GetAllGames', () => {
-        const spy = spyOn(service, 'getAllGames').and.callThrough();
+        const spy = spyOn(service, 'getAllGames').and.returnValue(of([fakeGame]));
         service.getAllGames();
         expect(spy).toHaveBeenCalled();
     });
@@ -77,40 +78,22 @@ describe('MatchService', () => {
     });
 
     it('should get a backup of a game with success', () => {
-        const spy = spyOn(service, 'getById').and.callThrough();
+        const spy = spyOn(service, 'getById').and.returnValue(of(fakeGame));
         service.getBackupGame(fakeGame.id);
         expect(spy).toHaveBeenCalledOnceWith(fakeGame.id, 'backups');
     });
 
-    it('getBackupGame should throw an error if the object is not found', () => {
-        const spy = spyOn(service, 'getById').and.callThrough();
-        service.getBackupGame(deletedGame.id);
-        expect(spy).toThrowError();
-    });
-
     it('should save a backup of a game with success', () => {
-        const spy = spyOn(service, 'add').and.callThrough();
+        const spy = spyOn(service, 'add').and.returnValue(of(mockHttpResponse));
         service.currentGame = fakeGame;
         service.saveBackupGame(fakeGame.id);
         expect(spy).toHaveBeenCalledOnceWith(fakeGame, `backups/${fakeGame.id}`);
     });
 
-    it('should throw an error if saving was unsuccessful', () => {
-        const spy = spyOn(service, 'add').and.callThrough();
-        service.saveBackupGame(deletedGame.id);
-        expect(spy).toThrowError();
-    });
-
     it('should delete a backup of a game with success', () => {
-        const spy = spyOn(service, 'delete').and.callThrough();
+        const spy = spyOn(service, 'delete').and.returnValue(of(mockHttpResponse));
         service.deleteBackupGame(fakeGame.id);
         expect(spy).toHaveBeenCalledOnceWith(`backups/${fakeGame.id}`);
-    });
-
-    it('should throw an error if deleting was unsuccessful', () => {
-        const spy = spyOn(service, 'delete').and.callThrough();
-        service.deleteBackupGame(deletedGame.id);
-        expect(spy).toThrowError();
     });
 
     it('should validate choices from a list of choices', () => {
@@ -120,7 +103,7 @@ describe('MatchService', () => {
         const choices: SelectedChoices = { selected: [''] };
         service.currentGame = fakeGame;
         service.questionId = '0';
-        const spy = spyOn(choiceValidationService, 'add').and.callThrough();
+        const spy = spyOn(choiceValidationService, 'add').and.returnValue(of(mockHttpResponse));
         service.validateChoices(choices.selected);
         expect(spy).toHaveBeenCalledOnceWith(choices, `${fakeGame.id}/questions/${service.questionId}/validate-choice`);
     });

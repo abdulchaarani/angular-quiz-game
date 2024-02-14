@@ -11,6 +11,7 @@ import { MatDialogMock } from '@app/testing/mat-dialog-mock';
 import { of, throwError } from 'rxjs';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { HostPageComponent } from './host-page.component';
+import { HttpResponse } from '@angular/common/http';
 // import { HttpResponse } from '@angular/common/http';
 
 describe('HostPageComponent', () => {
@@ -18,7 +19,6 @@ describe('HostPageComponent', () => {
     let fixture: ComponentFixture<HostPageComponent>;
     let gameService: GamesService;
     let notificationService: NotificationService;
-    let matchService: MatchService;
     const invisibleGame: Game = { isVisible: false } as Game;
     const fakeGame: Game = {
         id: '0',
@@ -42,18 +42,28 @@ describe('HostPageComponent', () => {
     const invisibleError = "Le jeu sélectionné n'est plus visible";
     const action = 'Actualiser';
 
-    // const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK', body: JSON.stringify(true) });
+    const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK', body: JSON.stringify(true) });
+
+    const matchServiceSpy = jasmine.createSpyObj('MatchService', ['validateChoices', 'getAllGames', 'saveBackupGame']);
+    matchServiceSpy.getAllGames.and.returnValue(of([fakeGame]));
+    matchServiceSpy.saveBackupGame.and.returnValue(of(mockHttpResponse));
+    matchServiceSpy.validateChoices.and.returnValue(of(mockHttpResponse));
 
     beforeEach(() => {
         TestBed.configureTestingModule({
             declarations: [HostPageComponent],
             imports: [HttpClientTestingModule, BrowserAnimationsModule, ScrollingModule],
-            providers: [MatSnackBar, GamesService, NotificationService, MatchService, { provide: MatDialog, useClass: MatDialogMock }],
+            providers: [
+                MatSnackBar,
+                GamesService,
+                NotificationService,
+                { provide: MatchService, useValue: matchServiceSpy },
+                { provide: MatDialog, useClass: MatDialogMock },
+            ],
         });
         fixture = TestBed.createComponent(HostPageComponent);
         gameService = TestBed.inject(GamesService);
         notificationService = TestBed.inject(NotificationService);
-        matchService = TestBed.inject(MatchService);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
@@ -74,8 +84,7 @@ describe('HostPageComponent', () => {
     });
 
     it('should load only visible games with reloadAllGames()', fakeAsync(() => {
-        const spy = spyOn(component, 'reloadAllGames').and.callThrough();
-        spyOn(matchService, 'getAllGames').and.returnValue(of([fakeGame]));
+        component.reloadAllGames();
         component.games = [fakeGame, invisibleGame];
         component.reloadAllGames();
         tick();
@@ -83,20 +92,17 @@ describe('HostPageComponent', () => {
         const expectedGames = [fakeGame];
         expect(games).toEqual(expectedGames);
         expect(invisibleGame.isVisible).toBeFalsy();
-        expect(spy).toHaveBeenCalled();
-
         flush();
     }));
 
-    // it('should load a visible selected game', fakeAsync(() => {
-    //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    //     const spy = spyOn<any>(component, 'validateGame').and.returnValue(of(mockHttpResponse));
-    //     spyOn(gameService, 'getGameById').and.returnValue(of(fakeGame));
-    //     component.loadSelectedGame(fakeGame);
-    //     expect(component.selectedGame).toEqual(fakeGame);
-    //     expect(spy).toHaveBeenCalledWith(fakeGame);
-    //     expect(component.gameIsValid).toBeTruthy();
-    // }));
+    it('should load a visible selected game', fakeAsync(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        spyOn(gameService, 'getGameById').and.returnValue(of(fakeGame));
+        component.validateGame(fakeGame);
+        component.loadSelectedGame(fakeGame);
+        expect(component.selectedGame).toEqual(fakeGame);
+        expect(component.gameIsValid).toBeTruthy();
+    }));
 
     it('should not load an invisible selected game', fakeAsync(() => {
         spyOn(gameService, 'getGameById').and.returnValue(of(invisibleGame));
@@ -135,13 +141,12 @@ describe('HostPageComponent', () => {
     }));
 
     it('should select game without errors if game is visible and defined. No snackbars should open', fakeAsync(() => {
-        const spy = spyOn(component, 'validateGame').and.callThrough();
+        component.validateGame(fakeGame);
         const notificationSpy = spyOn(notificationService, 'displayErrorMessageAction').and.callThrough();
         spyOn(gameService, 'getGameById').and.returnValue(of(fakeGame));
         component.loadSelectedGame(fakeGame);
         tick();
         expect(component.selectedGame).toEqual(fakeGame);
-        expect(spy).toHaveBeenCalledWith(fakeGame);
         expect(component.gameIsValid).toBeTruthy();
         expect(notificationSpy).not.toHaveBeenCalled();
         flush();

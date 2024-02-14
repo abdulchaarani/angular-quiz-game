@@ -4,7 +4,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Question } from '@app/interfaces/question';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { MatDialogMock } from '@app/testing/mat-dialog-mock';
-import { CreateQuestionComponent, DialogManagement } from '@app/pages/create-question/create-question.component';
+import { CreateQuestionComponent, DialogManagement } from '@app/components/create-question/create-question.component';
 import { HttpResponse } from '@angular/common/http';
 import { of } from 'rxjs';
 

@@ -7,14 +7,13 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { AppMaterialModule } from '@app/modules/material.module';
 import { AppComponent } from '@app/pages/app/app.component';
-import { CreateQuestionComponent } from '@app/pages/create-question/create-question.component';
+import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
 import { ChatComponent } from './components/chat/chat.component';
 import { DialogAdminPasswordComponent } from './components/dialog-admin-password/dialog-admin-password.component';
 import { DialogConfirmComponent } from './components/dialog-confirm/dialog-confirm.component';
 import { DialogRenameGameComponent } from './components/dialog-rename-game/dialog-rename-game.component';
 import { FeedbackComponent } from './components/feedback/feedback.component';
 import { GameListItemComponent } from './components/game-list-item/game-list-item.component';
-import { PlayAreaComponent } from './components/play-area/play-area.component';
 import { QuestionAreaComponent } from './components/question-area/question-area.component';
 import { QuestionListItemComponent } from './components/question-list-item/question-list-item.component';
 import { ShortQuestionComponent } from './components/short-question/short-question.component';
@@ -38,7 +37,6 @@ import { SortByLastModificationPipe } from './pipes/sort-by-last-modification.pi
 @NgModule({
     declarations: [
         AppComponent,
-        PlayAreaComponent,
         SidebarComponent,
         HomePageComponent,
         AdminPageComponent,

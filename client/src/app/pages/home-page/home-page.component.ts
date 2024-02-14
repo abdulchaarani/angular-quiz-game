@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogAdminPasswordComponent } from '@app/components/dialog-admin-password/dialog-admin-password.component';
-import { AuthenticationService } from '@app/services/authentication/authentication.service';
+import { AuthenticationService } from '@app/services/authentication.service';
 
 @Component({
     selector: 'app-home-page',

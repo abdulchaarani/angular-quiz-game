@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { Question } from '@app/interfaces/question';
 import { ApiService } from './api.service';
 import { ManagementState } from '@app/constants/states';
-import { CreateQuestionComponent, DialogManagement } from '@app/pages/create-question/create-question.component';
+import { CreateQuestionComponent, DialogManagement } from '@app/components/create-question/create-question.component';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 @Injectable({
     providedIn: 'root',

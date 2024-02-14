@@ -87,9 +87,9 @@ describe('CreateQuestionComponent', () => {
                 { text: 'New Choice 2', isCorrect: true },
             ],
         });
-
+        component.question.lastModification = '2024-01-26T14:21:19+00:00';
         component.questionForm.value.id = '1';
-        component.questionForm.value.lastModification = new Date().toLocaleDateString();
+        component.questionForm.value.lastModification = '2024-01-26T14:21:19+00:00';
         expect(component.question).toEqual(component.questionForm.value);
     });
 
@@ -127,13 +127,14 @@ describe('CreateQuestionComponent', () => {
                 { text: 'Choice 1', isCorrect: true },
                 { text: 'Choice 2', isCorrect: false },
             ],
-            lastModification: new Date().toLocaleString(),
+            lastModification: '2024-01-26T14:21:19+00:00',
         };
         component.question = changedQuestion;
         component.ngOnChanges({
             question: { currentValue: changedQuestion, previousValue: null, isFirstChange: () => true, firstChange: true },
         });
         component.onSubmit();
+        component.questionForm.value.lastModification = '2024-01-26T14:21:19+00:00';
         component.questionForm.value.id = '1';
         expect(component.questionForm.value).toEqual(changedQuestion);
     });

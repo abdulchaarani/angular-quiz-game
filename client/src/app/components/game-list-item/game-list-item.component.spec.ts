@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { By } from '@angular/platform-browser';
+import { RouterTestingModule } from '@angular/router/testing';
 import { getMockGame } from '@app/constants/game-mocks';
 import { DownloadGameService } from '@app/services/download-game.service';
 import { GamesService } from '@app/services/games.service';
@@ -25,7 +26,7 @@ describe('GameListItemComponent', () => {
         gamesServiceSpy.toggleGameVisibility.and.returnValue(of());
 
         TestBed.configureTestingModule({
-            imports: [MatCardModule, HttpClientModule, MatIconModule],
+            imports: [MatCardModule, HttpClientModule, MatIconModule, RouterTestingModule],
             declarations: [GameListItemComponent],
             providers: [
                 { provide: GamesService, useValue: gamesServiceSpy },

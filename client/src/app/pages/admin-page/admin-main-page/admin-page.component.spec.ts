@@ -1,8 +1,12 @@
 import { HttpClient, HttpErrorResponse, HttpHandler, HttpResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { RouterTestingModule } from '@angular/router/testing';
 import { DialogRenameGameComponent } from '@app/components/dialog-rename-game/dialog-rename-game.component';
+import { GameListItemComponent } from '@app/components/game-list-item/game-list-item.component';
 import { getMockGame } from '@app/constants/game-mocks';
 import { GamesService } from '@app/services/games.service';
 import { NotificationService } from '@app/services/notification.service';
@@ -42,8 +46,8 @@ describe('AdminPageComponent', () => {
         gamesServiceSpy.deleteGame.and.returnValue(of(mockHttpResponse));
 
         TestBed.configureTestingModule({
-            imports: [MatDialogModule, MatSnackBarModule],
-            declarations: [AdminPageComponent],
+            imports: [MatDialogModule, MatSnackBarModule, RouterTestingModule, MatIconModule, MatCardModule],
+            declarations: [AdminPageComponent, GameListItemComponent],
             providers: [
                 HttpClient,
                 HttpHandler,

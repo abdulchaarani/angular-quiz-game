@@ -17,8 +17,10 @@ import {
     ERROR_EMPTY_TITLE,
     ERROR_POINTS,
     ERROR_QUESTIONS_NUMBER,
+    ERROR_QUESTION_TYPE,
     ERROR_REPEAT_CHOICES,
 } from '@app/constants/game-validation-errors';
+import { QuestionTypes } from '@app/constants/question-types';
 import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question-dto';
@@ -57,27 +59,36 @@ export class GameValidationService {
         return new Set(choicesTexts).size === choicesTexts.length;
     }
 
-    findQuestionErrors(question: CreateQuestionDto): string[] {
+    findGeneralQuestionErrors(question: CreateQuestionDto): string[] {
         const errorMessages: string[] = [];
-        const isUniqueChoices = this.isUniqueChoices(question.choices);
-        const isValidChoicesNumber = this.isValidRange(question.choices.length, MIN_CHOICES_NUMBER, MAX_CHOICES_NUMBER);
         const isValidPointsRange = this.isValidRange(question.points, MIN_POINTS, MAX_POINTS);
         const isValidPointsMultiple = question.points % STEP_POINTS === 0;
         const isValidQuestionName = this.isValidString(question.text);
-        const isValidQuestionRatio = this.isValidChoicesRatio(question);
-        if (!isValidChoicesNumber) {
-            errorMessages.push(ERROR_CHOICES_NUMBER);
-        }
-        if (!isUniqueChoices) {
-            errorMessages.push(ERROR_REPEAT_CHOICES);
-        }
+        const isCorrectType = question.type === QuestionTypes.CHOICE || question.type === QuestionTypes.LONG;
         if (!isValidPointsRange || !isValidPointsMultiple) {
             errorMessages.push(ERROR_POINTS);
         }
         if (!isValidQuestionName) {
             errorMessages.push(ERROR_EMPTY_QUESTION);
         }
-        if (!isValidQuestionRatio) {
+        if (!isCorrectType) {
+            errorMessages.push(ERROR_QUESTION_TYPE);
+        }
+        return errorMessages;
+    }
+
+    findChoicesQuestionErrors(question: CreateQuestionDto): string[] {
+        const errorMessages: string[] = this.findGeneralQuestionErrors(question);
+        const isUniqueChoices = this.isUniqueChoices(question.choices);
+        const isValidChoicesNumber = this.isValidRange(question.choices.length, MIN_CHOICES_NUMBER, MAX_CHOICES_NUMBER);
+        const isValidChoicesRatio = this.isValidChoicesRatio(question);
+        if (!isValidChoicesNumber) {
+            errorMessages.push(ERROR_CHOICES_NUMBER);
+        }
+        if (!isUniqueChoices) {
+            errorMessages.push(ERROR_REPEAT_CHOICES);
+        }
+        if (!isValidChoicesRatio) {
             errorMessages.push(ERROR_CHOICES_RATIO);
         }
         return errorMessages;
@@ -103,10 +114,15 @@ export class GameValidationService {
             errorMessages.push(ERROR_QUESTIONS_NUMBER);
         }
         game.questions.forEach((question: CreateQuestionDto, index: number) => {
-            const questionErrorMessages = this.findQuestionErrors(question);
+            let questionErrorMessages: string[];
+            if (question.type === QuestionTypes.CHOICE) {
+                questionErrorMessages = this.findChoicesQuestionErrors(question);
+            } else {
+                questionErrorMessages = this.findGeneralQuestionErrors(question);
+            }
             if (questionErrorMessages.length !== 0) {
                 errorMessages.push(`La question ${index + 1} est invalide:`);
-                questionErrorMessages.forEach((message) => errorMessages.push(message));
+                questionErrorMessages.forEach((message: string) => errorMessages.push(message));
             }
         });
         return errorMessages;

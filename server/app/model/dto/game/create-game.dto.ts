@@ -25,7 +25,6 @@ export class CreateGameDto {
     duration: number;
 
     @ApiProperty()
-    // @IsDate()
     @IsOptional()
     lastModification: Date;
 

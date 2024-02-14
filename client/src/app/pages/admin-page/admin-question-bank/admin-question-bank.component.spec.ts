@@ -5,10 +5,14 @@ import { QuestionService } from '@app/services/question.service';
 import { AdminQuestionBankComponent } from './admin-question-bank.component';
 
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 import { SortByLastModificationPipe } from '@app/pipes/sort-by-last-modification.pipe';
 import { NotificationService } from '@app/services/notification.service';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { of, throwError } from 'rxjs';
+import { QuestionListItemComponent } from '@app/components/question-list-item/question-list-item.component';
 
 describe('AdminQuestionBankComponent', () => {
     let component: AdminQuestionBankComponent;
@@ -60,7 +64,8 @@ describe('AdminQuestionBankComponent', () => {
         const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['close']);
 
         TestBed.configureTestingModule({
-            declarations: [AdminQuestionBankComponent, SortByLastModificationPipe],
+            declarations: [AdminQuestionBankComponent, SortByLastModificationPipe, QuestionListItemComponent],
+            imports: [MatExpansionModule, MatIconModule, BrowserAnimationsModule],
             providers: [
                 { provide: QuestionService, useValue: questionServiceSpy },
                 { provide: NotificationService, useValue: notificationServiceSpy },

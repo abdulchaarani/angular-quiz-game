@@ -1,15 +1,19 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
+
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { CdkDragDrop } from '@angular/cdk/drag-drop';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+
 import { ManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
 import { CreateQuestionComponent, DialogManagement } from './create-question.component';
-import { CdkDragDrop } from '@angular/cdk/drag-drop';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { QuestionListItemComponent } from '@app/components/question-list-item/question-list-item.component';
 
 const mockQuestion: Question = {
     id: '1',
@@ -36,8 +40,8 @@ describe('CreateQuestionComponent', () => {
     beforeEach(() => {
         const snackBarSpyObj = jasmine.createSpyObj('MatSnackBar', ['open']);
         TestBed.configureTestingModule({
-            declarations: [CreateQuestionComponent],
-            imports: [ReactiveFormsModule, FormsModule, MatSnackBarModule, MatSelectModule, MatFormFieldModule, MatInputModule, NoopAnimationsModule],
+            declarations: [CreateQuestionComponent, QuestionListItemComponent],
+            imports: [ReactiveFormsModule, FormsModule, MatSnackBarModule, MatSelectModule, MatFormFieldModule, MatInputModule, NoopAnimationsModule, MatIconModule],
             providers: [{ provide: MatSnackBar, useValue: snackBarSpyObj }, FormBuilder, { provide: MAT_DIALOG_DATA, useValue: dialogData }],
         });
 

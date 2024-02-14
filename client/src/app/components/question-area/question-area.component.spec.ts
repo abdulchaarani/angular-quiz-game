@@ -8,6 +8,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { Choice } from '@app/interfaces/choice';
 import { MatchService } from '@app/services/match.service';
 import { of } from 'rxjs';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { QuestionAreaComponent } from './question-area.component';
 
 import { getMockQuestion } from '@app/constants/question-mocks';
@@ -35,7 +36,7 @@ describe('QuestionAreaComponent', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [QuestionAreaComponent],
-            imports: [MatDialogModule, RouterTestingModule, HttpClientTestingModule],
+            imports: [MatDialogModule, RouterTestingModule, HttpClientTestingModule, MatProgressSpinnerModule],
             providers: [HttpClient, MatchService],
         }).compileComponents();
         fixture = TestBed.createComponent(QuestionAreaComponent);

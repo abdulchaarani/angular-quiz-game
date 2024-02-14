@@ -14,7 +14,9 @@
                                 <input class="choice-input" matInput formControlName="text" placeholder="Choix de réponse" />
                                 <span matSuffix class="choice-buttons">
                                     <input type="checkbox" formControlName="isCorrect" />
-                                    <button mat-icon-button (click)="removeChoice(i)" color="accent"><mat-icon>delete</mat-icon></button>
+                                    <button mat-icon-button type="button" (click)="removeChoice(i)" color="accent">
+                                        <mat-icon>delete</mat-icon>
+                                    </button>
 
                                     <svg width="20px" fill="currentColor" viewBox="0 0 24 24" cdkDragHandle>
                                         <path

@@ -14,7 +14,9 @@
                                 <input class="choice-input" matInput formControlName="text" placeholder="Choix de réponse" />
                                 <span matSuffix class="choice-buttons">
                                     <input type="checkbox" formControlName="isCorrect" />
-                                    <button mat-icon-button (click)="removeChoice(i)" color="accent"><mat-icon>delete</mat-icon></button>
+                                    <button mat-icon-button type="button" (click)="removeChoice(i)" color="accent">
+                                        <mat-icon>delete</mat-icon>
+                                    </button>
 
                                     <svg width="20px" fill="currentColor" viewBox="0 0 24 24" cdkDragHandle>
                                         <path
@@ -47,15 +49,22 @@
                         <mat-option *ngFor="let point of [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]" [value]="point">{{ point }}</mat-option>
                     </mat-select>
                 </mat-form-field>
-                <div *ngIf="createNewQuestionToBankButton">
+                <!-- <div *ngIf="createNewQuestionToBankButton">
                     <mat-slide-toggle color="primary" [disabled]="!questionForm.valid" (click)="onSubmitQuestionBank()">
                         Ajouter à la banque de questions
                     </mat-slide-toggle>
-                </div>
-                <div *ngIf="createNewQuestionButton">
-                    <button mat-raised-button color="primary" type="submit" class="submit-button" [disabled]="!questionForm.valid">
+                </div> -->
+                <div>
+                    <button
+                        *ngIf="this.isActiveSubmit()"
+                        mat-raised-button
+                        color="primary"
+                        type="submit"
+                        class="submit-button"
+                        [disabled]="!questionForm.valid"
+                    >
                         <mat-icon>check</mat-icon>
-                        Vérifier si la question est valide
+                        {{ getButtonText() }}
                     </button>
                 </div>
             </div>

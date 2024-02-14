@@ -3,7 +3,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { AfterViewInit, Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BankStatus, GameStatus, QuestionStatus } from '@app/feedback-messages';
+import { ManagementState } from '@app/constants/states';
+import { BankStatus, GameStatus, QuestionStatus } from '@app/constants/feedback-messages';
 import { CanComponentDeactivate, CanDeactivateType } from '@app/interfaces/can-component-deactivate';
 import { Game } from '@app/interfaces/game';
 import { Question } from '@app/interfaces/question';
@@ -11,7 +12,6 @@ import { GamesService } from '@app/services/games.service';
 import { NotificationService } from '@app/services/notification.service';
 import { QuestionService } from '@app/services/question.service';
 import { Subject, Subscription, concatMap, iif, lastValueFrom } from 'rxjs';
-
 @Component({
     selector: 'app-admin-questions-list',
     templateUrl: './admin-questions-list.component.html',
@@ -31,7 +31,7 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
         questions: [],
     };
 
-    state: string = '';
+    state: ManagementState;
     originalBankQuestions: Question[] = [];
     bankQuestions: Question[] = [];
     isSideBarActive: boolean = false;
@@ -40,7 +40,7 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
     currentQuestion: Question;
     currentBankMessage = '';
     addToBank: boolean;
-    addToBankToggleButtonState: boolean = false;
+    // addToBankToggleButtonState: boolean = false;
 
     gameForm = new FormGroup({
         title: new FormControl('', Validators.required),
@@ -93,7 +93,7 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
     }
 
     ngAfterViewInit() {
-        const isModifyState = iif(() => this.state === 'modify', this.setGame(), this.questionService.getAllQuestions());
+        const isModifyState = iif(() => this.state === ManagementState.GameModify, this.setGame(), this.questionService.getAllQuestions());
 
         isModifyState.subscribe({
             next: (data: Question[]) => {
@@ -128,27 +128,43 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
 
             this.gamesService.submitGame(this.game, this.state).subscribe({
                 next: () => {
-                    this.notificationService.displaySuccessMessage(`Jeux ${this.state === 'modify' ? 'modifié' : 'créé'} avec succès! 😺`);
+                    this.notificationService.displaySuccessMessage(
+                        `Jeux ${this.state === ManagementState.GameModify ? 'modifié' : 'créé'} avec succès! 😺`,
+                    );
                     this.gamesService.resetPendingChanges();
                     this.router.navigate(['/admin/games/']);
                 },
                 error: (error: HttpErrorResponse) =>
                     this.notificationService.displayErrorMessage(
-                        `Le jeu n'a pas pu être ${this.state === 'modify' ? 'modifié' : 'créé'}. 😿 \n ${error.message}`,
+                        `Le jeu n'a pas pu être ${this.state === ManagementState.GameModify ? 'modifié' : 'créé'}. 😿 \n ${error.message}`,
                     ),
             });
         }
     }
 
-    addNewQuestion(newQuestion: Question) {
+    addQuestionToGame(newQuestion: Question) {
         this.questionService.verifyQuestion(newQuestion).subscribe({
             next: () => {
                 this.notificationService.displaySuccessMessage(QuestionStatus.VERIFIED);
+                this.game.questions.push(newQuestion);
+                this.gamesService.markPendingChanges();
             },
             error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`${QuestionStatus.UNVERIFIED} \n ${error.message}`),
         });
-        this.game.questions.push(newQuestion);
-        this.gamesService.markPendingChanges();
+    }
+
+    addQuestionToBank(newQuestion: Question) {
+        if (!this.isDuplicateQuestion(newQuestion, this.originalBankQuestions)) {
+            this.questionService.createQuestion(this.currentQuestion).subscribe({
+                next: () => {
+                    this.notificationService.displaySuccessMessage(BankStatus.SUCCESS);
+                    this.originalBankQuestions.unshift(this.currentQuestion);
+                },
+                error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`${BankStatus.FAILURE}\n ${error.message}`),
+            });
+        } else {
+            this.notificationService.displayErrorMessage(BankStatus.DUPLICATE);
+        }
     }
 
     deleteQuestion(questionId: string) {
@@ -168,39 +184,13 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
         this.isSideBarActive = !this.isSideBarActive;
     }
 
-    addQuestionToBank(newQuestion: Question) {
-        if (!this.isDuplicateQuestion(newQuestion, this.originalBankQuestions)) {
-            this.questionService.createQuestion(this.currentQuestion).subscribe({
-                next: () => {
-                    this.notificationService.displaySuccessMessage(BankStatus.SUCCESS);
-                    this.originalBankQuestions.unshift(this.currentQuestion);
-                },
-                error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`${BankStatus.FAILURE}\n ${error.message}`),
-            });
-        } else {
-            this.notificationService.displayErrorMessage(BankStatus.DUPLICATE);
-        }
-    }
-
     openCreateQuestionDialog() {
         if (!this.dialogState) {
-            const dialogRef = this.notificationService.openCreateQuestionModal();
+            const dialogRef = this.questionService.openCreateQuestionModal(ManagementState.GameCreate);
 
             dialogRef.componentInstance.createQuestionEvent.subscribe((newQuestion: Question) => {
-                if (!this.isDuplicateQuestion(newQuestion, this.game.questions)) {
-                    this.addNewQuestion(newQuestion);
-                    if (this.addToBankToggleButtonState) {
-                        this.addQuestionToBank(newQuestion);
-                    }
-                    dialogRef.close();
-                } else {
-                    this.notificationService.displayErrorMessage(GameStatus.DUPLICATE);
-                }
-            });
-
-            dialogRef.componentInstance.createQuestionEventQuestionBank.subscribe(() => {
-                this.addToBankToggleButtonState = !this.addToBankToggleButtonState;
-                this.dialogState = false;
+                this.addQuestionToGame(newQuestion);
+                dialogRef.close();
             });
         }
     }
@@ -242,6 +232,14 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
 
     dropBankQuestion(): void {
         this.isBankQuestionDragged = false;
+    }
+
+    getTitle() {
+        return this.state === ManagementState.GameModify ? 'Modification' : 'Création';
+    }
+
+    getButtonText() {
+        return this.state === ManagementState.GameModify ? 'Appliquer les modifications' : 'Créer le jeu';
     }
 
     private setBankMessage() {

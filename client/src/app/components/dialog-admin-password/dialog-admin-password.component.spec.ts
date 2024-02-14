@@ -2,6 +2,11 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { DialogAdminPasswordComponent } from './dialog-admin-password.component';
+import { FormsModule } from '@angular/forms';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 describe('DialogAdminPasswordComponent', () => {
     let component: DialogAdminPasswordComponent;
@@ -10,7 +15,7 @@ describe('DialogAdminPasswordComponent', () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            imports: [MatDialogModule],
+            imports: [MatDialogModule, FormsModule, MatIconModule, MatFormFieldModule, MatInputModule, BrowserAnimationsModule],
             declarations: [DialogAdminPasswordComponent],
             providers: [
                 {

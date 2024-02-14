@@ -1,7 +1,7 @@
 <div class="main-container">
     <h1 class="page-title">Banque de questions</h1>
     <div class="buttons-container">
-        <button id="add-question-button" mat-raised-button color="primary" (click)="openDialog()" >
+        <button id="add-question-button" mat-raised-button color="primary" (click)="openDialog()">
             <mat-icon>add</mat-icon>Ajouter une nouvelle question
         </button>
     </div>
@@ -13,19 +13,16 @@
             </mat-card-content>
         </mat-card>
 
-        <mat-accordion cdkDropList class="list bank-list" [cdkDropListData]="questions" (cdkDropListDropped)="drop($event)">
+        <mat-accordion class="list bank-list" multi="false">
             <app-question-list-item
                 class="question bank-question"
-                *ngFor="let question of questions | sortByLastModification: 'ascending'"
+                *ngFor="let question of questions | sortByLastModification: 'descending'"
                 [question]="question"
-                [isLastModifiedDateVisible]="true"
-                [isEditable]="true"
+                [isBankQuestion]="true"
                 (deleteQuestionEvent)="deleteQuestion($event)"
-                (questionUpdated)="updateQuestion($event)"
-                cdkDrag
+                (updateQuestionEvent)="updateQuestion($event)"
             >
                 <div cdkDragHandle></div>
-                
             </app-question-list-item>
         </mat-accordion>
 

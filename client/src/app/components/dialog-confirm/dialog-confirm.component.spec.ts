@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 import { DialogConfirmComponent } from './dialog-confirm.component';
 import { of } from 'rxjs';
 
@@ -12,7 +13,7 @@ describe('DialogConfrimComponent', () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            imports: [MatDialogModule],
+            imports: [MatDialogModule, MatIconModule],
             declarations: [DialogConfirmComponent],
             providers: [
                 {

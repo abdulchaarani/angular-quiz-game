@@ -3,6 +3,9 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Question } from '@app/interfaces/question';
 import { ApiService } from './api.service';
+import { ManagementState } from '@app/constants/states';
+import { CreateQuestionComponent, DialogManagement } from '@app/pages/create-question/create-question.component';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 @Injectable({
     providedIn: 'root',
 })
@@ -12,7 +15,10 @@ export class QuestionService extends ApiService<Question> {
         available: '🖐 Glissez et déposez une question de la banque dans le jeu! 🖐',
     };
 
-    constructor(http: HttpClient) {
+    constructor(
+        public dialog: MatDialog,
+        http: HttpClient,
+    ) {
         super(http, 'questions');
     }
 
@@ -25,7 +31,6 @@ export class QuestionService extends ApiService<Question> {
     }
 
     deleteQuestion(questionId: string): Observable<HttpResponse<string>> {
-        //console.log(request)
         return this.delete(questionId);
     }
 
@@ -35,5 +40,16 @@ export class QuestionService extends ApiService<Question> {
 
     updateQuestion(modifiedQuestion: Question) {
         return this.update(modifiedQuestion, modifiedQuestion.id);
+    }
+
+    openCreateQuestionModal(modificationState: ManagementState) {
+        const manageConfig: MatDialogConfig<DialogManagement> = {
+            data: {
+                modificationState,
+            },
+            height: '70%',
+            width: '100%',
+        };
+        return this.dialog.open(CreateQuestionComponent, manageConfig);
     }
 }

@@ -1,6 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Question } from '@app/interfaces/question';
 import { QuestionListItemComponent } from './question-list-item.component';
+import { ManagementState } from '@app/constants/states';
+import { CreateQuestionComponent } from '@app/pages/create-question/create-question.component';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 describe('QuestionListItemComponent', () => {
     let component: QuestionListItemComponent;
@@ -16,7 +19,8 @@ describe('QuestionListItemComponent', () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            declarations: [QuestionListItemComponent],
+            declarations: [QuestionListItemComponent, CreateQuestionComponent],
+            imports: [MatSnackBarModule],
         });
 
         fixture = TestBed.createComponent(QuestionListItemComponent);
@@ -38,22 +42,6 @@ describe('QuestionListItemComponent', () => {
         expect(dom.textContent).toContain(mockQuestion.points);
     });
 
-    it('should display the modification date if isLastModifiedDateVisible is set to true', () => {
-        component.isLastModifiedDateVisible = true;
-        fixture.detectChanges();
-        const dom = fixture.nativeElement;
-
-        expect(dom.textContent).toContain('Dernière modification:');
-    });
-
-    it('should not display the modification date if isLastModifiedDateVisible is set to false', () => {
-        component.isLastModifiedDateVisible = false;
-        fixture.detectChanges();
-        const dom = fixture.nativeElement;
-
-        expect(dom.textContent).not.toContain('Dernière modification:');
-    });
-
     it('should emit deleteQuestionEvent when deleteQuestion is called', () => {
         const spy = spyOn(component.deleteQuestionEvent, 'emit').and.callThrough();
 
@@ -61,5 +49,26 @@ describe('QuestionListItemComponent', () => {
 
         expect(spy).toHaveBeenCalled();
         expect(spy).toHaveBeenCalledWith(mockQuestion.id);
+    });
+
+    it('should emit updateQuestionEvent when dispatchQuestion is called', () => {
+        const spy = spyOn(component.updateQuestionEvent, 'emit').and.callThrough();
+
+        component.dispatchModifiedQuestion();
+
+        expect(spy).toHaveBeenCalled();
+        expect(spy).toHaveBeenCalledWith(mockQuestion);
+    });
+
+    it('should set modificationState to BankModify if it is a bank question', () => {
+        component.isBankQuestion = true;
+        component.ngOnInit();
+        expect(component.modificationState).toBe(ManagementState.BankModify);
+    });
+
+    it('should set modificationState to GameModify if it is not a bank question', () => {
+        component.isBankQuestion = false;
+        component.ngOnInit();
+        expect(component.modificationState).toBe(ManagementState.GameModify);
     });
 });

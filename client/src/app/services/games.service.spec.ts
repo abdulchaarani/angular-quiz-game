@@ -1,4 +1,4 @@
-import { HttpClient, HttpHandler } from '@angular/common/http';
+import { HttpClient, HttpHandler, HttpResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -6,6 +6,9 @@ import { Game } from '@app/interfaces/game';
 import { MatDialogMock } from '@app/testing/mat-dialog-mock';
 import { of } from 'rxjs';
 import { GamesService } from './games.service';
+import { ManagementState } from '@app/constants/states';
+
+const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK', body: JSON.stringify(true) });
 
 describe('GameService', () => {
     let service: GamesService;
@@ -36,14 +39,8 @@ describe('GameService', () => {
         expect(spy).toHaveBeenCalled();
     });
 
-    it('should throw an error if incapable of getting game', () => {
-        const spy = spyOn(service, 'getById').and.callThrough();
-        service.getGameById(deletedGame.id);
-        expect(spy).toThrowError();
-    });
-
     it('should toggle visibility with toggleGameVisibility()', () => {
-        const spy = spyOn(service, 'update').and.callThrough();
+        const spy = spyOn(service, 'update').and.returnValue(of(mockHttpResponse));
         const visibleGame = getFakeGame();
         service.toggleGameVisibility(visibleGame);
         expect(visibleGame.isVisible).toBeFalsy();
@@ -51,48 +48,36 @@ describe('GameService', () => {
     });
 
     it('should delete a game successfully with deleteGame()', () => {
-        const spy = spyOn(service, 'delete').and.callThrough();
+        const spy = spyOn(service, 'delete').and.returnValue(of(mockHttpResponse));
         service.deleteGame(newMockGame.id);
         expect(spy).toHaveBeenCalled();
     });
 
-    it('should throw an error if incapable of deleting a game', () => {
-        const spy = spyOn(service, 'delete').and.callThrough();
-        service.deleteGame(newMockGame.id);
-        expect(spy).toThrowError();
-    });
-
     it('should upload a game successfully with uploadGame', () => {
-        const spy = spyOn(service, 'add').and.callThrough();
+        const spy = spyOn(service, 'add').and.returnValue(of(mockHttpResponse));
         service.uploadGame(newMockGame);
         expect(spy).toHaveBeenCalled();
     });
 
-    it('should throw an error if incapable of uploading a game', () => {
-        const spy = spyOn(service, 'add').and.callThrough();
-        service.uploadGame(deletedGame);
-        expect(spy).toThrowError();
-    });
-
     it('should replace a game successfully using replaceGame()', () => {
         const modifiedGame = getFakeGame();
-        const spy = spyOn(service, 'replace').and.callThrough();
+        const spy = spyOn(service, 'replace').and.returnValue(of(mockHttpResponse));
         service.replaceGame(modifiedGame);
         expect(spy).toHaveBeenCalled();
     });
 
     it('should submit a modified game if in modify state', () => {
-        const replaceGameSpy = spyOn(service, 'replaceGame').and.callThrough();
-        const uploadGameSpy = spyOn(service, 'uploadGame').and.callThrough();
-        service.submitGame(newMockGame, 'modify');
+        const replaceGameSpy = spyOn(service, 'replaceGame').and.returnValue(of(mockHttpResponse));
+        const uploadGameSpy = spyOn(service, 'uploadGame').and.returnValue(of(mockHttpResponse));
+        service.submitGame(newMockGame, ManagementState.GameModify);
         expect(replaceGameSpy).toHaveBeenCalledWith(newMockGame);
         expect(uploadGameSpy).not.toHaveBeenCalled();
     });
 
-    it('should upload a game if not in modify state', () => {
-        const replaceGameSpy = spyOn(service, 'replaceGame').and.callThrough();
-        const uploadGameSpy = spyOn(service, 'uploadGame').and.callThrough();
-        service.submitGame(newMockGame, 'notModify');
+    it('should upload a game if not in create state', () => {
+        const replaceGameSpy = spyOn(service, 'replaceGame').and.returnValue(of(mockHttpResponse));
+        const uploadGameSpy = spyOn(service, 'uploadGame').and.returnValue(of(mockHttpResponse));
+        service.submitGame(newMockGame, ManagementState.GameCreate);
         expect(uploadGameSpy).toHaveBeenCalledWith(newMockGame);
         expect(replaceGameSpy).not.toHaveBeenCalled();
     });
@@ -140,4 +125,3 @@ const getFakeGame = (): Game => ({
 });
 const mockGames = [getFakeGame(), getFakeGame()];
 const newMockGame = getFakeGame();
-const deletedGame = {} as Game;

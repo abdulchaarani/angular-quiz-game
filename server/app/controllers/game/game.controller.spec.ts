@@ -1,3 +1,4 @@
+import { ERROR_GAME_SAME_TITLE } from '@app/constants/request-errors';
 import { Game } from '@app/model/database/game';
 import { GameService } from '@app/services/game/game.service';
 import { HttpStatus } from '@nestjs/common';
@@ -110,7 +111,7 @@ describe('GamesController', () => {
 
     it('addGame() should return CONFLICT if the game already exists.', async () => {
         jest.spyOn(gameService, 'addGame').mockImplementationOnce(async () => {
-            return Promise.reject('Un jeu du même titre existe déjà.');
+            return Promise.reject(ERROR_GAME_SAME_TITLE);
         });
         const res = {} as unknown as Response;
         res.status = (code) => {

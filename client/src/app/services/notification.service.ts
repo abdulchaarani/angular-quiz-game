@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarConfig, MatSnackBarRef, TextOnlySnackBar } from '@angular/material/snack-bar';
 import { DialogConfirmComponent, DialogData } from '@app/components/dialog-confirm/dialog-confirm.component';
-import { CreateQuestionComponent } from '@app/pages/create-question/create-question.component';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -41,13 +40,6 @@ export class NotificationService {
             },
         };
         return this.openConfirmDialog(pendingChangesConfig);
-    }
-
-    openCreateQuestionModal() {
-        return this.dialog.open(CreateQuestionComponent, {
-            height: '70%',
-            width: '100%',
-        });
     }
 
     confirmBankUpload(questionTitle: string) {

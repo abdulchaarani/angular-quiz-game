@@ -1,3 +1,4 @@
+import { ERROR_QUESTION_NOT_FOUND } from '@app/constants/request-errors';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question-dto';
 import { UpdateQuestionDto } from '@app/model/dto/question/update-question-dto';
 import { QuestionService } from '@app/services/question/question.service';
@@ -47,7 +48,11 @@ export class QuestionController {
             await this.questionService.updateQuestion(updateQuestionDto);
             response.status(HttpStatus.OK).send();
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send({ message: error });
+            if (error === ERROR_QUESTION_NOT_FOUND) {
+                response.status(HttpStatus.NOT_FOUND).send({ message: error });
+            } else {
+                response.status(HttpStatus.BAD_REQUEST).send({ message: error });
+            }
         }
     }
 

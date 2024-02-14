@@ -53,7 +53,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         if (event.key === 'Enter' && this.isSelectionEnabled) {
             this.submitAnswers();
         } else {
-            const numKey = parseInt(event.key, 4);
+            const numKey = parseInt(event.key, 5);
             if (numKey >= 1 && numKey <= this.answers.length) {
                 const choiceIndex = numKey - 1;
                 const choice = this.answers?.[choiceIndex];

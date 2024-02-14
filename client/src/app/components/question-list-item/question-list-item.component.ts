@@ -1,38 +1,31 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { ManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
-// import { QuestionService } from '@app/services/question.service';
-// import { HttpResponse } from '@angular/common/http';
 
 @Component({
     selector: 'app-question-list-item',
     templateUrl: './question-list-item.component.html',
     styleUrls: ['./question-list-item.component.scss'],
 })
-export class QuestionListItemComponent {
+export class QuestionListItemComponent implements OnInit {
     @Input() question: Question;
     @Input() index: number;
-    @Input() isLastModifiedDateVisible: boolean;
-    @Input() isEditable: boolean;
+    @Input() isBankQuestion: boolean;
     @Output() deleteQuestionEvent = new EventEmitter<string>();
-    @Output() questionUpdated = new EventEmitter<Question>();
-
-    response: string = '';
-
-    isCreateQuestionComponent: boolean = false;
+    @Output() updateQuestionEvent = new EventEmitter<Question>();
 
     questions: Question[] = [];
+    modificationState: ManagementState;
 
-    isPanelExpanded: boolean = false;
-
-    togglePanel() {
-        this.isPanelExpanded = !this.isPanelExpanded;
+    ngOnInit() {
+        this.modificationState = this.isBankQuestion ? ManagementState.BankModify : ManagementState.GameModify;
     }
 
     deleteQuestion() {
         this.deleteQuestionEvent.emit(this.question.id);
     }
 
-    closeComponent() {
-        this.questionUpdated.emit(this.question);
+    dispatchModifiedQuestion() {
+        this.updateQuestionEvent.emit(this.question);
     }
 }

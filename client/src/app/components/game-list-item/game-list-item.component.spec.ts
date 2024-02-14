@@ -11,7 +11,6 @@ import { of } from 'rxjs';
 import { GameListItemComponent } from './game-list-item.component';
 import { RouterModule } from '@angular/router';
 import { ScrollingModule } from '@angular/cdk/scrolling';
-import { RouterTestingModule } from '@angular/router/testing';
 import SpyObj = jasmine.SpyObj;
 
 const MOCK_GAME = getMockGame();

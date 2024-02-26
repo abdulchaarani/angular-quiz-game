@@ -1,8 +1,10 @@
 import { Component, HostListener, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { HomePageComponent } from '@app/pages/home-page/home-page.component';
-import { DialogData } from '../dialog-confirm/dialog-confirm.component';
 
+export interface DialogJoinData {
+    code: string;
+}
 @Component({
     selector: 'app-dialog-join-match',
     templateUrl: './dialog-join-match.component.html',
@@ -11,7 +13,7 @@ import { DialogData } from '../dialog-confirm/dialog-confirm.component';
 export class DialogJoinMatchComponent {
     constructor(
         private dialogRef: MatDialogRef<HomePageComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: DialogData,
+        @Inject(MAT_DIALOG_DATA) public data: DialogJoinData,
     ) {}
 
     @HostListener('window:keyup.Enter', ['$event'])

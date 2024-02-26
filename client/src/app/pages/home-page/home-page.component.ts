@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogAdminPasswordComponent } from '@app/components/dialog-admin-password/dialog-admin-password.component';
-import { DialogJoinMatchComponent } from '@app/components/dialog-join-match/dialog-join-match.component';
+import { DialogTextInputComponent } from '@app/dialog-text-input/dialog-text-input.component';
 import { AuthenticationService } from '@app/services/authentication.service';
 
 @Component({
@@ -11,7 +11,7 @@ import { AuthenticationService } from '@app/services/authentication.service';
 })
 export class HomePageComponent {
     password: string;
-    code: string;
+    input: string;
     constructor(
         private dialog: MatDialog,
         private readonly authenticationService: AuthenticationService,
@@ -27,8 +27,8 @@ export class HomePageComponent {
     }
 
     openJoinDialog(): void {
-        const dialogRef = this.dialog.open(DialogJoinMatchComponent, {
-            data: { code: this.code },
+        const dialogRef = this.dialog.open(DialogTextInputComponent, {
+            data: { input: this.input, title: 'Joindre une partie', placeholder: "Code d'accès" },
         });
 
         dialogRef.afterClosed().subscribe((result: string) => {
@@ -43,6 +43,6 @@ export class HomePageComponent {
 
     submitCode(code: string): void {
         // TODO: Service
-        this.code = '';
+        this.input = '';
     }
 }

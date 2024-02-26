@@ -1,7 +1,7 @@
 import { HttpErrorResponse, HttpResponse, HttpStatusCode } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { DialogRenameGameComponent } from '@app/components/dialog-rename-game/dialog-rename-game.component';
+import { DialogTextInputComponent } from '@app/dialog-text-input/dialog-text-input.component';
 import { Game } from '@app/interfaces/game';
 import { GamesService } from '@app/services/games.service';
 import { NotificationService } from '@app/services/notification.service';
@@ -49,7 +49,7 @@ export class AdminPageComponent implements OnInit {
                 this.notificationService.displaySuccessMessage('Jeu ajouté avec succès! 😺');
             },
             error: (error: HttpErrorResponse) => {
-                if (error.message === 'Requête add\n Un jeu du même titre existe déjà.' || error.status === HttpStatusCode.Conflict) {
+                if (error.message === 'Un jeu du même titre existe déjà.' || error.status === HttpStatusCode.Conflict) {
                     this.openDialog(newGame);
                 } else {
                     this.notificationService.displayErrorMessage(`Le jeu n'a pas pu être ajouté. 😿 \n ${error}`);
@@ -87,11 +87,11 @@ export class AdminPageComponent implements OnInit {
     }
 
     openDialog(newGame: Game): void {
-        const dialogRef = this.dialog.open(DialogRenameGameComponent, {
-            data: '',
+        const dialogRef = this.dialog.open(DialogTextInputComponent, {
+            data: { input: '', title: 'Veillez renommer le jeu.', placeholder: 'Nouveau titre' },
         });
 
-        dialogRef.afterClosed().subscribe((result) => {
+        dialogRef.afterClosed().subscribe((result: string) => {
             newGame.title = result;
             this.addGame(newGame);
         });

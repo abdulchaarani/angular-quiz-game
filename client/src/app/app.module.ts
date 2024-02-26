@@ -11,14 +11,13 @@ import { AppComponent } from '@app/pages/app/app.component';
 import { ChatComponent } from './components/chat/chat.component';
 import { DialogAdminPasswordComponent } from './components/dialog-admin-password/dialog-admin-password.component';
 import { DialogConfirmComponent } from './components/dialog-confirm/dialog-confirm.component';
-import { DialogJoinMatchComponent } from './components/dialog-join-match/dialog-join-match.component';
-import { DialogRenameGameComponent } from './components/dialog-rename-game/dialog-rename-game.component';
 import { FeedbackComponent } from './components/feedback/feedback.component';
 import { GameListItemComponent } from './components/game-list-item/game-list-item.component';
 import { QuestionAreaComponent } from './components/question-area/question-area.component';
 import { QuestionListItemComponent } from './components/question-list-item/question-list-item.component';
 import { ShortQuestionComponent } from './components/short-question/short-question.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
+import { DialogTextInputComponent } from './dialog-text-input/dialog-text-input.component';
 import { ClickStopPropagationDirective } from './directives/click-stop-propagation.directive';
 import { AdminPageComponent } from './pages/admin-page/admin-main-page/admin-page.component';
 import { AdminQuestionBankComponent } from './pages/admin-page/admin-question-bank/admin-question-bank.component';
@@ -58,8 +57,7 @@ import { SortByLastModificationPipe } from './pipes/sort-by-last-modification.pi
         DialogAdminPasswordComponent,
         ShortQuestionComponent,
         DialogConfirmComponent,
-        DialogRenameGameComponent,
-        DialogJoinMatchComponent,
+        DialogTextInputComponent,
     ],
     imports: [
         AppMaterialModule,

@@ -22,7 +22,9 @@ export class HomePageComponent {
         });
 
         dialogRef.afterClosed().subscribe((result: string) => {
-            this.submitPassword(result);
+            if (result) {
+                this.submitPassword(result);
+            }
         });
     }
 
@@ -42,7 +44,21 @@ export class HomePageComponent {
     }
 
     submitCode(code: string): void {
-        // TODO: Service
+        // TODO: Service - Validate code
         this.input = '';
+        // TODO: Move in a subscribe/next (only if code is valid)
+        const dialogRef = this.dialog.open(DialogTextInputComponent, {
+            data: { input: this.input, title: "Veillez saisir un nom d'utilisateur", placeholder: 'Nom' },
+        });
+
+        dialogRef.afterClosed().subscribe((result: string) => {
+            this.submitUsername(result);
+        });
+    }
+
+    submitUsername(username: string): void {
+        // TODO: Service - Validate username
+        this.input = '';
+        // TODO: Redirect to page only if username is valid
     }
 }

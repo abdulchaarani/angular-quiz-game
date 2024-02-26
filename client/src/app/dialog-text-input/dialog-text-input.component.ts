@@ -1,6 +1,7 @@
 import { Component, HostListener, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
+// TODO: Tests (inspiration --> admin)
 export interface DialogData {
     input: string;
     title: string;

@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 import { DialogAdminPasswordComponent } from '@app/components/dialog-admin-password/dialog-admin-password.component';
 import { DialogTextInputComponent } from '@app/dialog-text-input/dialog-text-input.component';
 import { AuthenticationService } from '@app/services/authentication.service';
@@ -15,6 +16,7 @@ export class HomePageComponent {
     constructor(
         private dialog: MatDialog,
         private readonly authenticationService: AuthenticationService,
+        private router: Router,
     ) {}
     openAdminDialog(): void {
         const dialogRef = this.dialog.open(DialogAdminPasswordComponent, {
@@ -60,5 +62,6 @@ export class HomePageComponent {
         // TODO: Service - Validate username
         this.input = '';
         // TODO: Redirect to page only if username is valid
+        this.router.navigateByUrl('/waiting-room');
     }
 }

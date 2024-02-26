@@ -1,36 +1,50 @@
-.question-area {
-    margin-top: 30px;
+#main-container {
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
 }
-#upper-question-area {
-    position: relative;
+
+#chat-area {
+    width: 15%;
+    height: 100%;
+    background-color: #bebebe3a;
 }
+
+#question-area {
+    flex-grow: 1;
+    padding: 2%;
+}
+
+#exit-button-container {
+    display: flex;
+    justify-content: right;
+}
+
+#submit-button-container {
+    display: flex;
+    justify-content: center;
+}
+
 #question-timer-area {
     margin-top: 2%;
     display: flex;
     flex-direction: column-reverse;
     align-items: center;
     position: relative;
+    width: auto;
 }
 
-#chat-exit {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
-}
-
-#lower-question-area {
-    margin-top: 2%;
-}
 #question {
+    display: flex;
+    flex-direction: column;
     background: #3f51b5;
     color: #fafafa;
-    padding: 7% 7%;
+    padding: 5% 7%;
     border-radius: 10px;
     margin: 0;
     position: relative;
     z-index: 1;
     width: 400px;
-    height: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -38,6 +52,19 @@
     overflow: hidden;
     box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
 }
+
+#points {
+    position: absolute;
+    bottom: 0;
+}
+
+#score-feedback-area {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 #timer-area {
     position: absolute;
     top: -35px;
@@ -71,7 +98,8 @@
 #choice-area {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 5px;
+    gap: 10px;
+    padding: 4%;
 }
 
 .circle {
@@ -93,11 +121,6 @@
     align-items: center;
 }
 
-#submitButton {
-    position: absolute;
-    right: 20px;
-}
-
 #exitButton,
 #submitButton,
 .answer {
@@ -106,6 +129,11 @@
     border-radius: 5px;
     cursor: pointer;
     box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+#submitButton {
+    padding: 2% 5%;
+    font-size: large;
 }
 
 #exitButton {

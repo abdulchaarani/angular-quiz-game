@@ -10,6 +10,7 @@ import { AuthenticationService } from '@app/services/authentication.service';
 })
 export class HomePageComponent {
     password: string;
+    code: string;
     constructor(
         private dialog: MatDialog,
         private readonly authenticationService: AuthenticationService,

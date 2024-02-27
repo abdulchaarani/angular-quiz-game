@@ -1,7 +1,11 @@
 <app-chat id="chat-box"></app-chat>
 <div id="main-container">
-    <button mat-raised-button>Quitter</button>
     <h1>Résultats</h1>
     <div id="info-container"></div>
+    <div id="buttons-container">
+        <button mat-raised-button color="primary" *ngIf="isHost">Question suivante</button>
+        <button mat-raised-button *ngIf="isHost">Présenter les résultats finaux</button>
+    </div>
+    <button mat-raised-button id="exit-button" routerLink="/home" *ngIf="!isHost">Quitter</button>
 </div>
 <app-players-list></app-players-list>

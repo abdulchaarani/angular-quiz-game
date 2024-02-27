@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-results-page',
+    selector: 'app-results-page',
     templateUrl: './results-page.component.html',
     styleUrls: ['./results-page.component.scss'],
 })
 export class ResultsPageComponent {
-
+    isHost: boolean = true; // TODO: Implement with actual service
 }

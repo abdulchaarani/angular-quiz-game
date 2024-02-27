@@ -1,16 +1,18 @@
-#page-container {
+#main-container {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
+    text-align: center;
     height: 100vh;
-    left: 20vw;
-    width: auto;
+    left: 25vw;
+    width: 50vw;
     position: relative;
 }
 
 #info-container {
-    flex-grow: 2;
-}
-
-#player-list-container {
-    flex-grow: 1;
+    background-color: #000;
+    position: relative;
+    top: 5vh;
+    width: 50vw;
+    height: 70vh;
+    border-radius: 1rem;
 }

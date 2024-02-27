@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { DialogAdminPasswordComponent } from '@app/components/dialog-admin-password/dialog-admin-password.component';
-import { DialogTextInputComponent } from '@app/dialog-text-input/dialog-text-input.component';
+import { DialogTextInputComponent } from '@app/components/dialog-text-input/dialog-text-input.component';
 import { AuthenticationService } from '@app/services/authentication.service';
 
 @Component({

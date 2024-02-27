@@ -9,7 +9,7 @@ import { Player } from '@app/interfaces/player';
 export class PlayersListComponent {
     players: Player[] = [
         { username: 'Bibi', score: 1000, bonusCount: 10, isPlaying: true },
-        { username: 'Totoro', score: 7, bonusCount: 0, isPlaying: true },
+        { username: 'Totoro', score: 1, bonusCount: 0, isPlaying: true },
         { username: 'Kiki', score: 6, bonusCount: 0, isPlaying: true },
         { username: 'Nausicaa', score: 5, bonusCount: 0, isPlaying: false },
         { username: 'Pom Poko', score: 8, bonusCount: 0, isPlaying: true },
@@ -17,5 +17,9 @@ export class PlayersListComponent {
         { username: 'Lorem', score: 4, bonusCount: 0, isPlaying: true },
         { username: 'Ipsum', score: 3, bonusCount: 0, isPlaying: true },
         { username: 'Kaneshiro', score: 2, bonusCount: 0, isPlaying: true },
+        { username: 'C00', score: 0, bonusCount: 0, isPlaying: true },
+        { username: 'A00', score: 0, bonusCount: 0, isPlaying: true },
+        { username: 'D00', score: 0, bonusCount: 0, isPlaying: true },
+        { username: 'B00', score: 0, bonusCount: 0, isPlaying: true },
     ];
 }

@@ -36,7 +36,9 @@ export class HomePageComponent {
         });
 
         dialogRef.afterClosed().subscribe((result: string) => {
-            this.submitCode(result);
+            if (result) {
+                this.submitCode(result);
+            }
         });
     }
 
@@ -54,7 +56,9 @@ export class HomePageComponent {
         });
 
         dialogRef.afterClosed().subscribe((result: string) => {
-            this.submitUsername(result);
+            if (result) {
+                this.submitUsername(result);
+            }
         });
     }
 

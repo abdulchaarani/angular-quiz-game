@@ -6,10 +6,12 @@ import { Component } from '@angular/core';
     styleUrls: ['./wait-page.component.scss'],
 })
 export class WaitPageComponent {
+    // TODO: Replace Dummy values using actual services with backend implementation
     isHost: boolean = true;
-    code: string = 'Dummy game code';
-    playerUsernames: string[] = ['Totoro', 'Kiki', 'Jiji'];
+    code: string = '7777';
+    playerUsernames: string[] = ['Totoro', 'Kiki', 'Jiji', 'A', 'B', 'C', 'D', 'E', 'F', 'G'];
     isLocked: boolean;
+    currentUsername: string = 'Organisateur';
 
     constructor() {
         // TODO: Inject services in parameter + initialize values accordingly

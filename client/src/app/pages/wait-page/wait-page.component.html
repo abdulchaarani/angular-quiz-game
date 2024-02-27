@@ -1,18 +1,20 @@
 <!-- TODO: Add Guard for URL to forbid access if user is not authentified (?) -->
+<!-- TODO: Add Chat with username/Organisateur as header -->
+<h2 id="current-username">{{ currentUsername }}</h2>
+<div id="chat-area">
+    <app-chat></app-chat>
+</div>
 <div id="main-container">
     <h1>Hoot Hoot en attente</h1>
 
     <div *ngIf="isHost" id="host-options-container">
-        <p *ngIf="isHost">{{ code }}</p>
+        <p *ngIf="isHost" id="code">Code: {{ code }}</p>
         <mat-slide-toggle [(ngModel)]="isLocked">{{ isLocked ? 'Partie verrouillée' : 'Partie déverouillée' }}</mat-slide-toggle>
         <button mat-raised-button color="primary" (click)="startMatch()">Commencer la partie</button>
     </div>
 
     <mat-card *ngFor="let name of playerUsernames" class="player-username-card">
         <p>{{ name }}</p>
-        <button mat-icon-button (click)="rejectPlayerUsername(name)" color="warn"><mat-icon>delete</mat-icon></button>
+        <button mat-icon-button (click)="rejectPlayerUsername(name)" color="warn" *ngIf="isHost"><mat-icon>delete</mat-icon></button>
     </mat-card>
-
-    <!-- TODO: Add Chat with username/Organisateur as header -->
-    <!--<app-chat></app-chat>-->
 </div>

@@ -1,0 +1,16 @@
+#page-container {
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+    left: 20vw;
+    width: auto;
+    position: relative;
+}
+
+#info-container {
+    flex-grow: 2;
+}
+
+#player-list-container {
+    flex-grow: 1;
+}

@@ -11,6 +11,7 @@ import { HostPageComponent } from '@app/pages/host-page/host-page.component';
 import { PlayerPageComponent } from '@app/pages/player-page/player-page.component';
 import { TestPageComponent } from '@app/pages/test-page/test-page.component';
 import { WaitPageComponent } from '@app/pages/wait-page/wait-page.component';
+import { ResultsPageComponent } from '@app/pages/results-page/results-page.component';
 
 const routes: Routes = [
     { path: '', redirectTo: '/home', pathMatch: 'full' },
@@ -39,6 +40,7 @@ const routes: Routes = [
     { path: 'host', component: HostPageComponent },
     { path: 'player', component: PlayerPageComponent },
     { path: 'waiting-room', component: WaitPageComponent },
+    { path: 'results', component: ResultsPageComponent },
 ];
 
 @NgModule({

@@ -28,6 +28,7 @@ import { PlayerPageComponent } from './pages/player-page/player-page.component';
 import { TestPageComponent } from './pages/test-page/test-page.component';
 import { WaitPageComponent } from './pages/wait-page/wait-page.component';
 import { SortByLastModificationPipe } from './pipes/sort-by-last-modification.pipe';
+import { ResultsPageComponent } from './pages/results-page/results-page.component';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -58,6 +59,7 @@ import { SortByLastModificationPipe } from './pipes/sort-by-last-modification.pi
         ShortQuestionComponent,
         DialogConfirmComponent,
         DialogTextInputComponent,
+        ResultsPageComponent,
     ],
     imports: [
         AppMaterialModule,

@@ -13,6 +13,12 @@
     font-size: 1.5rem;
 }
 
+#exit-button {
+    position: absolute;
+    top: 5vh;
+    right: -5vw;
+}
+
 #host-options-container {
     width: 50vw;
     display: flex;
@@ -27,17 +33,4 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-}
-
-#chat-area {
-    height: 100vh;
-    width: 20vw;
-    background-color: #bebebe3a;
-    position: fixed;
-    bottom: 0;
-    overflow-y: scroll;
-}
-
-#current-username {
-    position: fixed;
 }

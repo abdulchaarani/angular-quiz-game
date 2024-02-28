@@ -2,7 +2,23 @@
 <div id="main-container">
     <h1>Résultats</h1>
     <div id="info-container">
-        <app-histogram></app-histogram>
+        <mat-paginator
+            #paginator
+            class="demo-paginator"
+            (page)="handlePageEvent($event)"
+            [length]="this.currentGame.questions.length"
+            [pageSize]="1"
+            [disabled]="false"
+            [showFirstLastButtons]="true"
+            [pageSizeOptions]="[1]"
+            [hidePageSize]="false"
+            [pageIndex]="currentQuestionIndex"
+            aria-label="Select page"
+        >
+        </mat-paginator>
+        <app-histogram
+            [currentQuestion]="this.currentGame.questions[currentQuestionIndex]"
+        ></app-histogram>
     </div>
     <div id="buttons-container">
         <button mat-raised-button color="primary" *ngIf="isHost">Question suivante</button>

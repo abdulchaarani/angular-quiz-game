@@ -1,7 +1,9 @@
 <app-chat id="chat-box"></app-chat>
 <div id="main-container">
     <h1>Résultats</h1>
-    <div id="info-container"></div>
+    <div id="info-container">
+        <app-histogram></app-histogram>
+    </div>
     <div id="buttons-container">
         <button mat-raised-button color="primary" *ngIf="isHost">Question suivante</button>
         <button mat-raised-button *ngIf="isHost">Présenter les résultats finaux</button>

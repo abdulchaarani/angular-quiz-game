@@ -30,6 +30,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { AgChartsAngularModule } from 'ag-charts-angular';
 
 const modules = [
     // MatAutocompleteModule,
@@ -63,6 +64,7 @@ const modules = [
     MatToolbarModule,
     MatTooltipModule,
     ScrollingModule,
+    AgChartsAngularModule,
 ];
 
 /**

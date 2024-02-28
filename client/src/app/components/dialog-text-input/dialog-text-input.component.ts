@@ -15,7 +15,7 @@ export interface DialogData {
 })
 export class DialogTextInputComponent {
     constructor(
-        private dialogRef: MatDialogRef<any>,
+        private dialogRef: MatDialogRef<unknown>,
         @Inject(MAT_DIALOG_DATA) public data: DialogData,
     ) {}
 

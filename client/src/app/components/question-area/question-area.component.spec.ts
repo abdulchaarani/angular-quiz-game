@@ -4,11 +4,11 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { SimpleChange } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, flush, tick } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterTestingModule } from '@angular/router/testing';
 import { Choice } from '@app/interfaces/choice';
 import { MatchService } from '@app/services/match.service';
 import { of } from 'rxjs';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { QuestionAreaComponent } from './question-area.component';
 
 import { getMockQuestion } from '@app/constants/question-mocks';
@@ -165,19 +165,6 @@ describe('QuestionAreaComponent', () => {
     it('should check answers', () => {
         const spy = spyOn(matchService, 'validateChoices').and.returnValue(of(mockHttpResponse));
         component.checkAnswers();
-        expect(spy).toHaveBeenCalled();
-    });
-
-    it('should open the chat dialog', () => {
-        const spy = spyOn(component.dialog, 'open');
-        component.openChatDialog();
-        expect(spy).toHaveBeenCalled();
-    });
-
-    it('should open the chat dialog when clicking the chat button', () => {
-        const spy = spyOn(component.dialog, 'open');
-        const button = fixture.nativeElement.querySelector('#chat-icon');
-        button.click();
         expect(spy).toHaveBeenCalled();
     });
 

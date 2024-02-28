@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { HttpClientModule } from '@angular/common/http';
-import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { DialogAdminPasswordComponent } from '@app/components/dialog-admin-password/dialog-admin-password.component';
@@ -74,10 +74,10 @@ describe('HomePageComponent', () => {
         expect(href).toEqual('/host');
     });
 
-    it('openDialog() should open a dialog and allow to submit password', () => {
+    it('openAdminDialog() should open a dialog and allow to submit password', () => {
         const submitPasswordSpy = spyOn(component, 'submitPassword');
         component.password = 'mock';
-        component.openDialog();
+        component.openAdminDialog();
         expect(dialogMock.open).toHaveBeenCalledWith(DialogAdminPasswordComponent, { data: { password: 'mock' } });
         const closeDialog = () => {
             return dialogMock.closeAll;

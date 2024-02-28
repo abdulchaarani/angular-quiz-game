@@ -1,0 +1,27 @@
+<app-players-list></app-players-list>
+<app-chat></app-chat>
+<div id="question-area">
+    <div id="question-timer-area">
+        <div id="question">
+            <h1>{{ this.currentQuestion!.text }}</h1>
+            <h1 id="points">{{ currentQuestion.points }} points</h1>
+        </div>
+        <div id="timer-area">
+            <div class="circle">
+                <div id="timer">
+                    <mat-progress-spinner [value]="computeTimerProgress()" mode="determinate" diameter="90"> </mat-progress-spinner>
+                    <h2 id="time-left">
+                        {{ time }}
+                    </h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="histogram-container">
+        <app-histogram></app-histogram>
+    </div>
+    <div id="buttons-container">
+        <button mat-raised-button>Présenter les résultats finaux</button>
+        <button mat-raised-button color="primary">Question suivante</button>
+    </div>
+</div>

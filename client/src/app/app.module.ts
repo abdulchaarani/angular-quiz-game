@@ -14,6 +14,8 @@ import { DialogConfirmComponent } from './components/dialog-confirm/dialog-confi
 import { DialogTextInputComponent } from './components/dialog-text-input/dialog-text-input.component';
 import { FeedbackComponent } from './components/feedback/feedback.component';
 import { GameListItemComponent } from './components/game-list-item/game-list-item.component';
+import { HistogramComponent } from './components/histogram/histogram.component';
+import { HostQuestionAreaComponent } from './components/host-question-area/host-question-area.component';
 import { PlayersListComponent } from './components/players-list/players-list.component';
 import { QuestionAreaComponent } from './components/question-area/question-area.component';
 import { QuestionListItemComponent } from './components/question-list-item/question-list-item.component';
@@ -31,7 +33,6 @@ import { TestPageComponent } from './pages/test-page/test-page.component';
 import { WaitPageComponent } from './pages/wait-page/wait-page.component';
 import { SortByLastModificationPipe } from './pipes/sort-by-last-modification.pipe';
 import { SortByScorePipe } from './pipes/sort-by-score.pipe';
-import { HistogramComponent } from './components/histogram/histogram.component';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -66,6 +67,7 @@ import { HistogramComponent } from './components/histogram/histogram.component';
         PlayersListComponent,
         SortByScorePipe,
         HistogramComponent,
+        HostQuestionAreaComponent,
     ],
     imports: [
         AppMaterialModule,

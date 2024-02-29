@@ -1,10 +1,10 @@
+import { HttpResponse } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { Game } from '@app/interfaces/game';
 import { Observable, of } from 'rxjs';
 import { ChoiceValidationService } from './choice-validation.service';
 import { MatchService } from './match.service';
-import { HttpResponse } from '@angular/common/http';
 
 describe('MatchService', () => {
     let service: MatchService;
@@ -39,8 +39,7 @@ describe('MatchService', () => {
     });
 
     it('should be created', () => {
-        expect(true).toBeTruthy();
-        // expect(service).toBeTruthy();
+        expect(service).toBeTruthy();
     });
 
     it('questionAdvanced$ should return an observable', () => {

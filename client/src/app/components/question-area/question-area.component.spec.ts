@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { SimpleChange } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, flush, tick } from '@angular/core/testing';
@@ -12,7 +12,9 @@ import { QuestionAreaComponent } from './question-area.component';
 
 import { getMockQuestion } from '@app/constants/question-mocks';
 import { getRandomString } from '@app/constants/test-utils';
+import { of } from 'rxjs';
 
+const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK', body: JSON.stringify(true) });
 describe('QuestionAreaComponent', () => {
     let component: QuestionAreaComponent;
     let fixture: ComponentFixture<QuestionAreaComponent>;
@@ -30,23 +32,37 @@ describe('QuestionAreaComponent', () => {
         lastModification: getRandomString(),
     };
 
-    let matchService: MatchService;
+    let matchSpy: jasmine.SpyObj<MatchService>;
 
     beforeEach(async () => {
+        matchSpy = jasmine.createSpyObj('MatchService', [
+            'getAllGames',
+            'advanceQuestion',
+            'getBackupGame',
+            'saveBackupGame',
+            'deleteBackupGame',
+            'validateChoices',
+        ]);
         await TestBed.configureTestingModule({
             declarations: [QuestionAreaComponent],
             imports: [MatDialogModule, RouterTestingModule, HttpClientTestingModule, MatProgressSpinnerModule],
-            providers: [HttpClient, MatchService],
+            providers: [HttpClient, { provide: MatchService, useValue: matchSpy }],
         }).compileComponents();
         fixture = TestBed.createComponent(QuestionAreaComponent);
         component = fixture.componentInstance;
         component.currentQuestion = mockQuestion;
-        matchService = TestBed.inject(MatchService);
         fixture.detectChanges();
     });
 
     it('should create', () => {
         expect(component).toBeTruthy();
+    });
+
+    it('should check answers', () => {
+        component.selectedAnswers = [];
+        matchSpy.validateChoices.and.returnValue(of(mockHttpResponse));
+        component.checkAnswers();
+        expect(component.isCorrect).toBeTruthy();
     });
 
     it('should select an answer', () => {
@@ -212,13 +228,12 @@ describe('QuestionAreaComponent', () => {
     });
 
     it('should advance question after the feedback', fakeAsync(() => {
-        const spyAdvanceQuestion = spyOn(matchService, 'advanceQuestion');
         const spyStartTimer = spyOn(component.timeService, 'startTimer').and.callFake(() => {
             return;
         });
         component.afterFeedback();
         tick(timeout);
-        expect(spyAdvanceQuestion).toHaveBeenCalled();
+        expect(matchSpy.advanceQuestion).toHaveBeenCalled();
         expect(spyStartTimer).toHaveBeenCalled();
         flush();
     }));

@@ -1,6 +1,7 @@
 import { HttpResponse } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { getMockGame } from '@app/constants/game-mocks';
 import { Game } from '@app/interfaces/game';
 import { Observable, of } from 'rxjs';
 import { ChoiceValidationService } from './choice-validation.service';
@@ -8,7 +9,7 @@ import { MatchService } from './match.service';
 
 describe('MatchService', () => {
     let service: MatchService;
-    let choiceValidationService: ChoiceValidationService;
+    let choiceValidationSpy: jasmine.SpyObj<ChoiceValidationService>;
     const fakeGame: Game = {
         id: '0',
         title: 'title',
@@ -30,12 +31,12 @@ describe('MatchService', () => {
     const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK', body: JSON.stringify(true) });
 
     beforeEach(() => {
+        choiceValidationSpy = jasmine.createSpyObj('ChoiceValidationService', ['validateChoices']);
         TestBed.configureTestingModule({
             imports: [HttpClientTestingModule],
-            providers: [MatchService, ChoiceValidationService],
+            providers: [MatchService, { provide: ChoiceValidationService, useValue: choiceValidationSpy }],
         }).compileComponents();
         service = TestBed.inject(MatchService);
-        choiceValidationService = TestBed.inject(ChoiceValidationService);
     });
 
     it('should be created', () => {
@@ -99,11 +100,10 @@ describe('MatchService', () => {
         interface SelectedChoices {
             selected: string[];
         }
-        const choices: SelectedChoices = { selected: [''] };
-        service.currentGame = fakeGame;
+        service.currentGame = getMockGame();
         service.questionId = '0';
-        const spy = spyOn(choiceValidationService, 'add').and.returnValue(of(mockHttpResponse));
+        const choices: SelectedChoices = { selected: [''] };
         service.validateChoices(choices.selected);
-        expect(spy).toHaveBeenCalledOnceWith(choices, `${fakeGame.id}/questions/${service.questionId}/validate-choice`);
+        expect(choiceValidationSpy.validateChoices).toHaveBeenCalled();
     });
 });

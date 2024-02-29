@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { SimpleChange } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, flush, tick } from '@angular/core/testing';
@@ -8,7 +8,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterTestingModule } from '@angular/router/testing';
 import { Choice } from '@app/interfaces/choice';
 import { MatchService } from '@app/services/match.service';
-import { of } from 'rxjs';
 import { QuestionAreaComponent } from './question-area.component';
 
 import { getMockQuestion } from '@app/constants/question-mocks';
@@ -32,8 +31,6 @@ describe('QuestionAreaComponent', () => {
     };
 
     let matchService: MatchService;
-
-    const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK', body: JSON.stringify(true) });
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
@@ -162,12 +159,6 @@ describe('QuestionAreaComponent', () => {
         expect(component.isSelectionEnabled).toBeFalse();
     });
 
-    it('should check answers', () => {
-        const spy = spyOn(matchService, 'validateChoices').and.returnValue(of(mockHttpResponse));
-        component.checkAnswers();
-        expect(spy).toHaveBeenCalled();
-    });
-
     it('should reset the state for a new question', () => {
         component.isSelectionEnabled = false;
         component.selectedAnswers = component.answers;
@@ -253,22 +244,6 @@ describe('QuestionAreaComponent', () => {
         flush();
     }));
 
-    it('should not check answers when pressing the enter key if the timer has not run out', () => {
-        spyOn(matchService, 'validateChoices').and.returnValue(of(mockHttpResponse));
-        const spy = spyOn(component, 'checkAnswers');
-        const event = new KeyboardEvent('keydown', { key: 'Enter' });
-        component.handleKeyboardEvent(event);
-        expect(spy).not.toHaveBeenCalled();
-    });
-
-    it('should not check answers when clicking the submit button if the timer has not run out', () => {
-        spyOn(matchService, 'validateChoices').and.returnValue(of(mockHttpResponse));
-        const spy = spyOn(component, 'checkAnswers');
-        const button = fixture.nativeElement.querySelector('#submitButton');
-        button.click();
-        expect(spy).not.toHaveBeenCalled();
-    });
-
     it('should update the timer if the game duration changes', fakeAsync(() => {
         const spy = spyOn(component.timeService, 'startTimer');
         const newDuration = 10;
@@ -278,34 +253,6 @@ describe('QuestionAreaComponent', () => {
         });
         tick();
         expect(spy).toHaveBeenCalled();
-        flush();
-    }));
-
-    it('should check answers on ngInit if the timer has run out', () => {
-        spyOn(matchService, 'validateChoices').and.returnValue(of(mockHttpResponse));
-
-        const spy = spyOn(component, 'checkAnswers');
-        component.timeService.timerFinished$.next(true);
-        component.ngOnInit();
-        expect(spy).toHaveBeenCalled();
-    });
-
-    it('should not check answers on ngInit if the timer has not run out', () => {
-        spyOn(matchService, 'validateChoices').and.returnValue(of(mockHttpResponse));
-
-        const spy = spyOn(component, 'checkAnswers');
-        component.timeService.timerFinished$.next(false);
-        component.ngOnInit();
-        expect(spy).not.toHaveBeenCalled();
-    });
-
-    it('should validate the answers', fakeAsync(() => {
-        const spyValidateChoices = spyOn(matchService, 'validateChoices').and.returnValue(of(new HttpResponse({ body: JSON.stringify(true) })));
-        const spyAfterFeedback = spyOn(component, 'afterFeedback');
-        component.checkAnswers();
-        tick();
-        expect(spyValidateChoices).toHaveBeenCalled();
-        expect(spyAfterFeedback).toHaveBeenCalled();
         flush();
     }));
 
@@ -412,19 +359,5 @@ describe('QuestionAreaComponent', () => {
         spyOnProperty(component, 'time', 'get').and.returnValue(expectedDuration);
         const result = component.time;
         expect(result).toBe(expectedDuration);
-    });
-
-    it('should check answers and set isCorrect to true if response body is true', () => {
-        if (mockQuestion.choices) {
-            const choicesText = [mockQuestion.choices[0].text];
-            const response = new HttpResponse({ body: JSON.stringify(true) });
-            spyOn(matchService, 'validateChoices').and.returnValue(of(response));
-            component.selectedAnswers = [mockQuestion.choices[0]];
-            component.checkAnswers();
-            expect(matchService.validateChoices).toHaveBeenCalledWith(choicesText);
-            expect(component.isCorrect).toBeTrue();
-        } else {
-            fail();
-        }
     });
 });

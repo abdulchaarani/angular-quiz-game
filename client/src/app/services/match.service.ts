@@ -64,7 +64,7 @@ export class MatchService extends ApiService<Game> {
         const testChoice = {
             selected: choices,
         };
-        if (this.currentGame.id && this.questionId) {
+        if (this.currentGame && this.currentGame.id && this.questionId) {
             return this.choiceValidationService.validateChoices(testChoice, this.currentGame.id, this.questionId);
         }
         return this.choiceValidationService.validateChoices(testChoice, '', '');

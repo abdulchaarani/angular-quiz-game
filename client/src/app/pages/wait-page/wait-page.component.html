@@ -6,8 +6,9 @@
 <div id="main-container">
     <button mat-raised-button id="exit-button" routerLink="/home">Quitter</button>
     <div id="game-starting" *ngIf="startTimerButton">
+        <h1>La partie commence dans..</h1>
         <div id="timer">
-            <mat-progress-spinner [value]="computeTimerProgress()" mode="determinate" diameter="400"> </mat-progress-spinner>
+            <mat-progress-spinner [value]="computeTimerProgress()" mode="determinate" diameter="350"> </mat-progress-spinner>
             <h2 id="time-left">
                 {{ time }}
             </h2>

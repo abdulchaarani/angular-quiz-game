@@ -4,17 +4,19 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { AppMaterialModule } from '@app/modules/material.module';
 import { AppComponent } from '@app/pages/app/app.component';
-import { CreateQuestionComponent } from '@app/pages/create-question/create-question.component';
 import { ChatComponent } from './components/chat/chat.component';
 import { DialogAdminPasswordComponent } from './components/dialog-admin-password/dialog-admin-password.component';
 import { DialogConfirmComponent } from './components/dialog-confirm/dialog-confirm.component';
-import { DialogRenameGameComponent } from './components/dialog-rename-game/dialog-rename-game.component';
+import { DialogTextInputComponent } from './components/dialog-text-input/dialog-text-input.component';
 import { FeedbackComponent } from './components/feedback/feedback.component';
 import { GameListItemComponent } from './components/game-list-item/game-list-item.component';
-import { PlayAreaComponent } from './components/play-area/play-area.component';
+import { HistogramComponent } from './components/histogram/histogram.component';
+import { HostQuestionAreaComponent } from './components/host-question-area/host-question-area.component';
+import { PlayersListComponent } from './components/players-list/players-list.component';
 import { QuestionAreaComponent } from './components/question-area/question-area.component';
 import { QuestionListItemComponent } from './components/question-list-item/question-list-item.component';
 import { ShortQuestionComponent } from './components/short-question/short-question.component';
@@ -26,9 +28,11 @@ import { AdminQuestionsListComponent } from './pages/admin-page/admin-questions-
 import { HomePageComponent } from './pages/home-page/home-page.component';
 import { HostPageComponent } from './pages/host-page/host-page.component';
 import { PlayerPageComponent } from './pages/player-page/player-page.component';
+import { ResultsPageComponent } from './pages/results-page/results-page.component';
 import { TestPageComponent } from './pages/test-page/test-page.component';
 import { WaitPageComponent } from './pages/wait-page/wait-page.component';
 import { SortByLastModificationPipe } from './pipes/sort-by-last-modification.pipe';
+import { SortByScorePipe } from './pipes/sort-by-score.pipe';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -38,7 +42,6 @@ import { SortByLastModificationPipe } from './pipes/sort-by-last-modification.pi
 @NgModule({
     declarations: [
         AppComponent,
-        PlayAreaComponent,
         SidebarComponent,
         HomePageComponent,
         AdminPageComponent,
@@ -59,7 +62,12 @@ import { SortByLastModificationPipe } from './pipes/sort-by-last-modification.pi
         DialogAdminPasswordComponent,
         ShortQuestionComponent,
         DialogConfirmComponent,
-        DialogRenameGameComponent,
+        DialogTextInputComponent,
+        ResultsPageComponent,
+        PlayersListComponent,
+        SortByScorePipe,
+        HistogramComponent,
+        HostQuestionAreaComponent,
     ],
     imports: [
         AppMaterialModule,

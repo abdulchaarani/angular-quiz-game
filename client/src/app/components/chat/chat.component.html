@@ -1,7 +1,24 @@
-<form class="chat-form">
-    <mat-form-field class="chat-input-container">
-        <mat-label>Message</mat-label>
-        <input matInput #message maxlength="256" placeholder="Type here..." />
-        <mat-icon class="chat-send-icon">send</mat-icon>
-    </mat-form-field>
-</form>
+<div id="main-chat-container">
+    <h2 id="current-username">{{ currentUsername }}</h2>
+    <div id="messages-container">
+        <div *ngFor="let message of messages" class="message-container">
+            <div class="message-info-container">
+                <p class="message-author">{{ message.author }}</p>
+                <p>{{ message.date | date: 'hh:mm' }}</p>
+            </div>
+            <div
+                class="message-text-container"
+                [ngClass]="[message.author === currentUsername ? 'own-message' : '', message.author === 'Organisateur' ? 'host-message' : '']"
+            >
+                <p>{{ message.text }}</p>
+            </div>
+        </div>
+    </div>
+    <form id="chat-form">
+        <mat-form-field id="chat-input-container">
+            <mat-label>Message</mat-label>
+            <input matInput #message maxlength="200" placeholder="..." />
+            <mat-icon id="chat-send-icon">send</mat-icon>
+        </mat-form-field>
+    </form>
+</div>

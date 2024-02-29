@@ -1,0 +1,36 @@
+#players-main-container {
+    height: 100vh;
+    width: 20vw;
+    background-color: #bebebe3a;
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    overflow-y: scroll;
+}
+
+h2 {
+    margin-left: 1rem;
+}
+
+.player-card {
+    width: 15vw;
+    margin: 1rem;
+    padding: 0 1rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    background-color: white;
+    border-radius: 0.5rem;
+}
+
+.inactive-player {
+    text-decoration-line: line-through;
+}
+
+.player-performance {
+    font-size: 0.75rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+}

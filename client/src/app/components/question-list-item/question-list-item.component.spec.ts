@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Question } from '@app/interfaces/question';
 import { QuestionListItemComponent } from './question-list-item.component';
 import { ManagementState } from '@app/constants/states';
-import { CreateQuestionComponent } from '@app/pages/create-question/create-question.component';
+import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 describe('QuestionListItemComponent', () => {

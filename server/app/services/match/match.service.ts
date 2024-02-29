@@ -4,6 +4,7 @@ import { Game } from '@app/model/database/game';
 import { Question } from '@app/model/database/question';
 import { GameService } from '@app/services/game/game.service';
 import { Injectable } from '@nestjs/common';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class MatchService {
@@ -57,6 +58,7 @@ export class MatchService {
     async saveBackupGame(gameId: string): Promise<Game> {
         try {
             let backupGame = await this.gameService.getGameById(gameId);
+            backupGame.id = uuidv4();
             this.backupGames.push(backupGame);
             backupGame = this.removeIsCorrectField(backupGame);
             return backupGame;

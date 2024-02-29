@@ -9,6 +9,8 @@ import { GameService } from '@app/services/game/game.service';
 import { MatchService } from '@app/services/match/match.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
+import * as uuid from 'uuid';
+jest.mock('uuid');
 
 describe('MatchService', () => {
     let service: MatchService;
@@ -113,13 +115,13 @@ describe('MatchService', () => {
         mockGame.id = '0';
         const spyGetGameById = jest.spyOn(gameService, 'getGameById').mockResolvedValue(mockGame);
         const spyRemoveIsCorrectField = jest.spyOn(service, 'removeIsCorrectField').mockReturnValue(mockGame);
+        const uuidSpy = jest.spyOn(uuid, 'v4').mockReturnValue('mockedValue');
         service.backupGames = [new Game()];
         const game = await service.saveBackupGame('0');
-        expect(game.id).toEqual(mockGame.id);
+        expect(uuidSpy).toHaveBeenCalled();
         expect(spyGetGameById).toHaveBeenCalled();
         expect(spyRemoveIsCorrectField).toHaveBeenCalled();
         expect(service.backupGames.length).toBe(2);
-        expect(service.backupGames).toContain(mockGame);
     });
 
     it('saveBackupGame() should reject if gameService fails to fetch game', async () => {

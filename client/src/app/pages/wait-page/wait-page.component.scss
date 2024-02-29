@@ -2,11 +2,14 @@
     padding: 1rem;
     width: 70vw;
     position: relative;
-    left: 20vw;
+    left: 7.5vw;
     display: flex;
     flex-direction: column;
-    text-align: center;
+    justify-content: center;
     align-items: center;
+    text-align: center;
+    height: 100vh;
+    margin: 0 auto;
 }
 
 #code {
@@ -35,4 +38,22 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+}
+
+#game-starting {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: auto;
+}
+
+#time-left {
+    font-size: 6rem;
+    color: #000000;
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }

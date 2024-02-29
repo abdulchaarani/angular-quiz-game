@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { TimeService } from '@app/services/time.service';
 
 @Component({
     selector: 'app-wait-page',
@@ -12,14 +13,35 @@ export class WaitPageComponent {
     playerUsernames: string[] = ['Totoro', 'Kiki', 'Jiji', 'A', 'B', 'C', 'D', 'E', 'F', 'G'];
     isLocked: boolean;
     currentUsername: string = 'Organisateur';
+    startTimerButton: boolean = false;
+    private readonly multiplicationFactor = 100;
 
-    constructor() {
+    constructor(public timeService: TimeService) {
         // TODO: Inject services in parameter + initialize values accordingly
+    }
+    get time() {
+        return this.timeService.time;
     }
 
     rejectPlayerUsername(name: string) {}
 
     startMatch() {
         // TODO: Check if isLocked + if at least one player
+        this.startTimerButton = true;
+        this.startTimer();
+    }
+
+    startTimer() {
+        this.timeService.stopTimer();
+        this.timeService.startTimer(5);
+        this.timeService.timerFinished$.subscribe((timerFinished) => {
+            if (timerFinished) {
+                //route to question page
+            }
+        });
+    }
+
+    computeTimerProgress(): number {
+        return (this.timeService.time / 5) * this.multiplicationFactor;
     }
 }

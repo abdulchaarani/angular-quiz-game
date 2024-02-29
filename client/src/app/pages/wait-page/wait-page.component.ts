@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { TimeService } from '@app/services/time.service';
 
+const TIMER_DURATION = 5;
+
 @Component({
     selector: 'app-wait-page',
     templateUrl: './wait-page.component.html',
@@ -23,7 +25,9 @@ export class WaitPageComponent {
         return this.timeService.time;
     }
 
-    rejectPlayerUsername(name: string) {}
+    rejectPlayerUsername(name: string) {
+        console.log('TODO: rejeter ' + name);
+    }
 
     startMatch() {
         // TODO: Check if isLocked + if at least one player
@@ -33,15 +37,15 @@ export class WaitPageComponent {
 
     startTimer() {
         this.timeService.stopTimer();
-        this.timeService.startTimer(5);
+        this.timeService.startTimer(TIMER_DURATION);
         this.timeService.timerFinished$.subscribe((timerFinished) => {
             if (timerFinished) {
-                //route to question page
+                // route to question page
             }
         });
     }
 
     computeTimerProgress(): number {
-        return (this.timeService.time / 5) * this.multiplicationFactor;
+        return (this.timeService.time / TIMER_DURATION) * this.multiplicationFactor;
     }
 }

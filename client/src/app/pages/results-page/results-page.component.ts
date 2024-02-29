@@ -2,6 +2,10 @@ import { Component } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
 import { Game } from '@app/interfaces/game';
 
+const MIN_DURATION = 10;
+const PICK = 6;
+const SECOND_PICK = 10;
+
 @Component({
     selector: 'app-results-page',
     templateUrl: './results-page.component.html',
@@ -19,7 +23,7 @@ export class ResultsPageComponent {
         title: 'demo',
         description: 'evaluation',
         lastModification: '2024-02-23T14:04:17.326Z',
-        duration: 10,
+        duration: MIN_DURATION,
         questions: [
             {
                 id: 'cad7e463-0c0c-4a07-b6e4-4bc137389e7d',
@@ -45,7 +49,7 @@ export class ResultsPageComponent {
             },
         ],
     };
-    picks = [1, 6, 10];
+    picks = [1, PICK, SECOND_PICK];
 
     // ngOnInit(): void {
 
@@ -54,6 +58,5 @@ export class ResultsPageComponent {
     handlePageEvent(e: PageEvent) {
         this.pageEvent = e;
         this.currentQuestionIndex = e.pageIndex;
-        console.log(this.currentQuestionIndex);
     }
 }

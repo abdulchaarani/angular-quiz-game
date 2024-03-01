@@ -11,12 +11,12 @@ import { GameService } from '@app/services/game/game.service';
 import { MatchService } from '@app/services/match/match.service';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { of, throwError } from 'rxjs';
-import { HostPageComponent } from './host-page.component';
+import { MatchCreationPageComponent } from './match-creation-page.component';
 // import { HttpResponse } from '@angular/common/http';
 
-describe('HostPageComponent', () => {
-    let component: HostPageComponent;
-    let fixture: ComponentFixture<HostPageComponent>;
+describe('MatchCreationPageComponent', () => {
+    let component: MatchCreationPageComponent;
+    let fixture: ComponentFixture<MatchCreationPageComponent>;
     let gameService: GameService;
     let notificationService: NotificationService;
     const invisibleGame: Game = { isVisible: false } as Game;
@@ -51,7 +51,7 @@ describe('HostPageComponent', () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            declarations: [HostPageComponent],
+            declarations: [MatchCreationPageComponent],
             imports: [HttpClientTestingModule, BrowserAnimationsModule, ScrollingModule],
             providers: [
                 MatSnackBar,
@@ -61,7 +61,7 @@ describe('HostPageComponent', () => {
                 { provide: MatDialog, useClass: MatDialogMock },
             ],
         });
-        fixture = TestBed.createComponent(HostPageComponent);
+        fixture = TestBed.createComponent(MatchCreationPageComponent);
         gameService = TestBed.inject(GameService);
         notificationService = TestBed.inject(NotificationService);
         component = fixture.componentInstance;

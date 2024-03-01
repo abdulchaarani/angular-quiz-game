@@ -48,7 +48,7 @@ export class CommunicationService<T> {
             .pipe(catchError(this.handleError<HttpResponse<string>>()));
     }
 
-    replace(payload: T, endpoint: string): Observable<HttpResponse<string>> {
+    put(payload: T, endpoint: string): Observable<HttpResponse<string>> {
         return this.http
             .put(`${this.serverUrl}/${this.baseUrl}/${endpoint}`, payload, this.httpOptions)
             .pipe(catchError(this.handleError<HttpResponse<string>>()));

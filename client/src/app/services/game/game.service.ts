@@ -38,7 +38,7 @@ export class GameService extends CommunicationService<Game> {
     }
 
     replaceGame(modifiedGame: Game) {
-        return this.replace(modifiedGame, modifiedGame.id);
+        return this.put(modifiedGame, modifiedGame.id);
     }
 
     submitGame(game: Game, state: ManagementState) {

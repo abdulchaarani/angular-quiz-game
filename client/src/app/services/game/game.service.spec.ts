@@ -61,7 +61,7 @@ describe('GameService', () => {
 
     it('should replace a game successfully using replaceGame()', () => {
         const modifiedGame = getFakeGame();
-        const spy = spyOn(service, 'replace').and.returnValue(of(mockHttpResponse));
+        const spy = spyOn(service, 'put').and.returnValue(of(mockHttpResponse));
         service.replaceGame(modifiedGame);
         expect(spy).toHaveBeenCalled();
     });

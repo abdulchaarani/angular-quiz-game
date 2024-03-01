@@ -108,7 +108,7 @@ describe('CommunicationService', () => {
 
     it('should replace data of type T via a PUT request', () => {
         const mockResponse = 'Resource modified';
-        gamesService.replace(mockGame, endpoint).subscribe((data) => {
+        gamesService.put(mockGame, endpoint).subscribe((data) => {
             expect(data.body).toEqual(mockResponse);
         });
 

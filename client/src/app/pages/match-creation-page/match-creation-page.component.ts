@@ -6,11 +6,11 @@ import { MatchService } from '@app/services/match/match.service';
 import { NotificationService } from '@app/services/notification/notification.service';
 
 @Component({
-    selector: 'app-host-page',
-    templateUrl: './host-page.component.html',
-    styleUrls: ['./host-page.component.scss'],
+    selector: 'app-match-creation-page',
+    templateUrl: './match-creation-page.component.html',
+    styleUrls: ['./match-creation-page.component.scss'],
 })
-export class HostPageComponent implements OnInit {
+export class MatchCreationPageComponent implements OnInit {
     games: Game[] = [];
     selectedGame: Game;
     gameIsValid: boolean;

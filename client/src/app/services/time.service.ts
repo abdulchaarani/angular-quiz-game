@@ -31,7 +31,6 @@ export class TimeService {
         if (this.interval) return;
         this.time = startValue;
         this.interval = window.setInterval(() => {
-            console.log('tick');
             if (this.time > 0) {
                 this.time--;
             } else {

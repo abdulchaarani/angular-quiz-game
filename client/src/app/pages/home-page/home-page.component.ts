@@ -49,6 +49,7 @@ export class HomePageComponent {
 
     submitCode(code: string): void {
         // TODO: Service - Validate code
+        console.log('TODO: Valider ' + code);
         this.input = '';
         // TODO: Move in a subscribe/next (only if code is valid)
         const dialogRef = this.dialog.open(DialogTextInputComponent, {
@@ -64,6 +65,7 @@ export class HomePageComponent {
 
     submitUsername(username: string): void {
         // TODO: Service - Validate username
+        console.log('TODO: Valider ' + username);
         this.input = '';
         // TODO: Redirect to page only if username is valid
         this.router.navigateByUrl('/waiting-room');

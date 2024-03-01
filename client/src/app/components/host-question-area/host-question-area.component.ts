@@ -3,6 +3,7 @@ import { getMockQuestion } from '@app/constants/question-mocks';
 import { Question } from '@app/interfaces/question';
 import { TimeService } from '@app/services/time.service';
 
+const DURATION = 10000;
 @Component({
     selector: 'app-host-question-area',
     templateUrl: './host-question-area.component.html',
@@ -13,7 +14,7 @@ export class HostQuestionAreaComponent {
     // currentQuestion: Question;
 
     currentQuestion: Question = getMockQuestion();
-    gameDuration = 10000;
+    gameDuration: number = DURATION;
 
     private readonly multiplicationFactor = 100;
     constructor(public timeService: TimeService) {}

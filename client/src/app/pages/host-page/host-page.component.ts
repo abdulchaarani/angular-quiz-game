@@ -1,3 +1,4 @@
+import { HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Game } from '@app/interfaces/game';
 import { GamesService } from '@app/services/games.service';
@@ -47,7 +48,12 @@ export class HostPageComponent implements OnInit {
         if (selectedGame.isVisible) {
             this.gameIsValid = true;
             this.matchService.currentGame = selectedGame;
-            this.matchService.saveBackupGame(selectedGame.id).subscribe();
+            this.matchService.saveBackupGame(selectedGame.id).subscribe((response: HttpResponse<string>) => {
+                if (response.body) {
+                    const backupGame = JSON.parse(response.body);
+                    this.matchService.currentGame = backupGame;
+                }
+            });
         } else {
             const snackBarRef = this.notificationService.displayErrorMessageAction("Le jeu sélectionné n'est plus visible", 'Actualiser');
             snackBarRef.onAction().subscribe(() => this.reloadAllGames());

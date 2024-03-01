@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { DialogAdminPasswordComponent } from '@app/components/dialog-admin-password/dialog-admin-password.component';
-import { AuthenticationService } from '@app/services/authentication.service';
+import { AdminLoginService } from '@app/services/admin-login/admin-login.service';
 import { of } from 'rxjs';
 import { HomePageComponent } from './home-page.component';
 import SpyObj = jasmine.SpyObj;
@@ -14,7 +14,7 @@ describe('HomePageComponent', () => {
     let component: HomePageComponent;
     let fixture: ComponentFixture<HomePageComponent>;
     let dialogMock: SpyObj<MatDialog>;
-    let authenticationSpy: SpyObj<AuthenticationService>;
+    let authenticationSpy: SpyObj<AdminLoginService>;
 
     beforeEach(() => {
         dialogMock = jasmine.createSpyObj({
@@ -22,7 +22,7 @@ describe('HomePageComponent', () => {
                 afterClosed: of('mockResult'),
             }),
         });
-        authenticationSpy = jasmine.createSpyObj('AuthenticationService', ['validatePassword']);
+        authenticationSpy = jasmine.createSpyObj('AdminLoginService', ['validatePassword']);
         TestBed.configureTestingModule({
             imports: [HttpClientModule, MatSnackBarModule, MatIconModule],
             providers: [
@@ -31,7 +31,7 @@ describe('HomePageComponent', () => {
                     useValue: dialogMock,
                 },
                 {
-                    provide: AuthenticationService,
+                    provide: AdminLoginService,
                     useValue: authenticationSpy,
                 },
             ],

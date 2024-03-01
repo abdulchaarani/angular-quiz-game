@@ -29,9 +29,9 @@
             </div>
         </mat-panel-description>
     </mat-expansion-panel-header>
-    <app-create-question
+    <app-question-creation-form
         [question]="question"
         [modificationState]="modificationState"
         (modifyQuestionEvent)="dispatchModifiedQuestion()"
-    ></app-create-question>
+    ></app-question-creation-form>
 </mat-expansion-panel>

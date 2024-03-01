@@ -1,11 +1,11 @@
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ManagementState } from '@app/constants/states';
 import { BankStatus } from '@app/constants/feedback-messages';
+import { ManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
-import { NotificationService } from '@app/services/notification.service';
-import { QuestionService } from '@app/services/question.service';
+import { NotificationService } from '@app/services/notification/notification.service';
+import { QuestionService } from '@app/services/question/question.service';
 
 @Component({
     selector: 'app-admin-question-bank',

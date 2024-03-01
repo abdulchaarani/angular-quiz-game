@@ -2,13 +2,13 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { HostQuestionAreaComponent } from '@app/components/host-question-area/host-question-area.component';
 import { ManagementState } from '@app/constants/states';
-import { authenticationGuard } from '@app/guards/authentication.guard';
-import { pendingChangesGuard } from '@app/guards/pending-changes.guard';
+import { adminLoginGuard } from '@app/guards/admin-login/admin-login.guard';
+import { pendingChangesGuard } from '@app/guards/pending-changes/pending-changes.guard';
 import { AdminPageComponent } from '@app/pages/admin-page/admin-main-page/admin-page.component';
 import { AdminQuestionBankComponent } from '@app/pages/admin-page/admin-question-bank/admin-question-bank.component';
 import { AdminQuestionsListComponent } from '@app/pages/admin-page/admin-questions-list/admin-questions-list.component';
 import { HomePageComponent } from '@app/pages/home-page/home-page.component';
-import { HostPageComponent } from '@app/pages/host-page/host-page.component';
+import { MatchCreationPageComponent } from '@app/pages/match-creation-page/match-creation-page.component';
 import { PlayerPageComponent } from '@app/pages/player-page/player-page.component';
 import { ResultsPageComponent } from '@app/pages/results-page/results-page.component';
 import { TestPageComponent } from '@app/pages/test-page/test-page.component';
@@ -20,7 +20,7 @@ const routes: Routes = [
     { path: 'home', component: HomePageComponent },
     {
         path: 'admin',
-        canActivate: [authenticationGuard],
+        canActivate: [adminLoginGuard],
         children: [
             { path: 'bank', component: AdminQuestionBankComponent },
             { path: 'games', component: AdminPageComponent },
@@ -38,7 +38,7 @@ const routes: Routes = [
             },
         ],
     },
-    { path: 'host', component: HostPageComponent },
+    { path: 'host', component: MatchCreationPageComponent },
     { path: 'player', component: PlayerPageComponent },
     { path: 'waiting-room', component: WaitPageComponent },
     { path: 'results', component: ResultsPageComponent },

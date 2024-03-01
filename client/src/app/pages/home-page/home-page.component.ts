@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { DialogAdminPasswordComponent } from '@app/components/dialog-admin-password/dialog-admin-password.component';
 import { DialogTextInputComponent } from '@app/components/dialog-text-input/dialog-text-input.component';
-import { AuthenticationService } from '@app/services/authentication.service';
+import { AdminLoginService } from '@app/services/admin-login/admin-login.service';
 
 @Component({
     selector: 'app-home-page',
@@ -15,7 +15,7 @@ export class HomePageComponent {
     input: string;
     constructor(
         private dialog: MatDialog,
-        private readonly authenticationService: AuthenticationService,
+        private readonly adminLoginService: AdminLoginService,
         private router: Router,
     ) {}
     openAdminDialog(): void {
@@ -43,7 +43,7 @@ export class HomePageComponent {
     }
 
     submitPassword(password: string): void {
-        this.authenticationService.validatePassword(password);
+        this.adminLoginService.validatePassword(password);
         this.password = '';
     }
 

@@ -9,11 +9,11 @@ export interface DialogManagement {
     modificationState: ManagementState;
 }
 @Component({
-    selector: 'app-create-question',
-    templateUrl: './create-question.component.html',
-    styleUrls: ['./create-question.component.scss'],
+    selector: 'app-question-creation-form',
+    templateUrl: './question-creation-form.component.html',
+    styleUrls: ['./question-creation-form.component.scss'],
 })
-export class CreateQuestionComponent implements OnInit, OnChanges {
+export class QuestionCreationFormComponent implements OnInit, OnChanges {
     @Input() question: Question;
     @Input() modificationState: ManagementState;
     @Output() createQuestionEvent: EventEmitter<Question> = new EventEmitter<Question>();

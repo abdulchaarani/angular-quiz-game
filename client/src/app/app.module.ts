@@ -4,7 +4,7 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
+import { QuestionCreationFormComponent } from '@app/components/question-creation-form/question-creation-form.component';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { AppMaterialModule } from '@app/modules/material.module';
 import { AppComponent } from '@app/pages/app/app.component';
@@ -52,7 +52,7 @@ import { SortByScorePipe } from './pipes/sort-by-score.pipe';
         AdminQuestionsListComponent,
         GameListItemComponent,
         QuestionAreaComponent,
-        CreateQuestionComponent,
+        QuestionCreationFormComponent,
         SortByLastModificationPipe,
         ClickStopPropagationDirective,
         TestPageComponent,
@@ -80,7 +80,7 @@ import { SortByScorePipe } from './pipes/sort-by-score.pipe';
         ReactiveFormsModule,
     ],
     providers: [],
-    exports: [QuestionListItemComponent, GameListItemComponent, CreateQuestionComponent],
+    exports: [QuestionListItemComponent, GameListItemComponent, QuestionCreationFormComponent],
     bootstrap: [AppComponent],
 })
 export class AppModule {}

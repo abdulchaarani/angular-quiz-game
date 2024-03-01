@@ -1,11 +1,11 @@
 /* eslint-disable max-classes-per-file */
 // https://medium.com/ngconf/functional-candeactivate-guards-in-angular-2211f5da78c2
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Route, Router, provideRouter } from '@angular/router';
-import { pendingChangesGuard } from './pending-changes.guard';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingHarness } from '@angular/router/testing';
-import { Component } from '@angular/core';
+import { pendingChangesGuard } from './pending-changes.guard';
 
 @Component({ template: '' })
 class MockPendingChangesComponent {

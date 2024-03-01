@@ -7,7 +7,7 @@ import { environment } from 'src/environments/environment';
 @Injectable({
     providedIn: 'root',
 })
-export class AuthenticationService {
+export class AdminLoginService {
     private isAuthenticated: boolean;
     constructor(
         private readonly http: HttpClient,

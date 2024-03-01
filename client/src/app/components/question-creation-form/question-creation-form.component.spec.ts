@@ -1,19 +1,19 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 
+import { CdkDragDrop } from '@angular/cdk/drag-drop';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { CdkDragDrop } from '@angular/cdk/drag-drop';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
+import { QuestionListItemComponent } from '@app/components/question-list-item/question-list-item.component';
 import { ManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
-import { CreateQuestionComponent, DialogManagement } from './create-question.component';
-import { QuestionListItemComponent } from '@app/components/question-list-item/question-list-item.component';
+import { DialogManagement, QuestionCreationFormComponent } from './question-creation-form.component';
 
 const mockQuestion: Question = {
     id: '1',
@@ -30,9 +30,9 @@ const mockQuestion: Question = {
 const maxchoicesLengthTest = 5;
 const minchoicesLengthTest = 3;
 
-describe('CreateQuestionComponent', () => {
-    let component: CreateQuestionComponent;
-    let fixture: ComponentFixture<CreateQuestionComponent>;
+describe('QuestionCreationFormComponent', () => {
+    let component: QuestionCreationFormComponent;
+    let fixture: ComponentFixture<QuestionCreationFormComponent>;
     let snackBarSpy: jasmine.SpyObj<MatSnackBar>;
     let formBuilder: FormBuilder;
     const dialogData: DialogManagement = { modificationState: ManagementState.GameCreate };
@@ -40,7 +40,7 @@ describe('CreateQuestionComponent', () => {
     beforeEach(() => {
         const snackBarSpyObj = jasmine.createSpyObj('MatSnackBar', ['open']);
         TestBed.configureTestingModule({
-            declarations: [CreateQuestionComponent, QuestionListItemComponent],
+            declarations: [QuestionCreationFormComponent, QuestionListItemComponent],
             imports: [
                 ReactiveFormsModule,
                 FormsModule,
@@ -55,7 +55,7 @@ describe('CreateQuestionComponent', () => {
         });
 
         snackBarSpy = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
-        fixture = TestBed.createComponent(CreateQuestionComponent);
+        fixture = TestBed.createComponent(QuestionCreationFormComponent);
         formBuilder = TestBed.inject(FormBuilder);
         component = fixture.componentInstance;
 
@@ -276,7 +276,7 @@ describe('CreateQuestionComponent', () => {
             currentIndex: 0,
             container: { data: component.questionForm.controls.value },
             previousContainer: { data: component.questionForm.controls.value },
-        } as unknown as CdkDragDrop<CreateQuestionComponent>;
+        } as unknown as CdkDragDrop<QuestionCreationFormComponent>;
 
         fixture.detectChanges();
         component.drop(mockEvent);

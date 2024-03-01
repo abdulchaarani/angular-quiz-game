@@ -6,10 +6,10 @@ import { Router } from '@angular/router';
 import { MatDialogMock } from '@app/constants/mat-dialog-mock';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { of, throwError } from 'rxjs';
-import { AuthenticationService } from './authentication.service';
+import { AdminLoginService } from './admin-login.service';
 import SpyObj = jasmine.SpyObj;
-describe('AuthenticationService', () => {
-    let service: AuthenticationService;
+describe('AdminLoginService', () => {
+    let service: AdminLoginService;
     let routerSpy: SpyObj<Router>;
     let notificationSpy: SpyObj<NotificationService>;
     let httpClientSpy: SpyObj<HttpClient>;
@@ -27,7 +27,7 @@ describe('AuthenticationService', () => {
                 { provide: NotificationService, useValue: notificationSpy },
             ],
         });
-        service = TestBed.inject(AuthenticationService);
+        service = TestBed.inject(AdminLoginService);
     });
 
     it('should be created', () => {

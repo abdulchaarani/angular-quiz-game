@@ -1,7 +1,7 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
-import { CreateQuestionComponent, DialogManagement } from '@app/components/create-question/create-question.component';
+import { DialogManagement, QuestionCreationFormComponent } from '@app/components/question-creation-form/question-creation-form.component';
 import { ManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
 import { Observable } from 'rxjs';
@@ -50,6 +50,6 @@ export class QuestionService extends CommunicationService<Question> {
             height: '70%',
             width: '100%',
         };
-        return this.dialog.open(CreateQuestionComponent, manageConfig);
+        return this.dialog.open(QuestionCreationFormComponent, manageConfig);
     }
 }

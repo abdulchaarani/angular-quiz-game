@@ -1,22 +1,22 @@
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 
-import { AuthenticationService } from '@app/services/authentication/authentication.service';
+import { AdminLoginService } from '@app/services/admin-login/admin-login.service';
 import { NotificationService } from '@app/services/notification/notification.service';
-import { authenticationGuard } from './authentication.guard';
+import { adminLoginGuard } from './admin-login.guard';
 import SpyObj = jasmine.SpyObj;
-describe('authenticationGuard', () => {
-    let authenticationSpy: SpyObj<AuthenticationService>;
+describe('adminLoginGuard', () => {
+    let authenticationSpy: SpyObj<AdminLoginService>;
     let routerSpy: SpyObj<Router>;
     let notificationSpy: SpyObj<NotificationService>;
 
     beforeEach(() => {
-        authenticationSpy = jasmine.createSpyObj('AuthenticationService', ['getIsAuthenticated']);
+        authenticationSpy = jasmine.createSpyObj('AdminLoginService', ['getIsAuthenticated']);
         routerSpy = jasmine.createSpyObj('Router', ['navigateByUrl']);
         notificationSpy = jasmine.createSpyObj('NotificationService', ['displayErrorMessage']);
         TestBed.configureTestingModule({
             providers: [
-                { provide: AuthenticationService, useValue: authenticationSpy },
+                { provide: AdminLoginService, useValue: authenticationSpy },
                 { provide: Router, useValue: routerSpy },
                 { provide: NotificationService, useValue: notificationSpy },
             ],
@@ -25,7 +25,7 @@ describe('authenticationGuard', () => {
 
     it('should redirect to home page if user is not authenticated as admin', () => {
         authenticationSpy.getIsAuthenticated.and.returnValue(false);
-        TestBed.runInInjectionContext(authenticationGuard);
+        TestBed.runInInjectionContext(adminLoginGuard);
         expect(authenticationSpy.getIsAuthenticated).toHaveBeenCalled();
         expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/home');
         expect(notificationSpy.displayErrorMessage).toHaveBeenCalled();
@@ -33,7 +33,7 @@ describe('authenticationGuard', () => {
 
     it('should redirect to home page if user is not authenticated as admin', () => {
         authenticationSpy.getIsAuthenticated.and.returnValue(true);
-        TestBed.runInInjectionContext(authenticationGuard);
+        TestBed.runInInjectionContext(adminLoginGuard);
         expect(authenticationSpy.getIsAuthenticated).toHaveBeenCalled();
         expect(routerSpy.navigateByUrl).not.toHaveBeenCalled();
         expect(notificationSpy.displayErrorMessage).not.toHaveBeenCalled();

@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { QuestionCreationFormComponent } from '@app/components/question-creation-form/question-creation-form.component';
+import { ManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
 import { QuestionListItemComponent } from './question-list-item.component';
-import { ManagementState } from '@app/constants/states';
-import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 describe('QuestionListItemComponent', () => {
     let component: QuestionListItemComponent;
@@ -19,7 +19,7 @@ describe('QuestionListItemComponent', () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            declarations: [QuestionListItemComponent, CreateQuestionComponent],
+            declarations: [QuestionListItemComponent, QuestionCreationFormComponent],
             imports: [MatSnackBarModule],
         });
 

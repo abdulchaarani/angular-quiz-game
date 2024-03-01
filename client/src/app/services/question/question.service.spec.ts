@@ -1,12 +1,12 @@
-import { TestBed } from '@angular/core/testing';
-import { QuestionService } from './question.service';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { Question } from '@app/interfaces/question';
-import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
-import { MatDialogMock } from '@app/constants/mat-dialog-mock';
-import { CreateQuestionComponent, DialogManagement } from '@app/components/create-question/create-question.component';
 import { HttpResponse } from '@angular/common/http';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { TestBed } from '@angular/core/testing';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { DialogManagement, QuestionCreationFormComponent } from '@app/components/question-creation-form/question-creation-form.component';
+import { MatDialogMock } from '@app/constants/mat-dialog-mock';
+import { Question } from '@app/interfaces/question';
 import { of } from 'rxjs';
+import { QuestionService } from './question.service';
 
 const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK', body: JSON.stringify(true) });
 
@@ -77,6 +77,6 @@ describe('QuestionService', () => {
         };
         spyOn(dialog, 'open').and.callThrough();
         questionService.openCreateQuestionModal(0);
-        expect(dialog.open).toHaveBeenCalledWith(CreateQuestionComponent, manageConfig);
+        expect(dialog.open).toHaveBeenCalledWith(QuestionCreationFormComponent, manageConfig);
     });
 });

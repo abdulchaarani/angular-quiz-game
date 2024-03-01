@@ -1,7 +1,7 @@
 import { HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Game } from '@app/interfaces/game';
-import { GamesService } from '@app/services/game/games.service';
+import { GameService } from '@app/services/game/game.service';
 import { MatchService } from '@app/services/match/match.service';
 import { NotificationService } from '@app/services/notification/notification.service';
 
@@ -16,7 +16,7 @@ export class HostPageComponent implements OnInit {
     gameIsValid: boolean;
 
     constructor(
-        private gameService: GamesService,
+        private gameService: GameService,
         private notificationService: NotificationService,
         private matchService: MatchService,
     ) {

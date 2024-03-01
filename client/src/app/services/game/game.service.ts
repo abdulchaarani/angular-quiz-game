@@ -8,7 +8,7 @@ import { CommunicationService } from '../communication/communication.service';
 @Injectable({
     providedIn: 'root',
 })
-export class GamesService extends CommunicationService<Game> {
+export class GameService extends CommunicationService<Game> {
     isPendingChangesObservable: Observable<boolean>;
     isPendingChangesSource = new BehaviorSubject<boolean>(false);
 

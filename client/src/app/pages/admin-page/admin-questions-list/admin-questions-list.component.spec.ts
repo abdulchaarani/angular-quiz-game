@@ -11,7 +11,7 @@ import { ManagementState } from '@app/constants/states';
 import { Game } from '@app/interfaces/game';
 import { Question } from '@app/interfaces/question';
 import { SortByLastModificationPipe } from '@app/pipes/sort-by-last-modification.pipe';
-import { GamesService } from '@app/services/game/games.service';
+import { GameService } from '@app/services/game/game.service';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { QuestionService } from '@app/services/question/question.service';
 import { AdminQuestionsListComponent } from './admin-questions-list.component';
@@ -34,7 +34,7 @@ describe('AdminQuestionsListComponent', () => {
     let component: AdminQuestionsListComponent;
     let fixture: ComponentFixture<AdminQuestionsListComponent>;
 
-    let gamesServiceSpy: jasmine.SpyObj<GamesService>;
+    let gamesServiceSpy: jasmine.SpyObj<GameService>;
     let questionServiceSpy: jasmine.SpyObj<QuestionService>;
     let notificationServiceSpy: jasmine.SpyObj<NotificationService>;
     let matDialogSpy: jasmine.SpyObj<MatDialog>;
@@ -92,7 +92,7 @@ describe('AdminQuestionsListComponent', () => {
         activatedRouteSpy.params = params;
         activatedRouteSpy.data = data;
 
-        gamesServiceSpy = jasmine.createSpyObj('GamesService', [
+        gamesServiceSpy = jasmine.createSpyObj('GameService', [
             'getGames',
             'getGameById',
             'toggleGameVisibility',
@@ -142,7 +142,7 @@ describe('AdminQuestionsListComponent', () => {
             ],
             declarations: [AdminQuestionsListComponent, SortByLastModificationPipe],
             providers: [
-                { provide: GamesService, useValue: gamesServiceSpy },
+                { provide: GameService, useValue: gamesServiceSpy },
                 { provide: MatDialog, useValue: matDialogSpy },
                 { provide: MatSnackBar, useValue: {} },
                 { provide: NotificationService, useValue: notificationServiceSpy },

@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogTextInputComponent } from '@app/components/dialog-text-input/dialog-text-input.component';
 import { Game } from '@app/interfaces/game';
-import { GamesService } from '@app/services/game/games.service';
+import { GameService } from '@app/services/game/game.service';
 import { NotificationService } from '@app/services/notification/notification.service';
 
 @Component({
@@ -16,7 +16,7 @@ export class AdminPageComponent implements OnInit {
 
     constructor(
         private dialog: MatDialog,
-        private readonly gamesService: GamesService,
+        private readonly gamesService: GameService,
         private readonly notificationService: NotificationService,
     ) {}
 

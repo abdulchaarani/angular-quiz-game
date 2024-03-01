@@ -2,21 +2,21 @@ import { HttpClient, HttpHandler, HttpResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Game } from '@app/interfaces/game';
 import { MatDialogMock } from '@app/constants/mat-dialog-mock';
-import { of } from 'rxjs';
-import { GamesService } from './games.service';
 import { ManagementState } from '@app/constants/states';
+import { Game } from '@app/interfaces/game';
+import { of } from 'rxjs';
+import { GameService } from './game.service';
 
 const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK', body: JSON.stringify(true) });
 
 describe('GameService', () => {
-    let service: GamesService;
+    let service: GameService;
     beforeEach(() => {
         TestBed.configureTestingModule({
-            providers: [GamesService, HttpClient, HttpHandler, MatSnackBar, MatDialog, { provide: MatDialog, useClass: MatDialogMock }],
+            providers: [GameService, HttpClient, HttpHandler, MatSnackBar, MatDialog, { provide: MatDialog, useClass: MatDialogMock }],
         });
-        service = TestBed.inject(GamesService);
+        service = TestBed.inject(GameService);
     });
 
     it('should be created', () => {

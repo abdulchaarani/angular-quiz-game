@@ -2,14 +2,14 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Game } from '@app/interfaces/game';
 import { Question } from '@app/interfaces/question';
-import { GamesService } from '@app/services/game/games.service';
+import { GameService } from '@app/services/game/game.service';
 import { MatchService } from '@app/services/match/match.service';
 import { Subscription } from 'rxjs';
 @Component({
     selector: 'app-test-page',
     templateUrl: './test-page.component.html',
     styleUrls: ['./test-page.component.scss'],
-    providers: [GamesService],
+    providers: [GameService],
 })
 export class TestPageComponent implements OnInit, OnDestroy {
     timeLimit: number;

@@ -5,7 +5,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { getMockGame } from '@app/constants/game-mocks';
 import { MatDialogMock } from '@app/constants/mat-dialog-mock';
-import { GamesService } from '@app/services/game/games.service';
+import { GameService } from '@app/services/game/game.service';
 import { MatchService } from '@app/services/match/match.service';
 import { of } from 'rxjs';
 import { TestPageComponent } from './test-page.component';
@@ -22,7 +22,7 @@ describe('TestPageComponent', () => {
         TestBed.configureTestingModule({
             declarations: [TestPageComponent],
             imports: [HttpClientTestingModule],
-            providers: [GamesService, Router, MatchService, MatSnackBar, { provide: MatDialog, useClass: MatDialogMock }],
+            providers: [GameService, Router, MatchService, MatSnackBar, { provide: MatDialog, useClass: MatDialogMock }],
         });
         fixture = TestBed.createComponent(TestPageComponent);
         component = fixture.componentInstance;

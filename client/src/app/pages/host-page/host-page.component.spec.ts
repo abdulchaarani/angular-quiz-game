@@ -7,7 +7,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatDialogMock } from '@app/constants/mat-dialog-mock';
 import { Game } from '@app/interfaces/game';
-import { GamesService } from '@app/services/game/games.service';
+import { GameService } from '@app/services/game/game.service';
 import { MatchService } from '@app/services/match/match.service';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { of, throwError } from 'rxjs';
@@ -17,7 +17,7 @@ import { HostPageComponent } from './host-page.component';
 describe('HostPageComponent', () => {
     let component: HostPageComponent;
     let fixture: ComponentFixture<HostPageComponent>;
-    let gameService: GamesService;
+    let gameService: GameService;
     let notificationService: NotificationService;
     const invisibleGame: Game = { isVisible: false } as Game;
     const fakeGame: Game = {
@@ -55,14 +55,14 @@ describe('HostPageComponent', () => {
             imports: [HttpClientTestingModule, BrowserAnimationsModule, ScrollingModule],
             providers: [
                 MatSnackBar,
-                GamesService,
+                GameService,
                 NotificationService,
                 { provide: MatchService, useValue: matchServiceSpy },
                 { provide: MatDialog, useClass: MatDialogMock },
             ],
         });
         fixture = TestBed.createComponent(HostPageComponent);
-        gameService = TestBed.inject(GamesService);
+        gameService = TestBed.inject(GameService);
         notificationService = TestBed.inject(NotificationService);
         component = fixture.componentInstance;
         fixture.detectChanges();

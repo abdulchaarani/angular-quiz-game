@@ -8,7 +8,7 @@ import { ManagementState } from '@app/constants/states';
 import { CanComponentDeactivate, CanDeactivateType } from '@app/interfaces/can-component-deactivate';
 import { Game } from '@app/interfaces/game';
 import { Question } from '@app/interfaces/question';
-import { GamesService } from '@app/services/game/games.service';
+import { GameService } from '@app/services/game/game.service';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { QuestionService } from '@app/services/question/question.service';
 import { Subject, Subscription, concatMap, iif, lastValueFrom } from 'rxjs';
@@ -53,7 +53,7 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
 
     // eslint-disable-next-line max-params
     constructor(
-        private readonly gamesService: GamesService,
+        private readonly gamesService: GameService,
         private readonly notificationService: NotificationService,
         private readonly questionService: QuestionService,
         private route: ActivatedRoute,

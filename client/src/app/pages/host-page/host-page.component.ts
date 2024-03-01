@@ -1,9 +1,9 @@
 import { HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Game } from '@app/interfaces/game';
-import { GamesService } from '@app/services/games.service';
-import { MatchService } from '@app/services/match.service';
-import { NotificationService } from '@app/services/notification.service';
+import { GamesService } from '@app/services/game/games.service';
+import { MatchService } from '@app/services/match/match.service';
+import { NotificationService } from '@app/services/notification/notification.service';
 
 @Component({
     selector: 'app-host-page',

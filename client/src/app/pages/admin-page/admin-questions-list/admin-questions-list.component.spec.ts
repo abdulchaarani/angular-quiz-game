@@ -6,28 +6,28 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { Subject, of, throwError } from 'rxjs';
 
+import { BankStatus, QuestionStatus } from '@app/constants/feedback-messages';
+import { ManagementState } from '@app/constants/states';
 import { Game } from '@app/interfaces/game';
 import { Question } from '@app/interfaces/question';
 import { SortByLastModificationPipe } from '@app/pipes/sort-by-last-modification.pipe';
-import { GamesService } from '@app/services/games.service';
-import { NotificationService } from '@app/services/notification.service';
-import { QuestionService } from '@app/services/question.service';
+import { GamesService } from '@app/services/game/games.service';
+import { NotificationService } from '@app/services/notification/notification.service';
+import { QuestionService } from '@app/services/question/question.service';
 import { AdminQuestionsListComponent } from './admin-questions-list.component';
-import { BankStatus, QuestionStatus } from '@app/constants/feedback-messages';
-import { ManagementState } from '@app/constants/states';
 
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatSliderModule } from '@angular/material/slider';
-import { ReactiveFormsModule } from '@angular/forms';
-import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { CdkDragDrop, CdkDragEnd, DragDropModule } from '@angular/cdk/drag-drop';
 import { ScrollingModule } from '@angular/cdk/scrolling';
+import { ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { CdkDragDrop, CdkDragEnd, DragDropModule } from '@angular/cdk/drag-drop';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSliderModule } from '@angular/material/slider';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('AdminQuestionsListComponent', () => {

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { TimeService } from '@app/services/time.service';
+import { TimeService } from '@app/services/time/time.service';
 
 const TIMER_DURATION = 5;
 

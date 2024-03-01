@@ -1,12 +1,12 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { ApiService } from './api.service';
 import { Game } from '@app/interfaces/game';
 import { environment } from 'src/environments/environment';
-import { HttpErrorResponse } from '@angular/common/http';
+import { CommunicationService } from './communication.service';
 
-describe('ApiService', () => {
-    let gamesService: ApiService<Game>;
+describe('CommunicationService', () => {
+    let gamesService: CommunicationService<Game>;
     let httpMock: HttpTestingController;
 
     const mockGame: Game = {
@@ -36,13 +36,13 @@ describe('ApiService', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             imports: [HttpClientTestingModule],
-            providers: [ApiService, { provide: 'BASE_URL', useValue: baseUrl }],
+            providers: [CommunicationService, { provide: 'BASE_URL', useValue: baseUrl }],
         });
-        gamesService = TestBed.inject(ApiService);
+        gamesService = TestBed.inject(CommunicationService);
         httpMock = TestBed.inject(HttpTestingController);
     });
 
-    it('A generic version of ApiService should be created', () => {
+    it('A generic version of CommunicationService should be created', () => {
         expect(gamesService).toBeTruthy();
     });
 

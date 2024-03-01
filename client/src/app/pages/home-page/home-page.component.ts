@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { DialogAdminPasswordComponent } from '@app/components/dialog-admin-password/dialog-admin-password.component';
 import { DialogTextInputComponent } from '@app/components/dialog-text-input/dialog-text-input.component';
-import { AuthenticationService } from '@app/services/authentication.service';
+import { AuthenticationService } from '@app/services/authentication/authentication.service';
 
 @Component({
     selector: 'app-home-page',

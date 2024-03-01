@@ -6,7 +6,7 @@ import { environment } from 'src/environments/environment';
 @Injectable({
     providedIn: 'root',
 })
-export class ApiService<T> {
+export class CommunicationService<T> {
     protected serverUrl: string = environment.serverUrl;
 
     protected httpOptions = {

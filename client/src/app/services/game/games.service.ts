@@ -1,14 +1,14 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { ManagementState } from '@app/constants/states';
 import { Game } from '@app/interfaces/game';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { ApiService } from './api.service';
-import { ManagementState } from '@app/constants/states';
+import { CommunicationService } from '../communication/communication.service';
 
 @Injectable({
     providedIn: 'root',
 })
-export class GamesService extends ApiService<Game> {
+export class GamesService extends CommunicationService<Game> {
     isPendingChangesObservable: Observable<boolean>;
     isPendingChangesSource = new BehaviorSubject<boolean>(false);
 

@@ -4,8 +4,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { Choice } from '@app/interfaces/choice';
 import { Question } from '@app/interfaces/question';
-import { MatchService } from '@app/services/match.service';
-import { TimeService } from '@app/services/time.service';
+import { MatchService } from '@app/services/match/match.service';
+import { TimeService } from '@app/services/time/time.service';
 
 @Component({
     selector: 'app-question-area',

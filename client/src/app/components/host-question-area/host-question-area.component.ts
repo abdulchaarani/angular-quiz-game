@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { getMockQuestion } from '@app/constants/question-mocks';
 import { Question } from '@app/interfaces/question';
-import { TimeService } from '@app/services/time.service';
+import { TimeService } from '@app/services/time/time.service';
 
 const DURATION = 10000;
 @Component({

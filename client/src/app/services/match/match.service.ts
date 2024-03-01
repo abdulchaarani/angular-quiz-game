@@ -2,13 +2,13 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Game } from '@app/interfaces/game';
 import { Subject } from 'rxjs';
-import { ApiService } from './api.service';
-import { ChoiceValidationService } from './choice-validation.service';
+import { ChoiceValidationService } from '../choice-validation/choice-validation.service';
+import { CommunicationService } from '../communication/communication.service';
 
 @Injectable({
     providedIn: 'root',
 })
-export class MatchService extends ApiService<Game> {
+export class MatchService extends CommunicationService<Game> {
     questionAdvanced: Subject<void>;
     private currentQuestionId: string;
 

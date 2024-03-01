@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { NotificationService } from '@app/services/notification.service';
+import { NotificationService } from '@app/services/notification/notification.service';
 import { environment } from 'src/environments/environment';
 
 @Injectable({

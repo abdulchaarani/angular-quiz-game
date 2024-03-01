@@ -7,7 +7,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterTestingModule } from '@angular/router/testing';
 import { Choice } from '@app/interfaces/choice';
-import { MatchService } from '@app/services/match.service';
+import { MatchService } from '@app/services/match/match.service';
 import { QuestionAreaComponent } from './question-area.component';
 
 import { getMockQuestion } from '@app/constants/question-mocks';

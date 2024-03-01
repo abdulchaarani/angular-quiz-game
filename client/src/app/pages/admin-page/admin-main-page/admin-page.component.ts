@@ -3,8 +3,8 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogTextInputComponent } from '@app/components/dialog-text-input/dialog-text-input.component';
 import { Game } from '@app/interfaces/game';
-import { GamesService } from '@app/services/games.service';
-import { NotificationService } from '@app/services/notification.service';
+import { GamesService } from '@app/services/game/games.service';
+import { NotificationService } from '@app/services/notification/notification.service';
 
 @Component({
     selector: 'app-admin-page',

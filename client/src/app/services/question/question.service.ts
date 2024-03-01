@@ -1,15 +1,15 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { Question } from '@app/interfaces/question';
-import { ApiService } from './api.service';
-import { ManagementState } from '@app/constants/states';
-import { CreateQuestionComponent, DialogManagement } from '@app/components/create-question/create-question.component';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { CreateQuestionComponent, DialogManagement } from '@app/components/create-question/create-question.component';
+import { ManagementState } from '@app/constants/states';
+import { Question } from '@app/interfaces/question';
+import { Observable } from 'rxjs';
+import { CommunicationService } from '../communication/communication.service';
 @Injectable({
     providedIn: 'root',
 })
-export class QuestionService extends ApiService<Question> {
+export class QuestionService extends CommunicationService<Question> {
     bankMessages = {
         unavailable: "👀 Aucune autre question valide de la banque n'est disponible! 👀",
         available: '🖐 Glissez et déposez une question de la banque dans le jeu! 🖐',

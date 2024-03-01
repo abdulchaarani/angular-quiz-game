@@ -4,9 +4,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { getMockGame } from '@app/constants/game-mocks';
-import { GamesService } from '@app/services/games.service';
-import { MatchService } from '@app/services/match.service';
 import { MatDialogMock } from '@app/constants/mat-dialog-mock';
+import { GamesService } from '@app/services/game/games.service';
+import { MatchService } from '@app/services/match/match.service';
 import { of } from 'rxjs';
 import { TestPageComponent } from './test-page.component';
 

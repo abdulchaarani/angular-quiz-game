@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Game } from '@app/interfaces/game';
-import { DownloadGameService } from '@app/services/download-game.service';
-import { GamesService } from '@app/services/games.service';
+import { DownloadGameService } from '@app/services/download-game/download-game.service';
+import { GamesService } from '@app/services/game/games.service';
 
 @Component({
     selector: 'app-game-list-item',

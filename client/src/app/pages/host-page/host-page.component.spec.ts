@@ -1,17 +1,17 @@
+import { ScrollingModule } from '@angular/cdk/scrolling';
+import { HttpResponse } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed, fakeAsync, flush, tick } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { Game } from '@app/interfaces/game';
-import { GamesService } from '@app/services/games.service';
-import { MatchService } from '@app/services/match.service';
-import { NotificationService } from '@app/services/notification.service';
 import { MatDialogMock } from '@app/constants/mat-dialog-mock';
+import { Game } from '@app/interfaces/game';
+import { GamesService } from '@app/services/game/games.service';
+import { MatchService } from '@app/services/match/match.service';
+import { NotificationService } from '@app/services/notification/notification.service';
 import { of, throwError } from 'rxjs';
-import { ScrollingModule } from '@angular/cdk/scrolling';
 import { HostPageComponent } from './host-page.component';
-import { HttpResponse } from '@angular/common/http';
 // import { HttpResponse } from '@angular/common/http';
 
 describe('HostPageComponent', () => {

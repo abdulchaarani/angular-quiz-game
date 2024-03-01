@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { ApiService } from './api.service';
+import { CommunicationService } from '../communication/communication.service';
 
 interface SelectedChoices {
     selected: string[];
@@ -9,7 +9,7 @@ interface SelectedChoices {
 @Injectable({
     providedIn: 'root',
 })
-export class ChoiceValidationService extends ApiService<SelectedChoices> {
+export class ChoiceValidationService extends CommunicationService<SelectedChoices> {
     constructor(http: HttpClient) {
         super(http, 'match/backups');
     }

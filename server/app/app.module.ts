@@ -12,6 +12,7 @@ import { QuestionService } from '@app/services/question/question.service';
 import { Logger, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { MatchGateway } from './gateways/match/match.gateway';
 import { GameCreationService } from './services/game-creation/game-creation.service';
 
 @Module({
@@ -28,6 +29,6 @@ import { GameCreationService } from './services/game-creation/game-creation.serv
         MongooseModule.forFeature([{ name: Question.name, schema: questionSchema }]),
     ],
     controllers: [QuestionController, GameController, MatchController, AuthenticationController],
-    providers: [Logger, QuestionService, GameService, GameValidationService, MatchService, AuthenticationService, GameCreationService],
+    providers: [Logger, QuestionService, GameService, GameValidationService, MatchService, AuthenticationService, GameCreationService, MatchGateway],
 })
 export class AppModule {}

@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { TimeService } from '@app/services/time/time.service';
 
 const TIMER_DURATION = 5;
@@ -8,7 +9,7 @@ const TIMER_DURATION = 5;
     templateUrl: './wait-page.component.html',
     styleUrls: ['./wait-page.component.scss'],
 })
-export class WaitPageComponent {
+export class WaitPageComponent implements OnInit {
     // TODO: Replace Dummy values using actual services with backend implementation
     isHost: boolean = true;
     code: string = '7777';
@@ -18,9 +19,17 @@ export class WaitPageComponent {
     startTimerButton: boolean = false;
     private readonly multiplicationFactor = 100;
 
-    constructor(public timeService: TimeService) {
+    constructor(
+        public matchRoomService: MatchRoomService,
+        public timeService: TimeService,
+    ) {
         // TODO: Inject services in parameter + initialize values accordingly
     }
+
+    ngOnInit(): void {
+        this.matchRoomService.connect();
+    }
+
     get time() {
         return this.timeService.time;
     }

@@ -37,8 +37,8 @@ export class WaitPageComponent implements OnInit {
         this.matchRoomService.toggleLock();
     }
 
-    rejectPlayerUsername(name: string) {
-        console.log('TODO: rejeter ' + name);
+    banPlayerUsername(username: string) {
+        this.matchRoomService.banUsername(username);
     }
 
     startMatch() {

@@ -25,7 +25,7 @@
         </div>
         <mat-card *ngFor="let name of playerUsernames" class="player-username-card">
             <p>{{ name }}</p>
-            <button mat-icon-button (click)="rejectPlayerUsername(name)" color="warn" *ngIf="isHost"><mat-icon>delete</mat-icon></button>
+            <button mat-icon-button (click)="banPlayerUsername(name)" color="warn" *ngIf="isHost"><mat-icon>delete</mat-icon></button>
         </mat-card>
     </div>
 </div>

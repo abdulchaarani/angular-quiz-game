@@ -16,7 +16,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { MatchEvents } from './match.gateway.events';
 
-interface joinInfo {
+interface userInfo {
     roomCode: string;
     username: string;
 }
@@ -34,7 +34,7 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     ) {}
 
     @SubscribeMessage(MatchEvents.JoinRoom)
-    joinRoom(@ConnectedSocket() socket: Socket, @MessageBody() data: joinInfo) {
+    joinRoom(@ConnectedSocket() socket: Socket, @MessageBody() data: userInfo) {
         if (!this.matchRoomService.isValidMatchRoomCode(data.roomCode) || !this.matchRoomService.isValidUsername(data.roomCode, data.username)) {
             return;
         }
@@ -63,6 +63,7 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
         return { code: newMatchRoom.code };
     }
 
+    // TODO: Consider using HTTP instead ?
     @SubscribeMessage(MatchEvents.ToggleLock)
     toggleLock(@ConnectedSocket() socket: Socket, @MessageBody() matchRoomCode) {
         this.matchRoomService.toggleLockMatchRoom(matchRoomCode);

@@ -1,15 +1,17 @@
+import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { Injectable } from '@nestjs/common';
 import { ConnectedSocket, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { MatchEvents } from './match.gateway.events';
 
 // Future TODO: Open socket only if code and user are valid + Allow host to be able to disconnect banned players
-// TODO: Add interface/DTO for Rooms + Add Message Schema
 @WebSocketGateway({ cors: true })
 @Injectable()
 export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @WebSocketServer() private server: Server;
-    private readonly room = '7777'; // TODO: Define the interface for Match Rooms + Create array
+    private readonly room = '7777'; // TODO
+
+    constructor(private matchRoomService: MatchRoomService) {}
 
     // Could also be with HTTP
     @SubscribeMessage(MatchEvents.ValidateRoomCode)

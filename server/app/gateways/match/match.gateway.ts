@@ -63,6 +63,11 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
         return { code: newMatchRoom.code };
     }
 
+    @SubscribeMessage(MatchEvents.ToggleLock)
+    toggleLock(@ConnectedSocket() socket: Socket, @MessageBody() matchRoomCode) {
+        this.matchRoomService.toggleLockMatchRoom(matchRoomCode);
+    }
+
     @SubscribeMessage(MatchEvents.StartTimer)
     startTimer(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
         const clientRoom = this.matchRoomService.getMatchRoomByCode(roomCode);

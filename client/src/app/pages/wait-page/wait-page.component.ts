@@ -21,16 +21,20 @@ export class WaitPageComponent implements OnInit {
         public timeService: TimeService,
     ) {}
 
-    get isHost() {
-        return this.matchRoomService.getUsername() === 'Organisateur';
-    }
-
     ngOnInit(): void {
         this.matchRoomService.connect();
     }
 
     get time() {
         return this.timeService.time;
+    }
+
+    get isHost() {
+        return this.matchRoomService.getUsername() === 'Organisateur';
+    }
+
+    toggleLock() {
+        this.matchRoomService.toggleLock();
     }
 
     rejectPlayerUsername(name: string) {

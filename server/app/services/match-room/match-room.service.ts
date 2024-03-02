@@ -23,7 +23,7 @@ export class MatchRoomService {
     }
 
     getMatchRoomByCode(code: string): MatchRoom | undefined {
-        return this.matchRooms.find((room) => {
+        return this.matchRooms.find((room: MatchRoom) => {
             return room.code === code;
         });
     }
@@ -106,7 +106,7 @@ export class MatchRoomService {
     }
 
     isValidUsername(matchRoomCode: string, username: string) {
-        const hasHostConflict = username === 'Organisateur';
+        const hasHostConflict = username.toUpperCase() === 'ORGANISATEUR';
         const isBannedUsername = this.isBannedUsername(matchRoomCode, username);
         const isUsedUsername = this.getPlayerByUsername(matchRoomCode, username) ? true : false;
         return !hasHostConflict && !isBannedUsername && !isUsedUsername;

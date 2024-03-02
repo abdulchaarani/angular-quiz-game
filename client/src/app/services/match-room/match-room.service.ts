@@ -60,6 +60,12 @@ export class MatchRoomService {
         });
     }
 
+    toggleLock() {
+        if (this.username === 'Organisateur') {
+            this.socketService.send('toggleLock', this.matchRoomCode);
+        }
+    }
+
     sendToRoom() {
         this.socketService.send('roomMessage', 'OEUF');
     }

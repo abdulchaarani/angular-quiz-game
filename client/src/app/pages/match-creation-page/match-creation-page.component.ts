@@ -59,4 +59,8 @@ export class MatchCreationPageComponent implements OnInit {
             snackBarRef.onAction().subscribe(() => this.reloadAllGames());
         }
     }
+
+    createMatch(): void {
+        this.matchService.createMatch();
+    }
 }

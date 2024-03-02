@@ -4,6 +4,7 @@ import { Game } from '@app/interfaces/game';
 import { Subject } from 'rxjs';
 import { ChoiceValidationService } from '../choice-validation/choice-validation.service';
 import { CommunicationService } from '../communication/communication.service';
+import { MatchRoomService } from '../match-room/match-room.service';
 
 @Injectable({
     providedIn: 'root',
@@ -17,6 +18,7 @@ export class MatchService extends CommunicationService<Game> {
     constructor(
         http: HttpClient,
         private readonly choiceValidationService: ChoiceValidationService,
+        private matchRoomService: MatchRoomService,
     ) {
         super(http, 'match');
     }
@@ -58,6 +60,11 @@ export class MatchService extends CommunicationService<Game> {
 
     deleteBackupGame(id: string) {
         return this.delete(`backups/${id}`);
+    }
+
+    createMatch() {
+        this.matchRoomService.connect();
+        this.matchRoomService.createRoom(JSON.stringify(this.selectedGame));
     }
 
     validateChoices(choices: string[]) {

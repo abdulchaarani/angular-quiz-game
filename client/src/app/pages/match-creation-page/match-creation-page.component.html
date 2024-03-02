@@ -37,7 +37,7 @@
 
         <div id="buttons-container">
             <button mat-raised-button color="primary" routerLink="/play" *ngIf="gameIsValid">Tester jeu</button>
-            <button mat-raised-button color="primary" routerLink="/waiting-room" *ngIf="gameIsValid">Jouer jeu</button>
+            <button mat-raised-button color="primary" (click)="createMatch()" *ngIf="gameIsValid">Jouer jeu</button>
         </div>
     </div>
 </div>

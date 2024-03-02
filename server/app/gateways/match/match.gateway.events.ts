@@ -1,6 +1,5 @@
 export enum MatchEvents {
-    ValidateRoomCode = 'validateRoomCode',
-    ValidateUsername = 'validateUsername',
     JoinRoom = 'joinRoom',
+    CreateRoom = 'createRoom',
     RoomMessage = 'roomMessage',
 }

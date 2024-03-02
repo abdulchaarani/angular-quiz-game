@@ -53,8 +53,6 @@ export class MatchRoomService {
         return !room.isLocked;
     }
 
-    // PLAYER / USERNAME (maybe in separate service?)
-
     getPlayers(matchRoomCode: string): Player[] {
         return this.getMatchRoomByCode(matchRoomCode).players;
     }

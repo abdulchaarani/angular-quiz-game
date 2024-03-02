@@ -27,6 +27,11 @@ export class MatchRoomService {
         });
     }
 
+    createRoom(stringifiedGame: string) {
+        console.log(stringifiedGame);
+        this.socketService.send('createRoom', stringifiedGame);
+    }
+
     joinRoom() {
         this.socketService.send('joinRoom');
     }

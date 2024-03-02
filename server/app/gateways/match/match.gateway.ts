@@ -1,6 +1,8 @@
 import { Game } from '@app/model/database/game';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
+import { MatchService } from '@app/services/match/match.service';
+import { TimeService } from '@app/services/time/time.service';
 import { Injectable } from '@nestjs/common';
 import {
     ConnectedSocket,
@@ -20,7 +22,11 @@ import { MatchEvents } from './match.gateway.events';
 export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @WebSocketServer() private server: Server;
 
-    constructor(private matchRoomService: MatchRoomService) {}
+    constructor(
+        private matchRoomService: MatchRoomService,
+        private timeService: TimeService,
+        private matchService: MatchService,
+    ) {}
 
     @SubscribeMessage(MatchEvents.JoinRoom)
     joinRoom(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
@@ -46,6 +52,13 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
         const newMatchRoom: MatchRoom = this.matchRoomService.addMatchRoom(selectedGame);
         socket.join(newMatchRoom.code);
         return { code: newMatchRoom.code };
+    }
+
+    @SubscribeMessage(MatchEvents.StartTimer)
+    startTimer(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
+        const clientRoom = this.matchRoomService.getMatchRoomByCode(roomCode);
+        const currentGame = this.matchService.getBackupGame(clientRoom.game.id);
+        this.timeService.startTimer(roomCode, currentGame.duration, this.server);
     }
 
     handleConnection(@ConnectedSocket() socket: Socket) {

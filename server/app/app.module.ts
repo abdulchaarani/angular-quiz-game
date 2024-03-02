@@ -16,6 +16,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { BackupController } from './controllers/backup/backup.controller';
 import { MatchRoomService } from './services/match-room/match-room.service';
+import { TimeService } from './services/time/time.service';
 
 @Module({
     imports: [
@@ -41,6 +42,7 @@ import { MatchRoomService } from './services/match-room/match-room.service';
         AuthenticationService,
         GameCreationService,
         MatchRoomService,
+        TimeService,
     ],
 })
 export class AppModule {}

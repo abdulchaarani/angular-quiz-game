@@ -8,11 +8,14 @@ import { NotificationService } from '../notification/notification.service';
     providedIn: 'root',
 })
 export class JoinMatchService {
+    matchRoomCode: string;
     constructor(
         private matchRoomService: MatchRoomService,
         private http: HttpClient,
         private notificationService: NotificationService,
-    ) {}
+    ) {
+        this.matchRoomCode = '';
+    }
 
     // Validation must be with HTTP
     validateMatchRoomCode(matchRoomCode: string) {
@@ -29,11 +32,11 @@ export class JoinMatchService {
         );
     }
 
-    validateUsername(matchRoomCode: string, username: string): void {
+    validateUsername(username: string): void {
         this.http
             .post(
                 `${environment.serverUrl}/match/validate-username`,
-                { matchRoomCode, username },
+                { matchRoomCode: this.matchRoomCode, username },
                 {
                     headers: new HttpHeaders({
                         contentType: 'application/json',
@@ -44,13 +47,18 @@ export class JoinMatchService {
             )
             .subscribe({
                 next: () => {
-                    this.connectPlayer();
-                    this.joinRoom(matchRoomCode);
+                    this.addPlayerToMatchRoom(this.matchRoomCode);
+                    this.matchRoomCode = '';
                 },
                 error: () => {
                     this.notificationService.displayErrorMessage('Le nom ne doit pas être banni, ni être déjà utilisé, ni être "Organisateur".');
                 },
             });
+    }
+
+    addPlayerToMatchRoom(matchRoomCode: string): void {
+        this.connectPlayer();
+        this.joinRoom(matchRoomCode);
     }
 
     connectPlayer() {

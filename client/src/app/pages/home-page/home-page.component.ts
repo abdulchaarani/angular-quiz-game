@@ -51,25 +51,27 @@ export class HomePageComponent {
 
     submitCode(roomCode: string): void {
         this.input = '';
+        this.joinMatchService.matchRoomCode = '';
         this.joinMatchService.validateMatchRoomCode(roomCode).subscribe({
             next: () => {
-                this.openUsernameDialog(roomCode);
+                this.joinMatchService.matchRoomCode = roomCode;
+                this.openUsernameDialog();
             },
             error: () => {
                 this.notificationService.displayErrorMessage('Le code est invalide ou la salle de jeu est verrouillée.');
+                this.joinMatchService.matchRoomCode = '';
             },
         });
     }
 
-    openUsernameDialog(roomCode: string): void {
-        // TODO: Move in a subscribe/next (only if code is valid)
+    openUsernameDialog(): void {
         const dialogRef = this.dialog.open(DialogTextInputComponent, {
             data: { input: this.input, title: "Veillez saisir un nom d'utilisateur", placeholder: 'Nom' },
         });
 
         dialogRef.afterClosed().subscribe((result: string) => {
             if (result) {
-                this.joinMatchService.validateUsername(roomCode, result);
+                this.joinMatchService.validateUsername(result);
             }
         });
     }

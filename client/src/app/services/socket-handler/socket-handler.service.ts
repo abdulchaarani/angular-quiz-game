@@ -13,7 +13,9 @@ export class SocketHandlerService {
     }
 
     connect() {
-        this.socket = io(environment.serverUrl, { transports: ['websocket'], upgrade: false });
+        console.log('Le client tente de se connecter.' + environment.serverUrl);
+        this.socket = io(environment.serverUrlWithoutApi, { transports: ['websocket'], upgrade: false });
+        console.log(this.socket);
     }
 
     disconnect() {

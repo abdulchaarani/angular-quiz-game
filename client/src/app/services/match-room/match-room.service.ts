@@ -12,15 +12,10 @@ export class MatchRoomService {
     }
 
     connect() {
-        // Première chose: On se connecte et on vérifie si une connexion existe.
-        // Si existe: On ne fait rien
-        // Sinon, on se connecte au serveur
         if (!this.socketService.isSocketAlive()) {
             this.socketService.connect();
             this.configureBaseSocketFeatures();
         }
-        this.socketService.connect();
-        this.configureBaseSocketFeatures();
     }
 
     configureBaseSocketFeatures() {

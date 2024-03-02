@@ -39,18 +39,16 @@ export class MatchRoomService {
     }
 
     createRoom(stringifiedGame: string) {
-        console.log(stringifiedGame);
         this.socketService.send('createRoom', stringifiedGame, (res: { code: string }) => {
             this.matchRoomCode = res.code;
             this.router.navigateByUrl('/waiting-room');
         });
     }
 
-    joinRoom(roomCode: string) {
-        this.socketService.send('joinRoom', roomCode, (res: { code: string }) => {
+    joinRoom(roomCode: string, username: string) {
+        this.socketService.send('joinRoom', { roomCode, username }, (res: { code: string }) => {
             this.matchRoomCode = res.code;
             this.router.navigateByUrl('/waiting-room');
-            console.log(this.matchRoomCode);
         });
     }
 

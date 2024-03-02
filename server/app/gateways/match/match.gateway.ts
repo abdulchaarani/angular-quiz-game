@@ -16,6 +16,11 @@ import {
 import { Server, Socket } from 'socket.io';
 import { MatchEvents } from './match.gateway.events';
 
+interface joinInfo {
+    roomCode: string;
+    username: string;
+}
+
 // Future TODO: Open socket only if code and user are valid + Allow host to be able to disconnect banned players
 @WebSocketGateway({ cors: true })
 @Injectable()
@@ -29,11 +34,15 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     ) {}
 
     @SubscribeMessage(MatchEvents.JoinRoom)
-    joinRoom(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
-        if (this.matchRoomService.isValidMatchRoomCode(roomCode)) {
-            socket.join(roomCode);
-            return { code: roomCode };
+    joinRoom(@ConnectedSocket() socket: Socket, @MessageBody() data: joinInfo) {
+        if (!this.matchRoomService.isValidMatchRoomCode(data.roomCode) || !this.matchRoomService.isValidUsername(data.roomCode, data.username)) {
+            return;
         }
+        socket.join(data.roomCode);
+        this.matchRoomService.addPlayer(data.roomCode, data.username);
+
+        console.log(this.matchRoomService.getPlayers(data.roomCode));
+        return { code: data.roomCode };
     }
 
     @SubscribeMessage(MatchEvents.RoomMessage)

@@ -3,4 +3,5 @@ export enum MatchEvents {
     CreateRoom = 'createRoom',
     RoomMessage = 'roomMessage',
     StartTimer = 'startTimer',
+    AddPlayer = 'addPlayer',
 }

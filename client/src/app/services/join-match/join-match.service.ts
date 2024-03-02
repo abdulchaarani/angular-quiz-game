@@ -47,7 +47,7 @@ export class JoinMatchService {
             )
             .subscribe({
                 next: () => {
-                    this.addPlayerToMatchRoom(this.matchRoomCode);
+                    this.addPlayerToMatchRoom(username);
                     this.matchRoomCode = '';
                 },
                 error: () => {
@@ -56,16 +56,8 @@ export class JoinMatchService {
             });
     }
 
-    addPlayerToMatchRoom(matchRoomCode: string): void {
-        this.connectPlayer();
-        this.joinRoom(matchRoomCode);
-    }
-
-    connectPlayer() {
+    addPlayerToMatchRoom(username: string): void {
         this.matchRoomService.connect();
-    }
-
-    joinRoom(roomCode: string) {
-        this.matchRoomService.joinRoom(roomCode);
+        this.matchRoomService.joinRoom(this.matchRoomCode, username);
     }
 }

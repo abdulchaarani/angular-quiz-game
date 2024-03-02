@@ -35,6 +35,7 @@ export class MatchRoomService {
             game: selectedGame,
             bannedUsernames: [],
             players: [],
+            messages: [],
         };
         this.matchRooms.push(newRoom);
         return newRoom;

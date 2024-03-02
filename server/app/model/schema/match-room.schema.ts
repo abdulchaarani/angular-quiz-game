@@ -1,4 +1,5 @@
 import { Game } from '../database/game';
+import { Message } from './message.schema';
 import { Player } from './player.schema';
 
 export interface MatchRoom {
@@ -7,4 +8,5 @@ export interface MatchRoom {
     game: Game;
     bannedUsernames: string[];
     players: Player[];
+    messages: Message[];
 }

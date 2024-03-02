@@ -26,6 +26,7 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     joinRoom(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
         if (this.matchRoomService.isValidMatchRoomCode(roomCode)) {
             socket.join(roomCode);
+            return { code: roomCode };
         }
     }
 

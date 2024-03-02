@@ -46,8 +46,12 @@ export class MatchRoomService {
         });
     }
 
-    joinRoom() {
-        this.socketService.send('joinRoom');
+    joinRoom(roomCode: string) {
+        this.socketService.send('joinRoom', roomCode, (res: { code: string }) => {
+            this.matchRoomCode = res.code;
+            this.router.navigateByUrl('/waiting-room');
+            console.log(this.matchRoomCode);
+        });
     }
 
     sendToRoom() {

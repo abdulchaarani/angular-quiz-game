@@ -12,7 +12,6 @@ const TIMER_DURATION = 5;
 export class WaitPageComponent implements OnInit {
     // TODO: Replace Dummy values using actual services with backend implementation
     isHost: boolean = true;
-    code: string = '7777';
     playerUsernames: string[] = ['Totoro', 'Kiki', 'Jiji', 'A', 'B', 'C', 'D', 'E', 'F', 'G'];
     isLocked: boolean;
     currentUsername: string = 'Organisateur';

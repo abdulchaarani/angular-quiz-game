@@ -1,11 +1,22 @@
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { SocketHandlerService } from '../socket-handler/socket-handler.service';
 
 @Injectable({
     providedIn: 'root',
 })
 export class MatchRoomService {
-    constructor(public socketService: SocketHandlerService) {}
+    private matchRoomCode: string;
+    constructor(
+        public socketService: SocketHandlerService,
+        private router: Router,
+    ) {
+        this.matchRoomCode = '';
+    }
+
+    getMatchRoomCode() {
+        return this.matchRoomCode;
+    }
 
     get socketId() {
         return this.socketService.socket.id ? this.socketService.socket.id : '';
@@ -29,7 +40,10 @@ export class MatchRoomService {
 
     createRoom(stringifiedGame: string) {
         console.log(stringifiedGame);
-        this.socketService.send('createRoom', stringifiedGame);
+        this.socketService.send('createRoom', stringifiedGame, (res: { code: string }) => {
+            this.matchRoomCode = res.code;
+            this.router.navigateByUrl('/waiting-room');
+        });
     }
 
     joinRoom() {

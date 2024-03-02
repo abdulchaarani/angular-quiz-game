@@ -16,6 +16,9 @@ export class MatchRoomService {
         while (!generatedCode || this.getMatchRoomByCode(generatedCode)) {
             generatedCode = Math.floor(Math.random() * 9000).toString();
         }
+        while (generatedCode.length < 4) {
+            generatedCode = '0' + generatedCode;
+        }
         return generatedCode;
     }
 

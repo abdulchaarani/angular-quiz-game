@@ -39,10 +39,10 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
             return;
         }
         socket.join(data.roomCode);
-        this.matchRoomService.addPlayer(data.roomCode, data.username);
+        const newPlayer = this.matchRoomService.addPlayer(data.roomCode, data.username);
 
         console.log(this.matchRoomService.getPlayers(data.roomCode));
-        return { code: data.roomCode };
+        return { code: data.roomCode, username: newPlayer.username };
     }
 
     @SubscribeMessage(MatchEvents.RoomMessage)

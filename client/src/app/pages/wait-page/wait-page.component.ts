@@ -11,18 +11,18 @@ const TIMER_DURATION = 5;
 })
 export class WaitPageComponent implements OnInit {
     // TODO: Replace Dummy values using actual services with backend implementation
-    isHost: boolean = true;
     playerUsernames: string[] = ['Totoro', 'Kiki', 'Jiji', 'A', 'B', 'C', 'D', 'E', 'F', 'G'];
     isLocked: boolean;
-    currentUsername: string = 'Organisateur';
     startTimerButton: boolean = false;
     private readonly multiplicationFactor = 100;
 
     constructor(
         public matchRoomService: MatchRoomService,
         public timeService: TimeService,
-    ) {
-        // TODO: Inject services in parameter + initialize values accordingly
+    ) {}
+
+    get isHost() {
+        return this.matchRoomService.getUsername() === 'Organisateur';
     }
 
     ngOnInit(): void {

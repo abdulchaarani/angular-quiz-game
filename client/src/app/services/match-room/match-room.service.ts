@@ -7,15 +7,21 @@ import { SocketHandlerService } from '../socket-handler/socket-handler.service';
 })
 export class MatchRoomService {
     private matchRoomCode: string;
+    private username: string;
     constructor(
         public socketService: SocketHandlerService,
         private router: Router,
     ) {
         this.matchRoomCode = '';
+        this.username = '';
     }
 
     getMatchRoomCode() {
         return this.matchRoomCode;
+    }
+
+    getUsername() {
+        return this.username;
     }
 
     get socketId() {
@@ -41,13 +47,15 @@ export class MatchRoomService {
     createRoom(stringifiedGame: string) {
         this.socketService.send('createRoom', stringifiedGame, (res: { code: string }) => {
             this.matchRoomCode = res.code;
+            this.username = 'Organisateur';
             this.router.navigateByUrl('/waiting-room');
         });
     }
 
     joinRoom(roomCode: string, username: string) {
-        this.socketService.send('joinRoom', { roomCode, username }, (res: { code: string }) => {
+        this.socketService.send('joinRoom', { roomCode, username }, (res: { code: string; username: string }) => {
             this.matchRoomCode = res.code;
+            this.username = username;
             this.router.navigateByUrl('/waiting-room');
         });
     }

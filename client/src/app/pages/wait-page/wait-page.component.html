@@ -21,7 +21,9 @@
             <mat-slide-toggle [(ngModel)]="isLocked" (click)="toggleLock()">{{
                 isLocked ? 'Partie verrouillée' : 'Partie déverouillée'
             }}</mat-slide-toggle>
-            <button mat-raised-button color="primary" (click)="startMatch()">Commencer la partie</button>
+            <button mat-raised-button color="primary" (click)="startMatch()" [disabled]="!isLocked || this.matchRoomService.players.length === 0">
+                Commencer la partie
+            </button>
         </div>
         <mat-card *ngFor="let player of this.matchRoomService.players" class="player-username-card">
             <p>{{ player.username }}</p>

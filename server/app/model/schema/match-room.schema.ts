@@ -1,5 +1,5 @@
+import { Game } from '@app/model/database/game';
 import { Socket } from 'socket.io';
-import { Game } from '../database/game';
 import { Message } from './message.schema';
 import { Player } from './player.schema';
 

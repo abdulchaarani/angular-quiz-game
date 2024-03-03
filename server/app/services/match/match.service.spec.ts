@@ -117,7 +117,7 @@ describe('MatchService', () => {
         const spyRemoveIsCorrectField = jest.spyOn(service, 'removeIsCorrectField').mockReturnValue(mockGame);
         const uuidSpy = jest.spyOn(uuid, 'v4').mockReturnValue('mockedValue');
         service.backupGames = [new Game()];
-        const game = await service.saveBackupGame('0');
+        await service.saveBackupGame('0');
         expect(uuidSpy).toHaveBeenCalled();
         expect(spyGetGameById).toHaveBeenCalled();
         expect(spyRemoveIsCorrectField).toHaveBeenCalled();

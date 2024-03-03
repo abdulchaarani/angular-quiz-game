@@ -16,7 +16,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { MatchEvents } from './match.gateway.events';
 
-interface userInfo {
+interface UserInfo {
     roomCode: string;
     username: string;
 }
@@ -34,7 +34,7 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     ) {}
 
     @SubscribeMessage(MatchEvents.JoinRoom)
-    joinRoom(@ConnectedSocket() socket: Socket, @MessageBody() data: userInfo) {
+    joinRoom(@ConnectedSocket() socket: Socket, @MessageBody() data: UserInfo) {
         if (!this.matchRoomService.isValidMatchRoomCode(data.roomCode) || !this.matchRoomService.isValidUsername(data.roomCode, data.username)) {
             this.server.in(socket.id).disconnectSockets();
         } else {
@@ -59,11 +59,10 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     @SubscribeMessage(MatchEvents.BanUsername)
-    banUsername(@ConnectedSocket() socket: Socket, @MessageBody() data: userInfo) {
+    banUsername(@ConnectedSocket() socket: Socket, @MessageBody() data: UserInfo) {
         this.matchRoomService.addBannedUsername(data.roomCode, data.username);
         const playerToBan = this.matchRoomService.getPlayerByUsername(data.roomCode, data.username);
         if (playerToBan) {
-            console.log(data.username);
             this.matchRoomService.deletePlayer(data.roomCode, data.username);
             this.server.in(playerToBan.socket.id).disconnectSockets();
         }
@@ -85,11 +84,13 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     handleConnection(@ConnectedSocket() socket: Socket) {
-        console.log(`Connexion par l'utilisateur avec id : ${socket.id}`);
+        // eslint-disable-next-line
+        console.log(`Connexion par l'utilisateur avec id : ${socket.id}`); // TODO: Remove once debugging is finished
     }
 
     handleDisconnect(@ConnectedSocket() socket: Socket) {
-        console.log(`Déconnexion par l'utilisateur avec id : ${socket.id}`);
+        // eslint-disable-next-line
+        console.log(`Déconnexion par l'utilisateur avec id : ${socket.id}`); // TODO: Remove once debugging is finished
         const matchRoomCode = this.matchRoomService.getRoomCodeByHostSocket(socket.id);
         if (matchRoomCode) {
             this.server.in(matchRoomCode).disconnectSockets();

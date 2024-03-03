@@ -4,6 +4,10 @@ import { Player } from '@app/model/schema/player.schema';
 import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
 
+const FACTOR = 9000;
+const MAXIMUM_CODE_LENGTH = 4;
+const INDEX_NOT_FOUND = -1;
+
 @Injectable()
 export class MatchRoomService {
     matchRooms: MatchRoom[];
@@ -15,9 +19,9 @@ export class MatchRoomService {
     generateRoomCode(): string {
         let generatedCode: string;
         while (!generatedCode || this.getMatchRoomByCode(generatedCode)) {
-            generatedCode = Math.floor(Math.random() * 9000).toString();
+            generatedCode = Math.floor(Math.random() * FACTOR).toString();
         }
-        while (generatedCode.length < 4) {
+        while (generatedCode.length < MAXIMUM_CODE_LENGTH) {
             generatedCode = '0' + generatedCode;
         }
         return generatedCode;
@@ -156,7 +160,7 @@ export class MatchRoomService {
         const usernameIndex = bannedUsernames.findIndex((name: string) => {
             return name.toUpperCase() === username.toUpperCase();
         });
-        return usernameIndex === -1 ? false : true;
+        return usernameIndex === INDEX_NOT_FOUND ? false : true;
     }
 
     isValidUsername(matchRoomCode: string, username: string) {

@@ -63,8 +63,9 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
         this.matchRoomService.addBannedUsername(data.roomCode, data.username);
         const playerToBan = this.matchRoomService.getPlayerByUsername(data.roomCode, data.username);
         if (playerToBan) {
+            console.log(data.username);
             this.matchRoomService.deletePlayer(data.roomCode, data.username);
-            this.server.to(playerToBan.socket.id).disconnectSockets();
+            this.server.in(playerToBan.socket.id).disconnectSockets();
         }
         this.sendPlayersData(socket, data.roomCode);
     }

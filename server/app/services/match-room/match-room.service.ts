@@ -94,7 +94,7 @@ export class MatchRoomService {
 
     deletePlayer(matchRoomCode: string, username: string): void {
         this.getMatchRoomByCode(matchRoomCode).players = this.getMatchRoomByCode(matchRoomCode).players.filter((player) => {
-            player.username.toUpperCase() === username.toUpperCase();
+            return player.username.toUpperCase() !== username.toUpperCase();
         });
     }
 

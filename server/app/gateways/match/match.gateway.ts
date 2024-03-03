@@ -106,4 +106,6 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private handleSendPlayersData(matchRoomCode: string) {
         this.server.to(matchRoomCode).emit('fetchPlayersData', this.matchRoomService.getPlayersStringified(matchRoomCode));
     }
+
+    // TODO: Start match: Do not forget to make isPlaying = true in MatchRoom object!!
 }

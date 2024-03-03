@@ -8,7 +8,6 @@ interface userInfo {
     roomCode: string;
     username: string;
 }
-
 @Injectable({
     providedIn: 'root',
 })
@@ -41,7 +40,6 @@ export class MatchRoomService {
     connect() {
         if (!this.socketService.isSocketAlive()) {
             this.socketService.connect();
-            // Add "on" functions here
             this.redirectAfterDisconnection();
             this.fetchPlayersData();
         }

@@ -40,7 +40,7 @@ export class WaitPageComponent implements OnInit {
     }
 
     startMatch() {
-        // TODO: Check if isLocked + if at least one player
+        // TODO: Check if isLocked + if at least one player (send event to server)
         this.startTimerButton = true;
         this.startTimer();
     }

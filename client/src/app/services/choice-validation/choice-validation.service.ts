@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { CommunicationService } from '../communication/communication.service';
+import { CommunicationService } from '@app/services/communication/communication.service';
 
 interface SelectedChoices {
     selected: string[];

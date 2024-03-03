@@ -1,8 +1,8 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { MatchRoomService } from '@app/services/match-room/match-room.service';
+import { NotificationService } from '@app/services/notification/notification.service';
 import { environment } from 'src/environments/environment';
-import { MatchRoomService } from '../match-room/match-room.service';
-import { NotificationService } from '../notification/notification.service';
 
 @Injectable({
     providedIn: 'root',

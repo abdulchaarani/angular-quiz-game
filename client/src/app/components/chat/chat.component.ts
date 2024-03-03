@@ -8,7 +8,6 @@ import { MatchRoomService } from '@app/services/match-room/match-room.service';
     styleUrls: ['./chat.component.scss'],
 })
 export class ChatComponent {
-    constructor(public readonly matchRoomService: MatchRoomService) {}
     messages: Message[] = [
         { author: 'Binou', text: 'TOUPIIIIIE', date: new Date() },
         {
@@ -38,4 +37,5 @@ export class ChatComponent {
         },
         { author: 'Kaneshiro', text: 'MY BAAAAANK', date: new Date() },
     ];
+    constructor(readonly matchRoomService: MatchRoomService) {}
 }

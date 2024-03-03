@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Player } from '@app/interfaces/player';
-import { NotificationService } from '../notification/notification.service';
-import { SocketHandlerService } from '../socket-handler/socket-handler.service';
+import { NotificationService } from '@app/services/notification/notification.service';
+import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 
-interface userInfo {
+interface UserInfo {
     roomCode: string;
     username: string;
 }
@@ -12,9 +12,10 @@ interface userInfo {
     providedIn: 'root',
 })
 export class MatchRoomService {
-    private matchRoomCode: string;
-    private username: string;
     players: Player[];
+    get socketId() {
+        return this.socketService.socket.id ? this.socketService.socket.id : '';
+    }
     constructor(
         public socketService: SocketHandlerService,
         private router: Router,
@@ -24,6 +25,8 @@ export class MatchRoomService {
         this.username = '';
         this.players = [];
     }
+    private matchRoomCode: string;
+    private username: string;
 
     getMatchRoomCode() {
         return this.matchRoomCode;
@@ -31,10 +34,6 @@ export class MatchRoomService {
 
     getUsername() {
         return this.username;
-    }
-
-    get socketId() {
-        return this.socketService.socket.id ? this.socketService.socket.id : '';
     }
 
     connect() {
@@ -50,27 +49,6 @@ export class MatchRoomService {
         this.resetMatchValues();
     }
 
-    private fetchPlayersData() {
-        this.socketService.on('fetchPlayersData', (res: string) => {
-            this.players = JSON.parse(res);
-            console.log(this.players);
-        });
-    }
-
-    private redirectAfterDisconnection() {
-        this.socketService.on('disconnect', () => {
-            this.router.navigateByUrl('/home');
-            this.resetMatchValues();
-            this.notificationService.displayErrorMessage('Vous avez été déconnecté de la partie.');
-        });
-    }
-
-    private resetMatchValues() {
-        this.matchRoomCode = '';
-        this.username = '';
-        this.players = [];
-    }
-
     createRoom(stringifiedGame: string) {
         this.socketService.send('createRoom', stringifiedGame, (res: { code: string }) => {
             this.matchRoomCode = res.code;
@@ -80,7 +58,7 @@ export class MatchRoomService {
     }
 
     joinRoom(roomCode: string, username: string) {
-        const sentInfo: userInfo = { roomCode: roomCode, username };
+        const sentInfo: UserInfo = { roomCode, username };
         this.socketService.send('joinRoom', sentInfo, (res: { code: string; username: string }) => {
             this.matchRoomCode = res.code;
             this.username = res.username;
@@ -98,8 +76,28 @@ export class MatchRoomService {
 
     banUsername(username: string) {
         if (this.username === 'Organisateur') {
-            const sentInfo: userInfo = { roomCode: this.matchRoomCode, username };
+            const sentInfo: UserInfo = { roomCode: this.matchRoomCode, username };
             this.socketService.send('banUsername', sentInfo);
         }
+    }
+
+    private fetchPlayersData() {
+        this.socketService.on('fetchPlayersData', (res: string) => {
+            this.players = JSON.parse(res);
+        });
+    }
+
+    private redirectAfterDisconnection() {
+        this.socketService.on('disconnect', () => {
+            this.router.navigateByUrl('/home');
+            this.resetMatchValues();
+            this.notificationService.displayErrorMessage('Vous avez été déconnecté de la partie.');
+        });
+    }
+
+    private resetMatchValues() {
+        this.matchRoomCode = '';
+        this.username = '';
+        this.players = [];
     }
 }

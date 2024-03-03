@@ -1,10 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Game } from '@app/interfaces/game';
+import { ChoiceValidationService } from '@app/services/choice-validation/choice-validation.service';
+import { CommunicationService } from '@app/services/communication/communication.service';
+import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { Subject } from 'rxjs';
-import { ChoiceValidationService } from '../choice-validation/choice-validation.service';
-import { CommunicationService } from '../communication/communication.service';
-import { MatchRoomService } from '../match-room/match-room.service';
 
 @Injectable({
     providedIn: 'root',

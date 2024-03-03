@@ -2,8 +2,8 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ManagementState } from '@app/constants/states';
 import { Game } from '@app/interfaces/game';
+import { CommunicationService } from '@app/services/communication/communication.service';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { CommunicationService } from '../communication/communication.service';
 
 @Injectable({
     providedIn: 'root',

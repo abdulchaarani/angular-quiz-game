@@ -1,32 +1,29 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { TimeService } from '@app/services/time/time.service';
 
 const TIMER_DURATION = 5;
+const MULTIPLICATION_FACTOR = 100;
 
 @Component({
     selector: 'app-wait-page',
     templateUrl: './wait-page.component.html',
     styleUrls: ['./wait-page.component.scss'],
 })
-export class WaitPageComponent implements OnInit {
+export class WaitPageComponent {
     // TODO: Replace Dummy values using actual services with backend implementation
-
     isLocked: boolean;
-    startTimerButton: boolean = false;
-    private readonly multiplicationFactor = 100;
-
+    startTimerButton: boolean;
     constructor(
         public matchRoomService: MatchRoomService,
         public timeService: TimeService,
-    ) {}
-
-    ngOnInit(): void {}
-
+    ) {
+        this.isLocked = false;
+        this.startTimerButton = false;
+    }
     get time() {
         return this.timeService.time;
     }
-
     get isHost() {
         return this.matchRoomService.getUsername() === 'Organisateur';
     }
@@ -56,6 +53,6 @@ export class WaitPageComponent implements OnInit {
     }
 
     computeTimerProgress(): number {
-        return (this.timeService.time / TIMER_DURATION) * this.multiplicationFactor;
+        return (this.timeService.time / TIMER_DURATION) * MULTIPLICATION_FACTOR;
     }
 }

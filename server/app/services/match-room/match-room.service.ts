@@ -34,6 +34,7 @@ export class MatchRoomService {
             code: this.generateRoomCode(),
             hostSocket: socket,
             isLocked: false,
+            isPlaying: false,
             game: selectedGame,
             bannedUsernames: [],
             players: [],
@@ -97,23 +98,31 @@ export class MatchRoomService {
 
     deletePlayerBySocket(socketId: string): string {
         let foundPlayer: Player;
-        let foundMatchRoomCode: string;
+        let foundMatchRoom: MatchRoom;
         this.matchRooms.forEach((matchRoom: MatchRoom) => {
             foundPlayer = matchRoom.players.find((currentPlayer: Player) => {
                 return currentPlayer.socket.id === socketId;
             });
-            foundMatchRoomCode = foundPlayer ? matchRoom.code : undefined;
+            foundMatchRoom = foundPlayer ? matchRoom : undefined;
         });
-        if (foundPlayer && foundMatchRoomCode) {
-            this.deletePlayer(foundMatchRoomCode, foundPlayer.username);
+        if (foundPlayer && foundMatchRoom && !foundMatchRoom.isPlaying) {
+            this.deletePlayer(foundMatchRoom.code, foundPlayer.username);
+        } else if (foundPlayer && foundMatchRoom && foundMatchRoom.isPlaying) {
+            this.makePlayerInactive(foundMatchRoom.code, foundPlayer.username);
         }
-        return foundMatchRoomCode;
+        return foundMatchRoom.code;
     }
 
     getPlayerByUsername(matchRoomCode: string, username: string): Player | undefined {
         return this.getPlayers(matchRoomCode).find((player: Player) => {
             return player.username.toUpperCase() === username.toUpperCase();
         });
+    }
+
+    makePlayerInactive(matchRoomCode: string, username: string): void {
+        this.getMatchRoomByCode(matchRoomCode).players.find((player: Player) => {
+            return player.username === username;
+        }).isPlaying = false;
     }
 
     deletePlayer(matchRoomCode: string, username: string): void {

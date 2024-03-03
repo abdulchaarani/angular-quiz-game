@@ -5,6 +5,7 @@ import { Player } from './player';
 export interface MatchRoom {
     code: string;
     isLocked: boolean;
+    isPlaying: boolean;
     game: Game;
     bannedUsernames: string[];
     players: Player[];

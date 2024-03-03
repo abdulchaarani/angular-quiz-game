@@ -4,7 +4,7 @@
 <app-chat></app-chat>
 
 <div id="main-container">
-    <button mat-raised-button id="exit-button" routerLink="/home">Quitter</button>
+    <button mat-raised-button id="exit-button" routerLink="/home" (click)="this.matchRoomService.disconnect()">Quitter</button>
     <div id="game-starting" *ngIf="startTimerButton">
         <h1>La partie commence dans..</h1>
         <div id="timer">

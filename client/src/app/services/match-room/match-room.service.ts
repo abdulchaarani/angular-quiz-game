@@ -46,6 +46,10 @@ export class MatchRoomService {
         }
     }
 
+    disconnect() {
+        this.socketService.disconnect();
+    }
+
     private fetchPlayersData() {
         this.socketService.on('fetchPlayersData', (res: string) => {
             this.players = JSON.parse(res);

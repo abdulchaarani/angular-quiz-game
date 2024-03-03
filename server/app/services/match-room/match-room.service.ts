@@ -29,9 +29,10 @@ export class MatchRoomService {
         });
     }
 
-    addMatchRoom(selectedGame: Game): MatchRoom {
+    addMatchRoom(selectedGame: Game, socket: Socket): MatchRoom {
         const newRoom: MatchRoom = {
             code: this.generateRoomCode(),
+            hostSocket: socket,
             isLocked: false,
             game: selectedGame,
             bannedUsernames: [],
@@ -40,6 +41,14 @@ export class MatchRoomService {
         };
         this.matchRooms.push(newRoom);
         return newRoom;
+    }
+
+    getHostSocketById(socketId: string): Socket {
+        let hostSocket: Socket;
+        this.matchRooms.forEach((matchRoom: MatchRoom) => {
+            hostSocket = matchRoom.hostSocket.id === socketId ? matchRoom.hostSocket : undefined;
+        });
+        return hostSocket;
     }
 
     toggleLockMatchRoom(matchRoomCode: string): void {
@@ -84,6 +93,21 @@ export class MatchRoomService {
         };
         this.getMatchRoomByCode(matchRoomCode).players.push(newPlayer);
         return newPlayer;
+    }
+
+    deletePlayerBySocket(socketId: string): string {
+        let foundPlayer: Player;
+        let foundMatchRoomCode: string;
+        this.matchRooms.forEach((matchRoom: MatchRoom) => {
+            foundPlayer = matchRoom.players.find((currentPlayer: Player) => {
+                return currentPlayer.socket.id === socketId;
+            });
+            foundMatchRoomCode = foundPlayer ? matchRoom.code : undefined;
+        });
+        if (foundPlayer && foundMatchRoomCode) {
+            this.deletePlayer(foundMatchRoomCode, foundPlayer.username);
+        }
+        return foundMatchRoomCode;
     }
 
     getPlayerByUsername(matchRoomCode: string, username: string): Player | undefined {

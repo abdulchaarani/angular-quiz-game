@@ -47,7 +47,7 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @SubscribeMessage(MatchEvents.CreateRoom)
     createRoom(@ConnectedSocket() socket: Socket, @MessageBody() stringifiedGame: string) {
         const selectedGame: Game = JSON.parse(stringifiedGame);
-        const newMatchRoom: MatchRoom = this.matchRoomService.addMatchRoom(selectedGame);
+        const newMatchRoom: MatchRoom = this.matchRoomService.addMatchRoom(selectedGame, socket);
         socket.join(newMatchRoom.code);
         return { code: newMatchRoom.code };
     }
@@ -73,7 +73,7 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @SubscribeMessage(MatchEvents.SendPlayersData)
     sendPlayersData(@ConnectedSocket() socket: Socket, @MessageBody() matchRoomCode: string) {
         if (socket.rooms.has(matchRoomCode)) {
-            this.server.to(matchRoomCode).emit('fetchPlayersData', this.matchRoomService.getPlayersStringified(matchRoomCode));
+            this.handleSendPlayersData(matchRoomCode);
         }
     }
 
@@ -90,5 +90,25 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     handleDisconnect(@ConnectedSocket() socket: Socket) {
         console.log(`Déconnexion par l'utilisateur avec id : ${socket.id}`);
+        // TODO: Move some of the logic in separate service (to a certain extent)
+        const hostSocket = this.matchRoomService.getHostSocketById(socket.id);
+        if (hostSocket) {
+            const matchRoomsCodes = Array.from(socket.rooms).filter((roomId: string) => {
+                return roomId !== hostSocket.id;
+            });
+            this.server.in(matchRoomsCodes).disconnectSockets();
+            matchRoomsCodes.forEach((matchRoomCode: string) => {
+                this.matchRoomService.deleteMatchRoom(matchRoomCode);
+            });
+            return;
+        }
+        const roomCode = this.matchRoomService.deletePlayerBySocket(socket.id);
+        if (roomCode) {
+            this.handleSendPlayersData(roomCode);
+        }
+    }
+
+    private handleSendPlayersData(matchRoomCode: string) {
+        this.server.to(matchRoomCode).emit('fetchPlayersData', this.matchRoomService.getPlayersStringified(matchRoomCode));
     }
 }

@@ -21,9 +21,7 @@ export class WaitPageComponent implements OnInit {
         public timeService: TimeService,
     ) {}
 
-    ngOnInit(): void {
-        this.matchRoomService.connect();
-    }
+    ngOnInit(): void {}
 
     get time() {
         return this.timeService.time;

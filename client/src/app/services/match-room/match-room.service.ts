@@ -2,12 +2,10 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { SocketHandlerService } from '../socket-handler/socket-handler.service';
 
-/*
 interface userInfo {
     roomCode: string;
     username: string;
 }
-*/
 
 @Injectable({
     providedIn: 'root',
@@ -38,32 +36,29 @@ export class MatchRoomService {
     connect() {
         if (!this.socketService.isSocketAlive()) {
             this.socketService.connect();
-            this.configureBaseSocketFeatures();
-        }
-    }
+            // Add "on" functions here
 
-    configureBaseSocketFeatures() {
-        this.socketService.on('connect', () => {
-            console.log(`Connexion par WebSocket sur le socket ${this.socketId}`);
-            this.socketService.on('Hello', (message: string) => {
-                console.log(message);
+            this.socketService.on('disconnect', () => {
+                console.log("IT'S KICKOUT TIME");
+                this.router.navigateByUrl('/home');
             });
-        });
+        }
     }
 
     createRoom(stringifiedGame: string) {
         this.socketService.send('createRoom', stringifiedGame, (res: { code: string }) => {
             this.matchRoomCode = res.code;
             this.username = 'Organisateur';
-            this.router.navigateByUrl('/waiting-room');
+            this.router.navigateByUrl('/match-room');
         });
     }
 
     joinRoom(roomCode: string, username: string) {
-        this.socketService.send('joinRoom', { roomCode, username }, (res: { code: string; username: string }) => {
+        const sentInfo: userInfo = { roomCode: roomCode, username };
+        this.router.navigateByUrl('/match-room');
+        this.socketService.send('joinRoom', sentInfo, (res: { code: string; username: string }) => {
             this.matchRoomCode = res.code;
             this.username = username;
-            this.router.navigateByUrl('/waiting-room');
         });
     }
 
@@ -75,7 +70,10 @@ export class MatchRoomService {
     }
 
     banUsername(username: string) {
-        this.socketService.send('banUsername', { roomCode: this.matchRoomCode, username });
+        if (this.username === 'Organisateur') {
+            const sentInfo: userInfo = { roomCode: this.matchRoomCode, username };
+            this.socketService.send('banUsername', sentInfo);
+        }
     }
 
     sendToRoom() {

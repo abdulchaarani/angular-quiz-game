@@ -5,4 +5,5 @@ export enum MatchEvents {
     StartTimer = 'startTimer',
     AddPlayer = 'addPlayer',
     ToggleLock = 'toggleLock',
+    BanUsername = 'banUsername',
 }

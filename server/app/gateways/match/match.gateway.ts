@@ -39,9 +39,7 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
             return;
         }
         socket.join(data.roomCode);
-        const newPlayer = this.matchRoomService.addPlayer(data.roomCode, data.username);
-
-        console.log(this.matchRoomService.getPlayers(data.roomCode));
+        const newPlayer = this.matchRoomService.addPlayer(socket, data.roomCode, data.username);
         return { code: data.roomCode, username: newPlayer.username };
     }
 
@@ -65,8 +63,21 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     // TODO: Consider using HTTP instead ?
     @SubscribeMessage(MatchEvents.ToggleLock)
-    toggleLock(@ConnectedSocket() socket: Socket, @MessageBody() matchRoomCode) {
+    toggleLock(@ConnectedSocket() socket: Socket, @MessageBody() matchRoomCode: string) {
         this.matchRoomService.toggleLockMatchRoom(matchRoomCode);
+    }
+
+    @SubscribeMessage(MatchEvents.BanUsername)
+    banUsername(@ConnectedSocket() socket: Socket, @MessageBody() data: userInfo) {
+        this.matchRoomService.addBannedUsername(data.roomCode, data.username);
+        console.log(this.matchRoomService.getBannedUsernames(data.roomCode));
+        const playerToBan = this.matchRoomService.getPlayerByUsername(data.roomCode, data.username);
+        if (playerToBan) {
+            console.log(playerToBan);
+            this.matchRoomService.deletePlayer(data.roomCode, data.username);
+            this.server.to(playerToBan.socket.id).disconnectSockets();
+            console.log('disconnect time' + playerToBan.socket.id);
+        }
     }
 
     @SubscribeMessage(MatchEvents.StartTimer)

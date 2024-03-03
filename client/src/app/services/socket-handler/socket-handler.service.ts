@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { Socket, io } from 'socket.io-client';
 import { environment } from 'src/environments/environment';
 
@@ -7,6 +8,8 @@ import { environment } from 'src/environments/environment';
 })
 export class SocketHandlerService {
     socket: Socket;
+
+    constructor(private router: Router) {}
 
     isSocketAlive() {
         return this.socket && this.socket.connected;
@@ -18,6 +21,7 @@ export class SocketHandlerService {
 
     disconnect() {
         this.socket.disconnect();
+        this.router.navigateByUrl('/home');
     }
 
     on<T>(event: string, action: (data: T) => void): void {

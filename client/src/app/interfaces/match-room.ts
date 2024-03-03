@@ -10,3 +10,5 @@ export interface MatchRoom {
     players: Player[];
     messages: Message[];
 }
+
+// TODO: Add interface for results

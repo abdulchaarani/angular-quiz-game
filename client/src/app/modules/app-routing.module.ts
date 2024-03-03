@@ -40,7 +40,7 @@ const routes: Routes = [
     },
     { path: 'host', component: MatchCreationPageComponent },
     { path: 'player', component: PlayerPageComponent },
-    { path: 'waiting-room', component: WaitPageComponent },
+    { path: 'match-room', component: WaitPageComponent },
     { path: 'results', component: ResultsPageComponent },
     { path: 'hostpc', component: HostQuestionAreaComponent },
 ];

@@ -2,6 +2,7 @@ import { Game } from '@app/model/database/game';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Player } from '@app/model/schema/player.schema';
 import { Injectable } from '@nestjs/common';
+import { Socket } from 'socket.io';
 
 @Injectable()
 export class MatchRoomService {
@@ -61,7 +62,7 @@ export class MatchRoomService {
         return this.getMatchRoomByCode(matchRoomCode).players;
     }
 
-    addPlayer(matchRoomCode: string, newUsername: string): Player | undefined {
+    addPlayer(playerSocket: Socket, matchRoomCode: string, newUsername: string): Player | undefined {
         if (!this.isValidUsername(matchRoomCode, newUsername)) {
             return undefined;
         }
@@ -70,6 +71,7 @@ export class MatchRoomService {
             score: 0,
             bonusCount: 0,
             isPlaying: true,
+            socket: playerSocket,
         };
         this.getMatchRoomByCode(matchRoomCode).players.push(newPlayer);
         return newPlayer;

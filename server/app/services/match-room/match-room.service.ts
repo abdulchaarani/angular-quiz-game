@@ -43,12 +43,12 @@ export class MatchRoomService {
         return newRoom;
     }
 
-    getHostSocketById(socketId: string): Socket {
-        let hostSocket: Socket;
+    getRoomCodeByHostSocket(socketId: string): string {
+        let matchRoomCode: string;
         this.matchRooms.forEach((matchRoom: MatchRoom) => {
-            hostSocket = matchRoom.hostSocket.id === socketId ? matchRoom.hostSocket : undefined;
+            matchRoomCode = matchRoom.hostSocket.id === socketId ? matchRoom.code : undefined;
         });
-        return hostSocket;
+        return matchRoomCode;
     }
 
     toggleLockMatchRoom(matchRoomCode: string): void {

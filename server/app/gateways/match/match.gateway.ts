@@ -90,16 +90,10 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     handleDisconnect(@ConnectedSocket() socket: Socket) {
         console.log(`Déconnexion par l'utilisateur avec id : ${socket.id}`);
-        // TODO: Move some of the logic in separate service (to a certain extent)
-        const hostSocket = this.matchRoomService.getHostSocketById(socket.id);
-        if (hostSocket) {
-            const matchRoomsCodes = Array.from(socket.rooms).filter((roomId: string) => {
-                return roomId !== hostSocket.id;
-            });
-            this.server.in(matchRoomsCodes).disconnectSockets();
-            matchRoomsCodes.forEach((matchRoomCode: string) => {
-                this.matchRoomService.deleteMatchRoom(matchRoomCode);
-            });
+        const matchRoomCode = this.matchRoomService.getRoomCodeByHostSocket(socket.id);
+        if (matchRoomCode) {
+            this.server.in(matchRoomCode).disconnectSockets();
+            this.matchRoomService.deleteMatchRoom(matchRoomCode);
             return;
         }
         const roomCode = this.matchRoomService.deletePlayerBySocket(socket.id);

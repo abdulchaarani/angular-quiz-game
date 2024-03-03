@@ -2,10 +2,12 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { SocketHandlerService } from '../socket-handler/socket-handler.service';
 
+/*
 interface userInfo {
     roomCode: string;
     username: string;
 }
+*/
 
 @Injectable({
     providedIn: 'root',

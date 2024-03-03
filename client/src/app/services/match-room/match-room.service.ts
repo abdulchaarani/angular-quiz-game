@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
+import { NotificationService } from '../notification/notification.service';
 import { SocketHandlerService } from '../socket-handler/socket-handler.service';
 
 interface userInfo {
@@ -16,6 +17,7 @@ export class MatchRoomService {
     constructor(
         public socketService: SocketHandlerService,
         private router: Router,
+        private notificationService: NotificationService,
     ) {
         this.matchRoomCode = '';
         this.username = '';
@@ -37,12 +39,15 @@ export class MatchRoomService {
         if (!this.socketService.isSocketAlive()) {
             this.socketService.connect();
             // Add "on" functions here
-
-            this.socketService.on('disconnect', () => {
-                console.log("IT'S KICKOUT TIME");
-                this.router.navigateByUrl('/home');
-            });
+            this.redirectAfterDisconnection();
         }
+    }
+
+    private redirectAfterDisconnection() {
+        this.socketService.on('disconnect', () => {
+            this.router.navigateByUrl('/home');
+            this.notificationService.displayErrorMessage('Vous avez été déconnecté de la partie.');
+        });
     }
 
     createRoom(stringifiedGame: string) {

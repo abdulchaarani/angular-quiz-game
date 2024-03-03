@@ -110,7 +110,7 @@ export class MatchRoomService {
         } else if (foundPlayer && foundMatchRoom && foundMatchRoom.isPlaying) {
             this.makePlayerInactive(foundMatchRoom.code, foundPlayer.username);
         }
-        return foundMatchRoom.code;
+        return foundMatchRoom ? foundMatchRoom.code : undefined;
     }
 
     getPlayerByUsername(matchRoomCode: string, username: string): Player | undefined {

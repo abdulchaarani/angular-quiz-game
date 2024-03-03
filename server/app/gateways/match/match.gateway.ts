@@ -36,12 +36,12 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @SubscribeMessage(MatchEvents.JoinRoom)
     joinRoom(@ConnectedSocket() socket: Socket, @MessageBody() data: userInfo) {
         if (!this.matchRoomService.isValidMatchRoomCode(data.roomCode) || !this.matchRoomService.isValidUsername(data.roomCode, data.username)) {
-            return;
+            this.server.in(socket.id).disconnectSockets();
+        } else {
+            socket.join(data.roomCode);
+            const newPlayer = this.matchRoomService.addPlayer(socket, data.roomCode, data.username);
+            return { code: data.roomCode, username: newPlayer.username };
         }
-        socket.join(data.roomCode);
-        const newPlayer = this.matchRoomService.addPlayer(socket, data.roomCode, data.username);
-        const players = this.matchRoomService.getPlayers(data.roomCode);
-        return { code: data.roomCode, username: newPlayer.username };
     }
 
     @SubscribeMessage(MatchEvents.CreateRoom)
@@ -99,6 +99,7 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
         const roomCode = this.matchRoomService.deletePlayerBySocket(socket.id);
         if (roomCode) {
             this.handleSendPlayersData(roomCode);
+            // TODO: If no more players left, disconnect the host and delete the match.
         }
     }
 

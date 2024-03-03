@@ -23,6 +23,7 @@ export class MatchRoomService {
     ) {
         this.matchRoomCode = '';
         this.username = '';
+        this.players = [];
     }
 
     getMatchRoomCode() {
@@ -48,6 +49,7 @@ export class MatchRoomService {
 
     disconnect() {
         this.socketService.disconnect();
+        this.resetMatchValues();
     }
 
     private fetchPlayersData() {
@@ -60,8 +62,15 @@ export class MatchRoomService {
     private redirectAfterDisconnection() {
         this.socketService.on('disconnect', () => {
             this.router.navigateByUrl('/home');
+            this.resetMatchValues();
             this.notificationService.displayErrorMessage('Vous avez été déconnecté de la partie.');
         });
+    }
+
+    private resetMatchValues() {
+        this.matchRoomCode = '';
+        this.username = '';
+        this.players = [];
     }
 
     createRoom(stringifiedGame: string) {
@@ -74,10 +83,10 @@ export class MatchRoomService {
 
     joinRoom(roomCode: string, username: string) {
         const sentInfo: userInfo = { roomCode: roomCode, username };
-        this.router.navigateByUrl('/match-room');
         this.socketService.send('joinRoom', sentInfo, (res: { code: string; username: string }) => {
             this.matchRoomCode = res.code;
             this.username = res.username;
+            this.router.navigateByUrl('/match-room');
         });
         this.socketService.send('sendPlayersData', roomCode); // Updates the list for everyone with new player
     }

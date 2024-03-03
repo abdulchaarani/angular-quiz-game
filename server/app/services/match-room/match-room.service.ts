@@ -62,6 +62,15 @@ export class MatchRoomService {
         return this.getMatchRoomByCode(matchRoomCode).players;
     }
 
+    getPlayersStringified(matchRoomCode: string): string {
+        const players = this.getPlayers(matchRoomCode);
+        return JSON.stringify(players, (key, value) => {
+            if (key !== 'socket') {
+                return value;
+            }
+        });
+    }
+
     addPlayer(playerSocket: Socket, matchRoomCode: string, newUsername: string): Player | undefined {
         if (!this.isValidUsername(matchRoomCode, newUsername)) {
             return undefined;
@@ -84,8 +93,8 @@ export class MatchRoomService {
     }
 
     deletePlayer(matchRoomCode: string, username: string): void {
-        this.getMatchRoomByCode(matchRoomCode).players.filter((player) => {
-            player.username === username;
+        this.getMatchRoomByCode(matchRoomCode).players = this.getMatchRoomByCode(matchRoomCode).players.filter((player) => {
+            player.username.toUpperCase() === username.toUpperCase();
         });
     }
 

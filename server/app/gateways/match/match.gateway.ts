@@ -40,17 +40,8 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
         socket.join(data.roomCode);
         const newPlayer = this.matchRoomService.addPlayer(socket, data.roomCode, data.username);
+        const players = this.matchRoomService.getPlayers(data.roomCode);
         return { code: data.roomCode, username: newPlayer.username };
-    }
-
-    @SubscribeMessage(MatchEvents.RoomMessage)
-    roomMessage(@ConnectedSocket() socket: Socket, @MessageBody() message: string) {
-        // TODO: Change message for Message with interface instead of string only
-        /*
-        if (socket.rooms.has(this.room)) {
-            this.server.to(this.room).emit(MatchEvents.RoomMessage, message);
-        }
-        */
     }
 
     @SubscribeMessage(MatchEvents.CreateRoom)
@@ -70,13 +61,18 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @SubscribeMessage(MatchEvents.BanUsername)
     banUsername(@ConnectedSocket() socket: Socket, @MessageBody() data: userInfo) {
         this.matchRoomService.addBannedUsername(data.roomCode, data.username);
-        console.log(this.matchRoomService.getBannedUsernames(data.roomCode));
         const playerToBan = this.matchRoomService.getPlayerByUsername(data.roomCode, data.username);
         if (playerToBan) {
-            console.log(playerToBan);
             this.matchRoomService.deletePlayer(data.roomCode, data.username);
             this.server.to(playerToBan.socket.id).disconnectSockets();
-            console.log('disconnect time' + playerToBan.socket.id);
+        }
+        this.sendPlayersData(socket, data.roomCode);
+    }
+
+    @SubscribeMessage(MatchEvents.SendPlayersData)
+    sendPlayersData(@ConnectedSocket() socket: Socket, @MessageBody() matchRoomCode: string) {
+        if (socket.rooms.has(matchRoomCode)) {
+            this.server.to(matchRoomCode).emit('fetchPlayersData', this.matchRoomService.getPlayersStringified(matchRoomCode));
         }
     }
 
@@ -89,7 +85,6 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     handleConnection(@ConnectedSocket() socket: Socket) {
         console.log(`Connexion par l'utilisateur avec id : ${socket.id}`);
-        socket.emit('Hello', 'Hello World!');
     }
 
     handleDisconnect(@ConnectedSocket() socket: Socket) {

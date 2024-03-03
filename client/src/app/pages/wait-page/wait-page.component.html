@@ -23,9 +23,9 @@
             }}</mat-slide-toggle>
             <button mat-raised-button color="primary" (click)="startMatch()">Commencer la partie</button>
         </div>
-        <mat-card *ngFor="let name of playerUsernames" class="player-username-card">
-            <p>{{ name }}</p>
-            <button mat-icon-button (click)="banPlayerUsername(name)" color="warn" *ngIf="isHost"><mat-icon>delete</mat-icon></button>
+        <mat-card *ngFor="let player of this.matchRoomService.players" class="player-username-card">
+            <p>{{ player.username }}</p>
+            <button mat-icon-button (click)="banPlayerUsername(player.username)" color="warn" *ngIf="isHost"><mat-icon>delete</mat-icon></button>
         </mat-card>
     </div>
 </div>

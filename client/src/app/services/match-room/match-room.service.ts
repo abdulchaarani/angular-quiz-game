@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
+import { Player } from '@app/interfaces/player';
 import { NotificationService } from '../notification/notification.service';
 import { SocketHandlerService } from '../socket-handler/socket-handler.service';
 
@@ -14,6 +15,7 @@ interface userInfo {
 export class MatchRoomService {
     private matchRoomCode: string;
     private username: string;
+    players: Player[];
     constructor(
         public socketService: SocketHandlerService,
         private router: Router,
@@ -40,7 +42,15 @@ export class MatchRoomService {
             this.socketService.connect();
             // Add "on" functions here
             this.redirectAfterDisconnection();
+            this.fetchPlayersData();
         }
+    }
+
+    private fetchPlayersData() {
+        this.socketService.on('fetchPlayersData', (res: string) => {
+            this.players = JSON.parse(res);
+            console.log(this.players);
+        });
     }
 
     private redirectAfterDisconnection() {
@@ -63,8 +73,9 @@ export class MatchRoomService {
         this.router.navigateByUrl('/match-room');
         this.socketService.send('joinRoom', sentInfo, (res: { code: string; username: string }) => {
             this.matchRoomCode = res.code;
-            this.username = username;
+            this.username = res.username;
         });
+        this.socketService.send('sendPlayersData', roomCode); // Updates the list for everyone with new player
     }
 
     toggleLock() {
@@ -79,9 +90,5 @@ export class MatchRoomService {
             const sentInfo: userInfo = { roomCode: this.matchRoomCode, username };
             this.socketService.send('banUsername', sentInfo);
         }
-    }
-
-    sendToRoom() {
-        this.socketService.send('roomMessage', 'OEUF');
     }
 }

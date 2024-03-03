@@ -11,7 +11,7 @@ const TIMER_DURATION = 5;
 })
 export class WaitPageComponent implements OnInit {
     // TODO: Replace Dummy values using actual services with backend implementation
-    playerUsernames: string[] = ['Totoro', 'Kiki', 'Jiji', 'A', 'B', 'C', 'D', 'E', 'F', 'G'];
+
     isLocked: boolean;
     startTimerButton: boolean = false;
     private readonly multiplicationFactor = 100;

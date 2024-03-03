@@ -6,4 +6,5 @@ export enum MatchEvents {
     AddPlayer = 'addPlayer',
     ToggleLock = 'toggleLock',
     BanUsername = 'banUsername',
+    SendPlayersData = 'sendPlayersData',
 }

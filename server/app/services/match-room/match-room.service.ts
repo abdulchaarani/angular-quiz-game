@@ -68,6 +68,15 @@ export class MatchRoomService {
         return !room.isLocked;
     }
 
+    // TODO: Call this function when the host sends the event to start the match.
+    canStartMatch(code: string): boolean {
+        const room = this.getMatchRoomByCode(code);
+        if (!room) {
+            return false;
+        }
+        return room.isLocked && room.players.length > 0;
+    }
+
     getPlayers(matchRoomCode: string): Player[] {
         return this.getMatchRoomByCode(matchRoomCode).players;
     }

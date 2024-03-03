@@ -1,4 +1,5 @@
 import { Game } from '@app/model/database/game';
+import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { MatchService } from '@app/services/match/match.service';
 import { HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -9,6 +10,7 @@ import { MatchController } from './match.controller';
 describe('MatchController', () => {
     let controller: MatchController;
     let matchService: SinonStubbedInstance<MatchService>;
+    let matchRoomService: SinonStubbedInstance<MatchRoomService>;
 
     beforeEach(async () => {
         matchService = createStubInstance(MatchService);
@@ -18,6 +20,10 @@ describe('MatchController', () => {
                 {
                     provide: MatchService,
                     useValue: matchService,
+                },
+                {
+                    provide: MatchRoomService,
+                    useValue: matchRoomService,
                 },
             ],
         }).compile();

@@ -112,7 +112,7 @@ export class MatchRoomService {
     isBannedUsername(matchRoomCode: string, username: string): boolean {
         const bannedUsernames = this.getBannedUsernames(matchRoomCode);
         const usernameIndex = bannedUsernames.findIndex((name: string) => {
-            name.toUpperCase() === username.toUpperCase();
+            return name.toUpperCase() === username.toUpperCase();
         });
         return usernameIndex === -1 ? false : true;
     }

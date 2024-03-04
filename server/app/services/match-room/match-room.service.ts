@@ -78,4 +78,9 @@ export class MatchRoomService {
         }
         return room.isLocked && room.players.length > 0;
     }
+
+    markGameAsPlaying(code: string): void {
+        const matchRoom: MatchRoom = this.matchRooms.find((room) => room.code === code);
+        matchRoom.isPlaying = true;
+    }
 }

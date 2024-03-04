@@ -85,6 +85,14 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
         this.timeService.startTimer(roomCode, currentGame.duration, this.server);
     }
 
+    // TODO: Start match: Do not forget to make isPlaying = true in MatchRoom object!!
+    @SubscribeMessage(MatchEvents.StartMatch)
+    startMatch(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
+        if (this.matchRoomService.canStartMatch(roomCode)) this.matchRoomService.markGameAsPlaying(roomCode);
+        // display timer and start countdown
+        // this.server.to(roomCode).emit();
+    }
+
     handleConnection(@ConnectedSocket() socket: Socket) {
         // eslint-disable-next-line
         console.log(`Connexion par l'utilisateur avec id : ${socket.id}`); // TODO: Remove once debugging is finished
@@ -109,6 +117,4 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private handleSendPlayersData(matchRoomCode: string) {
         this.server.to(matchRoomCode).emit('fetchPlayersData', this.playerRoomService.getPlayersStringified(matchRoomCode));
     }
-
-    // TODO: Start match: Do not forget to make isPlaying = true in MatchRoom object!!
 }

@@ -4,3 +4,8 @@ export enum ManagementState {
     BankModify,
     GameModify,
 }
+
+export enum MatchState {
+    Play,
+    Test,
+}

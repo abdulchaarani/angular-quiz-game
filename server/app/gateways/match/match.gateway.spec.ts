@@ -59,7 +59,9 @@ describe('MatchGateway', () => {
         matchRoomSpy.isValidMatchRoomCode.returns(false);
         playerRoomSpy.isValidUsername.returns(false);
         server.in.returns({
-            disconnectSockets: () => {},
+            disconnectSockets: () => {
+                return null;
+            },
         } as BroadcastOperator<unknown, unknown>);
 
         gateway.joinRoom(socket, MOCK_USER_INFO);
@@ -74,7 +76,7 @@ describe('MatchGateway', () => {
     });
 
     it('toggleLock() should call toggleLockMatchRoom', () => {
-        const toggleSpy = jest.spyOn(matchRoomSpy, 'toggleLockMatchRoom').mockImplementation(() => {});
+        const toggleSpy = jest.spyOn(matchRoomSpy, 'toggleLockMatchRoom').mockReturnThis();
         gateway.toggleLock(socket, '');
         expect(toggleSpy).toHaveBeenCalled();
     });
@@ -86,7 +88,9 @@ describe('MatchGateway', () => {
         const playerSpy = jest.spyOn(playerRoomSpy, 'getPlayerByUsername').mockReturnValue(mockPlayer);
         const deleteSpy = jest.spyOn(playerRoomSpy, 'deletePlayer').mockReturnThis();
         server.in.returns({
-            disconnectSockets: () => {},
+            disconnectSockets: () => {
+                return null;
+            },
         } as BroadcastOperator<unknown, unknown>);
         const sendSpy = jest.spyOn(gateway, 'sendPlayersData').mockReturnThis();
         gateway.banUsername(socket, MOCK_USER_INFO);
@@ -134,7 +138,9 @@ describe('MatchGateway', () => {
         matchRoomSpy.getRoomCodeByHostSocket.returns(MOCK_ROOM_CODE);
         const deleteSpy = jest.spyOn(matchRoomSpy, 'deleteMatchRoom').mockReturnThis();
         server.in.returns({
-            disconnectSockets: () => {},
+            disconnectSockets: () => {
+                return null;
+            },
         } as BroadcastOperator<unknown, unknown>);
         gateway.handleDisconnect(socket);
         expect(deleteSpy).toHaveBeenCalled();

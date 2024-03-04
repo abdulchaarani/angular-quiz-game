@@ -1,8 +1,8 @@
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Player } from '@app/model/schema/player.schema';
+import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
-import { MatchRoomService } from '../match-room/match-room.service';
 
 const INDEX_NOT_FOUND = -1;
 @Injectable()

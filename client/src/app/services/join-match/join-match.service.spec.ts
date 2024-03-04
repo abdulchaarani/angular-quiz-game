@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { MatchRoomService } from '../match-room/match-room.service';
-import { NotificationService } from '../notification/notification.service';
+import { MatchRoomService } from '@app/services/match-room/match-room.service';
+import { NotificationService } from '@app/services/notification/notification.service';
 import { JoinMatchService } from './join-match.service';
 
 describe('JoinMatchService', () => {

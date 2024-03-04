@@ -1,6 +1,6 @@
+import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
-import { MatchRoomService } from '../match-room/match-room.service';
 import { PlayerRoomService } from './player-room.service';
 
 describe('PlayerRoomService', () => {

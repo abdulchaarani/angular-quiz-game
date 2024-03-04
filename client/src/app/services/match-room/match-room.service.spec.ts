@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { NotificationService } from '../notification/notification.service';
-import { SocketHandlerService } from '../socket-handler/socket-handler.service';
+import { NotificationService } from '@app/services/notification/notification.service';
+import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 import { MatchRoomService } from './match-room.service';
 import SpyObj = jasmine.SpyObj;
 

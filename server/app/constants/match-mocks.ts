@@ -20,6 +20,17 @@ const MOCK_MATCH_ROOM: MatchRoom = {
     messages: [],
     hostSocket: undefined,
 };
+
+const MOCK_PLAYER_ROOM: MatchRoom = {
+    code: '',
+    isLocked: false,
+    isPlaying: false,
+    game: getMockGame(),
+    bannedUsernames: [],
+    players: [MOCK_PLAYER],
+    messages: [],
+    hostSocket: undefined,
+};
 const MOCK_ROOM_CODE = 'mockCode';
 
-export { MOCK_MATCH_ROOM, MOCK_PLAYER, MOCK_ROOM_CODE, MOCK_USER_INFO };
+export { MOCK_MATCH_ROOM, MOCK_PLAYER, MOCK_PLAYER_ROOM, MOCK_ROOM_CODE, MOCK_USER_INFO };

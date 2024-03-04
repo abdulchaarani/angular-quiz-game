@@ -6,23 +6,23 @@ import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
 import { Question } from '@app/model/database/question';
 import { GameService } from '@app/services/game/game.service';
-import { MatchService } from '@app/services/match/match.service';
+import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import * as uuid from 'uuid';
 jest.mock('uuid');
 
-describe('MatchService', () => {
-    let service: MatchService;
+describe('MatchBackupService', () => {
+    let service: MatchBackupService;
     let gameService: SinonStubbedInstance<GameService>;
 
     beforeEach(async () => {
         gameService = createStubInstance(GameService);
         const module: TestingModule = await Test.createTestingModule({
-            providers: [MatchService, { provide: GameService, useValue: gameService }],
+            providers: [MatchBackupService, { provide: GameService, useValue: gameService }],
         }).compile();
 
-        service = module.get<MatchService>(MatchService);
+        service = module.get<MatchBackupService>(MatchBackupService);
     });
 
     beforeEach(() => {

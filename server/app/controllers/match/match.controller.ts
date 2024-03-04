@@ -1,5 +1,5 @@
+import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
-import { MatchService } from '@app/services/match/match.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
 import { Body, Controller, Get, HttpStatus, Param, Post, Res } from '@nestjs/common';
 import { Response } from 'express';
@@ -16,7 +16,7 @@ interface MatchUsernameInfo {
 @Controller('match')
 export class MatchController {
     constructor(
-        private readonly matchService: MatchService,
+        private readonly matchBackupService: MatchBackupService,
         private matchRoomService: MatchRoomService,
         private playerRoomService: PlayerRoomService,
     ) {}
@@ -24,7 +24,7 @@ export class MatchController {
     @Get('/games')
     async allVisibleGames(@Res() response: Response) {
         try {
-            const allVisibleGames = await this.matchService.getAllVisibleGames();
+            const allVisibleGames = await this.matchBackupService.getAllVisibleGames();
             response.status(HttpStatus.OK).json(allVisibleGames);
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send({ message: error.message });
@@ -34,7 +34,7 @@ export class MatchController {
     @Get('/games/:gameId')
     async gameByIdWithoutIsCorrect(@Param('gameId') gameId: string, @Res() response: Response) {
         try {
-            const game = await this.matchService.getGameByIdWithoutIsCorrect(gameId);
+            const game = await this.matchBackupService.getGameByIdWithoutIsCorrect(gameId);
             response.status(HttpStatus.OK).json(game);
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send({ message: error.message });

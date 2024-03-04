@@ -1,7 +1,7 @@
 import { Game } from '@app/model/database/game';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
+import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
-import { MatchService } from '@app/services/match/match.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
 import { TimeService } from '@app/services/time/time.service';
 import { Injectable } from '@nestjs/common';
@@ -32,7 +32,7 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
         private matchRoomService: MatchRoomService,
         private playerRoomService: PlayerRoomService,
         private timeService: TimeService,
-        private matchService: MatchService,
+        private matchBackupService: MatchBackupService,
     ) {}
 
     @SubscribeMessage(MatchEvents.JoinRoom)
@@ -81,7 +81,7 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @SubscribeMessage(MatchEvents.StartTimer)
     startTimer(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
         const clientRoom = this.matchRoomService.getMatchRoomByCode(roomCode);
-        const currentGame = this.matchService.getBackupGame(clientRoom.game.id);
+        const currentGame = this.matchBackupService.getBackupGame(clientRoom.game.id);
         this.timeService.startTimer(roomCode, currentGame.duration, this.server);
     }
 

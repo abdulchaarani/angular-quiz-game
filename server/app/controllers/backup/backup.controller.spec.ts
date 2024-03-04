@@ -1,7 +1,7 @@
 import { getMockQuestion } from '@app/constants/question-mocks';
 import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
-import { MatchService } from '@app/services/match/match.service';
+import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
 import { HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Response } from 'express';
@@ -10,16 +10,16 @@ import { BackupController } from './backup.controller';
 
 describe('MatchController', () => {
     let controller: BackupController;
-    let matchService: SinonStubbedInstance<MatchService>;
+    let matchBackupService: SinonStubbedInstance<MatchBackupService>;
 
     beforeEach(async () => {
-        matchService = createStubInstance(MatchService);
+        matchBackupService = createStubInstance(MatchBackupService);
         const module: TestingModule = await Test.createTestingModule({
             controllers: [BackupController],
             providers: [
                 {
-                    provide: MatchService,
-                    useValue: matchService,
+                    provide: MatchBackupService,
+                    useValue: matchBackupService,
                 },
             ],
         }).compile();
@@ -33,7 +33,7 @@ describe('MatchController', () => {
 
     it('allChoices() should return all question choices', () => {
         const mockChoices = [new Choice(), new Choice()];
-        const spyGetChoices = jest.spyOn(matchService, 'getChoices').mockReturnValue(mockChoices);
+        const spyGetChoices = jest.spyOn(matchBackupService, 'getChoices').mockReturnValue(mockChoices);
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.OK);
@@ -48,7 +48,7 @@ describe('MatchController', () => {
     });
 
     it('allChoices() should return NOT_FOUND if service cannot get choices', () => {
-        const spyGetChoices = jest.spyOn(matchService, 'getChoices').mockReturnValue(undefined);
+        const spyGetChoices = jest.spyOn(matchBackupService, 'getChoices').mockReturnValue(undefined);
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.NOT_FOUND);
@@ -60,8 +60,8 @@ describe('MatchController', () => {
     });
 
     it('validatePlayerChoice() should return OK with true value in body if validatePlayerChoice returns true', () => {
-        const spyGet = jest.spyOn(matchService, 'getBackupQuestion').mockReturnValue(getMockQuestion());
-        const spyValidate = jest.spyOn(matchService, 'validatePlayerChoice').mockReturnValue(true);
+        const spyGet = jest.spyOn(matchBackupService, 'getBackupQuestion').mockReturnValue(getMockQuestion());
+        const spyValidate = jest.spyOn(matchBackupService, 'validatePlayerChoice').mockReturnValue(true);
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.OK);
@@ -77,8 +77,8 @@ describe('MatchController', () => {
     });
 
     it('validatePlayerChoice() should return OK with false value in body if validatePlayerChoice returns false', () => {
-        const spyGet = jest.spyOn(matchService, 'getBackupQuestion').mockReturnValue(getMockQuestion());
-        const spyValidate = jest.spyOn(matchService, 'validatePlayerChoice').mockReturnValue(false);
+        const spyGet = jest.spyOn(matchBackupService, 'getBackupQuestion').mockReturnValue(getMockQuestion());
+        const spyValidate = jest.spyOn(matchBackupService, 'validatePlayerChoice').mockReturnValue(false);
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.OK);
@@ -94,8 +94,8 @@ describe('MatchController', () => {
     });
 
     it('validatePlayerChoice() should return NOT FOUND if validatePlayerChoice does not resolve', () => {
-        const spyGet = jest.spyOn(matchService, 'getBackupQuestion').mockReturnValue(undefined);
-        const spyValidate = jest.spyOn(matchService, 'validatePlayerChoice');
+        const spyGet = jest.spyOn(matchBackupService, 'getBackupQuestion').mockReturnValue(undefined);
+        const spyValidate = jest.spyOn(matchBackupService, 'validatePlayerChoice');
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.NOT_FOUND);
@@ -109,7 +109,7 @@ describe('MatchController', () => {
 
     it('getBackupGame() should return the backup game with the corresponding ID', () => {
         const mockGame = new Game();
-        const spyGet = jest.spyOn(matchService, 'getBackupGame').mockReturnValue(mockGame);
+        const spyGet = jest.spyOn(matchBackupService, 'getBackupGame').mockReturnValue(mockGame);
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.OK);
@@ -123,7 +123,7 @@ describe('MatchController', () => {
         expect(spyGet).toHaveBeenCalled();
     });
     it('getBackupGame() should return NOT_FOUND if the backup game cannot be found', () => {
-        const spyGet = jest.spyOn(matchService, 'getBackupGame').mockReturnValue(undefined);
+        const spyGet = jest.spyOn(matchBackupService, 'getBackupGame').mockReturnValue(undefined);
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.NOT_FOUND);
@@ -135,7 +135,7 @@ describe('MatchController', () => {
     });
     it('saveBackupGame() should save ("create") backup game locally in the server and return a copy of the game', async () => {
         const mockGame = new Game();
-        matchService.saveBackupGame.resolves(mockGame);
+        matchBackupService.saveBackupGame.resolves(mockGame);
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.CREATED);
@@ -148,7 +148,7 @@ describe('MatchController', () => {
         await controller.saveBackupGame('', res);
     });
     it('saveBackupGame() should return NOT FOUND if backup could not be saved ("created")', async () => {
-        matchService.saveBackupGame.rejects();
+        matchBackupService.saveBackupGame.rejects();
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.NOT_FOUND);
@@ -158,7 +158,7 @@ describe('MatchController', () => {
         await controller.saveBackupGame('', res);
     });
     it('deleteBackupGame() should delete the backup and return NO CONTENT', () => {
-        const spyDelete = jest.spyOn(matchService, 'deleteBackupGame').mockReturnValue(true);
+        const spyDelete = jest.spyOn(matchBackupService, 'deleteBackupGame').mockReturnValue(true);
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.NO_CONTENT);
@@ -169,7 +169,7 @@ describe('MatchController', () => {
         expect(spyDelete).toHaveBeenCalled();
     });
     it('deleteBackupGame() should return NOT FOUND if backup cannot be deleted', () => {
-        const spyDelete = jest.spyOn(matchService, 'deleteBackupGame').mockReturnValue(false);
+        const spyDelete = jest.spyOn(matchBackupService, 'deleteBackupGame').mockReturnValue(false);
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.NOT_FOUND);

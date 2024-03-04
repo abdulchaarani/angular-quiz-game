@@ -9,7 +9,7 @@ import { AuthenticationService } from '@app/services/authentication/authenticati
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameValidationService } from '@app/services/game-validation/game-validation.service';
 import { GameService } from '@app/services/game/game.service';
-import { MatchService } from '@app/services/match/match.service';
+import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
 import { QuestionService } from '@app/services/question/question.service';
 import { Logger, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -39,7 +39,7 @@ import { TimeService } from './services/time/time.service';
         QuestionService,
         GameService,
         GameValidationService,
-        MatchService,
+        MatchBackupService,
         AuthenticationService,
         GameCreationService,
         MatchRoomService,

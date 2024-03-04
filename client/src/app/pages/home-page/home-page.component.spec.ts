@@ -10,6 +10,7 @@ import { AuthenticationService } from '@app/services/authentication.service';
 import { of } from 'rxjs';
 import { HomePageComponent } from './home-page.component';
 import SpyObj = jasmine.SpyObj;
+
 describe('HomePageComponent', () => {
     let component: HomePageComponent;
     let fixture: ComponentFixture<HomePageComponent>;

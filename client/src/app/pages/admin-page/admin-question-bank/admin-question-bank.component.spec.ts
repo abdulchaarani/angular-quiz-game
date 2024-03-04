@@ -14,7 +14,6 @@ import { NotificationService } from '@app/services/notification.service';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { of, throwError } from 'rxjs';
 import { QuestionListItemComponent } from '@app/components/question-list-item/question-list-item.component';
-//import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
 import { Component, Input } from '@angular/core';
 import { ManagementState } from '@app/constants/states';
 

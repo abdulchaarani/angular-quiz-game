@@ -12,7 +12,6 @@ import { of, throwError } from 'rxjs';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { HostPageComponent } from './host-page.component';
 import { HttpResponse } from '@angular/common/http';
-// import { HttpResponse } from '@angular/common/http';
 
 describe('HostPageComponent', () => {
     let component: HostPageComponent;

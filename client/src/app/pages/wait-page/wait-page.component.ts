@@ -1,7 +1,9 @@
 import { Component } from '@angular/core';
+import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { TimeService } from '@app/services/time/time.service';
 
 const TIMER_DURATION = 5;
+const MULTIPLICATION_FACTOR = 100;
 
 @Component({
     selector: 'app-wait-page',
@@ -10,27 +12,32 @@ const TIMER_DURATION = 5;
 })
 export class WaitPageComponent {
     // TODO: Replace Dummy values using actual services with backend implementation
-    isHost: boolean = true;
-    code: string = '7777';
-    playerUsernames: string[] = ['Totoro', 'Kiki', 'Jiji', 'A', 'B', 'C', 'D', 'E', 'F', 'G'];
     isLocked: boolean;
-    currentUsername: string = 'Organisateur';
-    startTimerButton: boolean = false;
-    private readonly multiplicationFactor = 100;
-
-    constructor(public timeService: TimeService) {
-        // TODO: Inject services in parameter + initialize values accordingly
+    startTimerButton: boolean;
+    constructor(
+        public matchRoomService: MatchRoomService,
+        public timeService: TimeService,
+    ) {
+        this.isLocked = false;
+        this.startTimerButton = false;
     }
     get time() {
         return this.timeService.time;
     }
+    get isHost() {
+        return this.matchRoomService.getUsername() === 'Organisateur';
+    }
 
-    rejectPlayerUsername(name: string) {
-        console.log('TODO: rejeter ' + name);
+    toggleLock() {
+        this.matchRoomService.toggleLock();
+    }
+
+    banPlayerUsername(username: string) {
+        this.matchRoomService.banUsername(username);
     }
 
     startMatch() {
-        // TODO: Check if isLocked + if at least one player
+        // TODO: Check if isLocked + if at least one player (send event to server)
         this.startTimerButton = true;
         this.startTimer();
     }
@@ -46,6 +53,6 @@ export class WaitPageComponent {
     }
 
     computeTimerProgress(): number {
-        return (this.timeService.time / TIMER_DURATION) * this.multiplicationFactor;
+        return (this.timeService.time / TIMER_DURATION) * MULTIPLICATION_FACTOR;
     }
 }

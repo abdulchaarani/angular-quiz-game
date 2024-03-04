@@ -3,13 +3,15 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { getMockGame } from '@app/constants/game-mocks';
 import { Game } from '@app/interfaces/game';
+import { ChoiceValidationService } from '@app/services/choice-validation/choice-validation.service';
+import { NotificationService } from '@app/services/notification/notification.service';
 import { Observable, of } from 'rxjs';
-import { ChoiceValidationService } from '../choice-validation/choice-validation.service';
 import { MatchService } from './match.service';
 
 describe('MatchService', () => {
     let service: MatchService;
     let choiceValidationSpy: jasmine.SpyObj<ChoiceValidationService>;
+    let notificationSpy: jasmine.SpyObj<NotificationService>;
     const fakeGame: Game = {
         id: '0',
         title: 'title',
@@ -31,10 +33,15 @@ describe('MatchService', () => {
     const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK', body: JSON.stringify(true) });
 
     beforeEach(() => {
+        notificationSpy = jasmine.createSpyObj('NotificationService', ['displayErrorMessage']);
         choiceValidationSpy = jasmine.createSpyObj('ChoiceValidationService', ['validateChoices']);
         TestBed.configureTestingModule({
             imports: [HttpClientTestingModule],
-            providers: [MatchService, { provide: ChoiceValidationService, useValue: choiceValidationSpy }],
+            providers: [
+                MatchService,
+                { provide: ChoiceValidationService, useValue: choiceValidationSpy },
+                { provide: NotificationService, useValue: notificationSpy },
+            ],
         }).compileComponents();
         service = TestBed.inject(MatchService);
     });

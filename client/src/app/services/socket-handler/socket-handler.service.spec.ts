@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { HistogramService } from './histogram.service';
+import { SocketHandlerService } from './socket-handler.service';
 
-describe('HistogramService', () => {
-    let service: HistogramService;
+describe('SocketHandlerService', () => {
+    let service: SocketHandlerService;
 
     beforeEach(() => {
         TestBed.configureTestingModule({});
-        service = TestBed.inject(HistogramService);
+        service = TestBed.inject(SocketHandlerService);
     });
 
     it('should be created', () => {

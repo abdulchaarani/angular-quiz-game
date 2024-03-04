@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { HostQuestionAreaComponent } from '@app/components/host-question-area/host-question-area.component';
 import { ManagementState } from '@app/constants/states';
 import { adminLoginGuard } from '@app/guards/admin-login/admin-login.guard';
+import { matchLoginGuard } from '@app/guards/match-login/match-login.guard';
 import { pendingChangesGuard } from '@app/guards/pending-changes/pending-changes.guard';
 import { AdminPageComponent } from '@app/pages/admin-page/admin-main-page/admin-page.component';
 import { AdminQuestionBankComponent } from '@app/pages/admin-page/admin-question-bank/admin-question-bank.component';
@@ -39,10 +40,10 @@ const routes: Routes = [
         ],
     },
     { path: 'host', component: MatchCreationPageComponent },
-    { path: 'player', component: PlayerPageComponent },
-    { path: 'waiting-room', component: WaitPageComponent },
-    { path: 'results', component: ResultsPageComponent },
-    { path: 'hostpc', component: HostQuestionAreaComponent },
+    { path: 'player', canActivate: [matchLoginGuard], component: PlayerPageComponent },
+    { path: 'match-room', canActivate: [matchLoginGuard], component: WaitPageComponent },
+    { path: 'results', canActivate: [matchLoginGuard], component: ResultsPageComponent },
+    { path: 'hostpc', canActivate: [matchLoginGuard], component: HostQuestionAreaComponent },
 ];
 
 @NgModule({

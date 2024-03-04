@@ -4,8 +4,8 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { DialogManagement, QuestionCreationFormComponent } from '@app/components/question-creation-form/question-creation-form.component';
 import { ManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
+import { CommunicationService } from '@app/services/communication/communication.service';
 import { Observable } from 'rxjs';
-import { CommunicationService } from '../communication/communication.service';
 @Injectable({
     providedIn: 'root',
 })

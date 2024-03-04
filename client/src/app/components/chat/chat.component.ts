@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { Message } from '@app/interfaces/message';
+import { MatchRoomService } from '@app/services/match-room/match-room.service';
 
 @Component({
     selector: 'app-chat',
@@ -7,7 +8,6 @@ import { Message } from '@app/interfaces/message';
     styleUrls: ['./chat.component.scss'],
 })
 export class ChatComponent {
-    currentUsername: string = 'Bibi';
     messages: Message[] = [
         { author: 'Binou', text: 'TOUPIIIIIE', date: new Date() },
         {
@@ -37,4 +37,5 @@ export class ChatComponent {
         },
         { author: 'Kaneshiro', text: 'MY BAAAAANK', date: new Date() },
     ];
+    constructor(readonly matchRoomService: MatchRoomService) {}
 }

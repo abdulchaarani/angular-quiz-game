@@ -5,11 +5,12 @@ import { PlayersListComponent } from './players-list.component';
 describe('PlayersListComponent', () => {
     let component: PlayersListComponent;
     let fixture: ComponentFixture<PlayersListComponent>;
-    // let pipe: SortByScorePipe; // TODO: Mock
+   // let pipe: SortByScorePipe; // TODO: Mock
 
     beforeEach(() => {
         TestBed.configureTestingModule({
             declarations: [PlayersListComponent, SortByScorePipe],
+            imports: [],
         });
         fixture = TestBed.createComponent(PlayersListComponent);
         component = fixture.componentInstance;

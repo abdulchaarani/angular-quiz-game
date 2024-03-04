@@ -7,14 +7,12 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-
+//import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Component, Input } from '@angular/core';
 
 
 describe('QuestionListItemComponent', () => {
     let component: QuestionListItemComponent;
-    //let createQuestionComponent: CreateQuestionComponent; 
     let fixture: ComponentFixture<QuestionListItemComponent>;
     const mockQuestion: Question = {
         id: '1',
@@ -24,10 +22,10 @@ describe('QuestionListItemComponent', () => {
         lastModification: new Date().toString(),
     };
 
-    beforeEach(async () => {
+    beforeEach(() => {
         TestBed.configureTestingModule({
-            declarations: [CreateQuestionComponent, QuestionListItemComponent],
-            imports: [ MatSnackBarModule, MatExpansionModule, MatIconModule, NoopAnimationsModule, BrowserAnimationsModule],
+            declarations: [MockCreateQuestionComponent, QuestionListItemComponent],
+            imports: [ MatSnackBarModule, MatExpansionModule, MatIconModule, NoopAnimationsModule],
         }).compileComponents();
 
         fixture = TestBed.createComponent(QuestionListItemComponent);
@@ -35,15 +33,16 @@ describe('QuestionListItemComponent', () => {
         component.question = mockQuestion;
         component.isBankQuestion = true; 
         component.index = 0;
-        component.modificationState = ManagementState.BankModify;
+        //component.modificationState = ManagementState.BankModify;
     });
 
     @Component({
         selector: 'app-create-question',
         template: ''
       })
-      class CreateQuestionComponent {
-        @Input() modificationState: any;
+      class MockCreateQuestionComponent {
+        @Input() modificationState: ManagementState;
+        @Input() question: Question;
       }
 
     it('should create', () => {

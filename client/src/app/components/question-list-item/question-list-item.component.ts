@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { ManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
 
+
 @Component({
     selector: 'app-question-list-item',
     templateUrl: './question-list-item.component.html',

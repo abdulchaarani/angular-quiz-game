@@ -14,8 +14,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
 import { CreateQuestionComponent, DialogManagement } from './create-question.component';
-import { QuestionListItemComponent } from '@app/components/question-list-item/question-list-item.component';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+//import { QuestionListItemComponent } from '@app/components/question-list-item/question-list-item.component';
 //import { AdminQuestionBankComponent } from '@app/pages/admin-page/admin-question-bank/admin-question-bank.component';
 
 const mockQuestion: Question = {
@@ -44,7 +43,7 @@ describe('CreateQuestionComponent', () => {
     beforeEach(() => {
         const snackBarSpyObj = jasmine.createSpyObj('MatSnackBar', ['open']);
         TestBed.configureTestingModule({
-            declarations: [CreateQuestionComponent, QuestionListItemComponent],
+            declarations: [CreateQuestionComponent],
             imports: [
                 ReactiveFormsModule,
                 FormsModule,
@@ -56,7 +55,6 @@ describe('CreateQuestionComponent', () => {
                 BrowserAnimationsModule,
                 MatIconModule,
             ],
-            schemas: [CUSTOM_ELEMENTS_SCHEMA],
             providers: [{ provide: MatSnackBar, useValue: snackBarSpyObj }, FormBuilder, { provide: MAT_DIALOG_DATA, useValue: dialogData }],
         }).compileComponents();
 

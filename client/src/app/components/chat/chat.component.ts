@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { Message } from '@app/interfaces/message';
+//import { MatInputModule } from '@angular/material/input';
+
 
 @Component({
     selector: 'app-chat',
@@ -37,4 +39,19 @@ export class ChatComponent {
         },
         { author: 'Kaneshiro', text: 'MY BAAAAANK', date: new Date() },
     ];
+
+    sendMessage(messageText: string) {
+        let inputValue = (document.getElementById("chat-input") as HTMLInputElement)?.value; 
+        if (messageText !== '') {
+            const newMessage: Message = {
+                author: this.currentUsername,
+                text: messageText,
+                date: new Date(),
+            };
+            this.messages.push(newMessage);
+           // document.getElementById('chat-input')!.inputMode= '';
+           console.log(inputValue);
+        }
+        //inputValue. = "";
+    }
 }

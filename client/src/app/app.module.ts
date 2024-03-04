@@ -33,6 +33,7 @@ import { TestPageComponent } from './pages/test-page/test-page.component';
 import { WaitPageComponent } from './pages/wait-page/wait-page.component';
 import { SortByLastModificationPipe } from './pipes/sort-by-last-modification.pipe';
 import { SortByScorePipe } from './pipes/sort-by-score.pipe';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -79,8 +80,9 @@ import { SortByScorePipe } from './pipes/sort-by-score.pipe';
         DragDropModule,
         ReactiveFormsModule,
     ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
     providers: [],
-    exports: [QuestionListItemComponent, GameListItemComponent, CreateQuestionComponent],
+    exports: [CreateQuestionComponent, QuestionListItemComponent, GameListItemComponent],
     bootstrap: [AppComponent],
 })
 export class AppModule {}

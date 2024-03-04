@@ -2,13 +2,20 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Question } from '@app/interfaces/question';
 import { QuestionListItemComponent } from './question-list-item.component';
 import { ManagementState } from '@app/constants/states';
-import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
+//import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatIconModule } from '@angular/material/icon';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
+import { Component, Input } from '@angular/core';
+
 
 describe('QuestionListItemComponent', () => {
     let component: QuestionListItemComponent;
+    //let createQuestionComponent: CreateQuestionComponent; 
     let fixture: ComponentFixture<QuestionListItemComponent>;
-
     const mockQuestion: Question = {
         id: '1',
         type: 'QCM',
@@ -17,17 +24,27 @@ describe('QuestionListItemComponent', () => {
         lastModification: new Date().toString(),
     };
 
-    beforeEach(() => {
+    beforeEach(async () => {
         TestBed.configureTestingModule({
-            declarations: [QuestionListItemComponent, CreateQuestionComponent],
-            imports: [MatSnackBarModule],
-        });
+            declarations: [CreateQuestionComponent, QuestionListItemComponent],
+            imports: [ MatSnackBarModule, MatExpansionModule, MatIconModule, NoopAnimationsModule, BrowserAnimationsModule],
+        }).compileComponents();
 
         fixture = TestBed.createComponent(QuestionListItemComponent);
         component = fixture.componentInstance;
-
         component.question = mockQuestion;
+        component.isBankQuestion = true; 
+        component.index = 0;
+        component.modificationState = ManagementState.BankModify;
     });
+
+    @Component({
+        selector: 'app-create-question',
+        template: ''
+      })
+      class CreateQuestionComponent {
+        @Input() modificationState: any;
+      }
 
     it('should create', () => {
         expect(component).toBeTruthy();

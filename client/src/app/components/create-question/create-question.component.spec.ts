@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
@@ -14,6 +15,8 @@ import { ManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
 import { CreateQuestionComponent, DialogManagement } from './create-question.component';
 import { QuestionListItemComponent } from '@app/components/question-list-item/question-list-item.component';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+//import { AdminQuestionBankComponent } from '@app/pages/admin-page/admin-question-bank/admin-question-bank.component';
 
 const mockQuestion: Question = {
     id: '1',
@@ -26,6 +29,7 @@ const mockQuestion: Question = {
     ],
     lastModification: '',
 };
+
 
 const maxchoicesLengthTest = 5;
 const minchoicesLengthTest = 3;
@@ -49,15 +53,19 @@ describe('CreateQuestionComponent', () => {
                 MatFormFieldModule,
                 MatInputModule,
                 NoopAnimationsModule,
+                BrowserAnimationsModule,
                 MatIconModule,
             ],
+            schemas: [CUSTOM_ELEMENTS_SCHEMA],
             providers: [{ provide: MatSnackBar, useValue: snackBarSpyObj }, FormBuilder, { provide: MAT_DIALOG_DATA, useValue: dialogData }],
-        });
+        }).compileComponents();
 
         snackBarSpy = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
         fixture = TestBed.createComponent(CreateQuestionComponent);
         formBuilder = TestBed.inject(FormBuilder);
         component = fixture.componentInstance;
+        component.question= mockQuestion;
+        //component.modificationState = ManagementState.BankCreate;
 
         fixture.detectChanges();
 

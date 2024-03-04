@@ -14,7 +14,7 @@ describe('ChatComponent', () => {
         TestBed.configureTestingModule({
             declarations: [ChatComponent],
             imports: [MatIconModule, MatFormFieldModule, MatInputModule, BrowserAnimationsModule],
-        });
+        }).compileComponents();
         fixture = TestBed.createComponent(ChatComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();

@@ -13,6 +13,7 @@ import { GamesService } from '@app/services/games.service';
 import { NotificationService } from '@app/services/notification.service';
 import { QuestionService } from '@app/services/question.service';
 import { AdminQuestionsListComponent } from './admin-questions-list.component';
+import { QuestionListItemComponent } from '@app/components/question-list-item/question-list-item.component';
 import { BankStatus, QuestionStatus } from '@app/constants/feedback-messages';
 import { ManagementState } from '@app/constants/states';
 
@@ -140,7 +141,7 @@ describe('AdminQuestionsListComponent', () => {
                 ScrollingModule,
                 MatSliderModule,
             ],
-            declarations: [AdminQuestionsListComponent, SortByLastModificationPipe],
+            declarations: [AdminQuestionsListComponent, SortByLastModificationPipe, QuestionListItemComponent],
             providers: [
                 { provide: GamesService, useValue: gamesServiceSpy },
                 { provide: MatDialog, useValue: matDialogSpy },

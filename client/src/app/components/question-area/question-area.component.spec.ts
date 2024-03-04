@@ -10,6 +10,11 @@ import { Choice } from '@app/interfaces/choice';
 import { MatchService } from '@app/services/match.service';
 import { of } from 'rxjs';
 import { QuestionAreaComponent } from './question-area.component';
+import { ChatComponent } from '../chat/chat.component';
+import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { getMockQuestion } from '@app/constants/question-mocks';
 import { getRandomString } from '@app/constants/test-utils';
@@ -37,8 +42,8 @@ describe('QuestionAreaComponent', () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            declarations: [QuestionAreaComponent],
-            imports: [MatDialogModule, RouterTestingModule, HttpClientTestingModule, MatProgressSpinnerModule],
+            declarations: [QuestionAreaComponent, ChatComponent],
+            imports: [MatDialogModule, RouterTestingModule, HttpClientTestingModule, MatProgressSpinnerModule, MatDialogModule, MatIconModule, MatFormFieldModule, BrowserAnimationsModule, MatInputModule],
             providers: [HttpClient, MatchService],
         }).compileComponents();
         fixture = TestBed.createComponent(QuestionAreaComponent);

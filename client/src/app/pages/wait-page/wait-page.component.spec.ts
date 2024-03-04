@@ -1,6 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { WaitPageComponent } from './wait-page.component';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatCardModule } from '@angular/material/card';
+import { FormsModule } from '@angular/forms';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 describe('WaitPageComponent', () => {
     let component: WaitPageComponent;
@@ -9,6 +14,7 @@ describe('WaitPageComponent', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             declarations: [WaitPageComponent],
+            imports:[MatIconModule, MatSlideToggleModule, MatCardModule, FormsModule,  MatProgressSpinnerModule],
         });
         fixture = TestBed.createComponent(WaitPageComponent);
         component = fixture.componentInstance;

@@ -2,14 +2,12 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Question } from '@app/interfaces/question';
 import { QuestionListItemComponent } from './question-list-item.component';
 import { ManagementState } from '@app/constants/states';
-//import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-//import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Component, Input } from '@angular/core';
-
+import { MatSelectModule } from '@angular/material/select';
 
 describe('QuestionListItemComponent', () => {
     let component: QuestionListItemComponent;
@@ -24,8 +22,8 @@ describe('QuestionListItemComponent', () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            declarations: [MockCreateQuestionComponent, QuestionListItemComponent],
-            imports: [ MatSnackBarModule, MatExpansionModule, MatIconModule, NoopAnimationsModule],
+            declarations: [MockCreateQuestionComponent, QuestionListItemComponent,  MockMatLabelComponent],
+            imports: [ MatSnackBarModule, MatExpansionModule, MatIconModule, NoopAnimationsModule, MatSelectModule],
         }).compileComponents();
 
         fixture = TestBed.createComponent(QuestionListItemComponent);
@@ -33,8 +31,13 @@ describe('QuestionListItemComponent', () => {
         component.question = mockQuestion;
         component.isBankQuestion = true; 
         component.index = 0;
-        //component.modificationState = ManagementState.BankModify;
     });
+
+    @Component({
+        selector: 'mat-label',
+        template: '',
+    })
+    class MockMatLabelComponent {}
 
     @Component({
         selector: 'app-create-question',

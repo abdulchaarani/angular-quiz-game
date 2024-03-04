@@ -8,14 +8,13 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatOptionModule } from '@angular/material/core';
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { ManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
 import { CreateQuestionComponent, DialogManagement } from './create-question.component';
-//import { QuestionListItemComponent } from '@app/components/question-list-item/question-list-item.component';
-//import { AdminQuestionBankComponent } from '@app/pages/admin-page/admin-question-bank/admin-question-bank.component';
 
 const mockQuestion: Question = {
     id: '1',
@@ -28,7 +27,6 @@ const mockQuestion: Question = {
     ],
     lastModification: '',
 };
-
 
 const maxchoicesLengthTest = 5;
 const minchoicesLengthTest = 3;
@@ -49,6 +47,7 @@ describe('CreateQuestionComponent', () => {
                 FormsModule,
                 MatSnackBarModule,
                 MatSelectModule,
+                MatOptionModule,
                 MatFormFieldModule,
                 MatInputModule,
                 NoopAnimationsModule,
@@ -62,11 +61,8 @@ describe('CreateQuestionComponent', () => {
         fixture = TestBed.createComponent(CreateQuestionComponent);
         formBuilder = TestBed.inject(FormBuilder);
         component = fixture.componentInstance;
-        component.question= mockQuestion;
-        //component.modificationState = ManagementState.BankCreate;
-
+        component.question = mockQuestion;
         fixture.detectChanges();
-
         component.dialogData = dialogData;
         component.questionForm.setValue({
             text: 'Test',

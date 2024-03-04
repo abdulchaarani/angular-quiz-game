@@ -6,6 +6,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatCardModule } from '@angular/material/card';
 import { FormsModule } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ChatComponent } from '@app/components/chat/chat.component';
 
 describe('WaitPageComponent', () => {
     let component: WaitPageComponent;
@@ -13,7 +14,7 @@ describe('WaitPageComponent', () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            declarations: [WaitPageComponent],
+            declarations: [WaitPageComponent, ChatComponent ],
             imports:[MatIconModule, MatSlideToggleModule, MatCardModule, FormsModule,  MatProgressSpinnerModule],
         });
         fixture = TestBed.createComponent(WaitPageComponent);

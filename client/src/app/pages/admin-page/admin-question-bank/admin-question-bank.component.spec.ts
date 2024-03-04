@@ -8,11 +8,15 @@ import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
 import { SortByLastModificationPipe } from '@app/pipes/sort-by-last-modification.pipe';
 import { NotificationService } from '@app/services/notification.service';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { of, throwError } from 'rxjs';
 import { QuestionListItemComponent } from '@app/components/question-list-item/question-list-item.component';
+//import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
+import { Component, Input } from '@angular/core';
+import { ManagementState } from '@app/constants/states';
 
 describe('AdminQuestionBankComponent', () => {
     let component: AdminQuestionBankComponent;
@@ -47,6 +51,14 @@ describe('AdminQuestionBankComponent', () => {
         lastModification: '2024-01-26T14:21:19+00:00',
     };
     const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK', body: JSON.stringify(newQuestionMock) });
+    @Component({
+        selector: 'app-create-question',
+        template: '',
+    })
+    class MockCreateQuestionComponent {
+        @Input() modificationState: ManagementState;
+        @Input() question: Question;
+    }
 
     beforeEach(() => {
         questionServiceSpy = jasmine.createSpyObj('QuestionService', [
@@ -64,14 +76,15 @@ describe('AdminQuestionBankComponent', () => {
         const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['close']);
 
         TestBed.configureTestingModule({
-            declarations: [AdminQuestionBankComponent, SortByLastModificationPipe, QuestionListItemComponent],
-            imports: [MatExpansionModule, MatIconModule, BrowserAnimationsModule],
+            declarations: [AdminQuestionBankComponent, SortByLastModificationPipe, QuestionListItemComponent, MockCreateQuestionComponent],
+            imports: [MatExpansionModule, MatIconModule, BrowserAnimationsModule, MatCardModule],
             providers: [
                 { provide: QuestionService, useValue: questionServiceSpy },
                 { provide: NotificationService, useValue: notificationServiceSpy },
                 { provide: MatDialog, useValue: dialogSpy },
             ],
         });
+
         fixture = TestBed.createComponent(AdminQuestionBankComponent);
         component = fixture.componentInstance;
         dialog = TestBed.inject(MatDialog) as jasmine.SpyObj<MatDialog>;

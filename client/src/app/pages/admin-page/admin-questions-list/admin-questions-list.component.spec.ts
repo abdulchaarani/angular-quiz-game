@@ -30,6 +30,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { CdkDragDrop, CdkDragEnd, DragDropModule } from '@angular/cdk/drag-drop';
 import { MatInputModule } from '@angular/material/input';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { Component, Input } from '@angular/core';
 
 describe('AdminQuestionsListComponent', () => {
     let component: AdminQuestionsListComponent;
@@ -82,6 +83,14 @@ describe('AdminQuestionsListComponent', () => {
     const mockNewQuestion = { id: '3', text: 'Question 3', type: 'QCM', points: 10, lastModification: '' };
 
     const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK', body: JSON.stringify(mockNewQuestion) });
+    @Component({
+        selector: 'app-create-question',
+        template: '',
+    })
+    class MockCreateQuestionComponent {
+        @Input() modificationState: ManagementState;
+        @Input() question: Question;
+    }
 
     beforeEach(() => {
         routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -141,7 +150,7 @@ describe('AdminQuestionsListComponent', () => {
                 ScrollingModule,
                 MatSliderModule,
             ],
-            declarations: [AdminQuestionsListComponent, SortByLastModificationPipe, QuestionListItemComponent],
+            declarations: [AdminQuestionsListComponent, SortByLastModificationPipe, QuestionListItemComponent, MockCreateQuestionComponent],
             providers: [
                 { provide: GamesService, useValue: gamesServiceSpy },
                 { provide: MatDialog, useValue: matDialogSpy },

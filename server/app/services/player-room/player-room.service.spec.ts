@@ -61,4 +61,50 @@ describe('PlayerRoomService', () => {
         expect(validateSpy).toHaveBeenCalled();
         expect(pushSpy).toHaveBeenCalled();
     });
+
+    it('deletePlayerBySocket should delete the player if the foundMatchRoom is not playing yet', () => {
+        let mockRoom = MOCK_PLAYER_ROOM;
+        mockRoom.isPlaying = false;
+        let mockPlayer = MOCK_PLAYER;
+        mockPlayer.socket = socket;
+        mockRoom.players.push(mockPlayer);
+        matchRoomSpy.matchRooms = [mockRoom];
+
+        const deleteSpy = jest.spyOn(service, 'deletePlayer').mockReturnThis();
+        const inactiveSpy = jest.spyOn(service, 'makePlayerInactive').mockReturnThis();
+
+        const result = service.deletePlayerBySocket(socket.id);
+        expect(result).toEqual(MOCK_PLAYER_ROOM.code);
+        expect(deleteSpy).toHaveBeenCalled();
+        expect(inactiveSpy).not.toHaveBeenCalled();
+    });
+
+    it('deletePlayerBySocket should make the player inactive if the foundMatchRoom is playing', () => {
+        let mockRoom = MOCK_PLAYER_ROOM;
+        mockRoom.isPlaying = true;
+        let mockPlayer = MOCK_PLAYER;
+        mockPlayer.socket = socket;
+        mockRoom.players.push(mockPlayer);
+        matchRoomSpy.matchRooms = [mockRoom];
+
+        const deleteSpy = jest.spyOn(service, 'deletePlayer').mockReturnThis();
+        const inactiveSpy = jest.spyOn(service, 'makePlayerInactive').mockReturnThis();
+
+        const result = service.deletePlayerBySocket(socket.id);
+        expect(result).toEqual(MOCK_PLAYER_ROOM.code);
+        expect(deleteSpy).not.toHaveBeenCalled();
+        expect(inactiveSpy).toHaveBeenCalled();
+    });
+
+    it('deletePlayerBySocket should return undefined if player and room are not found', () => {
+        matchRoomSpy.matchRooms = [];
+
+        const deleteSpy = jest.spyOn(service, 'deletePlayer').mockReturnThis();
+        const inactiveSpy = jest.spyOn(service, 'makePlayerInactive').mockReturnThis();
+
+        const result = service.deletePlayerBySocket('');
+        expect(result).toEqual(undefined);
+        expect(deleteSpy).not.toHaveBeenCalled();
+        expect(inactiveSpy).not.toHaveBeenCalled();
+    });
 });

@@ -1,4 +1,4 @@
-import { MOCK_PLAYER, MOCK_PLAYER_ROOM } from '@app/constants/match-mocks';
+import { MOCK_PLAYER, MOCK_PLAYER_ROOM, MOCK_USERNAME } from '@app/constants/match-mocks';
 import { Player } from '@app/model/schema/player.schema';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -62,12 +62,12 @@ describe('PlayerRoomService', () => {
         expect(pushSpy).toHaveBeenCalled();
     });
 
-    it('deletePlayerBySocket should delete the player if the foundMatchRoom is not playing yet', () => {
+    it('deletePlayerBySocket() should delete the player if the foundMatchRoom is not playing yet', () => {
         let mockRoom = MOCK_PLAYER_ROOM;
         mockRoom.isPlaying = false;
         let mockPlayer = MOCK_PLAYER;
         mockPlayer.socket = socket;
-        mockRoom.players.push(mockPlayer);
+        mockRoom.players = [mockPlayer];
         matchRoomSpy.matchRooms = [mockRoom];
 
         const deleteSpy = jest.spyOn(service, 'deletePlayer').mockReturnThis();
@@ -79,12 +79,12 @@ describe('PlayerRoomService', () => {
         expect(inactiveSpy).not.toHaveBeenCalled();
     });
 
-    it('deletePlayerBySocket should make the player inactive if the foundMatchRoom is playing', () => {
+    it('deletePlayerBySocket() should make the player inactive if the foundMatchRoom is playing', () => {
         let mockRoom = MOCK_PLAYER_ROOM;
         mockRoom.isPlaying = true;
         let mockPlayer = MOCK_PLAYER;
         mockPlayer.socket = socket;
-        mockRoom.players.push(mockPlayer);
+        mockRoom.players = [mockPlayer];
         matchRoomSpy.matchRooms = [mockRoom];
 
         const deleteSpy = jest.spyOn(service, 'deletePlayer').mockReturnThis();
@@ -96,7 +96,7 @@ describe('PlayerRoomService', () => {
         expect(inactiveSpy).toHaveBeenCalled();
     });
 
-    it('deletePlayerBySocket should return undefined if player and room are not found', () => {
+    it('deletePlayerBySocket() should return undefined if player and room are not found', () => {
         matchRoomSpy.matchRooms = [];
 
         const deleteSpy = jest.spyOn(service, 'deletePlayer').mockReturnThis();
@@ -106,5 +106,51 @@ describe('PlayerRoomService', () => {
         expect(result).toEqual(undefined);
         expect(deleteSpy).not.toHaveBeenCalled();
         expect(inactiveSpy).not.toHaveBeenCalled();
+    });
+
+    it('getPlayerByusername() should return the player with the corresponding username (non case sensitive)', () => {
+        let searchedPlayer = MOCK_PLAYER;
+        searchedPlayer.username = MOCK_USERNAME;
+        let otherPlayer: Player = {
+            username: '',
+            score: 0,
+            bonusCount: 0,
+            isPlaying: false,
+            socket: undefined,
+        };
+        jest.spyOn(service, 'getPlayers').mockReturnValue([searchedPlayer, otherPlayer]);
+        expect(service.getPlayerByUsername('', searchedPlayer.username)).toEqual(searchedPlayer);
+        expect(service.getPlayerByUsername('', searchedPlayer.username.toUpperCase())).toEqual(searchedPlayer);
+    });
+
+    it('makePlayerInactive() should set the player isPlaying property to false', () => {
+        const cases = [true, false];
+        cases.forEach((playingState: boolean) => {
+            let mockRoom = MOCK_PLAYER_ROOM;
+            let mockPlayer = MOCK_PLAYER;
+            const mockUsername = MOCK_USERNAME;
+            mockPlayer.username = mockUsername;
+            mockPlayer.isPlaying = playingState;
+            mockRoom.players = [mockPlayer];
+            matchRoomSpy.matchRooms = [mockRoom];
+
+            jest.spyOn(matchRoomSpy, 'getRoomIndexByCode').mockReturnValue(0);
+            jest.spyOn(matchRoomSpy, 'getMatchRoomByCode').mockClear();
+            jest.spyOn(matchRoomSpy, 'getMatchRoomByCode').mockReturnValue(mockRoom);
+            service.makePlayerInactive('', mockUsername);
+            expect(matchRoomSpy.matchRooms[0].players[0].isPlaying).toBeFalsy();
+        });
+    });
+
+    it('deletePlayer() should remove player from the MatchRoom', () => {
+        let mockRoom = MOCK_PLAYER_ROOM;
+        let mockPlayer = MOCK_PLAYER;
+        mockPlayer.username = MOCK_USERNAME;
+        mockRoom.players = [mockPlayer];
+        matchRoomSpy.matchRooms = [mockRoom];
+
+        jest.spyOn(matchRoomSpy, 'getRoomIndexByCode').mockReturnValue(0);
+        service.deletePlayer('', MOCK_USERNAME);
+        expect(matchRoomSpy.matchRooms[0].players.length).toEqual(0);
     });
 });

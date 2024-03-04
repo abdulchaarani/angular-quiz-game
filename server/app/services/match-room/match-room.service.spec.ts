@@ -32,7 +32,7 @@ describe('MatchRoomService', () => {
     });
 
     it('getMatchRoomByCode() should return the MatchRoom with the corresponding code', () => {
-        const searchedMatchRoom = MOCK_MATCH_ROOM;
+        let searchedMatchRoom = MOCK_MATCH_ROOM;
         searchedMatchRoom.code = MOCK_ROOM_CODE;
         service.matchRooms = [MOCK_MATCH_ROOM, searchedMatchRoom];
         const foundRoom = service.getMatchRoomByCode(MOCK_ROOM_CODE);
@@ -42,6 +42,22 @@ describe('MatchRoomService', () => {
     it('getMatchRoomByCode() should return undefined if no match room with the corresponding code is found', () => {
         const foundRoom = service.getMatchRoomByCode(MOCK_ROOM_CODE);
         expect(foundRoom).toEqual(undefined);
+    });
+
+    it('getMatchRoomByCode() should return the index of the corresponding room', () => {
+        const searchedRoom: MatchRoom = {
+            code: MOCK_ROOM_CODE,
+            isLocked: false,
+            isPlaying: false,
+            game: getMockGame(),
+            bannedUsernames: [],
+            players: [],
+            messages: [],
+            hostSocket: undefined,
+        };
+        service.matchRooms = [searchedRoom, MOCK_MATCH_ROOM];
+        const result = service.getRoomIndexByCode(MOCK_ROOM_CODE);
+        expect(result).toEqual(0);
     });
 
     it('addMatchRoom() should generate a room code add the new MatchRoom in the rooms list', () => {

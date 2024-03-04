@@ -31,6 +31,14 @@ export class MatchRoomService {
         });
     }
 
+    getRoomIndexByCode(code: string): number {
+        return this.matchRooms.findIndex((room: MatchRoom) => {
+            console.log(room.code);
+            console.log(code);
+            return room.code === code;
+        });
+    }
+
     addMatchRoom(selectedGame: Game, socket: Socket): MatchRoom {
         const newRoom: MatchRoom = {
             code: this.generateRoomCode(),

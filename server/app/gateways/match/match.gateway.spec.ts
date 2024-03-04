@@ -1,6 +1,5 @@
 import { getMockGame } from '@app/constants/game-mocks';
-import { MatchRoom } from '@app/model/schema/match-room.schema';
-import { Player } from '@app/model/schema/player.schema';
+import { MOCK_MATCH_ROOM, MOCK_PLAYER, MOCK_ROOM_CODE, MOCK_USER_INFO } from '@app/constants/match-mocks';
 import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
@@ -9,25 +8,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance, stub } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
 import { MatchGateway } from './match.gateway';
-const MOCK_USER_INFO = { roomCode: '', username: '' };
-const MOCK_PLAYER: Player = {
-    username: '',
-    score: 0,
-    bonusCount: 0,
-    isPlaying: true,
-    socket: undefined,
-};
-const MOCK_MATCH_ROOM: MatchRoom = {
-    code: '',
-    isLocked: false,
-    isPlaying: false,
-    game: getMockGame(),
-    bannedUsernames: [],
-    players: [],
-    messages: [],
-    hostSocket: undefined,
-};
-const MOCK_ROOM_CODE = 'mockCode';
 
 describe('MatchGateway', () => {
     let gateway: MatchGateway;
@@ -101,7 +81,7 @@ describe('MatchGateway', () => {
 
     it('banUsername() should add username to banned usernames list, and delete player if applicable, then update list', () => {
         const addBannedUsernameSpy = jest.spyOn(playerRoomSpy, 'addBannedUsername').mockReturnThis();
-        let mockPlayer = MOCK_PLAYER;
+        const mockPlayer = MOCK_PLAYER;
         mockPlayer.socket = socket;
         const playerSpy = jest.spyOn(playerRoomSpy, 'getPlayerByUsername').mockReturnValue(mockPlayer);
         const deleteSpy = jest.spyOn(playerRoomSpy, 'deletePlayer').mockReturnThis();

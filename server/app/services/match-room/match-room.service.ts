@@ -59,7 +59,9 @@ export class MatchRoomService {
     }
 
     deleteMatchRoom(matchRoomCode: string): void {
-        this.matchRooms.filter((room) => room.code === matchRoomCode);
+        this.matchRooms = this.matchRooms.filter((room: MatchRoom) => {
+            return room.code !== matchRoomCode;
+        });
     }
 
     isValidMatchRoomCode(code: string): boolean {

@@ -1,5 +1,6 @@
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { MatchService } from '@app/services/match/match.service';
+import { PlayerRoomService } from '@app/services/player-room/player-room.service';
 import { Body, Controller, Get, HttpStatus, Param, Post, Res } from '@nestjs/common';
 import { Response } from 'express';
 
@@ -17,6 +18,7 @@ export class MatchController {
     constructor(
         private readonly matchService: MatchService,
         private matchRoomService: MatchRoomService,
+        private playerRoomService: PlayerRoomService,
     ) {}
 
     @Get('/games')
@@ -50,7 +52,7 @@ export class MatchController {
 
     @Post('validate-username')
     validateUsername(@Body() data: MatchUsernameInfo, @Res() response: Response) {
-        if (this.matchRoomService.isValidUsername(data.matchRoomCode, data.username)) {
+        if (this.playerRoomService.isValidUsername(data.matchRoomCode, data.username)) {
             response.status(HttpStatus.OK).send();
         } else {
             response.status(HttpStatus.FORBIDDEN).send();

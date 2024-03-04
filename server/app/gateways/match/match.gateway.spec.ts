@@ -1,5 +1,6 @@
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { MatchService } from '@app/services/match/match.service';
+import { PlayerRoomService } from '@app/services/player-room/player-room.service';
 import { TimeService } from '@app/services/time/time.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
@@ -10,17 +11,20 @@ describe('MatchGateway', () => {
     let matchRoomSpy: SinonStubbedInstance<MatchRoomService>;
     let matchSpy: SinonStubbedInstance<MatchService>;
     let timeSpy: SinonStubbedInstance<TimeService>;
+    let playerRoomSpy: SinonStubbedInstance<PlayerRoomService>;
 
     beforeEach(async () => {
         matchRoomSpy = createStubInstance(MatchRoomService);
         matchSpy = createStubInstance(MatchService);
         timeSpy = createStubInstance(TimeService);
+        playerRoomSpy = createStubInstance(PlayerRoomService);
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 MatchGateway,
                 { provide: MatchRoomService, useValue: matchRoomSpy },
                 { provide: MatchService, useValue: matchSpy },
                 { provide: TimeService, useValue: timeSpy },
+                { provide: PlayerRoomService, useValue: playerRoomSpy },
             ],
         }).compile();
 

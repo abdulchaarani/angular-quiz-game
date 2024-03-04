@@ -1,6 +1,7 @@
 import { Game } from '@app/model/database/game';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { MatchService } from '@app/services/match/match.service';
+import { PlayerRoomService } from '@app/services/player-room/player-room.service';
 import { HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Response } from 'express';
@@ -11,9 +12,12 @@ describe('MatchController', () => {
     let controller: MatchController;
     let matchService: SinonStubbedInstance<MatchService>;
     let matchRoomService: SinonStubbedInstance<MatchRoomService>;
+    let playerRoomService: SinonStubbedInstance<PlayerRoomService>;
 
     beforeEach(async () => {
         matchService = createStubInstance(MatchService);
+        matchRoomService = createStubInstance(MatchRoomService);
+        playerRoomService = createStubInstance(PlayerRoomService);
         const module: TestingModule = await Test.createTestingModule({
             controllers: [MatchController],
             providers: [
@@ -24,6 +28,10 @@ describe('MatchController', () => {
                 {
                     provide: MatchRoomService,
                     useValue: matchRoomService,
+                },
+                {
+                    provide: PlayerRoomService,
+                    useValue: playerRoomService,
                 },
             ],
         }).compile();

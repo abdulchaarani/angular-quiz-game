@@ -16,6 +16,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { BackupController } from './controllers/backup/backup.controller';
 import { MatchRoomService } from './services/match-room/match-room.service';
+import { PlayerRoomService } from './services/player-room/player-room.service';
 import { TimeService } from './services/time/time.service';
 
 @Module({
@@ -43,6 +44,7 @@ import { TimeService } from './services/time/time.service';
         GameCreationService,
         MatchRoomService,
         TimeService,
+        PlayerRoomService,
     ],
 })
 export class AppModule {}

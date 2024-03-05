@@ -64,6 +64,10 @@ export class MatchRoomService {
             this.username = res.username;
             this.router.navigateByUrl('/match-room');
         });
+        this.sendPlayersData(this.matchRoomCode);
+    }
+
+    sendPlayersData(roomCode: string) {
         this.socketService.send('sendPlayersData', roomCode); // Updates the list for everyone with new player
     }
 

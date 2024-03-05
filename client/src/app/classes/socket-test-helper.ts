@@ -9,7 +9,7 @@ export class SocketTestHelper {
         this.callbacks.get(event)!.push(callback);
     }
 
-    emit(event: string, ...params: unknown): void {
+    emit(event: string, ...params: any): void {
         return;
     }
 

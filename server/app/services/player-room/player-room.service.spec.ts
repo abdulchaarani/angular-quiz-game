@@ -153,4 +153,45 @@ describe('PlayerRoomService', () => {
         service.deletePlayer('', MOCK_USERNAME);
         expect(matchRoomSpy.matchRooms[0].players.length).toEqual(0);
     });
+
+    it('getBannedUsernames() should return banned usernames', () => {
+        let mockRoom = MOCK_PLAYER_ROOM;
+        mockRoom.bannedUsernames = [MOCK_USERNAME];
+        matchRoomSpy.matchRooms = [mockRoom];
+        expect(service.getBannedUsernames('')).toEqual([MOCK_USERNAME]);
+    });
+
+    it('addBannedUsernames() should add username to bannedUsernames list from matchRoomService', () => {
+        const pushSpy = jest.spyOn(Array.prototype, 'push');
+        service.addBannedUsername('', MOCK_USERNAME);
+        expect(pushSpy).toHaveBeenCalledWith(MOCK_USERNAME.toUpperCase());
+    });
+
+    it('isBannedUsername() should return true if username is banned', () => {
+        jest.spyOn(service, 'getBannedUsernames').mockReturnValue([MOCK_USERNAME]);
+        expect(service.isBannedUsername('', MOCK_USERNAME)).toEqual(true);
+    });
+
+    it('isBannedUsername() should return false if username is not banned', () => {
+        jest.spyOn(service, 'getBannedUsernames').mockReturnValue([]);
+        expect(service.isBannedUsername('', MOCK_USERNAME)).toEqual(false);
+    });
+
+    it('isValidUsername() should return true only if username is valid (not host, not banned, and not used)', () => {
+        const testCases = [
+            { username: MOCK_USERNAME, isBanned: false, isUsed: false, expectedResult: true },
+            { username: 'Organisateur', isBanned: false, isUsed: false, expectedResult: false },
+            { username: MOCK_USERNAME, isBanned: true, isUsed: false, expectedResult: false },
+            { username: MOCK_USERNAME, isBanned: false, isUsed: true, expectedResult: false },
+            { username: MOCK_USERNAME, isBanned: true, isUsed: true, expectedResult: false },
+        ];
+        for (const { username, isBanned, isUsed, expectedResult } of testCases) {
+            const banSpy = jest.spyOn(service, 'isBannedUsername').mockReturnValue(isBanned);
+            const usedSpy = jest.spyOn(service, 'getPlayerByUsername').mockReturnValue(isUsed ? MOCK_PLAYER : undefined);
+            const result = service.isValidUsername('', username);
+            expect(banSpy).toHaveBeenCalled();
+            expect(usedSpy).toHaveBeenCalled();
+            expect(result).toEqual(expectedResult);
+        }
+    });
 });

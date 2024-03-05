@@ -1,16 +1,37 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { DialogTextInputComponent } from './dialog-text-input.component';
 
-describe('DialogTextInputComponent', () => {
+@Component({
+    selector: 'app-dialog-text-input',
+    template: '',
+})
+class MockDialogTextInputComponent {}
+
+@Component({
+    selector: 'mat-form-field',
+    template: '',
+})
+class MockMatFormFieldComponent {}
+
+@Component({
+    selector: 'mat-label',
+    template: '',
+})
+class MockMatLabelComponent {}
+
+fdescribe('DialogTextInputComponent', () => {
     let component: DialogTextInputComponent;
     let fixture: ComponentFixture<DialogTextInputComponent>;
     const matDialogSpy = jasmine.createSpyObj('MatDialogRef', ['close']);
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            declarations: [DialogTextInputComponent],
+            declarations: [DialogTextInputComponent, MockDialogTextInputComponent, MockMatFormFieldComponent, MockMatLabelComponent],
+            imports: [FormsModule, MatDialogModule],
             providers: [
                 {
                     provide: MatDialogRef,

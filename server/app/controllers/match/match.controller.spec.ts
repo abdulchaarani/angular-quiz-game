@@ -96,4 +96,46 @@ describe('MatchController', () => {
         res.send = () => res;
         await controller.gameByIdWithoutIsCorrect('', res);
     });
+
+    it('validateMatchRoomCode() should return OK if the code is valid', () => {
+        matchRoomService.isValidMatchRoomCode.returns(true);
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.OK);
+            return res;
+        };
+        res.send = () => res;
+        controller.validateMatchRoomCode({ matchRoomCode: '' }, res);
+    });
+
+    it('validateMatchRoomCode() should return FORBIDDEN if the code is invalid', () => {
+        matchRoomService.isValidMatchRoomCode.returns(false);
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.FORBIDDEN);
+            return res;
+        };
+        res.send = () => res;
+        controller.validateMatchRoomCode({ matchRoomCode: '' }, res);
+    });
+    it('validateUsername() should return OK if the username is valid', () => {
+        playerRoomService.isValidUsername.returns(true);
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.OK);
+            return res;
+        };
+        res.send = () => res;
+        controller.validateUsername({ matchRoomCode: '', username: '' }, res);
+    });
+    it('validateUsername() should return FORBIDDEN if the username is invalid', () => {
+        playerRoomService.isValidUsername.returns(false);
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.FORBIDDEN);
+            return res;
+        };
+        res.send = () => res;
+        controller.validateUsername({ matchRoomCode: '', username: '' }, res);
+    });
 });

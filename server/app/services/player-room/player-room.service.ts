@@ -62,17 +62,20 @@ export class PlayerRoomService {
     }
 
     makePlayerInactive(matchRoomCode: string, username: string): void {
-        this.matchRoomService.getMatchRoomByCode(matchRoomCode).players.find((player: Player) => {
+        const roomIndex = this.matchRoomService.getRoomIndexByCode(matchRoomCode);
+        const playerIndex = this.matchRoomService.getMatchRoomByCode(matchRoomCode).players.findIndex((player: Player) => {
             return player.username === username;
-        }).isPlaying = false;
+        });
+        if (roomIndex !== INDEX_NOT_FOUND && playerIndex !== INDEX_NOT_FOUND) {
+            this.matchRoomService.matchRooms[roomIndex].players[playerIndex].isPlaying = false;
+        }
     }
 
     deletePlayer(matchRoomCode: string, username: string): void {
-        this.matchRoomService.getMatchRoomByCode(matchRoomCode).players = this.matchRoomService
-            .getMatchRoomByCode(matchRoomCode)
-            .players.filter((player) => {
-                return player.username.toUpperCase() !== username.toUpperCase();
-            });
+        const roomIndex = this.matchRoomService.getRoomIndexByCode(matchRoomCode);
+        this.matchRoomService.matchRooms[roomIndex].players = this.matchRoomService.matchRooms[roomIndex].players.filter((player) => {
+            return player.username.toUpperCase() !== username.toUpperCase();
+        });
     }
 
     getBannedUsernames(matchRoomCode: string): string[] {

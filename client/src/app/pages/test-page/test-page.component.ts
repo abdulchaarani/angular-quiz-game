@@ -4,6 +4,7 @@ import { Game } from '@app/interfaces/game';
 import { Question } from '@app/interfaces/question';
 import { GameService } from '@app/services/game/game.service';
 import { MatchService } from '@app/services/match/match.service';
+import { QuestionContextService } from '@app/services/question-context/question-context.service';
 import { Subscription } from 'rxjs';
 @Component({
     selector: 'app-test-page',
@@ -21,6 +22,7 @@ export class TestPageComponent implements OnInit, OnDestroy {
     constructor(
         private matchService: MatchService,
         private router: Router,
+        private questionContextService: QuestionContextService,
     ) {
         this.currentQuestionIndex = 0;
         this.currentGame = {} as Game;
@@ -31,6 +33,7 @@ export class TestPageComponent implements OnInit, OnDestroy {
         this.subscription = this.matchService.questionAdvanced$.subscribe(() => {
             this.advanceQuestion();
         });
+        this.questionContextService.setContext('testPage');
     }
 
     loadGame(): void {

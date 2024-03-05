@@ -22,6 +22,10 @@ interface UserInfo {
     username: string;
 }
 
+interface QuestionInfo {
+    questionIndex: number;
+}
+
 // Future TODO: Open socket only if code and user are valid + Allow host to be able to disconnect banned players
 @WebSocketGateway({ cors: true })
 @Injectable()
@@ -68,6 +72,12 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
             this.playerRoomService.deletePlayer(data.roomCode, data.username);
             this.server.in(playerToBan.socket.id).disconnectSockets();
         }
+        this.sendPlayersData(socket, data.roomCode);
+    }
+
+    @SubscribeMessage(MatchEvents.UpdateScore)
+    updateScore(@ConnectedSocket() socket: Socket, @MessageBody() data: UserInfo, @MessageBody() points: number) {
+        this.playerRoomService.updateScore(data.roomCode, data.username, points);
         this.sendPlayersData(socket, data.roomCode);
     }
 

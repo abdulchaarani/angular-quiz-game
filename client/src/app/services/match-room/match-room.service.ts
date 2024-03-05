@@ -53,7 +53,7 @@ export class MatchRoomService {
         this.socketService.send('createRoom', stringifiedGame, (res: { code: string }) => {
             this.matchRoomCode = res.code;
             this.username = 'Organisateur';
-            this.router.navigateByUrl('/match-room');
+            // this.router.navigateByUrl('/match-room');
         });
     }
 
@@ -79,6 +79,12 @@ export class MatchRoomService {
             const sentInfo: UserInfo = { roomCode: this.matchRoomCode, username };
             this.socketService.send('banUsername', sentInfo);
         }
+    }
+
+    updatePlayerScore(username: string, points: number) {
+        const sentUserInfo: UserInfo = { roomCode: this.matchRoomCode, username };
+
+        this.socketService.send('updateScore', { sentUserInfo, points });
     }
 
     private fetchPlayersData() {

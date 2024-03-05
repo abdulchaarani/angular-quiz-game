@@ -1,10 +1,11 @@
 import { HttpResponse } from '@angular/common/http';
 import { Component, HostListener, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ChatComponent } from '@app/components/chat/chat.component';
 import { Choice } from '@app/interfaces/choice';
 import { Question } from '@app/interfaces/question';
+import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { MatchService } from '@app/services/match/match.service';
+import { QuestionContextService } from '@app/services/question-context/question-context.service';
 import { TimeService } from '@app/services/time/time.service';
 
 @Component({
@@ -15,7 +16,6 @@ import { TimeService } from '@app/services/time/time.service';
 export class QuestionAreaComponent implements OnInit, OnChanges {
     @Input() currentQuestion: Question;
     @Input() gameDuration: number;
-    @Input() isTestPage: boolean;
 
     answers: Choice[];
     selectedAnswers: Choice[];
@@ -25,6 +25,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     playerScore: number;
     havePointsBeenAdded: boolean;
     bonus: number;
+    context: 'testPage' | 'hostView' | 'playerView';
 
     readonly bonusFactor = 0.2;
     private readonly multiplicationFactor = 100;
@@ -34,6 +35,8 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         public timeService: TimeService,
         public dialog: MatDialog,
         private matchService: MatchService,
+        private questionContextService: QuestionContextService,
+        public matchRoomService: MatchRoomService,
     ) {
         this.selectedAnswers = [];
         this.isSelectionEnabled = true;
@@ -46,6 +49,14 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
 
     get time() {
         return this.timeService.time;
+    }
+
+    get matchRoomCode() {
+        return this.matchRoomService.getMatchRoomCode();
+    }
+
+    get username() {
+        return this.matchRoomService.getUsername();
     }
 
     @HostListener('document:keydown', ['$event'])
@@ -65,11 +76,14 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     }
 
     ngOnInit(): void {
+        this.context = this.questionContextService.getContext();
+
         this.timeService.stopTimer();
         this.timeService.startTimer(this.gameDuration);
         if (this.currentQuestion.choices) {
             this.answers = this.currentQuestion.choices;
         }
+
         if (this.currentQuestion.id) {
             this.matchService.questionId = this.currentQuestion.id;
         }
@@ -116,6 +130,10 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
 
     submitAnswers(): void {
         this.isSelectionEnabled = false;
+        if (this.context === 'testPage') {
+            this.timeService.stopTimer();
+            this.checkAnswers();
+        }
     }
 
     selectChoice(choice: Choice): void {
@@ -132,24 +150,24 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         return this.selectedAnswers.includes(choice);
     }
 
-    openChatDialog(): void {
-        this.dialog.open(ChatComponent, {
-            width: '50%',
-            height: '50%',
-        });
-    }
-
     playerScoreUpdate(): void {
+        //TODO: move to service
         if (this.isCorrect === true) {
-            if (this.isTestPage === true) {
+            if (this.context === 'testPage') {
                 this.bonus = this.currentQuestion.points * this.bonusFactor;
+                this.playerScore += this.currentQuestion.points;
+                this.playerScore += this.bonus;
+            } else if (this.context === 'playerView') {
+                const updatedScore = this.matchRoomService.updatePlayerScore(this.username, this.currentQuestion.points);
+                if (updatedScore !== void 0) {
+                    this.playerScore = updatedScore;
+                }
             }
-            this.playerScore += this.currentQuestion.points;
-            this.playerScore += this.bonus;
         }
     }
 
     afterFeedback(): void {
+        //TODO: move to service
         if (this.havePointsBeenAdded === false) {
             this.playerScoreUpdate();
             this.havePointsBeenAdded = true;

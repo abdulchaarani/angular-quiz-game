@@ -33,6 +33,8 @@ import { TestPageComponent } from './pages/test-page/test-page.component';
 import { WaitPageComponent } from './pages/wait-page/wait-page.component';
 import { SortByLastModificationPipe } from './pipes/sort-by-last-modification.pipe';
 import { SortByScorePipe } from './pipes/sort-by-score.pipe';
+import { PlayerQuestionComponent } from './pages/player-question/player-question/player-question.component';
+import { HostQuestionComponent } from './pages/host-question/host-question.component';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -68,6 +70,8 @@ import { SortByScorePipe } from './pipes/sort-by-score.pipe';
         SortByScorePipe,
         HistogramComponent,
         HostQuestionAreaComponent,
+        PlayerQuestionComponent,
+        HostQuestionComponent,
     ],
     imports: [
         AppMaterialModule,

@@ -97,7 +97,7 @@ export class MatchRoomService {
         const matchRoom: MatchRoom = this.getMatchRoomByCode(code);
         const nextQuestionIndex = ++matchRoom.currentQuestionIndex;
 
-        if (nextQuestionIndex > matchRoom.gameLength) {
+        if (nextQuestionIndex > matchRoom.gameLength - 1) {
             server.in(code).emit('gameOver');
             return;
         }

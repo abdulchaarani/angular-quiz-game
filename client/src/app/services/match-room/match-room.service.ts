@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Player } from '@app/interfaces/player';
+import { Question } from '@app/interfaces/question';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 
@@ -41,6 +42,9 @@ export class MatchRoomService {
             this.socketService.connect();
             this.redirectAfterDisconnection();
             this.fetchPlayersData();
+            this.beginQuiz();
+            this.moveToNextQuestion();
+            this.gameOver();
         }
     }
 
@@ -79,6 +83,32 @@ export class MatchRoomService {
             const sentInfo: UserInfo = { roomCode: this.matchRoomCode, username };
             this.socketService.send('banUsername', sentInfo);
         }
+    }
+
+    startMatch() {
+        this.socketService.send('startMatch', this.matchRoomCode);
+    }
+
+    nextQuestion() {
+        this.socketService.send('nextQuestion', this.matchRoomCode);
+    }
+
+    private beginQuiz() {
+        this.socketService.on('beginQuiz', (firstQuestion: Question) => {
+            console.log(firstQuestion);
+        });
+    }
+
+    private gameOver() {
+        this.socketService.on('gameOver', () => {
+            console.log('gameOver');
+        });
+    }
+
+    private moveToNextQuestion() {
+        this.socketService.on('nextQuestion', (question: Question) => {
+            console.log(question);
+        });
     }
 
     private fetchPlayersData() {

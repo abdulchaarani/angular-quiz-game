@@ -34,7 +34,7 @@ export class TimeService {
                     this.counters.set(roomId, currentTime - 1);
                 } else {
                     this.stopTimer(roomId, server);
-                    callbackOnExpiredTimer();
+                    callbackOnExpiredTimer?.();
                 }
             }, this.tick),
         );

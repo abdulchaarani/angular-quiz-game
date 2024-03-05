@@ -22,7 +22,7 @@ interface UserInfo {
     username: string;
 }
 
-const COUNTDOWN_TIME: number = 5;
+const COUNTDOWN_TIME = 5;
 
 // Future TODO: Open socket only if code and user are valid + Allow host to be able to disconnect banned players
 @WebSocketGateway({ cors: true })
@@ -91,12 +91,15 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @SubscribeMessage(MatchEvents.StartMatch)
     startMatch(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
         if (this.matchRoomService.canStartMatch(roomCode)) {
+            this.matchRoomService.sendFirstQuestion(this.server, roomCode);
             this.matchRoomService.markGameAsPlaying(roomCode);
-
-            const onCountdownExpired: () => void = () => {};
-
             this.timeService.startTimer(roomCode, COUNTDOWN_TIME, this.server);
         }
+    }
+
+    @SubscribeMessage(MatchEvents.NextQuestion)
+    nextQuestion(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
+        this.matchRoomService.sendNextQuestion(this.server, roomCode);
     }
 
     handleConnection(@ConnectedSocket() socket: Socket) {

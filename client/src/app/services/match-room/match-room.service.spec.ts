@@ -12,7 +12,7 @@ class SocketHandlerServiceMock extends SocketHandlerService {
     override connect() {}
 }
 
-fdescribe('MatchRoomService', () => {
+describe('MatchRoomService', () => {
     let service: MatchRoomService;
     let socketSpy: SocketHandlerServiceMock;
     let socketHelper: SocketTestHelper;
@@ -116,11 +116,26 @@ fdescribe('MatchRoomService', () => {
     });
 
     it('fetchPlayersData() should update players when receiving event', () => {
-        // TODO
+        service.players = [];
+        const mockPlayer: Player = {
+            username: '',
+            score: 0,
+            bonusCount: 0,
+            isPlaying: false,
+        };
+        const mockStringifiedPlayer = JSON.stringify([mockPlayer]);
+        socketHelper.peerSideEmit('fetchPlayersData', mockStringifiedPlayer);
+        const spy = spyOn(JSON, 'parse').and.callThrough();
+        // expect(service.players).toEqual([mockPlayer]);
+        expect(spy).toHaveBeenCalled();
     });
 
     it('redirectAfterDisconnection() should redirect to home, reset values and display error message when receiving disconnect event', () => {
-        // TODO
+        const resetSpy = spyOn(service, 'resetMatchValues');
+        socketHelper.peerSideEmit('disconnect');
+        expect(resetSpy).toHaveBeenCalled();
+        expect(notificationService.displayErrorMessage).toHaveBeenCalled();
+        expect(router.navigateByUrl).toHaveBeenCalled();
     });
 
     it('resetMatchValues() should reset matchRoomCode, username, and players', () => {

@@ -81,13 +81,13 @@ export class MatchRoomService {
         }
     }
 
-    private fetchPlayersData() {
+    fetchPlayersData() {
         this.socketService.on('fetchPlayersData', (res: string) => {
             this.players = JSON.parse(res);
         });
     }
 
-    private redirectAfterDisconnection() {
+    redirectAfterDisconnection() {
         this.socketService.on('disconnect', () => {
             this.router.navigateByUrl('/home');
             this.resetMatchValues();
@@ -95,7 +95,7 @@ export class MatchRoomService {
         });
     }
 
-    private resetMatchValues() {
+    resetMatchValues() {
         this.matchRoomCode = '';
         this.username = '';
         this.players = [];

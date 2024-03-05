@@ -26,13 +26,14 @@ describe('MatchRoomService', () => {
 
     it('generateRoomCode() should generate a random 4 number room code', () => {
         jest.spyOn(service, 'getMatchRoomByCode').mockReturnValue(undefined);
+        jest.spyOn(Math, 'random').mockReturnValue(0);
         const result = service.generateRoomCode();
         expect(result.length).toEqual(MAXIMUM_CODE_LENGTH);
         expect(isNaN(Number(result))).toBeFalsy();
     });
 
     it('getMatchRoomByCode() should return the MatchRoom with the corresponding code', () => {
-        let searchedMatchRoom = MOCK_MATCH_ROOM;
+        const searchedMatchRoom = MOCK_MATCH_ROOM;
         searchedMatchRoom.code = MOCK_ROOM_CODE;
         service.matchRooms = [MOCK_MATCH_ROOM, searchedMatchRoom];
         const foundRoom = service.getMatchRoomByCode(MOCK_ROOM_CODE);
@@ -90,7 +91,8 @@ describe('MatchRoomService', () => {
     });
 
     it('getRoomCodeByHostSocket() should return undefined if no room where the host belongs is found', () => {
-        const result = service.getRoomCodeByHostSocket('');
+        service.matchRooms = [MOCK_MATCH_ROOM];
+        const result = service.getRoomCodeByHostSocket(MOCK_ROOM_CODE);
         expect(result).toEqual(undefined);
     });
 
@@ -168,7 +170,7 @@ describe('MatchRoomService', () => {
         totallyInvalidRoom.isLocked = false;
         totallyInvalidRoom.players = [];
 
-        const invalidRooms = [unlockedRoom, noPlayerRoom, totallyInvalidRoom];
+        const invalidRooms = [unlockedRoom, noPlayerRoom, totallyInvalidRoom, undefined];
         invalidRooms.forEach((room: MatchRoom) => {
             jest.spyOn(service, 'getMatchRoomByCode').mockReturnValue(room);
             expect(service.canStartMatch('')).toBeFalsy();

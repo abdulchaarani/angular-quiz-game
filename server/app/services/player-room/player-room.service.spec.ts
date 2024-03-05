@@ -1,4 +1,4 @@
-import { MOCK_PLAYER, MOCK_PLAYER_ROOM, MOCK_USERNAME } from '@app/constants/match-mocks';
+import { MOCK_MATCH_ROOM, MOCK_PLAYER, MOCK_PLAYER_ROOM, MOCK_USERNAME } from '@app/constants/match-mocks';
 import { Player } from '@app/model/schema/player.schema';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -54,7 +54,7 @@ describe('PlayerRoomService', () => {
             score: 0,
             bonusCount: 0,
             isPlaying: true,
-            socket: socket,
+            socket,
         };
         const result = service.addPlayer(socket, '', mockUsername);
         expect(result).toEqual(expectedResult);
@@ -63,9 +63,9 @@ describe('PlayerRoomService', () => {
     });
 
     it('deletePlayerBySocket() should delete the player if the foundMatchRoom is not playing yet', () => {
-        let mockRoom = MOCK_PLAYER_ROOM;
+        const mockRoom = MOCK_PLAYER_ROOM;
         mockRoom.isPlaying = false;
-        let mockPlayer = MOCK_PLAYER;
+        const mockPlayer = MOCK_PLAYER;
         mockPlayer.socket = socket;
         mockRoom.players = [mockPlayer];
         matchRoomSpy.matchRooms = [mockRoom];
@@ -80,9 +80,9 @@ describe('PlayerRoomService', () => {
     });
 
     it('deletePlayerBySocket() should make the player inactive if the foundMatchRoom is playing', () => {
-        let mockRoom = MOCK_PLAYER_ROOM;
+        const mockRoom = MOCK_PLAYER_ROOM;
         mockRoom.isPlaying = true;
-        let mockPlayer = MOCK_PLAYER;
+        const mockPlayer = MOCK_PLAYER;
         mockPlayer.socket = socket;
         mockRoom.players = [mockPlayer];
         matchRoomSpy.matchRooms = [mockRoom];
@@ -97,7 +97,7 @@ describe('PlayerRoomService', () => {
     });
 
     it('deletePlayerBySocket() should return undefined if player and room are not found', () => {
-        matchRoomSpy.matchRooms = [];
+        matchRoomSpy.matchRooms = [MOCK_MATCH_ROOM];
 
         const deleteSpy = jest.spyOn(service, 'deletePlayer').mockReturnThis();
         const inactiveSpy = jest.spyOn(service, 'makePlayerInactive').mockReturnThis();
@@ -109,9 +109,9 @@ describe('PlayerRoomService', () => {
     });
 
     it('getPlayerByusername() should return the player with the corresponding username (non case sensitive)', () => {
-        let searchedPlayer = MOCK_PLAYER;
+        const searchedPlayer = MOCK_PLAYER;
         searchedPlayer.username = MOCK_USERNAME;
-        let otherPlayer: Player = {
+        const otherPlayer: Player = {
             username: '',
             score: 0,
             bonusCount: 0,
@@ -126,8 +126,8 @@ describe('PlayerRoomService', () => {
     it('makePlayerInactive() should set the player isPlaying property to false', () => {
         const cases = [true, false];
         cases.forEach((playingState: boolean) => {
-            let mockRoom = MOCK_PLAYER_ROOM;
-            let mockPlayer = MOCK_PLAYER;
+            const mockRoom = MOCK_PLAYER_ROOM;
+            const mockPlayer = MOCK_PLAYER;
             const mockUsername = MOCK_USERNAME;
             mockPlayer.username = mockUsername;
             mockPlayer.isPlaying = playingState;
@@ -143,8 +143,8 @@ describe('PlayerRoomService', () => {
     });
 
     it('deletePlayer() should remove player from the MatchRoom', () => {
-        let mockRoom = MOCK_PLAYER_ROOM;
-        let mockPlayer = MOCK_PLAYER;
+        const mockRoom = MOCK_PLAYER_ROOM;
+        const mockPlayer = MOCK_PLAYER;
         mockPlayer.username = MOCK_USERNAME;
         mockRoom.players = [mockPlayer];
         matchRoomSpy.matchRooms = [mockRoom];
@@ -155,7 +155,7 @@ describe('PlayerRoomService', () => {
     });
 
     it('getBannedUsernames() should return banned usernames', () => {
-        let mockRoom = MOCK_PLAYER_ROOM;
+        const mockRoom = MOCK_PLAYER_ROOM;
         mockRoom.bannedUsernames = [MOCK_USERNAME];
         matchRoomSpy.matchRooms = [mockRoom];
         expect(service.getBannedUsernames('')).toEqual([MOCK_USERNAME]);

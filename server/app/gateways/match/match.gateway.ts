@@ -22,6 +22,8 @@ interface UserInfo {
     username: string;
 }
 
+const COUNTDOWN_TIME: number = 5;
+
 // Future TODO: Open socket only if code and user are valid + Allow host to be able to disconnect banned players
 @WebSocketGateway({ cors: true })
 @Injectable()
@@ -78,19 +80,23 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
     }
 
-    @SubscribeMessage(MatchEvents.StartTimer)
-    startTimer(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
-        const clientRoom = this.matchRoomService.getMatchRoomByCode(roomCode);
-        const currentGame = this.matchBackupService.getBackupGame(clientRoom.game.id);
-        this.timeService.startTimer(roomCode, currentGame.duration, this.server);
-    }
+    // @SubscribeMessage(MatchEvents.StartTimer)
+    // startTimer(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
+    //     const clientRoom = this.matchRoomService.getMatchRoomByCode(roomCode);
+    //     const currentGame = this.matchBackupService.getBackupGame(clientRoom.game.id);
+    //     this.timeService.startTimer(roomCode, currentGame.duration, this.server);
+    // }
 
     // TODO: Start match: Do not forget to make isPlaying = true in MatchRoom object!!
     @SubscribeMessage(MatchEvents.StartMatch)
     startMatch(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
-        if (this.matchRoomService.canStartMatch(roomCode)) this.matchRoomService.markGameAsPlaying(roomCode);
-        // display timer and start countdown
-        // this.server.to(roomCode).emit();
+        if (this.matchRoomService.canStartMatch(roomCode)) {
+            this.matchRoomService.markGameAsPlaying(roomCode);
+
+            const onCountdownExpired: () => void = () => {};
+
+            this.timeService.startTimer(roomCode, COUNTDOWN_TIME, this.server);
+        }
     }
 
     handleConnection(@ConnectedSocket() socket: Socket) {

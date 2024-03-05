@@ -8,6 +8,8 @@ export interface MatchRoom {
     isLocked: boolean;
     isPlaying: boolean;
     game: Game;
+    gameLength: number;
+    currentQuestionIndex: number;
     bannedUsernames: string[];
     players: Player[];
     messages: Message[];

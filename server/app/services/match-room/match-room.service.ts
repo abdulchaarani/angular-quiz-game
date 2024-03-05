@@ -1,7 +1,8 @@
 import { Game } from '@app/model/database/game';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Injectable } from '@nestjs/common';
-import { Socket } from 'socket.io';
+import { Socket, Server } from 'socket.io';
+import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
 
 const FACTOR = 9000;
 const MAXIMUM_CODE_LENGTH = 4;
@@ -10,7 +11,7 @@ const MAXIMUM_CODE_LENGTH = 4;
 export class MatchRoomService {
     matchRooms: MatchRoom[];
 
-    constructor() {
+    constructor(private matchBackupService: MatchBackupService) {
         this.matchRooms = [];
     }
 
@@ -38,6 +39,8 @@ export class MatchRoomService {
             isLocked: false,
             isPlaying: false,
             game: selectedGame,
+            gameLength: selectedGame.questions.length,
+            currentQuestionIndex: 0,
             bannedUsernames: [],
             players: [],
             messages: [],
@@ -80,7 +83,26 @@ export class MatchRoomService {
     }
 
     markGameAsPlaying(code: string): void {
-        const matchRoom: MatchRoom = this.matchRooms.find((room) => room.code === code);
+        const matchRoom: MatchRoom = this.getMatchRoomByCode(code);
         matchRoom.isPlaying = true;
+    }
+
+    sendFirstQuestion(server: Server, code: string): void {
+        const matchRoom: MatchRoom = this.getMatchRoomByCode(code);
+        const firstQuestion = matchRoom.game.questions[0];
+        server.in(code).emit('beginQuiz', firstQuestion);
+    }
+
+    sendNextQuestion(server: Server, code: string): void {
+        const matchRoom: MatchRoom = this.getMatchRoomByCode(code);
+        const nextQuestionIndex = ++matchRoom.currentQuestionIndex;
+
+        if (nextQuestionIndex > matchRoom.gameLength) {
+            server.in(code).emit('gameOver');
+            return;
+        }
+
+        const nextQuestion = matchRoom.game.questions[nextQuestionIndex];
+        server.in(code).emit('nextQuestion', nextQuestion);
     }
 }

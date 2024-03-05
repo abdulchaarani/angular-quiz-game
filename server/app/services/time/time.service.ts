@@ -19,25 +19,27 @@ export class TimeService {
         return this.counters.get(roomId);
     }
 
-    startTimer(roomId: string, startValue: number, server: Server) {
+    startTimer(roomId: string, startValue: number, server: Server, callbackOnExpiredTimer?: () => void) {
         if (this.intervals.has(roomId)) return;
 
-        this.counters.set(roomId, startValue);
+        this.counters.set(roomId, startValue - 1);
 
         this.intervals.set(
             roomId,
             setInterval(() => {
                 const currentTime = this.counters.get(roomId);
-                if (currentTime > 0) {
+                if (currentTime >= 0) {
                     server.in(roomId).emit('timer', currentTime);
                     // TODO : Find better solution to this
                     this.counters.set(roomId, currentTime - 1);
                 } else {
                     this.stopTimer(roomId, server);
+                    callbackOnExpiredTimer();
                 }
             }, this.tick),
         );
     }
+
     stopTimer(roomId: string, server: Server) {
         this.intervals.delete(roomId);
         clearInterval(this.counters.get(roomId));

@@ -11,7 +11,6 @@ const MULTIPLICATION_FACTOR = 100;
     styleUrls: ['./wait-page.component.scss'],
 })
 export class WaitPageComponent {
-    // TODO: Replace Dummy values using actual services with backend implementation
     isLocked: boolean;
     startTimerButton: boolean;
     constructor(

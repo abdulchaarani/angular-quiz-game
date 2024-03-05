@@ -23,7 +23,7 @@ class MockMatFormFieldComponent {}
 })
 class MockMatLabelComponent {}
 
-fdescribe('DialogTextInputComponent', () => {
+describe('DialogTextInputComponent', () => {
     let component: DialogTextInputComponent;
     let fixture: ComponentFixture<DialogTextInputComponent>;
     const matDialogSpy = jasmine.createSpyObj('MatDialogRef', ['close']);

@@ -4,9 +4,9 @@ import { TestBed } from '@angular/core/testing';
 import { getMockGame } from '@app/constants/game-mocks';
 import { Game } from '@app/interfaces/game';
 import { ChoiceValidationService } from '@app/services/choice-validation/choice-validation.service';
+import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { Observable, of } from 'rxjs';
-import { MatchRoomService } from '../match-room/match-room.service';
 import { MatchService } from './match.service';
 
 describe('MatchService', () => {

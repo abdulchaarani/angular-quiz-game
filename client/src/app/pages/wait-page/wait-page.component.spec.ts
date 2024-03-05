@@ -37,6 +37,12 @@ describe('WaitPageComponent', () => {
         expect(component).toBeTruthy();
     });
 
+    it('time() should return the time of the timeService', () => {
+        const time = 100;
+        (component.timeService as unknown).time = time;
+        expect(component.time).toEqual(time);
+    });
+
     it('isHost() should be true if username is "Organisateur", else false', () => {
         const cases = [
             { username: '', expectedResult: false },

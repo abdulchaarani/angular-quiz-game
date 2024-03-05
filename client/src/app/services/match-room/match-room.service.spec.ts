@@ -69,6 +69,29 @@ describe('MatchRoomService', () => {
         expect(disconnectSpy).toHaveBeenCalled();
     });
 
+    it('getSocketId() should return socket id if it is defined, else an empty string', () => {
+        const cases = [
+            { socketId: 'mock', expectedResult: 'mock' },
+            { socketId: undefined, expectedResult: '' },
+        ];
+        for (const { socketId, expectedResult } of cases) {
+            (service.socketService.socket as any).id = socketId;
+            expect(service.socketId).toEqual(expectedResult);
+        }
+    });
+
+    it('getMatchRoomCode() should return match room code', () => {
+        const mockCode = 'mockCode';
+        (service as any).matchRoomCode = mockCode;
+        expect(service.getMatchRoomCode()).toEqual(mockCode);
+    });
+
+    it('getUsername() should return the username', () => {
+        const mockUsername = 'mockUsername';
+        (service as any).username = mockUsername;
+        expect(service.getUsername()).toEqual(mockUsername);
+    });
+
     it('createRoom should send event, update values for matchRoomCode and username, then redirect to match-room', () => {
         const spy = spyOn(socketSpy, 'send').and.callFake((event, data, cb: Function) => {
             cb({ code: 'mock' });
@@ -99,6 +122,21 @@ describe('MatchRoomService', () => {
         const mockCode = 'mockCode';
         service.sendPlayersData(mockCode);
         expect(sendSpy).toHaveBeenCalled();
+    });
+
+    it('banUsername() should send banUsername event if user is host', () => {
+        (service as any).mockRoomCode = 'mockCode';
+        (service as any).username = 'Organisateur';
+        const sendSpy = spyOn(socketSpy, 'send').and.callFake(() => {});
+        service.banUsername('mockUsername');
+        expect(sendSpy).toHaveBeenCalledWith('banUsername', { roomCode: 'mockCode', username: 'mockUsername' });
+    });
+
+    it('banUsername() should not send banUsername event if user is not host', () => {
+        (service as any).username = '';
+        const sendSpy = spyOn(socketSpy, 'send');
+        service.banUsername('mockUsername');
+        expect(sendSpy).not.toHaveBeenCalled();
     });
 
     it('toggleLock() should send toggleLock event if username is Organisateur', () => {

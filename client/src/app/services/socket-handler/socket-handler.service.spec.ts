@@ -5,7 +5,7 @@ import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { Socket } from 'socket.io-client';
 import { SocketHandlerService } from './socket-handler.service';
 
-fdescribe('SocketHandlerService', () => {
+describe('SocketHandlerService', () => {
     let service: SocketHandlerService;
     let router: jasmine.SpyObj<Router>;
 
@@ -20,6 +20,11 @@ fdescribe('SocketHandlerService', () => {
 
     it('should be created', () => {
         expect(service).toBeTruthy();
+    });
+
+    it('should connect', () => {
+        service.connect(); // TODO: Check if this works on GitLab pipeline
+        expect(service.socket).toBeTruthy();
     });
 
     it('should disconnect', () => {

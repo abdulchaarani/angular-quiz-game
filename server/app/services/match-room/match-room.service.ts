@@ -32,6 +32,12 @@ export class MatchRoomService {
         });
     }
 
+    getRoomIndexByCode(code: string): number {
+        return this.matchRooms.findIndex((room: MatchRoom) => {
+            return room.code === code;
+        });
+    }
+
     addMatchRoom(selectedGame: Game, socket: Socket): MatchRoom {
         const newRoom: MatchRoom = {
             code: this.generateRoomCode(),
@@ -62,7 +68,9 @@ export class MatchRoomService {
     }
 
     deleteMatchRoom(matchRoomCode: string): void {
-        this.matchRooms.filter((room) => room.code === matchRoomCode);
+        this.matchRooms = this.matchRooms.filter((room: MatchRoom) => {
+            return room.code !== matchRoomCode;
+        });
     }
 
     isValidMatchRoomCode(code: string): boolean {

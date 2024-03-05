@@ -123,7 +123,7 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
     }
 
-    private handleSendPlayersData(matchRoomCode: string) {
+    handleSendPlayersData(matchRoomCode: string) {
         this.server.to(matchRoomCode).emit('fetchPlayersData', this.playerRoomService.getPlayersStringified(matchRoomCode));
     }
 }

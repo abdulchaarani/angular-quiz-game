@@ -30,4 +30,14 @@ describe('DialogTextInputComponent', () => {
     it('should create', () => {
         expect(component).toBeTruthy();
     });
+
+    it('should close the dialog when on enter press', () => {
+        component.onEnterPress();
+        expect(matDialogSpy.close).toHaveBeenCalled();
+    });
+
+    it('should close the dialog on no click', () => {
+        component.onNoClick();
+        expect(matDialogSpy.close).toHaveBeenCalledWith(null);
+    });
 });

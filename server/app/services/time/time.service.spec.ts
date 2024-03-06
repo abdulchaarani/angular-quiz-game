@@ -2,34 +2,13 @@ import { MatchGateway } from '@app/gateways/match/match.gateway';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { Server, BroadcastOperator } from 'socket.io';
+import { FAKE_ROOM_ID, TICK, TIMER_VALUE, FAKE_COUNTER, FAKE_INTERVAL } from '@app/constants/time-mocks';
 import { TimeService } from './time.service';
 
 describe('TimeService', () => {
     let service: TimeService;
     let server: SinonStubbedInstance<Server>;
     let gateway: SinonStubbedInstance<MatchGateway>;
-
-    const FAKE_ROOM_ID = '1234';
-    const TICK = 1000;
-
-    // TODO : Make constants file & remove magic numbers (generate fake time?)
-    const fakeCounter = new Map<string, number>([
-        [FAKE_ROOM_ID, 3],
-        ['3333', 10],
-        ['2990', 0],
-    ]);
-
-    const fakeInterval = new Map<string, NodeJS.Timeout>([
-        [
-            FAKE_ROOM_ID,
-            setInterval(() => {
-                /* do nothing */
-            }),
-        ],
-    ]);
-
-    const TIMER_VALUE = 3;
-    const TIMEOUT = 3000;
 
     beforeEach(async () => {
         server = createStubInstance<Server>(Server);
@@ -54,14 +33,14 @@ describe('TimeService', () => {
     });
 
     it('should return counter associated with given room ID code', () => {
-        service['counters'] = fakeCounter;
-        const expectedResult = fakeCounter.get(FAKE_ROOM_ID);
+        service['counters'] = FAKE_COUNTER;
+        const expectedResult = FAKE_COUNTER.get(FAKE_ROOM_ID);
         const result = service.getTime(FAKE_ROOM_ID);
         expect(result).toEqual(expectedResult);
     });
 
     it('should not start a timer in a room that already has a started timer', () => {
-        service['intervals'] = fakeInterval;
+        service['intervals'] = FAKE_INTERVAL;
         const result = service.startTimer(FAKE_ROOM_ID, TIMER_VALUE, server);
         expect(result).toBeUndefined();
     });
@@ -80,15 +59,14 @@ describe('TimeService', () => {
     });
 
     it('should emit a timer event if time has not run out', () => {
-        const intervals = fakeInterval;
-        service.startTimer.call({ intervals, fakeCounter, TICK }, FAKE_ROOM_ID, server);
+        service.startTimer.call({ intervals: FAKE_INTERVAL, counters: FAKE_COUNTER, tick: TICK }, FAKE_ROOM_ID, server);
         jest.advanceTimersByTime(TICK);
         expect(server.in.calledWith(FAKE_ROOM_ID));
         expect(server.emit.calledWith('timer', TIMER_VALUE - 1));
     });
 
     it('should emit stopTimer event when time has run out', () => {
-        service['counters'] = fakeCounter;
+        service['counters'] = FAKE_COUNTER;
         const spy = jest.spyOn(service, 'stopTimer');
         server.to.returns({
             emit: (event: string) => {

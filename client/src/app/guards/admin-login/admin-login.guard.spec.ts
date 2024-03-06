@@ -30,7 +30,7 @@ describe('adminLoginGuard', () => {
         expect(notificationSpy.displayErrorMessage).toHaveBeenCalled();
     });
 
-    it('should redirect to home page if user is not authenticated as admin', () => {
+    it('should not redirect to home page if user is authenticated as admin', () => {
         authenticationSpy.getIsAuthenticated.and.returnValue(true);
         TestBed.runInInjectionContext(adminLoginGuard);
         expect(authenticationSpy.getIsAuthenticated).toHaveBeenCalled();

@@ -64,6 +64,10 @@ export class MatchRoomService {
             this.username = res.username;
             this.router.navigateByUrl('/match-room');
         });
+        this.sendPlayersData(this.matchRoomCode);
+    }
+
+    sendPlayersData(roomCode: string) {
         this.socketService.send('sendPlayersData', roomCode); // Updates the list for everyone with new player
     }
 
@@ -81,13 +85,13 @@ export class MatchRoomService {
         }
     }
 
-    private fetchPlayersData() {
+    fetchPlayersData() {
         this.socketService.on('fetchPlayersData', (res: string) => {
             this.players = JSON.parse(res);
         });
     }
 
-    private redirectAfterDisconnection() {
+    redirectAfterDisconnection() {
         this.socketService.on('disconnect', () => {
             this.router.navigateByUrl('/home');
             this.resetMatchValues();
@@ -95,7 +99,7 @@ export class MatchRoomService {
         });
     }
 
-    private resetMatchValues() {
+    resetMatchValues() {
         this.matchRoomCode = '';
         this.username = '';
         this.players = [];

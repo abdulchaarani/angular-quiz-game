@@ -80,13 +80,6 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
     }
 
-    // @SubscribeMessage(MatchEvents.StartTimer)
-    // startTimer(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
-    //     const clientRoom = this.matchRoomService.getMatchRoomByCode(roomCode);
-    //     const currentGame = this.matchBackupService.getBackupGame(clientRoom.game.id);
-    //     this.timeService.startTimer(roomCode, currentGame.duration, this.server);
-    // }
-
     // TODO: Start match: Do not forget to make isPlaying = true in MatchRoom object!!
     @SubscribeMessage(MatchEvents.StartMatch)
     startMatch(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {

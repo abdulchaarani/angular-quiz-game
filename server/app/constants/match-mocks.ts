@@ -1,10 +1,13 @@
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Player } from '@app/model/schema/player.schema';
 import { getMockGame } from './game-mocks';
+import { emptyAnswer } from '@app/model/schema/answer.schema';
+import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
 
 const MOCK_USER_INFO = { roomCode: '', username: '' };
 const MOCK_PLAYER: Player = {
     username: '',
+    answer: emptyAnswer,
     score: 0,
     bonusCount: 0,
     isPlaying: true,
@@ -17,6 +20,7 @@ const MOCK_MATCH_ROOM: MatchRoom = {
     game: getMockGame(),
     gameLength: 4,
     currentQuestionIndex: 0,
+    choiceTally: new ChoiceTally(),
     bannedUsernames: [],
     players: [],
     messages: [],
@@ -30,6 +34,7 @@ const MOCK_PLAYER_ROOM: MatchRoom = {
     game: getMockGame(),
     gameLength: 4,
     currentQuestionIndex: 0,
+    choiceTally: new ChoiceTally(),
     bannedUsernames: [],
     players: [MOCK_PLAYER],
     messages: [],

@@ -104,15 +104,15 @@ export class MatchRoomService {
     sendNextQuestion(server: Server, matchRoomCode: string): void {
         const matchRoom: MatchRoom = this.getMatchRoomByCode(matchRoomCode);
 
-        if (matchRoom.currentQuestionIndex > matchRoom.gameLength - 1) {
+        if (matchRoom.currentQuestionIndex === matchRoom.gameLength) {
             server.in(matchRoomCode).emit('gameOver');
             return;
         }
 
+        this.resetChoiceTally(matchRoomCode);
         const nextQuestion = matchRoom.game.questions[matchRoom.currentQuestionIndex++];
         this.filterCorrectChoices(nextQuestion, matchRoom.currentQuestionAnswer);
         this.removeIsCorrectField(nextQuestion);
-        this.resetChoiceTally(matchRoomCode);
         server.in(matchRoomCode).emit('nextQuestion', nextQuestion);
         this.timeService.startTimer(matchRoomCode, this.getGameDuration(matchRoomCode), server);
     }

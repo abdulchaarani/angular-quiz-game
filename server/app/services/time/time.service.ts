@@ -22,13 +22,13 @@ export class TimeService {
     startTimer(roomId: string, startValue: number, server: Server) {
         if (this.intervals.has(roomId)) return;
 
-        this.counters.set(roomId, startValue);
+        this.counters.set(roomId, startValue - 1);
 
         this.intervals.set(
             roomId,
             setInterval(() => {
                 const currentTime = this.counters.get(roomId);
-                if (currentTime > 0) {
+                if (currentTime >= 0) {
                     server.in(roomId).emit('timer', currentTime);
                     this.counters.set(roomId, currentTime - 1);
                 } else {

@@ -54,7 +54,7 @@ describe('TimeService', () => {
         service.startTimer(FAKE_ROOM_ID, TIMER_VALUE, server);
         jest.advanceTimersByTime(TICK);
         expect(service['counters'].get(FAKE_ROOM_ID)).toBeDefined();
-        expect(service['counters'].get(FAKE_ROOM_ID)).toEqual(2);
+        expect(service['counters'].get(FAKE_ROOM_ID)).toEqual(1);
         expect(service['intervals'].get(FAKE_ROOM_ID)).toBeDefined();
     });
 

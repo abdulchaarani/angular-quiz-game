@@ -27,6 +27,7 @@ export class WaitPageComponent implements OnInit {
     get time() {
         return this.timeService.time;
     }
+
     get isHost() {
         return this.matchRoomService.getUsername() === 'Organisateur';
     }
@@ -63,6 +64,7 @@ export class WaitPageComponent implements OnInit {
         });
     }
 
+    // TODO: Migrate to time service
     computeTimerProgress(): number {
         return (this.timeService.time / COUNTDOWN_DURATION) * MULTIPLICATION_FACTOR;
     }

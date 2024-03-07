@@ -53,7 +53,7 @@ export class MatchRoomService {
         this.socketService.send('createRoom', stringifiedGame, (res: { code: string }) => {
             this.matchRoomCode = res.code;
             this.username = 'Organisateur';
-            // this.router.navigateByUrl('/match-room');
+            this.router.navigateByUrl('/match-room');
         });
     }
 

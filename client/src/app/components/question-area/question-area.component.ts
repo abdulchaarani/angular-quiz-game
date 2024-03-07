@@ -151,7 +151,6 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     }
 
     playerScoreUpdate(): void {
-        //TODO: move to service
         if (this.isCorrect === true) {
             if (this.context === 'testPage') {
                 this.bonus = this.currentQuestion.points * this.bonusFactor;

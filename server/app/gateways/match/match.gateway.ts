@@ -5,6 +5,9 @@ import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
 import { TimeService } from '@app/services/time/time.service';
 import { Injectable } from '@nestjs/common';
+import { ChatService } from '@app/services/chat/chat.service';
+import { Message } from '@app/model/schema/message.schema';
+
 import {
     ConnectedSocket,
     MessageBody,
@@ -14,12 +17,18 @@ import {
     WebSocketGateway,
     WebSocketServer,
 } from '@nestjs/websockets';
+
 import { Server, Socket } from 'socket.io';
 import { MatchEvents } from './match.gateway.events';
 
 interface UserInfo {
     roomCode: string;
     username: string;
+}
+
+interface MessageInfo {
+    roomCode: string;
+    message: Message;
 }
 
 // Future TODO: Open socket only if code and user are valid + Allow host to be able to disconnect banned players
@@ -33,6 +42,7 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
         private playerRoomService: PlayerRoomService,
         private timeService: TimeService,
         private matchBackupService: MatchBackupService,
+        private chatService: ChatService,
     ) {}
 
     @SubscribeMessage(MatchEvents.JoinRoom)
@@ -78,11 +88,27 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
     }
 
+    @SubscribeMessage(MatchEvents.RoomMessage)
+    handleSockets(@ConnectedSocket() socket: Socket, @MessageBody() data: MessageInfo) {
+        console.log('messages', data.message);
+        console.log('code', data.roomCode);
+        this.chatService.addMessage(data.message, data.roomCode);
+        this.server.sockets.emit('newMessage', data);
+        this.matchRoomService?.getMatchRoomByCode(data.roomCode).messages?.push(data.message);
+        console.log('m', this.matchRoomService?.getMatchRoomByCode(data.roomCode).messages);
+        return { code: data.roomCode, message: data.message };
+    }
+
     @SubscribeMessage(MatchEvents.StartTimer)
     startTimer(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
         const clientRoom = this.matchRoomService.getMatchRoomByCode(roomCode);
         const currentGame = this.matchBackupService.getBackupGame(clientRoom.game.id);
         this.timeService.startTimer(roomCode, currentGame.duration, this.server);
+    }
+
+    @SubscribeMessage(MatchEvents.SendOldMessages)
+    SendMessages(@ConnectedSocket() socket: Socket, @MessageBody() matchRoomCode: string) {
+        this.handleSentMessages(matchRoomCode);
     }
 
     handleConnection(@ConnectedSocket() socket: Socket) {
@@ -108,6 +134,10 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     private handleSendPlayersData(matchRoomCode: string) {
         this.server.to(matchRoomCode).emit('fetchPlayersData', this.playerRoomService.getPlayersStringified(matchRoomCode));
+    }
+
+    private handleSentMessages(matchRoomCode: string) {
+        this.server.emit('fetchOldMessages', this.chatService?.getMessages(matchRoomCode));
     }
 
     // TODO: Start match: Do not forget to make isPlaying = true in MatchRoom object!!

@@ -18,6 +18,7 @@ import { BackupController } from './controllers/backup/backup.controller';
 import { MatchRoomService } from './services/match-room/match-room.service';
 import { PlayerRoomService } from './services/player-room/player-room.service';
 import { TimeService } from './services/time/time.service';
+import { ChatService } from './services/chat/chat.service';
 
 @Module({
     imports: [
@@ -45,6 +46,7 @@ import { TimeService } from './services/time/time.service';
         MatchRoomService,
         TimeService,
         PlayerRoomService,
+        ChatService,
     ],
 })
 export class AppModule {}

@@ -17,7 +17,7 @@ export class AnswerService {
     handleTimerExpiredEvent(roomCode: string) {
         if (!this.matchRoomService.isGamePlaying) return;
         console.log('Times up answer!', roomCode);
-        // TODO submitAnswer for each player if not submited (for timestamp)
+        this.autoSubmitAnswers(roomCode);
         // TODO validatePlayer Answer for each player
         // TODO calculate points
         // TODO send answers and points to client
@@ -49,4 +49,18 @@ export class AnswerService {
         }
         return selectedChoices;
     }
+
+    private autoSubmitAnswers(roomCode: string) {
+        const submitTime = Date.now();
+        const players: Player[] = this.playerService.getPlayers(roomCode);
+        players.forEach((player) => {
+            if (!player.answer.isSubmited) {
+                player.answer.isSubmited = true;
+                player.answer.timestamp = submitTime;
+            }
+        });
+    }
+    // TODO validatePlayer Answer for each player
+    // TODO calculate points
+    // TODO send answers and points to client
 }

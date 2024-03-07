@@ -41,9 +41,11 @@ export class TimeService {
     }
 
     stopTimer(roomId: string, server: Server) {
+        clearInterval(this.intervals.get(roomId));
         this.intervals.delete(roomId);
-        clearInterval(this.counters.get(roomId));
+        this.counters.delete(roomId);
         server.to(roomId).emit('stopTimer');
+        server.emit('timerExpired', roomId);
     }
 
     private setTime(roomId: string, newTime: number) {

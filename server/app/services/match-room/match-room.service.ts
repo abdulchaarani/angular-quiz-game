@@ -101,7 +101,8 @@ export class MatchRoomService {
     sendFirstQuestion(server: Server, matchRoomCode: string): void {
         const matchRoom: MatchRoom = this.getMatchRoomByCode(matchRoomCode);
         const firstQuestion = matchRoom.game.questions[0];
-        server.in(matchRoomCode).emit('beginQuiz', firstQuestion);
+        const gameDuration: number = matchRoom.game.duration;
+        server.in(matchRoomCode).emit('beginQuiz', { firstQuestion: firstQuestion, gameDuration: gameDuration });
     }
 
     sendNextQuestion(server: Server, matchRoomCode: string): void {
@@ -125,8 +126,10 @@ export class MatchRoomService {
     }
 
     getGameTitle(matchRoomCode: string): string {
-        // console.log('duccudvdus', this.getMatchRoomByCode(matchRoomCode).game.title);
         return this.getMatchRoomByCode(matchRoomCode).game.title;
+    }
+    getGameDuration(matchRoomCode: string): number {
+        return this.getMatchRoomByCode(matchRoomCode).game.duration;
     }
 
     private resetChoiceTally(matchRoomCode: string) {

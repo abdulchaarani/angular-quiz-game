@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { MatchService } from '@app/services/match/match.service';
+import { QuestionContextService } from '@app/services/question-context/question-context.service';
 import { TimeService } from '@app/services/time/time.service';
 
 const COUNTDOWN_DURATION = 5;
@@ -21,6 +22,7 @@ export class WaitPageComponent implements OnInit {
         public timeService: TimeService,
         public router: Router,
         public matchService: MatchService,
+        private questionContextService: QuestionContextService,
     ) {
         this.isLocked = false;
         this.startTimerButton = false;
@@ -34,14 +36,19 @@ export class WaitPageComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        this.timeService.handleTimer();
+        this.timeService.handleStopTimer();
+
         this.matchRoomService.connect();
 
         if (this.isHost) {
             this.gameTitle = this.matchService.currentGame.title;
+            this.questionContextService.setContext('hostView');
         } else {
             this.matchRoomService.getGameTitleObservable().subscribe((title) => {
                 this.gameTitle = title;
             });
+            this.questionContextService.setContext('playerView');
         }
 
         this.matchRoomService.matchStarted();
@@ -61,6 +68,11 @@ export class WaitPageComponent implements OnInit {
     startMatch() {
         this.startTimerButton = true;
         this.matchRoomService.startMatch();
+        this.timeService.timerFinished$.subscribe((finished) => {
+            if (finished) {
+                this.matchRoomService.letsStartQuiz();
+            }
+        });
     }
 
     computeTimerProgress(): number {

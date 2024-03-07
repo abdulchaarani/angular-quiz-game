@@ -98,9 +98,7 @@ export class MatchRoomService {
             if (data.start) {
                 this.startMatchSubject.next();
             }
-            console.log(data.gameTitle);
             if (data.gameTitle) {
-                console.log(data.gameTitle);
                 this.gameTitle.next(data.gameTitle);
             }
         });
@@ -124,9 +122,14 @@ export class MatchRoomService {
         this.socketService.send('updateScore', { sentUserInfo, points });
     }
 
+    letsStartQuiz() {
+        this.socketService.send('startQuiz', this.matchRoomCode);
+    }
+
     private beginQuiz() {
-        this.socketService.on('beginQuiz', (firstQuestion) => {
-            this.router.navigate(['/play-match'], { state: { question: firstQuestion } }); //TODO: ajouter la bonne route
+        this.socketService.on('beginQuiz', (data: { firstQuestion: Question; gameDuration: number }) => {
+            const { firstQuestion, gameDuration } = data;
+            this.router.navigate(['/play-match'], { state: { question: firstQuestion, duration: gameDuration } });
         });
     }
 

@@ -7,7 +7,6 @@ import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { MatchService } from '@app/services/match/match.service';
 import { QuestionContextService } from '@app/services/question-context/question-context.service';
 import { TimeService } from '@app/services/time/time.service';
-
 @Component({
     selector: 'app-question-area',
     templateUrl: './question-area.component.html',
@@ -30,6 +29,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     readonly bonusFactor = 0.2;
     private readonly multiplicationFactor = 100;
     private readonly timeout = 3000;
+    router: any;
 
     constructor(
         public timeService: TimeService,
@@ -77,13 +77,21 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
 
     ngOnInit(): void {
         this.context = this.questionContextService.getContext();
+        if (this.context !== 'testPage') {
+            // this.timeService.handleTimer();
+            // this.timeService.handleStopTimer();
 
-        this.timeService.startTimer(this.matchRoomCode, this.gameDuration);
+            this.currentQuestion = history.state.question;
+            // this.gameDuration = history.state.gameDuration;
+        }
+
+        // this.timeService.startTimer(this.matchRoomCode, this.gameDuration);
+
         if (this.currentQuestion.choices) {
             this.answers = this.currentQuestion.choices;
         }
 
-        if (this.currentQuestion.id) {
+        if (this.currentQuestion.id && this.context === 'testPage') {
             this.matchService.questionId = this.currentQuestion.id;
         }
 
@@ -145,7 +153,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     }
 
     playerScoreUpdate(): void {
-        if (this.isCorrect === true) {
+        if (this.isCorrect) {
             if (this.context === 'testPage') {
                 this.bonus = this.currentQuestion.points * this.bonusFactor;
                 this.playerScore += this.currentQuestion.points;

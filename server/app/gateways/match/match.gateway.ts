@@ -22,6 +22,9 @@ interface UserInfo {
     username: string;
 }
 
+const COUNTDOWN_TIME = 5;
+
+// Future TODO: Open socket only if code and user are valid + Allow host to be able to disconnect banned players
 @WebSocketGateway({ cors: true })
 @Injectable()
 export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -83,11 +86,19 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
     }
 
-    @SubscribeMessage(MatchEvents.StartTimer)
-    startTimer(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
-        const clientRoom = this.matchRoomService.getMatchRoomByCode(roomCode);
-        const currentGame = this.matchBackupService.getBackupGame(clientRoom.game.id);
-        this.timeService.startTimer(roomCode, currentGame.duration, this.server);
+    // TODO: Start match: Do not forget to make isPlaying = true in MatchRoom object!!
+    @SubscribeMessage(MatchEvents.StartMatch)
+    startMatch(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
+        if (this.matchRoomService.canStartMatch(roomCode)) {
+            this.matchRoomService.sendFirstQuestion(this.server, roomCode);
+            this.matchRoomService.markGameAsPlaying(roomCode);
+            this.timeService.startTimer(roomCode, COUNTDOWN_TIME, this.server);
+        }
+    }
+
+    @SubscribeMessage(MatchEvents.NextQuestion)
+    nextQuestion(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
+        this.matchRoomService.sendNextQuestion(this.server, roomCode);
     }
 
     handleConnection(@ConnectedSocket() socket: Socket) {
@@ -114,6 +125,4 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     handleSendPlayersData(matchRoomCode: string) {
         this.server.to(matchRoomCode).emit('fetchPlayersData', this.playerRoomService.getPlayersStringified(matchRoomCode));
     }
-
-    // TODO: Start match: Do not forget to make isPlaying = true in MatchRoom object!!
 }

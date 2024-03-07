@@ -8,4 +8,6 @@ export enum MatchEvents {
     BanUsername = 'banUsername',
     SendPlayersData = 'sendPlayersData',
     UpdateScore = 'updateScore',
+    StartMatch = 'startMatch',
+    NextQuestion = 'nextQuestion',
 }

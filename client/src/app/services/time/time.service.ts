@@ -1,48 +1,41 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 
 @Injectable({
     providedIn: 'root',
 })
 export class TimeService {
+    time: number;
     private timerFinished: BehaviorSubject<boolean>;
-    private interval: number | undefined;
-    private tick;
-    private counter;
 
-    constructor() {
+    constructor(private socketService: SocketHandlerService) {
+        this.time = 0;
         this.timerFinished = new BehaviorSubject<boolean>(false);
-        this.counter = 0;
-        this.tick = 1000;
     }
 
     get timerFinished$() {
-        return this.timerFinished;
+        return this.timerFinished.asObservable();
     }
 
-    get time() {
-        return this.counter;
-    }
-    private set time(newTime: number) {
-        this.counter = newTime;
+    startTimer(roomCode: string, time: number): void {
+        this.socketService.send('startTimer', { roomCode, time });
     }
 
-    startTimer(startValue: number) {
-        if (this.interval) return;
-        this.time = startValue;
-        this.interval = window.setInterval(() => {
-            if (this.time > 0) {
-                this.time--;
-            } else {
-                this.stopTimer();
-                this.timerFinished.next(true);
-            }
-        }, this.tick);
+    stopTimer(roomId: string): void {
+        this.socketService.socket.emit('stopTimer', { roomId });
     }
 
-    stopTimer() {
-        clearInterval(this.interval);
-        this.interval = undefined;
-        this.timerFinished.next(false);
+    handleTimer(): void {
+        this.socketService.socket.on('timer', (currentTime: number) => {
+            this.time = currentTime;
+            console.log('Current time : ', currentTime);
+        });
+    }
+
+    handleStopTimer(): void {
+        this.socketService.socket.on('stopTimer', () => {
+            this.timerFinished.next(true);
+        });
     }
 }

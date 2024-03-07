@@ -76,10 +76,15 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     }
 
     ngOnInit(): void {
+<<<<<<< HEAD
         this.context = this.questionContextService.getContext();
 
         this.timeService.stopTimer();
         this.timeService.startTimer(this.gameDuration);
+=======
+        // this.timeService.stopTimer();
+        // this.timeService.startTimer(this.gameDuration);
+>>>>>>> origin/ft/match-sockets-server
         if (this.currentQuestion.choices) {
             this.answers = this.currentQuestion.choices;
         }
@@ -97,8 +102,8 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes.gameDuration) {
-            const newTimeLimit = changes.gameDuration.currentValue;
-            this.timeService.startTimer(newTimeLimit);
+            // const newTimeLimit = changes.gameDuration.currentValue;
+            // this.timeService.startTimer(newTimeLimit);
         }
 
         if (changes.currentQuestion) {
@@ -175,8 +180,8 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         setTimeout(() => {
             this.matchService.advanceQuestion();
             this.resetStateForNewQuestion();
-            this.timeService.stopTimer();
-            this.timeService.startTimer(this.gameDuration);
+            // this.timeService.stopTimer();
+            // this.timeService.startTimer(this.gameDuration);
         }, this.timeout);
     }
 

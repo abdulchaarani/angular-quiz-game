@@ -1,7 +1,10 @@
 import { Game } from '@app/model/database/game';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Injectable } from '@nestjs/common';
-import { Socket } from 'socket.io';
+import { Socket, Server } from 'socket.io';
+import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
+import { Choice } from '@app/model/database/choice';
+import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
 
 const FACTOR = 9000;
 const MAXIMUM_CODE_LENGTH = 4;
@@ -10,7 +13,7 @@ const MAXIMUM_CODE_LENGTH = 4;
 export class MatchRoomService {
     matchRooms: MatchRoom[];
 
-    constructor() {
+    constructor(private matchBackupService: MatchBackupService) {
         this.matchRooms = [];
     }
 
@@ -44,6 +47,9 @@ export class MatchRoomService {
             isLocked: false,
             isPlaying: false,
             game: selectedGame,
+            gameLength: selectedGame.questions.length,
+            currentQuestionIndex: 0,
+            choiceTally: new ChoiceTally(),
             bannedUsernames: [],
             players: [],
             messages: [],
@@ -70,8 +76,8 @@ export class MatchRoomService {
         });
     }
 
-    isValidMatchRoomCode(code: string): boolean {
-        const room = this.getMatchRoomByCode(code);
+    isValidMatchRoomCode(matchRoomCode: string): boolean {
+        const room = this.getMatchRoomByCode(matchRoomCode);
         if (!room) {
             return false;
         }
@@ -79,11 +85,48 @@ export class MatchRoomService {
     }
 
     // TODO: Call this function when the host sends the event to start the match.
-    canStartMatch(code: string): boolean {
-        const room = this.getMatchRoomByCode(code);
+    canStartMatch(matchRoomCode: string): boolean {
+        const room = this.getMatchRoomByCode(matchRoomCode);
         if (!room) {
             return false;
         }
         return room.isLocked && room.players.length > 0;
+    }
+
+    markGameAsPlaying(matchRoomCode: string): void {
+        const matchRoom: MatchRoom = this.getMatchRoomByCode(matchRoomCode);
+        matchRoom.isPlaying = true;
+    }
+
+    sendFirstQuestion(server: Server, matchRoomCode: string): void {
+        const matchRoom: MatchRoom = this.getMatchRoomByCode(matchRoomCode);
+        const firstQuestion = matchRoom.game.questions[0];
+        server.in(matchRoomCode).emit('beginQuiz', firstQuestion);
+    }
+
+    sendNextQuestion(server: Server, matchRoomCode: string): void {
+        const matchRoom: MatchRoom = this.getMatchRoomByCode(matchRoomCode);
+        const nextQuestionIndex = ++matchRoom.currentQuestionIndex;
+
+        if (nextQuestionIndex > matchRoom.gameLength - 1) {
+            server.in(matchRoomCode).emit('gameOver');
+            return;
+        }
+
+        const nextQuestion = matchRoom.game.questions[nextQuestionIndex];
+        this.resetChoiceTally(matchRoomCode);
+        server.in(matchRoomCode).emit('nextQuestion', nextQuestion);
+    }
+
+    updateChoiceTally(roomCode: string, choice: string, selection: boolean) {
+        const matchRoom = this.getMatchRoomByCode(roomCode);
+        if (selection) matchRoom.choiceTally.incrementCount(choice);
+        else matchRoom.choiceTally.decrementCount(choice);
+    }
+
+    private resetChoiceTally(matchRoomCode: string) {
+        const matchRoom = this.getMatchRoomByCode(matchRoomCode);
+        const possibleChoices: Choice[] = matchRoom.game.questions[matchRoom.currentQuestionIndex].choices;
+        matchRoom.choiceTally.resetChoiceTally(possibleChoices);
     }
 }

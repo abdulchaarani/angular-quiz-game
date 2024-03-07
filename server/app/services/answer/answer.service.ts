@@ -15,7 +15,12 @@ export class AnswerService {
     // eslint-disable-next-line max-params
     updateChoice(choice: string, selection: boolean, username: string, roomCode: string) {
         const player: Player = this.playerService.getPlayerByUsername(roomCode, username);
-        player.answer.selectedChoices.set(choice, selection);
+        if (!player.answer.isSubmited) player.answer.selectedChoices.set(choice, selection);
+    }
+
+    submitAnswer(username: string, roomCode: string) {
+        const player: Player = this.playerService.getPlayerByUsername(roomCode, username);
+        player.answer.isSubmited = true;
         player.answer.timestamp = Date.now();
     }
 

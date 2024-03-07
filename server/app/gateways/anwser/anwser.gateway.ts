@@ -22,4 +22,9 @@ export class AnwserGateway {
     selectChoice(@ConnectedSocket() socket: Socket, @MessageBody() choice: ChoiceInfo) {
         console.log('Anwser gateway works', choice);
     }
+
+    @SubscribeMessage(AnswerEvents.TimerExpired)
+    timerExpired(@ConnectedSocket() socket: Socket) {
+        console.log('Times up!');
+    }
 }

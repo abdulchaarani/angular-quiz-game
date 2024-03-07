@@ -11,6 +11,7 @@ export interface MatchRoom {
     game: Game;
     gameLength: number;
     currentQuestionIndex: number;
+    currentQuestionAnswer: string[];
     choiceTally: ChoiceTally;
     bannedUsernames: string[];
     players: Player[];

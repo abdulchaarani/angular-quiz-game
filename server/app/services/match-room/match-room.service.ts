@@ -5,6 +5,7 @@ import { Socket, Server } from 'socket.io';
 import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
 import { Choice } from '@app/model/database/choice';
 import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
+import { Question } from '@app/model/database/question';
 
 const FACTOR = 9000;
 const MAXIMUM_CODE_LENGTH = 4;
@@ -49,6 +50,7 @@ export class MatchRoomService {
             game: selectedGame,
             gameLength: selectedGame.questions.length,
             currentQuestionIndex: 0,
+            currentQuestionAnswer: [],
             choiceTally: new ChoiceTally(),
             bannedUsernames: [],
             players: [],
@@ -114,6 +116,8 @@ export class MatchRoomService {
         }
 
         const nextQuestion = matchRoom.game.questions[nextQuestionIndex];
+        this.filterCorrectChoices(nextQuestion, matchRoom.currentQuestionAnswer);
+        this.removeIsCorrectField(nextQuestion);
         this.resetChoiceTally(matchRoomCode);
         server.in(matchRoomCode).emit('nextQuestion', nextQuestion);
     }
@@ -128,5 +132,17 @@ export class MatchRoomService {
         const matchRoom = this.getMatchRoomByCode(matchRoomCode);
         const possibleChoices: Choice[] = matchRoom.game.questions[matchRoom.currentQuestionIndex].choices;
         matchRoom.choiceTally.resetChoiceTally(possibleChoices);
+    }
+
+    private filterCorrectChoices(question: Question, correctChoices: string[]) {
+        question.choices.forEach((choice) => {
+            if (choice.isCorrect) {
+                correctChoices.push(choice.text);
+            }
+        });
+    }
+
+    private removeIsCorrectField(question: Question): void {
+        question.choices.forEach((choice: Choice) => delete choice.isCorrect);
     }
 }

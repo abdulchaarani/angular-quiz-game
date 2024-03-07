@@ -8,6 +8,7 @@ import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
+import {MatCardModule} from '@angular/material/card';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { QuestionListItemComponent } from '@app/components/question-list-item/question-list-item.component';
 import { SortByLastModificationPipe } from '@app/pipes/sort-by-last-modification.pipe';
@@ -50,7 +51,7 @@ describe('AdminQuestionBankComponent', () => {
     };
     const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK', body: JSON.stringify(newQuestionMock) });
     @Component({
-        selector: 'app-create-question',
+        selector: 'app-question-creation-form',
         template: '',
     })
     class MockCreateQuestionComponent {

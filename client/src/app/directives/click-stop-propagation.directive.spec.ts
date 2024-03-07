@@ -42,8 +42,9 @@ describe('ClickStopPropagationDirective', () => {
     });
 
     it('should trigger onClick method', () => {
+        const eventMock = new MouseEvent('click', { bubbles: true });
         const onClickSpy = spyOn(component, 'onClick').and.callThrough();
-        directiveElement.triggerEventHandler('click', null);
+        directiveElement.triggerEventHandler('click', eventMock);
         expect(onClickSpy).toHaveBeenCalled();
     });
 });

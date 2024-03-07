@@ -18,6 +18,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { Socket } from 'socket.io-client';
+
+import { Component } from '@angular/core';
 import SpyObj = jasmine.SpyObj;
 
 const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK', body: JSON.stringify(true) });
@@ -26,6 +28,12 @@ class SocketHandlerServiceMock extends SocketHandlerService {
         /* Do nothing */
     }
 }
+
+@Component({
+    selector: 'app-chat',
+    template: '',
+})
+class MockChatComponent {}
 describe('QuestionAreaComponent', () => {
     let component: QuestionAreaComponent;
     let fixture: ComponentFixture<QuestionAreaComponent>;
@@ -63,7 +71,7 @@ describe('QuestionAreaComponent', () => {
         ]);
 
         await TestBed.configureTestingModule({
-            declarations: [QuestionAreaComponent],
+            declarations: [QuestionAreaComponent, MockChatComponent],
             imports: [MatDialogModule, RouterTestingModule, HttpClientTestingModule, MatProgressSpinnerModule, MatSnackBarModule],
             providers: [HttpClient, { provide: MatchService, useValue: matchSpy }, { provide: SocketHandlerService, useValue: socketSpy }],
         }).compileComponents();

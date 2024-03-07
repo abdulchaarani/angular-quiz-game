@@ -4,25 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { DialogTextInputComponent } from './dialog-text-input.component';
 
-
-// @Component({
-//     selector: 'mat-form-field',
-//     template: '',
-// })
-// class MockMatFormFieldComponent {}
-
-// @Component({
-//     selector: 'mat-label',
-//     template: '',
-// })
-// class MockMatLabelComponent {}
-
-// @Component({
-//     selector: 'app-dialog-text-input',
-//     template: '',
-// })
-// class MockDialogTextInputComponent {}
-
 describe('DialogTextInputComponent', () => {
     let component: DialogTextInputComponent;
     let fixture: ComponentFixture<DialogTextInputComponent>;

@@ -8,6 +8,9 @@ import { ChatComponent } from '@app/components/chat/chat.component';
 import { HistogramComponent } from '@app/components/histogram/histogram.component';
 import { AgChartsAngularModule } from 'ag-charts-angular';
 import { Component } from '@angular/core';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialogModule } from '@angular/material/dialog';
+
 
 
 @Component({
@@ -47,7 +50,7 @@ describe('ResultsPageComponent', () => {
                 MockMatIconComponent,
                 MockMatLabelComponent,
                 MockMatFormFieldComponent],
-            imports: [MatPaginatorModule, MatButtonModule, FormsModule, AgChartsAngularModule],
+            imports: [MatPaginatorModule, MatButtonModule, FormsModule, AgChartsAngularModule, MatSnackBarModule, MatDialogModule],
         }).compileComponents();
         fixture = TestBed.createComponent(ResultsPageComponent);
         component = fixture.componentInstance;

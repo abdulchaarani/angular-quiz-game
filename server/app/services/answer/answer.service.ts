@@ -15,7 +15,8 @@ export class AnswerService {
 
     @OnEvent(AnswerEvents.TimerExpired)
     handleTimerExpiredEvent(roomCode: string) {
-        console.log('Times up!', roomCode);
+        if (!this.matchRoomService.isGamePlaying) return;
+        console.log('Times up answer!', roomCode);
         // TODO submitAnswer for each player if not submited (for timestamp)
         // TODO validatePlayer Answer for each player
         // TODO calculate points

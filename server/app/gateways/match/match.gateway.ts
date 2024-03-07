@@ -1,9 +1,7 @@
 import { Game } from '@app/model/database/game';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
-import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
-import { TimeService } from '@app/services/time/time.service';
 import { Injectable } from '@nestjs/common';
 import {
     ConnectedSocket,
@@ -16,19 +14,18 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { MatchEvents } from './match.gateway.events';
+import { OnEvent } from '@nestjs/event-emitter';
 
 interface UserInfo {
     roomCode: string;
     username: string;
 }
 
-const COUNTDOWN_TIME = 5;
-
-// Future TODO: Open socket only if code and user are valid + Allow host to be able to disconnect banned players
-interface TimerInfo {
-    roomCode: string;
-    time: number;
-}
+// TODO: Open socket only if code and user are valid + Allow host to be able to disconnect banned players
+// interface TimerInfo {
+//     roomCode: string;
+//     time: number;
+// }
 
 @WebSocketGateway({ cors: true })
 @Injectable()
@@ -38,8 +35,6 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     constructor(
         private matchRoomService: MatchRoomService,
         private playerRoomService: PlayerRoomService,
-        private timeService: TimeService,
-        private matchBackupService: MatchBackupService,
     ) {}
 
     @SubscribeMessage(MatchEvents.JoinRoom)
@@ -88,11 +83,7 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     // TODO: Start match: Do not forget to make isPlaying = true in MatchRoom object!!
     @SubscribeMessage(MatchEvents.StartMatch)
     startMatch(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
-        if (this.matchRoomService.canStartMatch(roomCode)) {
-            this.matchRoomService.sendFirstQuestion(this.server, roomCode);
-            this.matchRoomService.markGameAsPlaying(roomCode);
-            this.timeService.startTimer(roomCode, COUNTDOWN_TIME, this.server);
-        }
+        this.matchRoomService.startMatch(this.server, roomCode);
     }
 
     @SubscribeMessage(MatchEvents.NextQuestion)
@@ -100,10 +91,18 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
         this.matchRoomService.sendNextQuestion(this.server, roomCode);
     }
 
-    @SubscribeMessage(MatchEvents.StopTimer)
-    stopTimer(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
-        this.timeService.stopTimer(roomCode, this.server);
+    @OnEvent(MatchEvents.TimerExpired)
+    handleTimerExpiredEvent(matchRoomCode: string) {
+        if (this.matchRoomService.isGamePlaying(matchRoomCode)) return;
+        this.matchRoomService.sendNextQuestion(this.server, matchRoomCode);
+        this.server.in(matchRoomCode).emit('beginQuiz');
+        this.matchRoomService.markGameAsPlaying(matchRoomCode);
     }
+
+    // @SubscribeMessage(MatchEvents.StopTimer)
+    // stopTimer(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
+    //     this.timeService.stopTimer(roomCode, this.server);
+    // }
 
     // eslint-disable-next-line no-unused-vars
     handleConnection(@ConnectedSocket() socket: Socket) {

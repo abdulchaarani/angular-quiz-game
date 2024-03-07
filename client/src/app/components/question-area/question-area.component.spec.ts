@@ -9,15 +9,29 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { Choice } from '@app/interfaces/choice';
 import { MatchService } from '@app/services/match/match.service';
 import { QuestionAreaComponent } from './question-area.component';
+import { Router } from '@angular/router';
 
 import { getMockQuestion } from '@app/constants/question-mocks';
 import { getRandomString } from '@app/constants/test-utils';
 import { of } from 'rxjs';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
+import { SocketTestHelper } from '@app/classes/socket-test-helper';
+import { Socket } from 'socket.io-client';
+import SpyObj = jasmine.SpyObj;
 
 const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK', body: JSON.stringify(true) });
+class SocketHandlerServiceMock extends SocketHandlerService {
+    override connect() {
+        /* Do nothing */
+    }
+}
 describe('QuestionAreaComponent', () => {
     let component: QuestionAreaComponent;
     let fixture: ComponentFixture<QuestionAreaComponent>;
+    let socketSpy: SocketHandlerServiceMock;
+    let socketHelper: SocketTestHelper;
+    let router: SpyObj<Router>;
 
     const mockQuestion = getMockQuestion();
     const timeout = 3000;
@@ -35,6 +49,10 @@ describe('QuestionAreaComponent', () => {
     let matchSpy: jasmine.SpyObj<MatchService>;
 
     beforeEach(async () => {
+        router = jasmine.createSpyObj('Router', ['navigateByUrl']);
+        socketHelper = new SocketTestHelper();
+        socketSpy = new SocketHandlerServiceMock(router);
+        socketSpy.socket = socketHelper as unknown as Socket;
         matchSpy = jasmine.createSpyObj('MatchService', [
             'getAllGames',
             'advanceQuestion',
@@ -43,10 +61,11 @@ describe('QuestionAreaComponent', () => {
             'deleteBackupGame',
             'validateChoices',
         ]);
+
         await TestBed.configureTestingModule({
             declarations: [QuestionAreaComponent],
-            imports: [MatDialogModule, RouterTestingModule, HttpClientTestingModule, MatProgressSpinnerModule],
-            providers: [HttpClient, { provide: MatchService, useValue: matchSpy }],
+            imports: [MatDialogModule, RouterTestingModule, HttpClientTestingModule, MatProgressSpinnerModule, MatSnackBarModule],
+            providers: [HttpClient, { provide: MatchService, useValue: matchSpy }, { provide: SocketHandlerService, useValue: socketSpy }],
         }).compileComponents();
         fixture = TestBed.createComponent(QuestionAreaComponent);
         component = fixture.componentInstance;

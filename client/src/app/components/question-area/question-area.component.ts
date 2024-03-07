@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { Choice } from '@app/interfaces/choice';
 import { Question } from '@app/interfaces/question';
+import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { MatchService } from '@app/services/match/match.service';
 import { TimeService } from '@app/services/time/time.service';
 
@@ -34,6 +35,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         public timeService: TimeService,
         public dialog: MatDialog,
         private matchService: MatchService,
+        private matchRoomService: MatchRoomService,
     ) {
         this.selectedAnswers = [];
         this.isSelectionEnabled = true;
@@ -65,8 +67,8 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     }
 
     ngOnInit(): void {
-        this.timeService.stopTimer();
-        this.timeService.startTimer(this.gameDuration);
+        this.timeService.stopTimer(this.matchRoomService.getMatchRoomCode());
+        this.timeService.startTimer(this.matchRoomService.getMatchRoomCode(), this.gameDuration);
         if (this.currentQuestion.choices) {
             this.answers = this.currentQuestion.choices;
         }
@@ -84,7 +86,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     ngOnChanges(changes: SimpleChanges): void {
         if (changes.gameDuration) {
             const newTimeLimit = changes.gameDuration.currentValue;
-            this.timeService.startTimer(newTimeLimit);
+            this.timeService.startTimer(this.matchRoomService.getMatchRoomCode(), newTimeLimit);
         }
 
         if (changes.currentQuestion) {
@@ -158,8 +160,8 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         setTimeout(() => {
             this.matchService.advanceQuestion();
             this.resetStateForNewQuestion();
-            this.timeService.stopTimer();
-            this.timeService.startTimer(this.gameDuration);
+            this.timeService.stopTimer(this.matchRoomService.getMatchRoomCode());
+            this.timeService.startTimer(this.matchRoomService.getMatchRoomCode(), this.gameDuration);
         }, this.timeout);
     }
 

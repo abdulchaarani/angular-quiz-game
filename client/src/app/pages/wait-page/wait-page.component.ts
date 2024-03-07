@@ -42,8 +42,8 @@ export class WaitPageComponent {
     }
 
     startTimer() {
-        this.timeService.stopTimer();
-        this.timeService.startTimer(TIMER_DURATION);
+        this.timeService.stopTimer(this.matchRoomService.getMatchRoomCode());
+        this.timeService.startTimer(this.matchRoomService.getMatchRoomCode(), TIMER_DURATION);
         this.timeService.timerFinished$.subscribe((timerFinished) => {
             if (timerFinished) {
                 // route to question page

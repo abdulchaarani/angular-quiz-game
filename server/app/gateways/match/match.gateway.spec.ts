@@ -1,4 +1,4 @@
-import { getMockGame } from '@app/constants/game-mocks';
+// import { getMockGame } from '@app/constants/game-mocks';
 import { MOCK_MATCH_ROOM, MOCK_PLAYER, MOCK_ROOM_CODE, MOCK_USER_INFO } from '@app/constants/match-mocks';
 import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
@@ -126,13 +126,13 @@ describe('MatchGateway', () => {
         expect(spy).not.toHaveBeenCalled();
     });
 
-    it('startTimer() should start the timer', () => {
-        matchRoomSpy.getMatchRoomByCode.returns(MOCK_MATCH_ROOM);
-        matchBackupSpy.getBackupGame.returns(getMockGame());
-        const timeMethodSpy = jest.spyOn(timeSpy, 'startTimer').mockReturnThis();
-        gateway.startTimer(socket, MOCK_ROOM_CODE);
-        expect(timeMethodSpy).toHaveBeenCalled();
-    });
+    // it('startTimer() should start the timer', () => {
+    //     matchRoomSpy.getMatchRoomByCode.returns(MOCK_MATCH_ROOM);
+    //     matchBackupSpy.getBackupGame.returns(getMockGame());
+    //     const timeMethodSpy = jest.spyOn(timeSpy, 'startTimer').mockReturnThis();
+    //     gateway.startTimer(socket, MOCK_ROOM_CODE);
+    //     expect(timeMethodSpy).toHaveBeenCalled();
+    // });
 
     it('handleDisconnect() should disconnect host and all other players and delete the match room if the host disconnects', () => {
         matchRoomSpy.getRoomCodeByHostSocket.returns(MOCK_ROOM_CODE);

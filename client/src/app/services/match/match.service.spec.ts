@@ -4,6 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { getMockGame } from '@app/constants/game-mocks';
 import { Game } from '@app/interfaces/game';
 import { ChoiceValidationService } from '@app/services/choice-validation/choice-validation.service';
+import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { Observable, of } from 'rxjs';
 import { MatchService } from './match.service';
@@ -12,6 +13,7 @@ describe('MatchService', () => {
     let service: MatchService;
     let choiceValidationSpy: jasmine.SpyObj<ChoiceValidationService>;
     let notificationSpy: jasmine.SpyObj<NotificationService>;
+    let matchRoomSpy: jasmine.SpyObj<MatchRoomService>;
     const fakeGame: Game = {
         id: '0',
         title: 'title',
@@ -33,6 +35,7 @@ describe('MatchService', () => {
     const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK', body: JSON.stringify(true) });
 
     beforeEach(() => {
+        matchRoomSpy = jasmine.createSpyObj('MatchRoomService', ['connect', 'createRoom']);
         notificationSpy = jasmine.createSpyObj('NotificationService', ['displayErrorMessage']);
         choiceValidationSpy = jasmine.createSpyObj('ChoiceValidationService', ['validateChoices']);
         TestBed.configureTestingModule({
@@ -41,6 +44,7 @@ describe('MatchService', () => {
                 MatchService,
                 { provide: ChoiceValidationService, useValue: choiceValidationSpy },
                 { provide: NotificationService, useValue: notificationSpy },
+                { provide: MatchRoomService, useValue: matchRoomSpy },
             ],
         }).compileComponents();
         service = TestBed.inject(MatchService);
@@ -112,5 +116,17 @@ describe('MatchService', () => {
         const choices: SelectedChoices = { selected: [''] };
         service.validateChoices(choices.selected);
         expect(choiceValidationSpy.validateChoices).toHaveBeenCalled();
+    });
+
+    it('createMatch() should connect and create room', () => {
+        service.createMatch();
+        expect(matchRoomSpy.connect).toHaveBeenCalled();
+        expect(matchRoomSpy.createRoom).toHaveBeenCalled();
+    });
+
+    it('getAllGames should get all games', () => {
+        const spy = spyOn(service, 'getAll').and.returnValue(of([getMockGame()]));
+        service.getAllGames();
+        expect(spy).toHaveBeenCalledWith('games');
     });
 });

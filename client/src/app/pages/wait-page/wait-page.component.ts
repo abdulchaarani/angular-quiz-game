@@ -11,7 +11,6 @@ const MULTIPLICATION_FACTOR = 100;
     styleUrls: ['./wait-page.component.scss'],
 })
 export class WaitPageComponent {
-    // TODO: Replace Dummy values using actual services with backend implementation
     isLocked: boolean;
     startTimerButton: boolean;
     constructor(
@@ -43,8 +42,8 @@ export class WaitPageComponent {
     }
 
     startTimer() {
-        this.timeService.stopTimer();
-        this.timeService.startTimer(TIMER_DURATION);
+        this.timeService.stopTimer(this.matchRoomService.getMatchRoomCode());
+        this.timeService.startTimer(this.matchRoomService.getMatchRoomCode(), TIMER_DURATION);
         this.timeService.timerFinished$.subscribe((timerFinished) => {
             if (timerFinished) {
                 // route to question page

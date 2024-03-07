@@ -7,21 +7,31 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterTestingModule } from '@angular/router/testing';
 import { Choice } from '@app/interfaces/choice';
-import { MatchService } from '@app/services/match.service';
-import { of } from 'rxjs';
+import { MatchService } from '@app/services/match/match.service';
 import { QuestionAreaComponent } from './question-area.component';
-import { ChatComponent } from '../chat/chat.component';
-import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { Router } from '@angular/router';
 
 import { getMockQuestion } from '@app/constants/question-mocks';
 import { getRandomString } from '@app/constants/test-utils';
+import { of } from 'rxjs';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
+import { SocketTestHelper } from '@app/classes/socket-test-helper';
+import { Socket } from 'socket.io-client';
+import SpyObj = jasmine.SpyObj;
 
+const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK', body: JSON.stringify(true) });
+class SocketHandlerServiceMock extends SocketHandlerService {
+    override connect() {
+        /* Do nothing */
+    }
+}
 describe('QuestionAreaComponent', () => {
     let component: QuestionAreaComponent;
     let fixture: ComponentFixture<QuestionAreaComponent>;
+    let socketSpy: SocketHandlerServiceMock;
+    let socketHelper: SocketTestHelper;
+    let router: SpyObj<Router>;
 
     const mockQuestion = getMockQuestion();
     const timeout = 3000;
@@ -36,25 +46,42 @@ describe('QuestionAreaComponent', () => {
         lastModification: getRandomString(),
     };
 
-    let matchService: MatchService;
-
-    const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK', body: JSON.stringify(true) });
+    let matchSpy: jasmine.SpyObj<MatchService>;
 
     beforeEach(async () => {
+        router = jasmine.createSpyObj('Router', ['navigateByUrl']);
+        socketHelper = new SocketTestHelper();
+        socketSpy = new SocketHandlerServiceMock(router);
+        socketSpy.socket = socketHelper as unknown as Socket;
+        matchSpy = jasmine.createSpyObj('MatchService', [
+            'getAllGames',
+            'advanceQuestion',
+            'getBackupGame',
+            'saveBackupGame',
+            'deleteBackupGame',
+            'validateChoices',
+        ]);
+
         await TestBed.configureTestingModule({
-            declarations: [QuestionAreaComponent, ChatComponent],
-            imports: [MatDialogModule, RouterTestingModule, HttpClientTestingModule, MatProgressSpinnerModule, MatDialogModule, MatIconModule, MatFormFieldModule, BrowserAnimationsModule, MatInputModule],
-            providers: [HttpClient, MatchService],
+            declarations: [QuestionAreaComponent],
+            imports: [MatDialogModule, RouterTestingModule, HttpClientTestingModule, MatProgressSpinnerModule, MatSnackBarModule],
+            providers: [HttpClient, { provide: MatchService, useValue: matchSpy }, { provide: SocketHandlerService, useValue: socketSpy }],
         }).compileComponents();
         fixture = TestBed.createComponent(QuestionAreaComponent);
         component = fixture.componentInstance;
         component.currentQuestion = mockQuestion;
-        matchService = TestBed.inject(MatchService);
         fixture.detectChanges();
     });
 
     it('should create', () => {
         expect(component).toBeTruthy();
+    });
+
+    it('should check answers', () => {
+        component.selectedAnswers = [];
+        matchSpy.validateChoices.and.returnValue(of(mockHttpResponse));
+        component.checkAnswers();
+        expect(component.isCorrect).toBeTruthy();
     });
 
     it('should select an answer', () => {
@@ -167,12 +194,6 @@ describe('QuestionAreaComponent', () => {
         expect(component.isSelectionEnabled).toBeFalse();
     });
 
-    it('should check answers', () => {
-        const spy = spyOn(matchService, 'validateChoices').and.returnValue(of(mockHttpResponse));
-        component.checkAnswers();
-        expect(spy).toHaveBeenCalled();
-    });
-
     it('should reset the state for a new question', () => {
         component.isSelectionEnabled = false;
         component.selectedAnswers = component.answers;
@@ -226,13 +247,12 @@ describe('QuestionAreaComponent', () => {
     });
 
     it('should advance question after the feedback', fakeAsync(() => {
-        const spyAdvanceQuestion = spyOn(matchService, 'advanceQuestion');
         const spyStartTimer = spyOn(component.timeService, 'startTimer').and.callFake(() => {
             return;
         });
         component.afterFeedback();
         tick(timeout);
-        expect(spyAdvanceQuestion).toHaveBeenCalled();
+        expect(matchSpy.advanceQuestion).toHaveBeenCalled();
         expect(spyStartTimer).toHaveBeenCalled();
         flush();
     }));
@@ -258,22 +278,6 @@ describe('QuestionAreaComponent', () => {
         flush();
     }));
 
-    it('should not check answers when pressing the enter key if the timer has not run out', () => {
-        spyOn(matchService, 'validateChoices').and.returnValue(of(mockHttpResponse));
-        const spy = spyOn(component, 'checkAnswers');
-        const event = new KeyboardEvent('keydown', { key: 'Enter' });
-        component.handleKeyboardEvent(event);
-        expect(spy).not.toHaveBeenCalled();
-    });
-
-    it('should not check answers when clicking the submit button if the timer has not run out', () => {
-        spyOn(matchService, 'validateChoices').and.returnValue(of(mockHttpResponse));
-        const spy = spyOn(component, 'checkAnswers');
-        const button = fixture.nativeElement.querySelector('#submitButton');
-        button.click();
-        expect(spy).not.toHaveBeenCalled();
-    });
-
     it('should update the timer if the game duration changes', fakeAsync(() => {
         const spy = spyOn(component.timeService, 'startTimer');
         const newDuration = 10;
@@ -283,34 +287,6 @@ describe('QuestionAreaComponent', () => {
         });
         tick();
         expect(spy).toHaveBeenCalled();
-        flush();
-    }));
-
-    it('should check answers on ngInit if the timer has run out', () => {
-        spyOn(matchService, 'validateChoices').and.returnValue(of(mockHttpResponse));
-
-        const spy = spyOn(component, 'checkAnswers');
-        component.timeService.timerFinished$.next(true);
-        component.ngOnInit();
-        expect(spy).toHaveBeenCalled();
-    });
-
-    it('should not check answers on ngInit if the timer has not run out', () => {
-        spyOn(matchService, 'validateChoices').and.returnValue(of(mockHttpResponse));
-
-        const spy = spyOn(component, 'checkAnswers');
-        component.timeService.timerFinished$.next(false);
-        component.ngOnInit();
-        expect(spy).not.toHaveBeenCalled();
-    });
-
-    it('should validate the answers', fakeAsync(() => {
-        const spyValidateChoices = spyOn(matchService, 'validateChoices').and.returnValue(of(new HttpResponse({ body: JSON.stringify(true) })));
-        const spyAfterFeedback = spyOn(component, 'afterFeedback');
-        component.checkAnswers();
-        tick();
-        expect(spyValidateChoices).toHaveBeenCalled();
-        expect(spyAfterFeedback).toHaveBeenCalled();
         flush();
     }));
 
@@ -417,19 +393,5 @@ describe('QuestionAreaComponent', () => {
         spyOnProperty(component, 'time', 'get').and.returnValue(expectedDuration);
         const result = component.time;
         expect(result).toBe(expectedDuration);
-    });
-
-    it('should check answers and set isCorrect to true if response body is true', () => {
-        if (mockQuestion.choices) {
-            const choicesText = [mockQuestion.choices[0].text];
-            const response = new HttpResponse({ body: JSON.stringify(true) });
-            spyOn(matchService, 'validateChoices').and.returnValue(of(response));
-            component.selectedAnswers = [mockQuestion.choices[0]];
-            component.checkAnswers();
-            expect(matchService.validateChoices).toHaveBeenCalledWith(choicesText);
-            expect(component.isCorrect).toBeTrue();
-        } else {
-            fail();
-        }
     });
 });

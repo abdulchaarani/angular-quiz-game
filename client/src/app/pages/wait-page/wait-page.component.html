@@ -1,10 +1,7 @@
-<!-- TODO: Add Guard for URL to forbid access if user is not authentified (?) -->
-<!-- TODO: Add Chat with username/Organisateur as header -->
-
 <app-chat></app-chat>
 
 <div id="main-container">
-    <button mat-raised-button id="exit-button" routerLink="/home">Quitter</button>
+    <button mat-raised-button id="exit-button" routerLink="/home" (click)="this.matchRoomService.disconnect()">Quitter</button>
     <div id="game-starting" *ngIf="startTimerButton">
         <h1>La partie commence dans..</h1>
         <div id="timer">
@@ -17,13 +14,17 @@
     <div id="waiting-for-players" *ngIf="!startTimerButton">
         <h1>Hoot Hoot en attente</h1>
         <div *ngIf="isHost" id="host-options-container">
-            <p *ngIf="isHost" id="code">{{ code }}</p>
-            <mat-slide-toggle [(ngModel)]="isLocked">{{ isLocked ? 'Partie verrouillée' : 'Partie déverouillée' }}</mat-slide-toggle>
-            <button mat-raised-button color="primary" (click)="startMatch()">Commencer la partie</button>
+            <p *ngIf="isHost" id="code">{{ this.matchRoomService.getMatchRoomCode() }}</p>
+            <mat-slide-toggle [(ngModel)]="isLocked" (click)="toggleLock()">{{
+                isLocked ? 'Partie verrouillée' : 'Partie déverouillée'
+            }}</mat-slide-toggle>
+            <button mat-raised-button color="primary" (click)="startMatch()" [disabled]="!isLocked || this.matchRoomService.players.length === 0">
+                Commencer la partie
+            </button>
         </div>
-        <mat-card *ngFor="let name of playerUsernames" class="player-username-card">
-            <p>{{ name }}</p>
-            <button mat-icon-button (click)="rejectPlayerUsername(name)" color="warn" *ngIf="isHost"><mat-icon>delete</mat-icon></button>
+        <mat-card *ngFor="let player of this.matchRoomService.players" class="player-username-card">
+            <p>{{ player.username }}</p>
+            <button mat-icon-button (click)="banPlayerUsername(player.username)" color="warn" *ngIf="isHost"><mat-icon>delete</mat-icon></button>
         </mat-card>
     </div>
 </div>

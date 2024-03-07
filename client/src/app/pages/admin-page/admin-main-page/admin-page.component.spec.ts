@@ -7,8 +7,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterTestingModule } from '@angular/router/testing';
 import { GameListItemComponent } from '@app/components/game-list-item/game-list-item.component';
 import { getMockGame } from '@app/constants/game-mocks';
-import { GamesService } from '@app/services/games.service';
-import { NotificationService } from '@app/services/notification.service';
+import { GameService } from '@app/services/game/game.service';
+import { NotificationService } from '@app/services/notification/notification.service';
 import { of, throwError } from 'rxjs';
 import { AdminPageComponent } from './admin-page.component';
 import SpyObj = jasmine.SpyObj;
@@ -19,7 +19,7 @@ const MOCK_GAME = getMockGame();
 describe('AdminPageComponent', () => {
     let component: AdminPageComponent;
     let fixture: ComponentFixture<AdminPageComponent>;
-    let gamesServiceSpy: SpyObj<GamesService>;
+    let gamesServiceSpy: SpyObj<GameService>;
     let notificationServiceSpy: SpyObj<NotificationService>;
     const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK' });
     let dialogMock: SpyObj<MatDialog>;
@@ -30,7 +30,7 @@ describe('AdminPageComponent', () => {
                 afterClosed: of('mockResult'),
             }),
         });
-        gamesServiceSpy = jasmine.createSpyObj('GamesService', [
+        gamesServiceSpy = jasmine.createSpyObj('GameService', [
             'getGames',
             'getGameById',
             'toggleGameVisibility',
@@ -51,7 +51,7 @@ describe('AdminPageComponent', () => {
                 HttpClient,
                 HttpHandler,
                 { provide: MatDialog, useValue: dialogMock },
-                { provide: GamesService, useValue: gamesServiceSpy },
+                { provide: GameService, useValue: gamesServiceSpy },
                 { provide: NotificationService, useValue: notificationServiceSpy },
             ],
         }).compileComponents();

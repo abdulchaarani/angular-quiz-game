@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { Router } from '@angular/router';
 import { DialogAdminPasswordComponent } from '@app/components/dialog-admin-password/dialog-admin-password.component';
 import { DialogTextInputComponent } from '@app/components/dialog-text-input/dialog-text-input.component';
-import { AuthenticationService } from '@app/services/authentication.service';
+import { AdminLoginService } from '@app/services/admin-login/admin-login.service';
+import { JoinMatchService } from '@app/services/join-match/join-match.service';
+import { NotificationService } from '@app/services/notification/notification.service';
 
 @Component({
     selector: 'app-home-page',
@@ -15,8 +16,9 @@ export class HomePageComponent {
     input: string;
     constructor(
         private dialog: MatDialog,
-        private readonly authenticationService: AuthenticationService,
-        private router: Router,
+        private readonly adminLoginService: AdminLoginService,
+        private joinMatchService: JoinMatchService,
+        private notificationService: NotificationService,
     ) {}
     openAdminDialog(): void {
         const dialogRef = this.dialog.open(DialogAdminPasswordComponent, {
@@ -43,29 +45,34 @@ export class HomePageComponent {
     }
 
     submitPassword(password: string): void {
-        this.authenticationService.validatePassword(password);
+        this.adminLoginService.validatePassword(password);
         this.password = '';
     }
 
-    submitCode(code: string): void {
-        // TODO: Service - Validate code
+    submitCode(roomCode: string): void {
         this.input = '';
-        // TODO: Move in a subscribe/next (only if code is valid)
+        this.joinMatchService.matchRoomCode = '';
+        this.joinMatchService.validateMatchRoomCode(roomCode).subscribe({
+            next: () => {
+                this.joinMatchService.matchRoomCode = roomCode;
+                this.openUsernameDialog();
+            },
+            error: () => {
+                this.notificationService.displayErrorMessage('Le code est invalide ou la salle de jeu est verrouillée.');
+                this.joinMatchService.matchRoomCode = '';
+            },
+        });
+    }
+
+    openUsernameDialog(): void {
         const dialogRef = this.dialog.open(DialogTextInputComponent, {
             data: { input: this.input, title: "Veillez saisir un nom d'utilisateur", placeholder: 'Nom' },
         });
 
         dialogRef.afterClosed().subscribe((result: string) => {
             if (result) {
-                this.submitUsername(result);
+                this.joinMatchService.validateUsername(result);
             }
         });
-    }
-
-    submitUsername(username: string): void {
-        // TODO: Service - Validate username
-        this.input = '';
-        // TODO: Redirect to page only if username is valid
-        this.router.navigateByUrl('/waiting-room');
     }
 }

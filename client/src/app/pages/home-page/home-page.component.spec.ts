@@ -1,21 +1,26 @@
+import { HttpClientModule, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { HttpClientModule } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { DialogAdminPasswordComponent } from '@app/components/dialog-admin-password/dialog-admin-password.component';
-import { AuthenticationService } from '@app/services/authentication.service';
-import { of } from 'rxjs';
+import { AdminLoginService } from '@app/services/admin-login/admin-login.service';
+import { JoinMatchService } from '@app/services/join-match/join-match.service';
+import { NotificationService } from '@app/services/notification/notification.service';
+import { of, throwError } from 'rxjs';
 import { HomePageComponent } from './home-page.component';
 import SpyObj = jasmine.SpyObj;
+
+const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK', body: JSON.stringify(true) });
 
 describe('HomePageComponent', () => {
     let component: HomePageComponent;
     let fixture: ComponentFixture<HomePageComponent>;
     let dialogMock: SpyObj<MatDialog>;
-    let authenticationSpy: SpyObj<AuthenticationService>;
+    let adminLoginSpy: SpyObj<AdminLoginService>;
+    let joinMatchSpy: SpyObj<JoinMatchService>;
+    let notificationSpy: SpyObj<NotificationService>;
 
     beforeEach(() => {
         dialogMock = jasmine.createSpyObj({
@@ -23,18 +28,17 @@ describe('HomePageComponent', () => {
                 afterClosed: of('mockResult'),
             }),
         });
-        authenticationSpy = jasmine.createSpyObj('AuthenticationService', ['validatePassword']);
+        adminLoginSpy = jasmine.createSpyObj('AdminLoginService', ['validatePassword']);
+        joinMatchSpy = jasmine.createSpyObj('JoinMatchService', ['validateMatchRoomCode', 'validateUsername']);
+        joinMatchSpy.matchRoomCode = '';
+        notificationSpy = jasmine.createSpyObj('NotificationService', ['displayErrorMessage']);
         TestBed.configureTestingModule({
             imports: [HttpClientModule, MatSnackBarModule, MatIconModule],
             providers: [
-                {
-                    provide: MatDialog,
-                    useValue: dialogMock,
-                },
-                {
-                    provide: AuthenticationService,
-                    useValue: authenticationSpy,
-                },
+                { provide: MatDialog, useValue: dialogMock },
+                { provide: AdminLoginService, useValue: adminLoginSpy },
+                { provide: JoinMatchService, useValue: joinMatchSpy },
+                { provide: NotificationService, useValue: notificationSpy },
             ],
             declarations: [HomePageComponent],
         });
@@ -87,10 +91,50 @@ describe('HomePageComponent', () => {
         expect(submitPasswordSpy).toHaveBeenCalled();
     });
 
+    it('openJoinDialog() should open a dialog and allow to submit code', () => {
+        const submitCodeSpy = spyOn(component, 'submitCode');
+        component.input = 'mock';
+        component.openJoinDialog();
+        expect(dialogMock.open).toHaveBeenCalled();
+        const closeDialog = () => {
+            return dialogMock.closeAll;
+        };
+        closeDialog();
+        expect(submitCodeSpy).toHaveBeenCalled();
+    });
+
     it('submitPassword() should call validatePassword and reset the input password', () => {
         const mockPassword = 'mockPassword';
         component.submitPassword(mockPassword);
-        expect(authenticationSpy.validatePassword).toHaveBeenCalledWith(mockPassword);
+        expect(adminLoginSpy.validatePassword).toHaveBeenCalledWith(mockPassword);
         expect(component.password).toEqual('');
+    });
+
+    it('submitCode() should call validateMatchRoomCode and open a new dialog if code is valid', () => {
+        joinMatchSpy.validateMatchRoomCode.and.returnValue(of(mockHttpResponse));
+        const openSpy = spyOn(component, 'openUsernameDialog');
+        component.submitCode('mock');
+        expect(joinMatchSpy.validateMatchRoomCode).toHaveBeenCalled();
+        expect(openSpy).toHaveBeenCalled();
+    });
+
+    it('submitCode() should call validateMatchRoomCode and not open a new dialog if code is invalid', () => {
+        joinMatchSpy.validateMatchRoomCode.and.returnValue(throwError(() => new HttpErrorResponse({ status: 401 })));
+        const openSpy = spyOn(component, 'openUsernameDialog');
+        component.submitCode('mock');
+        expect(joinMatchSpy.validateMatchRoomCode).toHaveBeenCalled();
+        expect(openSpy).not.toHaveBeenCalled();
+        expect(notificationSpy.displayErrorMessage).toHaveBeenCalled();
+    });
+
+    it('openUsernameDialog() should open a new dialog and validate username', () => {
+        component.input = 'mock';
+        component.openUsernameDialog();
+        expect(dialogMock.open).toHaveBeenCalled();
+        const closeDialog = () => {
+            return dialogMock.closeAll;
+        };
+        closeDialog();
+        expect(joinMatchSpy.validateUsername).toHaveBeenCalled();
     });
 });

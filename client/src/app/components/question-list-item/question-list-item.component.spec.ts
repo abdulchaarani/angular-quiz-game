@@ -1,13 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { QuestionCreationFormComponent } from '@app/components/question-creation-form/question-creation-form.component';
+import { ManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
 import { QuestionListItemComponent } from './question-list-item.component';
-import { ManagementState } from '@app/constants/states';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatExpansionModule } from '@angular/material/expansion';
-import { MatIconModule } from '@angular/material/icon';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Component, Input } from '@angular/core';
-import { MatSelectModule } from '@angular/material/select';
 
 describe('QuestionListItemComponent', () => {
     let component: QuestionListItemComponent;
@@ -22,9 +19,9 @@ describe('QuestionListItemComponent', () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            declarations: [MockCreateQuestionComponent, QuestionListItemComponent,  MockMatLabelComponent],
-            imports: [ MatSnackBarModule, MatExpansionModule, MatIconModule, NoopAnimationsModule, MatSelectModule],
-        }).compileComponents();
+            declarations: [QuestionListItemComponent, QuestionCreationFormComponent],
+            imports: [MatSnackBarModule],
+        });
 
         fixture = TestBed.createComponent(QuestionListItemComponent);
         component = fixture.componentInstance;
@@ -33,20 +30,20 @@ describe('QuestionListItemComponent', () => {
         component.index = 0;
     });
 
-    @Component({
-        selector: 'mat-label',
-        template: '',
-    })
-    class MockMatLabelComponent {}
+    // @Component({
+    //     selector: 'mat-label',
+    //     template: '',
+    // })
+    // class MockMatLabelComponent {}
 
-    @Component({
-        selector: 'app-create-question',
-        template: ''
-      })
-      class MockCreateQuestionComponent {
-        @Input() modificationState: ManagementState;
-        @Input() question: Question;
-      }
+    // @Component({
+    //     selector: 'app-create-question',
+    //     template: ''
+    //   })
+    //   class MockCreateQuestionComponent {
+    //     @Input() modificationState: ManagementState;
+    //     @Input() question: Question;
+    //   }
 
     it('should create', () => {
         expect(component).toBeTruthy();

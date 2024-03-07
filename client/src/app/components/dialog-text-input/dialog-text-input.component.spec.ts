@@ -1,8 +1,27 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { DialogTextInputComponent } from './dialog-text-input.component';
-import { FormsModule } from '@angular/forms';
-import { Component } from '@angular/core';
+
+
+// @Component({
+//     selector: 'mat-form-field',
+//     template: '',
+// })
+// class MockMatFormFieldComponent {}
+
+// @Component({
+//     selector: 'mat-label',
+//     template: '',
+// })
+// class MockMatLabelComponent {}
+
+// @Component({
+//     selector: 'app-dialog-text-input',
+//     template: '',
+// })
+// class MockDialogTextInputComponent {}
 
 describe('DialogTextInputComponent', () => {
     let component: DialogTextInputComponent;
@@ -48,5 +67,15 @@ describe('DialogTextInputComponent', () => {
 
     it('should create', () => {
         expect(component).toBeTruthy();
+    });
+
+    it('should close the dialog when on enter press', () => {
+        component.onEnterPress();
+        expect(matDialogSpy.close).toHaveBeenCalled();
+    });
+
+    it('should close the dialog on no click', () => {
+        component.onNoClick();
+        expect(matDialogSpy.close).toHaveBeenCalledWith(null);
     });
 });

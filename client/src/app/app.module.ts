@@ -4,7 +4,7 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
+import { QuestionCreationFormComponent } from '@app/components/question-creation-form/question-creation-form.component';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { AppMaterialModule } from '@app/modules/material.module';
 import { AppComponent } from '@app/pages/app/app.component';
@@ -26,7 +26,7 @@ import { AdminPageComponent } from './pages/admin-page/admin-main-page/admin-pag
 import { AdminQuestionBankComponent } from './pages/admin-page/admin-question-bank/admin-question-bank.component';
 import { AdminQuestionsListComponent } from './pages/admin-page/admin-questions-list/admin-questions-list.component';
 import { HomePageComponent } from './pages/home-page/home-page.component';
-import { HostPageComponent } from './pages/host-page/host-page.component';
+import { MatchCreationPageComponent } from './pages/match-creation-page/match-creation-page.component';
 import { PlayerPageComponent } from './pages/player-page/player-page.component';
 import { ResultsPageComponent } from './pages/results-page/results-page.component';
 import { TestPageComponent } from './pages/test-page/test-page.component';
@@ -47,13 +47,13 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
         HomePageComponent,
         AdminPageComponent,
         PlayerPageComponent,
-        HostPageComponent,
+        MatchCreationPageComponent,
         QuestionListItemComponent,
         AdminQuestionBankComponent,
         AdminQuestionsListComponent,
         GameListItemComponent,
         QuestionAreaComponent,
-        CreateQuestionComponent,
+        QuestionCreationFormComponent,
         SortByLastModificationPipe,
         ClickStopPropagationDirective,
         TestPageComponent,
@@ -82,7 +82,7 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     providers: [],
-    exports: [CreateQuestionComponent, QuestionListItemComponent, GameListItemComponent],
+    exports: [QuestionListItemComponent, GameListItemComponent, QuestionCreationFormComponent],
     bootstrap: [AppComponent],
 })
 export class AppModule {}

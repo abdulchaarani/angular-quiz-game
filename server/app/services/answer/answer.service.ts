@@ -3,6 +3,8 @@ import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
 import { Player } from '@app/model/schema/player.schema';
 import { Answer } from '@app/model/schema/answer.schema';
+import { OnEvent } from '@nestjs/event-emitter';
+import { AnswerEvents } from '@app/gateways/anwser/answer.gateway.events';
 
 @Injectable()
 export class AnswerService {
@@ -11,6 +13,14 @@ export class AnswerService {
         private playerService: PlayerRoomService,
     ) {}
 
+    @OnEvent(AnswerEvents.TimerExpired)
+    handleTimerExpiredEvent(roomCode: string) {
+        console.log('Times up!', roomCode);
+        // TODO submitAnswer for each player if not submited (for timestamp)
+        // TODO validatePlayer Answer for each player
+        // TODO calculate points
+        // TODO send answers and points to client
+    }
     // permit more paramters to make method reusable
     // eslint-disable-next-line max-params
     updateChoice(choice: string, selection: boolean, username: string, roomCode: string) {

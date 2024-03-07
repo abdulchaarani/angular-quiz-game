@@ -1,10 +1,10 @@
+import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
+import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
-import { Injectable } from '@nestjs/common';
-import { Socket, Server } from 'socket.io';
 import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
-import { Choice } from '@app/model/database/choice';
-import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
+import { Injectable } from '@nestjs/common';
+import { Server, Socket } from 'socket.io';
 
 const FACTOR = 9000;
 const MAXIMUM_CODE_LENGTH = 4;
@@ -122,6 +122,11 @@ export class MatchRoomService {
         const matchRoom = this.getMatchRoomByCode(roomCode);
         if (selection) matchRoom.choiceTally.incrementCount(choice);
         else matchRoom.choiceTally.decrementCount(choice);
+    }
+
+    getGameTitle(matchRoomCode: string): string {
+        // console.log('duccudvdus', this.getMatchRoomByCode(matchRoomCode).game.title);
+        return this.getMatchRoomByCode(matchRoomCode).game.title;
     }
 
     private resetChoiceTally(matchRoomCode: string) {

@@ -22,6 +22,11 @@ interface UserInfo {
     username: string;
 }
 
+interface PlayerInfo {
+    start: boolean;
+    gameTitle: string;
+}
+
 const COUNTDOWN_TIME = 5;
 
 // Future TODO: Open socket only if code and user are valid + Allow host to be able to disconnect banned players
@@ -90,9 +95,19 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @SubscribeMessage(MatchEvents.StartMatch)
     startMatch(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
         if (this.matchRoomService.canStartMatch(roomCode)) {
-            this.matchRoomService.sendFirstQuestion(this.server, roomCode);
-            this.matchRoomService.markGameAsPlaying(roomCode);
+            const gameTitle = this.matchRoomService.getGameTitle(roomCode);
+            console.log('Game title: ', gameTitle);
+            const playerInfo: PlayerInfo = {
+                start: true,
+                gameTitle: gameTitle,
+            };
+            socket.to(roomCode).emit('matchStarting', playerInfo); //TODO: add matchstarting to the events
+
             this.timeService.startTimer(roomCode, COUNTDOWN_TIME, this.server);
+            if (this.timeService.getTime(roomCode) === 0) {
+                this.matchRoomService.markGameAsPlaying(roomCode);
+                this.matchRoomService.sendFirstQuestion(this.server, roomCode);
+            }
         }
     }
 

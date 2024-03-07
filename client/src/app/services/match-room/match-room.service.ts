@@ -4,6 +4,8 @@ import { Player } from '@app/interfaces/player';
 import { Question } from '@app/interfaces/question';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
+import { Observable } from 'rxjs/internal/Observable';
+import { Subject } from 'rxjs/internal/Subject';
 
 interface UserInfo {
     roomCode: string;
@@ -14,6 +16,8 @@ interface UserInfo {
 })
 export class MatchRoomService {
     players: Player[];
+    private startMatchSubject = new Subject<void>();
+    private gameTitle = new Subject<string>();
     get socketId() {
         return this.socketService.socket.id ? this.socketService.socket.id : '';
     }
@@ -89,13 +93,40 @@ export class MatchRoomService {
         this.socketService.send('startMatch', this.matchRoomCode);
     }
 
+    matchStarted() {
+        this.socketService.on('matchStarting', (data: { start: boolean; gameTitle: string }) => {
+            if (data.start) {
+                this.startMatchSubject.next();
+            }
+            console.log(data.gameTitle);
+            if (data.gameTitle) {
+                console.log(data.gameTitle);
+                this.gameTitle.next(data.gameTitle);
+            }
+        });
+    }
+
+    getStartMatchObservable(): Observable<void> {
+        return this.startMatchSubject.asObservable();
+    }
+
+    getGameTitleObservable(): Observable<string> {
+        return this.gameTitle.asObservable();
+    }
+
     nextQuestion() {
         this.socketService.send('nextQuestion', this.matchRoomCode);
     }
 
+    updatePlayerScore(username: string, points: number) {
+        const sentUserInfo: UserInfo = { roomCode: this.matchRoomCode, username };
+
+        this.socketService.send('updateScore', { sentUserInfo, points });
+    }
+
     private beginQuiz() {
-        this.socketService.on('beginQuiz', (firstQuestion: Question) => {
-            console.log(firstQuestion);
+        this.socketService.on('beginQuiz', (firstQuestion) => {
+            this.router.navigate(['/play-match'], { state: { question: firstQuestion } }); //TODO: ajouter la bonne route
         });
     }
 

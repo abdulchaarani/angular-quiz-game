@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
+import { MatchService } from '@app/services/match/match.service';
 import { TimeService } from '@app/services/time/time.service';
 
 const COUNTDOWN_DURATION = 5;
@@ -12,13 +13,14 @@ const MULTIPLICATION_FACTOR = 100;
     styleUrls: ['./wait-page.component.scss'],
 })
 export class WaitPageComponent implements OnInit {
-    // TODO: Replace Dummy values using actual services with backend implementation
     isLocked: boolean;
     startTimerButton: boolean;
+    gameTitle: string;
     constructor(
         public matchRoomService: MatchRoomService,
         public timeService: TimeService,
         public router: Router,
+        public matchService: MatchService,
     ) {
         this.isLocked = false;
         this.startTimerButton = false;
@@ -33,8 +35,19 @@ export class WaitPageComponent implements OnInit {
 
     ngOnInit(): void {
         this.matchRoomService.connect();
-        this.timeService.handleTimer();
-        this.timeService.handleStopTimer();
+
+        if (this.isHost) {
+            this.gameTitle = this.matchService.currentGame.title;
+        } else {
+            this.matchRoomService.getGameTitleObservable().subscribe((title) => {
+                this.gameTitle = title;
+            });
+        }
+
+        this.matchRoomService.matchStarted();
+        this.matchRoomService.getStartMatchObservable().subscribe(() => {
+            this.startTimerButton = true;
+        });
     }
 
     toggleLock() {
@@ -46,21 +59,8 @@ export class WaitPageComponent implements OnInit {
     }
 
     startMatch() {
-        // TODO: Check if isLocked + if at least one player (send event to server)
         this.startTimerButton = true;
-        this.timeService.time = COUNTDOWN_DURATION;
-        // this.startTimer();
         this.matchRoomService.startMatch();
-    }
-
-    startTimer() {
-        this.timeService.startTimer(this.matchRoomService.getMatchRoomCode(), COUNTDOWN_DURATION);
-        this.timeService.timerFinished$.subscribe((timerFinished) => {
-            if (timerFinished) {
-                // route to question page
-                this.router.navigateByUrl('/play');
-            }
-        });
     }
 
     computeTimerProgress(): number {

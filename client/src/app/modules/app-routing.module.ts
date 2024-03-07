@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { HostQuestionAreaComponent } from '@app/components/host-question-area/host-question-area.component';
+import { QuestionAreaComponent } from '@app/components/question-area/question-area.component';
 import { ManagementState, MatchState } from '@app/constants/states';
 import { adminLoginGuard } from '@app/guards/admin-login/admin-login.guard';
 import { matchLoginGuard } from '@app/guards/match-login/match-login.guard';
@@ -44,7 +44,8 @@ const routes: Routes = [
     { path: 'player', canActivate: [matchLoginGuard], component: PlayerPageComponent },
     { path: 'match-room', canActivate: [matchLoginGuard], component: WaitPageComponent },
     { path: 'results', canActivate: [matchLoginGuard], component: ResultsPageComponent },
-    { path: 'hostpc', canActivate: [matchLoginGuard], component: HostQuestionAreaComponent },
+    // { path: 'hostpc', canActivate: [matchLoginGuard], component: HostQuestionAreaComponent },
+    { path: 'play-match', canActivate: [matchLoginGuard], component: QuestionAreaComponent },
 ];
 
 @NgModule({

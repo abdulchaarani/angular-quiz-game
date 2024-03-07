@@ -76,15 +76,9 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     }
 
     ngOnInit(): void {
-<<<<<<< HEAD
         this.context = this.questionContextService.getContext();
 
-        this.timeService.stopTimer();
-        this.timeService.startTimer(this.gameDuration);
-=======
-        // this.timeService.stopTimer();
-        // this.timeService.startTimer(this.gameDuration);
->>>>>>> origin/ft/match-sockets-server
+        this.timeService.startTimer(this.matchRoomCode, this.gameDuration);
         if (this.currentQuestion.choices) {
             this.answers = this.currentQuestion.choices;
         }
@@ -101,11 +95,6 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes.gameDuration) {
-            // const newTimeLimit = changes.gameDuration.currentValue;
-            // this.timeService.startTimer(newTimeLimit);
-        }
-
         if (changes.currentQuestion) {
             const newQuestion = changes.currentQuestion.currentValue;
             this.currentQuestion = newQuestion;
@@ -136,7 +125,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     submitAnswers(): void {
         this.isSelectionEnabled = false;
         if (this.context === 'testPage') {
-            this.timeService.stopTimer();
+            this.timeService.stopTimer(this.matchRoomCode);
             this.checkAnswers();
         }
     }
@@ -180,8 +169,8 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         setTimeout(() => {
             this.matchService.advanceQuestion();
             this.resetStateForNewQuestion();
-            // this.timeService.stopTimer();
-            // this.timeService.startTimer(this.gameDuration);
+            this.timeService.stopTimer(this.matchRoomCode);
+            this.timeService.startTimer(this.matchRoomCode, this.gameDuration);
         }, this.timeout);
     }
 

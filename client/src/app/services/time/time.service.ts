@@ -1,48 +1,44 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 
 @Injectable({
     providedIn: 'root',
 })
 export class TimeService {
+    counter: number;
     private timerFinished: BehaviorSubject<boolean>;
-    private interval: number | undefined;
-    private tick;
-    private counter;
 
-    constructor() {
-        this.timerFinished = new BehaviorSubject<boolean>(false);
+    constructor(private socketService: SocketHandlerService) {
         this.counter = 0;
-        this.tick = 1000;
-    }
-
-    get timerFinished$() {
-        return this.timerFinished;
+        this.timerFinished = new BehaviorSubject<boolean>(false);
     }
 
     get time() {
         return this.counter;
     }
-    private set time(newTime: number) {
-        this.counter = newTime;
+
+    get timerFinished$() {
+        return this.timerFinished.asObservable();
     }
 
-    startTimer(startValue: number) {
-        if (this.interval) return;
-        this.time = startValue;
-        this.interval = window.setInterval(() => {
-            if (this.time > 0) {
-                this.time--;
-            } else {
-                this.stopTimer();
-                this.timerFinished.next(true);
-            }
-        }, this.tick);
+    startTimer(roomCode: string, time: number): void {
+        this.socketService.send('startTimer', { roomCode, time });
     }
 
-    stopTimer() {
-        clearInterval(this.interval);
-        this.interval = undefined;
-        this.timerFinished.next(false);
+    stopTimer(roomCode: string): void {
+        this.socketService.send('stopTimer', { roomCode });
+    }
+
+    handleTimer(): void {
+        this.socketService.on('timer', (currentTime: number) => {
+            this.counter = currentTime;
+        });
+    }
+
+    handleStopTimer(): void {
+        this.socketService.on('stopTimer', () => {
+            this.timerFinished.next(true);
+        });
     }
 }

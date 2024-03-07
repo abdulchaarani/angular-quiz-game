@@ -32,32 +32,35 @@ export class JoinMatchService {
         );
     }
 
-    validateUsername(username: string): void {
-        this.http
-            .post(
-                `${environment.serverUrl}/match/validate-username`,
-                { matchRoomCode: this.matchRoomCode, username },
-                {
-                    headers: new HttpHeaders({
-                        contentType: 'application/json',
-                    }),
-                    observe: 'response' as const,
-                    responseType: 'text' as const,
-                },
-            )
-            .subscribe({
-                next: () => {
-                    this.addPlayerToMatchRoom(username);
-                    this.matchRoomCode = '';
-                },
-                error: () => {
-                    this.notificationService.displayErrorMessage('Le nom ne doit pas être banni, ni être déjà utilisé, ni être "Organisateur".');
-                },
-            });
+    postUsername(username: string) {
+        return this.http.post(
+            `${environment.serverUrl}/match/validate-username`,
+            { matchRoomCode: this.matchRoomCode, username },
+            {
+                headers: new HttpHeaders({
+                    contentType: 'application/json',
+                }),
+                observe: 'response' as const,
+                responseType: 'text' as const,
+            },
+        );
     }
 
-    addPlayerToMatchRoom(username: string): void {
+    validateUsername(username: string): void {
+        this.postUsername(username).subscribe({
+            next: () => {
+                const matchRoomCode = this.matchRoomCode;
+                this.matchRoomCode = ''; // To avoid bugs where the match room would no longer be available
+                this.addPlayerToMatchRoom(matchRoomCode, username);
+            },
+            error: () => {
+                this.notificationService.displayErrorMessage('Le nom ne doit pas être banni, ni être déjà utilisé, ni être "Organisateur".');
+            },
+        });
+    }
+
+    addPlayerToMatchRoom(matchRoomCode: string, username: string): void {
         this.matchRoomService.connect();
-        this.matchRoomService.joinRoom(this.matchRoomCode, username);
+        this.matchRoomService.joinRoom(matchRoomCode, username);
     }
 }

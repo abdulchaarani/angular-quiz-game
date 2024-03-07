@@ -44,7 +44,7 @@ describe('MatchCreationPageComponent', () => {
 
     const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK', body: JSON.stringify(true) });
 
-    const matchServiceSpy = jasmine.createSpyObj('MatchService', ['validateChoices', 'getAllGames', 'saveBackupGame']);
+    const matchServiceSpy = jasmine.createSpyObj('MatchService', ['validateChoices', 'getAllGames', 'saveBackupGame', 'createMatch']);
     matchServiceSpy.getAllGames.and.returnValue(of([fakeGame]));
     matchServiceSpy.saveBackupGame.and.returnValue(of(mockHttpResponse));
     matchServiceSpy.validateChoices.and.returnValue(of(mockHttpResponse));
@@ -151,4 +151,9 @@ describe('MatchCreationPageComponent', () => {
         expect(notificationSpy).not.toHaveBeenCalled();
         flush();
     }));
+
+    it('createMatch() should create a match', () => {
+        component.createMatch();
+        expect(matchServiceSpy.createMatch).toHaveBeenCalled();
+    });
 });

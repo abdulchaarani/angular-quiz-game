@@ -3,6 +3,7 @@ export enum MatchEvents {
     CreateRoom = 'createRoom',
     RoomMessage = 'roomMessage',
     StartTimer = 'startTimer',
+    StopTimer = 'stopTimer',
     AddPlayer = 'addPlayer',
     ToggleLock = 'toggleLock',
     BanUsername = 'banUsername',

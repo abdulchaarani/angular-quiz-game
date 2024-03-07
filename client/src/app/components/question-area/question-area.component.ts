@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { Choice } from '@app/interfaces/choice';
 import { Question } from '@app/interfaces/question';
+import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { MatchService } from '@app/services/match/match.service';
 import { TimeService } from '@app/services/time/time.service';
 
@@ -34,6 +35,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         public timeService: TimeService,
         public dialog: MatDialog,
         private matchService: MatchService,
+        private matchRoomService: MatchRoomService,
     ) {
         this.selectedAnswers = [];
         this.isSelectionEnabled = true;

@@ -26,4 +26,19 @@ describe('matchLoginGuard', () => {
     it('should be created', () => {
         expect(matchLoginGuard).toBeTruthy();
     });
+
+    it('should redirect to home page if match room code or username are empty', () => {
+        matchRoomSpy.getMatchRoomCode.and.returnValue('');
+        matchRoomSpy.getUsername.and.returnValue('');
+        TestBed.runInInjectionContext(matchLoginGuard);
+        expect(routerSpy.navigateByUrl).toHaveBeenCalled();
+        expect(notificationSpy.displayErrorMessage).toHaveBeenCalled();
+    });
+    it('should not redirect to home page if room code and username are defined', () => {
+        matchRoomSpy.getMatchRoomCode.and.returnValue('mock');
+        matchRoomSpy.getUsername.and.returnValue('mock');
+        TestBed.runInInjectionContext(matchLoginGuard);
+        expect(routerSpy.navigateByUrl).not.toHaveBeenCalled();
+        expect(notificationSpy.displayErrorMessage).not.toHaveBeenCalled();
+    });
 });

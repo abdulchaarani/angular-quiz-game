@@ -5,7 +5,7 @@ import { Server } from 'socket.io';
 
 @Injectable()
 export class TimeService {
-    private tick;
+    private readonly tick;
     private intervals: Map<string, NodeJS.Timeout>;
     private counters: Map<string, number>;
 
@@ -19,22 +19,20 @@ export class TimeService {
         return this.counters.get(roomId);
     }
 
-    startTimer(roomId: string, startValue: number, server: Server, callbackOnExpiredTimer?: () => void) {
+    startTimer(roomId: string, startValue: number, server: Server) {
         if (this.intervals.has(roomId)) return;
 
-        this.counters.set(roomId, startValue - 1);
+        this.counters.set(roomId, startValue);
 
         this.intervals.set(
             roomId,
             setInterval(() => {
                 const currentTime = this.counters.get(roomId);
-                if (currentTime >= 0) {
+                if (currentTime > 0) {
                     server.in(roomId).emit('timer', currentTime);
-                    // TODO : Find better solution to this
                     this.counters.set(roomId, currentTime - 1);
                 } else {
                     this.stopTimer(roomId, server);
-                    callbackOnExpiredTimer?.();
                 }
             }, this.tick),
         );
@@ -44,9 +42,5 @@ export class TimeService {
         this.intervals.delete(roomId);
         clearInterval(this.counters.get(roomId));
         server.to(roomId).emit('stopTimer');
-    }
-
-    private setTime(roomId: string, newTime: number) {
-        this.counters.set(roomId, newTime);
     }
 }

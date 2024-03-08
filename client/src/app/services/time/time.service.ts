@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -19,6 +19,7 @@ export class TimeService {
     }
 
     startTimer(roomCode: string, time: number): void {
+        console.log('Starting timer');
         this.socketService.send('startTimer', { roomCode, time });
     }
 

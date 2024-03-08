@@ -10,4 +10,5 @@ export enum MatchEvents {
     UpdateScore = 'updateScore',
     StartMatch = 'startMatch',
     NextQuestion = 'nextQuestion',
+    StopTimer = 'stopTimer',
 }

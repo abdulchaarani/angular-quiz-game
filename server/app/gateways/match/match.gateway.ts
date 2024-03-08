@@ -27,6 +27,11 @@ interface PlayerInfo {
     gameTitle: string;
 }
 
+interface TimerInfo {
+    roomCode: string;
+    time: number;
+}
+
 const COUNTDOWN_TIME = 5;
 
 // Future TODO: Open socket only if code and user are valid + Allow host to be able to disconnect banned players

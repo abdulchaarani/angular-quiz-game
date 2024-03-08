@@ -1,3 +1,4 @@
+import { BONUS_FACTOR } from '@app/constants/match-constants';
 import { TimerEvents } from '@app/constants/timer-events';
 import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
 import { Answer } from '@app/model/schema/answer.schema';
@@ -8,7 +9,6 @@ import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 
 // TODO move to constants
-const BONUS_FACTOR = 0.2;
 interface Feedback {
     score: number;
     correctAnswer: string[];

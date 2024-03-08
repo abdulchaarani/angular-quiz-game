@@ -5,6 +5,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { Socket } from 'socket.io';
 import { PlayerRoomService } from './player-room.service';
+import { emptyAnswer } from '@app/model/schema/answer.schema';
 
 describe('PlayerRoomService', () => {
     let service: PlayerRoomService;
@@ -33,7 +34,7 @@ describe('PlayerRoomService', () => {
 
     it('getPlayersStringified() should return the list of stringified players without socket attribute', () => {
         jest.spyOn(service, 'getPlayers').mockReturnValue([MOCK_PLAYER]);
-        const expectedResult = '[{"username":"","score":0,"bonusCount":0,"isPlaying":true}]';
+        const expectedResult = '[{"username":"","answer":{"selectedChoices":{},"isSubmited":false},"score":0,"bonusCount":0,"isPlaying":true}]';
         const result = service.getPlayersStringified('');
         expect(result).toEqual(expectedResult);
     });
@@ -51,6 +52,7 @@ describe('PlayerRoomService', () => {
         const mockUsername = 'mock';
         const expectedResult: Player = {
             username: mockUsername,
+            answer: { ...emptyAnswer },
             score: 0,
             bonusCount: 0,
             isPlaying: true,
@@ -117,7 +119,7 @@ describe('PlayerRoomService', () => {
             bonusCount: 0,
             isPlaying: false,
             socket: undefined,
-        };
+        } as Player;
         jest.spyOn(service, 'getPlayers').mockReturnValue([searchedPlayer, otherPlayer]);
         expect(service.getPlayerByUsername('', searchedPlayer.username)).toEqual(searchedPlayer);
         expect(service.getPlayerByUsername('', searchedPlayer.username.toUpperCase())).toEqual(searchedPlayer);

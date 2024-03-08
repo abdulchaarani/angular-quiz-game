@@ -1,7 +1,7 @@
+import { AnswerService } from '@app/services/answer/answer.service';
 import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { AnswerEvents } from './answer.gateway.events';
-import { AnswerService } from '@app/services/answer/answer.service';
 
 interface UserInfo {
     roomCode: string;

@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { TimerEvents } from '@app/constants/timer-events';
+import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
+import { Answer } from '@app/model/schema/answer.schema';
+import { Player } from '@app/model/schema/player.schema';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
-import { Player } from '@app/model/schema/player.schema';
-import { Answer } from '@app/model/schema/answer.schema';
+import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
-import { TimerEvents } from '@app/constants/timer-events';
 
 // TODO move to constants
 const BONUS_FACTOR = 0.2;

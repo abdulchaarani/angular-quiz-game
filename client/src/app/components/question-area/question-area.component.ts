@@ -84,6 +84,8 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
 
             this.currentQuestion = history.state.question;
             this.gameDuration = history.state.duration;
+
+            // this.matchRoomService.feedback()
         }
 
         if (this.currentQuestion.choices) {

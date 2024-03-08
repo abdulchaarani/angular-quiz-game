@@ -68,6 +68,10 @@ export class MatchRoomService {
             this.username = res.username;
             this.router.navigateByUrl('/match-room');
         });
+        this.sendPlayersData(roomCode);
+    }
+
+    sendPlayersData(roomCode: string) {
         this.socketService.send('sendPlayersData', roomCode); // Updates the list for everyone with new player
     }
 
@@ -93,31 +97,31 @@ export class MatchRoomService {
         this.socketService.send('nextQuestion', this.matchRoomCode);
     }
 
-    private beginQuiz() {
+    beginQuiz() {
         this.socketService.on('beginQuiz', (firstQuestion: Question) => {
             console.log(firstQuestion);
         });
     }
 
-    private gameOver() {
+    gameOver() {
         this.socketService.on('gameOver', () => {
             console.log('gameOver');
         });
     }
 
-    private moveToNextQuestion() {
+    moveToNextQuestion() {
         this.socketService.on('nextQuestion', (question: Question) => {
             console.log(question);
         });
     }
 
-    private fetchPlayersData() {
+    fetchPlayersData() {
         this.socketService.on('fetchPlayersData', (res: string) => {
             this.players = JSON.parse(res);
         });
     }
 
-    private redirectAfterDisconnection() {
+    redirectAfterDisconnection() {
         this.socketService.on('disconnect', () => {
             this.router.navigateByUrl('/home');
             this.resetMatchValues();
@@ -125,7 +129,7 @@ export class MatchRoomService {
         });
     }
 
-    private resetMatchValues() {
+    resetMatchValues() {
         this.matchRoomCode = '';
         this.username = '';
         this.players = [];

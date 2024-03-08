@@ -64,7 +64,7 @@ export class MatchService extends CommunicationService<Game> {
 
     createMatch() {
         this.matchRoomService.connect();
-        this.matchRoomService.createRoom(JSON.stringify(this.selectedGame));
+        this.matchRoomService.createRoom(this.selectedGame.id);
     }
 
     validateChoices(choices: string[]) {

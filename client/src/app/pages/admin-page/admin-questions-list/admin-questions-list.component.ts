@@ -51,6 +51,7 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
     isPendingChanges: boolean;
     private isPendingChangesSubscription: Subscription = new Subscription();
 
+    // permit more constructor params to decouple services
     // eslint-disable-next-line max-params
     constructor(
         private readonly gamesService: GameService,

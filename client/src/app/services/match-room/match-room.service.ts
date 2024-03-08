@@ -45,6 +45,7 @@ export class MatchRoomService {
             this.beginQuiz();
             this.moveToNextQuestion();
             this.gameOver();
+            this.feedback();
         }
     }
 
@@ -53,8 +54,8 @@ export class MatchRoomService {
         this.resetMatchValues();
     }
 
-    createRoom(stringifiedGame: string) {
-        this.socketService.send('createRoom', stringifiedGame, (res: { code: string }) => {
+    createRoom(gameId: string) {
+        this.socketService.send('createRoom', gameId, (res: { code: string }) => {
             this.matchRoomCode = res.code;
             this.username = 'Organisateur';
             this.router.navigateByUrl('/match-room');
@@ -94,8 +95,8 @@ export class MatchRoomService {
     }
 
     private beginQuiz() {
-        this.socketService.on('beginQuiz', (firstQuestion: Question) => {
-            console.log(firstQuestion);
+        this.socketService.on('beginQuiz', () => {
+            console.log('beginQuiz');
         });
     }
 
@@ -129,5 +130,9 @@ export class MatchRoomService {
         this.matchRoomCode = '';
         this.username = '';
         this.players = [];
+    }
+
+    private feedback() {
+        this.socketService.on('feedback', (feedback) => console.log(feedback));
     }
 }

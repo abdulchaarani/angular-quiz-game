@@ -19,10 +19,9 @@ export class AnswerService {
         private playerService: PlayerRoomService,
     ) {}
 
-    @OnEvent(AnswerEvents.TimerExpired)
+    @OnEvent(AnswerEvents.TimerExpired, { prependListener: true })
     handleTimerExpiredEvent(roomCode: string) {
         if (!this.matchRoomService.isGamePlaying(roomCode)) return;
-        console.log('Times up answer!', roomCode);
         this.autoSubmitAnswers(roomCode);
         this.calculateScore(roomCode);
         this.sendFeedback(roomCode);
@@ -40,7 +39,7 @@ export class AnswerService {
         player.answer.timestamp = Date.now();
     }
 
-    isCorrectPlayerAnswer(player: Player, roomCode: string) {
+    private isCorrectPlayerAnswer(player: Player, roomCode: string) {
         const correctAnswer: string[] = this.matchRoomService.getMatchRoomByCode(roomCode).currentQuestionAnswer;
         const playerChoices = this.filterSelectedChoices(player.answer);
         return playerChoices.sort().toString() === correctAnswer.sort().toString();
@@ -77,7 +76,7 @@ export class AnswerService {
         const correctPlayers: Player[] = [];
         let fastestTime;
         players.forEach((player) => {
-            if (this.isCorrectPlayerAnswer) {
+            if (this.isCorrectPlayerAnswer(player, roomCode)) {
                 player.score += currentQuestionPoints;
                 correctPlayers.push(player);
                 if (!fastestTime || player.answer.timestamp < fastestTime) fastestTime = player.answer.timestamp;
@@ -102,7 +101,6 @@ export class AnswerService {
         const players: Player[] = this.playerService.getPlayers(roomCode);
         players.forEach((player: Player) => {
             const feedback: Feedback = { score: player.score, correctAnswer };
-            console.log(feedback);
             player.socket.send('feedback', feedback);
         });
     }

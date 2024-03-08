@@ -15,6 +15,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { MatchEvents } from './match.gateway.events';
 import { OnEvent } from '@nestjs/event-emitter';
+import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
 
 interface UserInfo {
     roomCode: string;
@@ -35,6 +36,7 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     constructor(
         private matchRoomService: MatchRoomService,
         private playerRoomService: PlayerRoomService,
+        private matchBackupService: MatchBackupService,
     ) {}
 
     @SubscribeMessage(MatchEvents.JoinRoom)
@@ -49,8 +51,8 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     @SubscribeMessage(MatchEvents.CreateRoom)
-    createRoom(@ConnectedSocket() socket: Socket, @MessageBody() stringifiedGame: string) {
-        const selectedGame: Game = JSON.parse(stringifiedGame);
+    createRoom(@ConnectedSocket() socket: Socket, @MessageBody() gameId: string) {
+        const selectedGame: Game = this.matchBackupService.getBackupGame(gameId);
         const newMatchRoom: MatchRoom = this.matchRoomService.addMatchRoom(selectedGame, socket);
         socket.join(newMatchRoom.code);
         return { code: newMatchRoom.code };
@@ -97,6 +99,7 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
         this.matchRoomService.sendNextQuestion(this.server, matchRoomCode);
         this.server.in(matchRoomCode).emit('beginQuiz');
         this.matchRoomService.markGameAsPlaying(matchRoomCode);
+        return false;
     }
 
     // @SubscribeMessage(MatchEvents.StopTimer)

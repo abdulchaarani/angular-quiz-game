@@ -7,6 +7,7 @@ import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
 import { Question } from '@app/model/database/question';
 import { TimeService } from '@app/services/time/time.service';
 
+// TODO: move to constants
 const FACTOR = 9000;
 const MAXIMUM_CODE_LENGTH = 4;
 const COUNTDOWN_TIME = 5;

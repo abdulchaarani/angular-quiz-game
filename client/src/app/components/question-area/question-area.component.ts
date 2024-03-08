@@ -3,6 +3,7 @@ import { Component, HostListener, Input, OnChanges, OnInit, SimpleChanges } from
 import { MatDialog } from '@angular/material/dialog';
 import { Choice } from '@app/interfaces/choice';
 import { Question } from '@app/interfaces/question';
+import { AnswerService } from '@app/services/answer/answer.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { MatchService } from '@app/services/match/match.service';
 import { QuestionContextService } from '@app/services/question-context/question-context.service';
@@ -38,6 +39,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         private matchService: MatchService,
         private matchRoomService: MatchRoomService,
         private questionContextService: QuestionContextService,
+        private answerService: AnswerService,
     ) {
         this.selectedAnswers = [];
         this.isSelectionEnabled = true;
@@ -136,6 +138,8 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         if (this.context === 'testPage') {
             this.timeService.stopTimer(this.matchRoomCode);
             this.checkAnswers();
+        } else {
+            this.answerService.submitAnswer(this.username);
         }
     }
 
@@ -143,8 +147,14 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         if (this.isSelectionEnabled) {
             if (!this.selectedAnswers.includes(choice)) {
                 this.selectedAnswers.push(choice);
+                if (this.context !== 'testPage') {
+                    this.answerService.selectChoice(choice.text, this.username);
+                }
             } else {
                 this.selectedAnswers = this.selectedAnswers.filter((answer) => answer !== choice);
+                if (this.context !== 'testPage') {
+                    this.answerService.deselectChoice(choice.text, this.username);
+                }
             }
         }
     }

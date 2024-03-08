@@ -109,6 +109,13 @@ export class MatchRoomService {
         });
     }
 
+    private beginQuiz() {
+        this.socketService.on('beginQuiz', (data: { firstQuestion: Question; gameDuration: number }) => {
+            const { firstQuestion, gameDuration } = data;
+            this.router.navigate(['/play-match'], { state: { question: firstQuestion, duration: gameDuration } });
+        });
+    }
+
     getStartMatchObservable(): Observable<void> {
         return this.startMatchSubject.asObservable();
     }
@@ -130,13 +137,6 @@ export class MatchRoomService {
     letsStartQuiz() {
         this.socketService.send('startQuiz', this.matchRoomCode);
     }
-
-    private beginQuiz() {
-        this.socketService.on('beginQuiz', (firstQuestion: Question) => {
-            console.log(firstQuestion);
-        });
-    }
-
     gameOver() {
         this.socketService.on('gameOver', () => {
             console.log('gameOver');

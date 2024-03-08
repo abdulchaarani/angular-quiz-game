@@ -72,6 +72,7 @@ export class WaitPageComponent implements OnInit {
         this.timeService.timerFinished$.subscribe((finished) => {
             if (finished) {
                 this.matchRoomService.letsStartQuiz();
+                console.log('Timer finished');
             }
         });
     }

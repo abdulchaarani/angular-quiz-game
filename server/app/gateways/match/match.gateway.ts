@@ -1,7 +1,10 @@
+import { TimerEvents } from '@app/constants/timer-events';
 import { Game } from '@app/model/database/game';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
+import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
+import { TimeService } from '@app/services/time/time.service';
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import {
@@ -43,9 +46,12 @@ interface PlayerInfo {
 export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @WebSocketServer() private server: Server;
     private readonly COUNTDOWN_TIME = 5;
+
     constructor(
         private matchRoomService: MatchRoomService,
         private playerRoomService: PlayerRoomService,
+        private timeService: TimeService,
+        private matchBackupService: MatchBackupService,
     ) {}
 
     @SubscribeMessage(MatchEvents.JoinRoom)
@@ -108,7 +114,7 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
             };
             socket.to(roomCode).emit('matchStarting', playerInfo); //TODO: add matchstarting to the events
 
-            this.timeService.startTimer(roomCode, this.COUNTDOWN_TIME + 1, this.server);
+            this.timeService.startTimer(this.server, roomCode, this.COUNTDOWN_TIME + 1, TimerEvents.CountdownTimerExpired);
         }
     }
 
@@ -116,7 +122,7 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     letsStartQuiz(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
         this.matchRoomService.markGameAsPlaying(roomCode);
         this.matchRoomService.sendFirstQuestion(this.server, roomCode);
-        this.timeService.startTimer(roomCode, this.matchRoomService.getGameDuration(roomCode), this.server);
+        this.timeService.startTimer(this.server, roomCode, this.matchRoomService.getGameDuration(roomCode), TimerEvents.CooldownTimerExpired);
     }
 
     @SubscribeMessage(MatchEvents.NextQuestion)

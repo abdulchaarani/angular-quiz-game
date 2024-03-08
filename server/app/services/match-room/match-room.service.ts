@@ -7,12 +7,7 @@ import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
 import { Question } from '@app/model/database/question';
 import { TimeService } from '@app/services/time/time.service';
 import { TimerEvents } from '@app/constants/timer-events';
-
-// TODO: move to constants
-const FACTOR = 9000;
-const MAXIMUM_CODE_LENGTH = 4;
-const COUNTDOWN_TIME = 5;
-const COOLDOWN_TIME = 3;
+import { COOLDOWN_TIME, COUNTDOWN_TIME, FACTOR, MAXIMUM_CODE_LENGTH } from '@app/constants/match-constants';
 
 @Injectable()
 export class MatchRoomService {
@@ -118,7 +113,7 @@ export class MatchRoomService {
 
         this.resetChoiceTally(matchRoomCode);
         const nextQuestion = matchRoom.game.questions[matchRoom.currentQuestionIndex++];
-        this.filterCorrectChoices(nextQuestion, matchRoom.currentQuestionAnswer);
+        matchRoom.currentQuestionAnswer = this.filterCorrectChoices(nextQuestion);
         this.removeIsCorrectField(nextQuestion);
         server.in(matchRoomCode).emit('nextQuestion', nextQuestion);
         matchRoom.hostSocket.send('currentAnswers', matchRoom.currentQuestionAnswer);
@@ -139,13 +134,14 @@ export class MatchRoomService {
         matchRoom.choiceTally.resetChoiceTally(possibleChoices);
     }
 
-    private filterCorrectChoices(question: Question, correctChoices: string[]) {
-        correctChoices = [];
+    private filterCorrectChoices(question: Question) {
+        const correctChoices = [];
         question.choices.forEach((choice) => {
             if (choice.isCorrect) {
                 correctChoices.push(choice.text);
             }
         });
+        return correctChoices;
     }
 
     private removeIsCorrectField(question: Question): void {

@@ -126,14 +126,6 @@ describe('MatchGateway', () => {
         expect(spy).not.toHaveBeenCalled();
     });
 
-    // it('startTimer() should start the timer', () => {
-    //     matchRoomSpy.getMatchRoomByCode.returns(MOCK_MATCH_ROOM);
-    //     matchBackupSpy.getBackupGame.returns(getMockGame());
-    //     const timeMethodSpy = jest.spyOn(timeSpy, 'startTimer').mockReturnThis();
-    //     gateway.startTimer(socket, MOCK_ROOM_CODE);
-    //     expect(timeMethodSpy).toHaveBeenCalled();
-    // });
-
     it('handleDisconnect() should disconnect host and all other players and delete the match room if the host disconnects', () => {
         matchRoomSpy.getRoomCodeByHostSocket.returns(MOCK_ROOM_CODE);
         const deleteSpy = jest.spyOn(matchRoomSpy, 'deleteMatchRoom').mockReturnThis();

@@ -20,6 +20,16 @@ export class AnwserGateway {
 
     @SubscribeMessage(AnswerEvents.SelectChoice)
     selectChoice(@ConnectedSocket() socket: Socket, @MessageBody() choice: ChoiceInfo) {
-        console.log('Anwser gateway works', choice);
+        this.answerService.updateChoice(choice.choice, true, choice.userInfo.username, choice.userInfo.roomCode);
+    }
+
+    @SubscribeMessage(AnswerEvents.DeselectChoice)
+    deselectChoice(@ConnectedSocket() socket: Socket, @MessageBody() choice: ChoiceInfo) {
+        this.answerService.updateChoice(choice.choice, false, choice.userInfo.username, choice.userInfo.roomCode);
+    }
+
+    @SubscribeMessage(AnswerEvents.SubmitAnswer)
+    submitAnswer(@ConnectedSocket() socket: Socket, @MessageBody() choice: ChoiceInfo) {
+        this.answerService.submitAnswer(choice.userInfo.username, choice.userInfo.roomCode);
     }
 }

@@ -6,7 +6,6 @@ import { Choice } from '@app/model/database/choice';
 import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
 import { Question } from '@app/model/database/question';
 import { TimeService } from '@app/services/time/time.service';
-import { OnEvent } from '@nestjs/event-emitter';
 import { TimerEvents } from '@app/constants/timer-events';
 
 // TODO: move to constants

@@ -1,6 +1,7 @@
 import { Game } from '@app/model/database/game';
 import { VALID_QUESTION } from './question-mocks';
 import { getRandomString } from './test-utils';
+import { Question } from '@app/model/database/question';
 
 const gameYear = 2020;
 
@@ -30,6 +31,24 @@ const getMockGame = (): Game => ({
             lastModification: new Date(gameYear, 1, 1),
         },
     ],
+});
+
+const getMockQuestion = (): Question => ({
+    id: getRandomString(),
+    type: 'QCM',
+    text: getRandomString(),
+    points: 20,
+    choices: [
+        {
+            text: getRandomString(),
+            isCorrect: true,
+        },
+        {
+            text: getRandomString(),
+            isCorrect: false,
+        },
+    ],
+    lastModification: new Date(gameYear, 1, 1),
 });
 
 const GAME_VALID_QUESTION = getMockGame();
@@ -122,4 +141,4 @@ const GAME_WITHOUT_IS_CORRECT_FIELD: Game = {
     ],
 };
 
-export { GAME_VALID_QUESTION, GAME_WITHOUT_IS_CORRECT_FIELD, GAME_WITH_IS_CORRECT_FIELD, getMockGame };
+export { GAME_VALID_QUESTION, GAME_WITHOUT_IS_CORRECT_FIELD, GAME_WITH_IS_CORRECT_FIELD, getMockGame, getMockQuestion };

@@ -5,6 +5,12 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { Socket } from 'socket.io';
 import { MatchRoomService } from './match-room.service';
+import { TimeService } from '@app/services/time/time.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
+import exp from 'constants';
+import { getMockQuestion } from '@app/constants/question-mocks';
+import { getRandomString } from '@app/constants/test-utils';
 
 const MAXIMUM_CODE_LENGTH = 4;
 
@@ -14,7 +20,7 @@ describe('MatchRoomService', () => {
     beforeEach(async () => {
         socket = createStubInstance<Socket>(Socket);
         const module: TestingModule = await Test.createTestingModule({
-            providers: [MatchRoomService],
+            providers: [MatchRoomService, TimeService, EventEmitter2],
         }).compile();
 
         service = module.get<MatchRoomService>(MatchRoomService);
@@ -55,7 +61,7 @@ describe('MatchRoomService', () => {
             players: [],
             messages: [],
             hostSocket: undefined,
-        };
+        } as MatchRoom;
         service.matchRooms = [searchedRoom, MOCK_MATCH_ROOM];
         const result = service.getRoomIndexByCode(MOCK_ROOM_CODE);
         expect(result).toEqual(0);
@@ -71,6 +77,10 @@ describe('MatchRoomService', () => {
             isLocked: false,
             isPlaying: false,
             game: mockGame,
+            gameLength: 1,
+            currentQuestionIndex: 0,
+            currentQuestionAnswer: [],
+            choiceTally: new ChoiceTally(),
             bannedUsernames: [],
             players: [],
             messages: [],
@@ -119,7 +129,7 @@ describe('MatchRoomService', () => {
             players: [],
             messages: [],
             hostSocket: undefined,
-        };
+        } as MatchRoom;
         service.matchRooms = [otherMatchRoom, deletedMatchRoom];
         service.deleteMatchRoom(MOCK_ROOM_CODE);
         expect(service.matchRooms.length).toEqual(1);
@@ -153,7 +163,7 @@ describe('MatchRoomService', () => {
         validRoom.isLocked = true;
         validRoom.players = [MOCK_PLAYER];
         jest.spyOn(service, 'getMatchRoomByCode').mockReturnValue(MOCK_MATCH_ROOM);
-        const result = service.canStartMatch('');
+        const result = service['canStartMatch']('');
         expect(result).toBeTruthy();
     });
 
@@ -173,7 +183,34 @@ describe('MatchRoomService', () => {
         const invalidRooms = [unlockedRoom, noPlayerRoom, totallyInvalidRoom, undefined];
         invalidRooms.forEach((room: MatchRoom) => {
             jest.spyOn(service, 'getMatchRoomByCode').mockReturnValue(room);
-            expect(service.canStartMatch('')).toBeFalsy();
+            expect(service['canStartMatch']('')).toBeFalsy();
         });
+    });
+
+    it('resetChoiceTally() should reset the current choice tally with the appropriate choices', () => {
+        const matchRoom = MOCK_MATCH_ROOM;
+        matchRoom.code = MOCK_ROOM_CODE;
+        service.matchRooms = [matchRoom];
+
+        const currentChoiceTally = new ChoiceTally();
+        currentChoiceTally.set(getRandomString(), 0);
+        currentChoiceTally.set(getRandomString(), 1);
+        currentChoiceTally.set(getRandomString(), 2);
+        currentChoiceTally.set(getRandomString(), 3);
+
+        matchRoom.choiceTally = currentChoiceTally;
+        service['resetChoiceTally'](MOCK_ROOM_CODE);
+
+        expect(matchRoom.choiceTally.size).toBe(2);
+        expect(matchRoom.choiceTally.has(matchRoom.game.questions[0].choices[0].text)).toBeTruthy();
+        expect(matchRoom.choiceTally.has(matchRoom.game.questions[0].choices[1].text)).toBeTruthy();
+        expect(matchRoom.choiceTally.get(matchRoom.game.questions[0].choices[0].text)).toBe(0);
+        expect(matchRoom.choiceTally.get(matchRoom.game.questions[0].choices[1].text)).toBe(0);
+    });
+
+    it('getGameDuration() should return the current game duration', () => {
+        service.matchRooms = [MOCK_MATCH_ROOM];
+        const currentGameDuration = service['getGameDuration'](MOCK_ROOM_CODE);
+        expect(currentGameDuration).toEqual(getMockGame().duration);
     });
 });

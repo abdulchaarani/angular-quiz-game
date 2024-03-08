@@ -1,15 +1,16 @@
 import { Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Server } from 'socket.io';
 // Ref
 // https://stackoverflow.com/questions/42398795/countdown-timer-broadcast-with-socket-io-and-node-js
 
 @Injectable()
 export class TimeService {
-    private tick;
+    private readonly tick;
     private intervals: Map<string, NodeJS.Timeout>;
     private counters: Map<string, number>;
 
-    constructor() {
+    constructor(private eventEmitter: EventEmitter2) {
         this.counters = new Map();
         this.intervals = new Map();
         this.tick = 1000;
@@ -19,7 +20,7 @@ export class TimeService {
         return this.counters.get(roomId);
     }
 
-    startTimer(roomId: string, startValue: number, server: Server, callbackOnExpiredTimer?: () => void) {
+    startTimer(roomId: string, startValue: number, server: Server) {
         if (this.intervals.has(roomId)) return;
 
         this.counters.set(roomId, startValue - 1);
@@ -30,11 +31,9 @@ export class TimeService {
                 const currentTime = this.counters.get(roomId);
                 if (currentTime >= 0) {
                     server.in(roomId).emit('timer', currentTime);
-                    // TODO : Find better solution to this
                     this.counters.set(roomId, currentTime - 1);
                 } else {
                     this.stopTimer(roomId, server);
-                    callbackOnExpiredTimer?.();
                 }
             }, this.tick),
         );
@@ -45,10 +44,6 @@ export class TimeService {
         this.intervals.delete(roomId);
         this.counters.delete(roomId);
         server.to(roomId).emit('stopTimer');
-        server.emit('timerExpired', roomId);
-    }
-
-    private setTime(roomId: string, newTime: number) {
-        this.counters.set(roomId, newTime);
+        this.eventEmitter.emit('timerExpired', roomId);
     }
 }

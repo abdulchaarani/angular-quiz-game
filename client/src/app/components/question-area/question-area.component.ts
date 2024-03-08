@@ -6,6 +6,7 @@ import { Question } from '@app/interfaces/question';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { MatchService } from '@app/services/match/match.service';
 import { QuestionContextService } from '@app/services/question-context/question-context.service';
+
 import { TimeService } from '@app/services/time/time.service';
 @Component({
     selector: 'app-question-area',
@@ -35,8 +36,8 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         public timeService: TimeService,
         public dialog: MatDialog,
         private matchService: MatchService,
+        private matchRoomService: MatchRoomService,
         private questionContextService: QuestionContextService,
-        public matchRoomService: MatchRoomService,
     ) {
         this.selectedAnswers = [];
         this.isSelectionEnabled = true;

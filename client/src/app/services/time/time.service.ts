@@ -6,16 +6,24 @@ import { BehaviorSubject } from 'rxjs';
     providedIn: 'root',
 })
 export class TimeService {
-    time: number;
+    counter: number;
     private timerFinished: BehaviorSubject<boolean>;
 
     constructor(private socketService: SocketHandlerService) {
-        this.time = 0;
+        this.counter = 0;
         this.timerFinished = new BehaviorSubject<boolean>(false);
+    }
+
+    get time() {
+        return this.counter;
     }
 
     get timerFinished$() {
         return this.timerFinished.asObservable();
+    }
+
+    set time(newTime: number) {
+        this.counter = newTime;
     }
 
     startTimer(roomCode: string, time: number): void {
@@ -23,19 +31,19 @@ export class TimeService {
         this.socketService.send('startTimer', { roomCode, time });
     }
 
-    stopTimer(roomId: string): void {
-        this.socketService.socket.emit('stopTimer', { roomId });
+    stopTimer(roomCode: string): void {
+        this.socketService.send('stopTimer', { roomCode });
     }
 
     handleTimer(): void {
-        this.socketService.socket.on('timer', (currentTime: number) => {
-            this.time = currentTime;
+        this.socketService.on('timer', (currentTime: number) => {
+            this.counter = currentTime;
             console.log('Current time : ', currentTime);
         });
     }
 
     handleStopTimer(): void {
-        this.socketService.socket.on('stopTimer', () => {
+        this.socketService.on('stopTimer', () => {
             this.timerFinished.next(true);
         });
     }

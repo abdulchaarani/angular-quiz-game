@@ -12,6 +12,7 @@ import { GameService } from '@app/services/game/game.service';
 import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
 import { QuestionService } from '@app/services/question/question.service';
 import { Logger, Module } from '@nestjs/common';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { BackupController } from './controllers/backup/backup.controller';
@@ -33,6 +34,7 @@ import { AnswerService } from './services/answer/answer.service';
         }),
         MongooseModule.forFeature([{ name: Game.name, schema: gameSchema }]),
         MongooseModule.forFeature([{ name: Question.name, schema: questionSchema }]),
+        EventEmitterModule.forRoot(),
     ],
     controllers: [QuestionController, GameController, MatchController, AuthenticationController, BackupController],
     providers: [

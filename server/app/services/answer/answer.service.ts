@@ -5,6 +5,7 @@ import { Player } from '@app/model/schema/player.schema';
 import { Answer } from '@app/model/schema/answer.schema';
 import { OnEvent } from '@nestjs/event-emitter';
 import { AnswerEvents } from '@app/gateways/anwser/answer.gateway.events';
+import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
 
 // TODO move to constants
 const BONUS_FACTOR = 0.2;
@@ -31,6 +32,7 @@ export class AnswerService {
     updateChoice(choice: string, selection: boolean, username: string, roomCode: string) {
         const player: Player = this.playerService.getPlayerByUsername(roomCode, username);
         if (!player.answer.isSubmited) player.answer.selectedChoices.set(choice, selection);
+        this.updateChoiceTally(choice, selection, roomCode);
     }
 
     submitAnswer(username: string, roomCode: string) {
@@ -39,8 +41,25 @@ export class AnswerService {
         player.answer.timestamp = Date.now();
     }
 
+    private getMatchRoomByCode(roomCode: string) {
+        return this.matchRoomService.getMatchRoomByCode(roomCode);
+    }
+
+    private updateChoiceTally(choice: string, selection: boolean, roomCode: string) {
+        const choiceTally = this.getMatchRoomByCode(roomCode).choiceTally;
+        if (selection) choiceTally.incrementCount(choice);
+        else choiceTally.decrementCount(choice);
+        this.updateHistogram(choiceTally, roomCode);
+    }
+
+    private updateHistogram(choiceTally: ChoiceTally, roomCode: string) {
+        const matchRoom = this.getMatchRoomByCode(roomCode);
+        const currentTally = Array.from(choiceTally);
+        matchRoom.hostSocket.send('currentTally', currentTally);
+    }
+
     private isCorrectPlayerAnswer(player: Player, roomCode: string) {
-        const correctAnswer: string[] = this.matchRoomService.getMatchRoomByCode(roomCode).currentQuestionAnswer;
+        const correctAnswer: string[] = this.getMatchRoomByCode(roomCode).currentQuestionAnswer;
         const playerChoices = this.filterSelectedChoices(player.answer);
         return playerChoices.sort().toString() === correctAnswer.sort().toString();
     }
@@ -65,7 +84,7 @@ export class AnswerService {
     }
 
     private getCurrentQuestionValue(roomCode: string): number {
-        const matchRoom = this.matchRoomService.getMatchRoomByCode(roomCode);
+        const matchRoom = this.getMatchRoomByCode(roomCode);
         const currentQuestionIndex = matchRoom.currentQuestionIndex;
         return matchRoom.game.questions[currentQuestionIndex].points;
     }
@@ -83,21 +102,20 @@ export class AnswerService {
             }
         });
 
-        const fastestPlayer = this.computeFastestPlayer(fastestTime, correctPlayers);
-        if (fastestPlayer) {
-            fastestPlayer.score += currentQuestionPoints * BONUS_FACTOR;
-            fastestPlayer.bonusCount++;
-        }
+        this.computeFastestPlayerBonus(currentQuestionPoints, fastestTime, correctPlayers);
     }
 
-    private computeFastestPlayer(fastestTime: number, correctPlayers: Player[]): Player | undefined {
-        correctPlayers.filter((player) => player.answer.timestamp === fastestTime);
-        if (correctPlayers.length > 1) return undefined;
-        return correctPlayers[0];
+    private computeFastestPlayerBonus(points: number, fastestTime: number, correctPlayers: Player[]) {
+        const fastestPlayers = correctPlayers.filter((player) => player.answer.timestamp === fastestTime);
+        if (fastestPlayers.length > 1) return;
+
+        const fastestPlayer = fastestPlayers[0];
+        fastestPlayer.score += points * BONUS_FACTOR;
+        fastestPlayer.bonusCount++;
     }
 
     private sendFeedback(roomCode: string) {
-        const correctAnswer: string[] = this.matchRoomService.getMatchRoomByCode(roomCode).currentQuestionAnswer;
+        const correctAnswer: string[] = this.getMatchRoomByCode(roomCode).currentQuestionAnswer;
         const players: Player[] = this.playerService.getPlayers(roomCode);
         players.forEach((player: Player) => {
             const feedback: Feedback = { score: player.score, correctAnswer };

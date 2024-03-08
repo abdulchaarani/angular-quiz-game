@@ -115,13 +115,8 @@ export class MatchRoomService {
         this.filterCorrectChoices(nextQuestion, matchRoom.currentQuestionAnswer);
         this.removeIsCorrectField(nextQuestion);
         server.in(matchRoomCode).emit('nextQuestion', nextQuestion);
+        matchRoom.hostSocket.send('currentAnswers', matchRoom.currentQuestionAnswer);
         this.timeService.startTimer(matchRoomCode, this.getGameDuration(matchRoomCode), server);
-    }
-
-    updateChoiceTally(roomCode: string, choice: string, selection: boolean) {
-        const matchRoom = this.getMatchRoomByCode(roomCode);
-        if (selection) matchRoom.choiceTally.incrementCount(choice);
-        else matchRoom.choiceTally.decrementCount(choice);
     }
 
     private canStartMatch(matchRoomCode: string): boolean {
@@ -139,6 +134,7 @@ export class MatchRoomService {
     }
 
     private filterCorrectChoices(question: Question, correctChoices: string[]) {
+        correctChoices = [];
         question.choices.forEach((choice) => {
             if (choice.isCorrect) {
                 correctChoices.push(choice.text);

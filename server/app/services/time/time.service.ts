@@ -1,3 +1,4 @@
+import { TimerEvents } from '@app/constants/timer-events';
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Server } from 'socket.io';
@@ -20,7 +21,9 @@ export class TimeService {
         return this.counters.get(roomId);
     }
 
-    startTimer(roomId: string, startValue: number, server: Server) {
+    // passing event permits decoupling of timer service
+    // eslint-disable-next-line max-params
+    startTimer(server: Server, roomId: string, startValue: number, onTimerExpiredEvent: TimerEvents) {
         if (this.intervals.has(roomId)) return;
 
         this.counters.set(roomId, startValue - 1);
@@ -33,17 +36,17 @@ export class TimeService {
                     server.in(roomId).emit('timer', currentTime);
                     this.counters.set(roomId, currentTime - 1);
                 } else {
-                    this.stopTimer(roomId, server);
+                    this.stopTimer(roomId, server, onTimerExpiredEvent);
                 }
             }, this.tick),
         );
     }
 
-    stopTimer(roomId: string, server: Server) {
+    stopTimer(roomId: string, server: Server, onTimerExpiredEvent: TimerEvents) {
         clearInterval(this.intervals.get(roomId));
         this.intervals.delete(roomId);
         this.counters.delete(roomId);
         server.to(roomId).emit('stopTimer');
-        this.eventEmitter.emit('timerExpired', roomId);
+        this.eventEmitter.emit(onTimerExpiredEvent, roomId);
     }
 }

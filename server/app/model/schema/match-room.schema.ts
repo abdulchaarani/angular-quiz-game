@@ -18,4 +18,3 @@ export interface MatchRoom {
     messages: Message[];
     hostSocket: Socket;
 }
-// TODO: Add interface for results

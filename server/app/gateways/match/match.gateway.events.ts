@@ -11,5 +11,4 @@ export enum MatchEvents {
     UpdateScore = 'updateScore',
     StartMatch = 'startMatch',
     NextQuestion = 'nextQuestion',
-    TimerExpired = 'timerExpired',
 }

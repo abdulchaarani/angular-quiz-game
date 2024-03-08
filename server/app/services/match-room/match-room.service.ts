@@ -1,3 +1,5 @@
+import { COOLDOWN_TIME, COUNTDOWN_TIME, FACTOR, MAXIMUM_CODE_LENGTH } from '@app/constants/match-constants';
+import { TimerEvents } from '@app/constants/timer-events';
 import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
 import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
@@ -6,10 +8,6 @@ import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { TimeService } from '@app/services/time/time.service';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
-
-const FACTOR = 9000;
-const MAXIMUM_CODE_LENGTH = 4;
-const COUNTDOWN_TIME = 5;
 
 @Injectable()
 export class MatchRoomService {
@@ -89,7 +87,7 @@ export class MatchRoomService {
 
     startMatch(server: Server, matchRoomCode: string) {
         if (!this.canStartMatch(matchRoomCode)) return;
-        this.timeService.startTimer(matchRoomCode, COUNTDOWN_TIME, server);
+        this.timeService.startTimer(server, matchRoomCode, COUNTDOWN_TIME, TimerEvents.CountdownTimerExpired);
     }
 
     markGameAsPlaying(matchRoomCode: string): void {
@@ -107,6 +105,10 @@ export class MatchRoomService {
         server.in(matchRoomCode).emit('beginQuiz', { firstQuestion: firstQuestion, gameDuration: gameDuration });
     }
 
+    startNextQuestionCooldown(server: Server, matchRoomCode: string): void {
+        this.timeService.startTimer(server, matchRoomCode, COOLDOWN_TIME, TimerEvents.CooldownTimerExpired);
+    }
+
     sendNextQuestion(server: Server, matchRoomCode: string): void {
         const matchRoom: MatchRoom = this.getMatchRoomByCode(matchRoomCode);
 
@@ -117,16 +119,11 @@ export class MatchRoomService {
 
         this.resetChoiceTally(matchRoomCode);
         const nextQuestion = matchRoom.game.questions[matchRoom.currentQuestionIndex++];
-        this.filterCorrectChoices(nextQuestion, matchRoom.currentQuestionAnswer);
+        matchRoom.currentQuestionAnswer = this.filterCorrectChoices(nextQuestion);
         this.removeIsCorrectField(nextQuestion);
         server.in(matchRoomCode).emit('nextQuestion', nextQuestion);
-        this.timeService.startTimer(matchRoomCode, this.getGameDuration(matchRoomCode), server);
-    }
-
-    updateChoiceTally(roomCode: string, choice: string, selection: boolean) {
-        const matchRoom = this.getMatchRoomByCode(roomCode);
-        if (selection) matchRoom.choiceTally.incrementCount(choice);
-        else matchRoom.choiceTally.decrementCount(choice);
+        matchRoom.hostSocket.send('currentAnswers', matchRoom.currentQuestionAnswer);
+        this.timeService.startTimer(server, matchRoomCode, this.getGameDuration(matchRoomCode), TimerEvents.QuestionTimerExpired);
     }
 
     canStartMatch(matchRoomCode: string): boolean {
@@ -147,12 +144,14 @@ export class MatchRoomService {
         matchRoom.choiceTally.resetChoiceTally(possibleChoices);
     }
 
-    private filterCorrectChoices(question: Question, correctChoices: string[]) {
+    private filterCorrectChoices(question: Question) {
+        const correctChoices = [];
         question.choices.forEach((choice) => {
             if (choice.isCorrect) {
                 correctChoices.push(choice.text);
             }
         });
+        return correctChoices;
     }
 
     private removeIsCorrectField(question: Question): void {

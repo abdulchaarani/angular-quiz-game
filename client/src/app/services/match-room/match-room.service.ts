@@ -18,6 +18,9 @@ export class MatchRoomService {
     players: Player[];
     private startMatchSubject = new Subject<void>();
     private gameTitle = new Subject<string>();
+    private matchRoomCode: string;
+    private username: string;
+
     get socketId() {
         return this.socketService.socket.id ? this.socketService.socket.id : '';
     }
@@ -30,9 +33,6 @@ export class MatchRoomService {
         this.username = '';
         this.players = [];
     }
-    private matchRoomCode: string;
-    private username: string;
-
     getMatchRoomCode() {
         return this.matchRoomCode;
     }
@@ -49,6 +49,7 @@ export class MatchRoomService {
             this.beginQuiz();
             this.moveToNextQuestion();
             this.gameOver();
+            this.feedback();
         }
     }
 
@@ -57,8 +58,8 @@ export class MatchRoomService {
         this.resetMatchValues();
     }
 
-    createRoom(stringifiedGame: string) {
-        this.socketService.send('createRoom', stringifiedGame, (res: { code: string }) => {
+    createRoom(gameId: string) {
+        this.socketService.send('createRoom', gameId, (res: { code: string }) => {
             this.matchRoomCode = res.code;
             this.username = 'Organisateur';
             this.router.navigateByUrl('/match-room');
@@ -72,6 +73,10 @@ export class MatchRoomService {
             this.username = res.username;
             this.router.navigateByUrl('/match-room');
         });
+        this.sendPlayersData(roomCode);
+    }
+
+    sendPlayersData(roomCode: string) {
         this.socketService.send('sendPlayersData', roomCode); // Updates the list for everyone with new player
     }
 
@@ -127,32 +132,30 @@ export class MatchRoomService {
     }
 
     private beginQuiz() {
-        this.socketService.on('beginQuiz', (data: { firstQuestion: Question; gameDuration: number }) => {
-            const { firstQuestion, gameDuration } = data;
-            console.log(gameDuration);
-            this.router.navigate(['/play-match'], { state: { question: firstQuestion, duration: gameDuration } });
+        this.socketService.on('beginQuiz', (firstQuestion: Question) => {
+            console.log(firstQuestion);
         });
     }
 
-    private gameOver() {
+    gameOver() {
         this.socketService.on('gameOver', () => {
             console.log('gameOver');
         });
     }
 
-    private moveToNextQuestion() {
+    moveToNextQuestion() {
         this.socketService.on('nextQuestion', (question: Question) => {
             console.log(question);
         });
     }
 
-    private fetchPlayersData() {
+    fetchPlayersData() {
         this.socketService.on('fetchPlayersData', (res: string) => {
             this.players = JSON.parse(res);
         });
     }
 
-    private redirectAfterDisconnection() {
+    redirectAfterDisconnection() {
         this.socketService.on('disconnect', () => {
             this.router.navigateByUrl('/home');
             this.resetMatchValues();
@@ -160,9 +163,13 @@ export class MatchRoomService {
         });
     }
 
-    private resetMatchValues() {
+    resetMatchValues() {
         this.matchRoomCode = '';
         this.username = '';
         this.players = [];
+    }
+
+    private feedback() {
+        this.socketService.on('feedback', (feedback) => console.log(feedback));
     }
 }

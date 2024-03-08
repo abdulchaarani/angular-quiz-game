@@ -2,7 +2,6 @@ import { Game } from '@app/model/database/game';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
-import { TimeService } from '@app/services/time/time.service';
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import {
@@ -47,7 +46,6 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     constructor(
         private matchRoomService: MatchRoomService,
         private playerRoomService: PlayerRoomService,
-        private timeService: TimeService,
     ) {}
 
     @SubscribeMessage(MatchEvents.JoinRoom)
@@ -62,8 +60,8 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     @SubscribeMessage(MatchEvents.CreateRoom)
-    createRoom(@ConnectedSocket() socket: Socket, @MessageBody() stringifiedGame: string) {
-        const selectedGame: Game = JSON.parse(stringifiedGame);
+    createRoom(@ConnectedSocket() socket: Socket, @MessageBody() gameId: string) {
+        const selectedGame: Game = this.matchBackupService.getBackupGame(gameId);
         const newMatchRoom: MatchRoom = this.matchRoomService.addMatchRoom(selectedGame, socket);
         socket.join(newMatchRoom.code);
         return { code: newMatchRoom.code };
@@ -124,21 +122,19 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @SubscribeMessage(MatchEvents.NextQuestion)
     nextQuestion(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
         this.matchRoomService.sendNextQuestion(this.server, roomCode);
-        this.timeService.startTimer(roomCode, this.matchRoomService.getGameDuration(roomCode), this.server);
     }
 
-    @OnEvent(MatchEvents.TimerExpired)
-    handleTimerExpiredEvent(matchRoomCode: string) {
-        if (this.matchRoomService.isGamePlaying(matchRoomCode)) return;
-        this.matchRoomService.sendNextQuestion(this.server, matchRoomCode);
+    @OnEvent(TimerEvents.CountdownTimerExpired)
+    onCountdownTimerExpired(matchRoomCode: string) {
         this.server.in(matchRoomCode).emit('beginQuiz');
         this.matchRoomService.markGameAsPlaying(matchRoomCode);
+        this.matchRoomService.sendNextQuestion(this.server, matchRoomCode);
     }
 
-    // @SubscribeMessage(MatchEvents.StopTimer)
-    // stopTimer(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
-    //     this.timeService.stopTimer(roomCode, this.server);
-    // }
+    @OnEvent(TimerEvents.CooldownTimerExpired)
+    onCooldownTimerExpired(matchRoomCode: string) {
+        this.matchRoomService.sendNextQuestion(this.server, matchRoomCode);
+    }
 
     // eslint-disable-next-line no-unused-vars
     handleConnection(@ConnectedSocket() socket: Socket) {

@@ -4,8 +4,15 @@ import { PlayerRoomService } from '@app/services/player-room/player-room.service
 import { Player } from '@app/model/schema/player.schema';
 import { Answer } from '@app/model/schema/answer.schema';
 import { OnEvent } from '@nestjs/event-emitter';
-import { AnswerEvents } from '@app/gateways/anwser/answer.gateway.events';
+import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
+import { TimerEvents } from '@app/constants/timer-events';
 
+// TODO move to constants
+const BONUS_FACTOR = 0.2;
+interface Feedback {
+    score: number;
+    correctAnswer: string[];
+}
 @Injectable()
 export class AnswerService {
     constructor(
@@ -13,20 +20,18 @@ export class AnswerService {
         private playerService: PlayerRoomService,
     ) {}
 
-    @OnEvent(AnswerEvents.TimerExpired)
-    handleTimerExpiredEvent(roomCode: string) {
-        if (!this.matchRoomService.isGamePlaying) return;
-        console.log('Times up answer!', roomCode);
+    @OnEvent(TimerEvents.QuestionTimerExpired)
+    onQuestionTimerExpired(roomCode: string) {
         this.autoSubmitAnswers(roomCode);
-        // TODO validatePlayer Answer for each player
-        // TODO calculate points
-        // TODO send answers and points to client
+        this.calculateScore(roomCode);
+        this.sendFeedback(roomCode);
     }
     // permit more paramters to make method reusable
     // eslint-disable-next-line max-params
     updateChoice(choice: string, selection: boolean, username: string, roomCode: string) {
         const player: Player = this.playerService.getPlayerByUsername(roomCode, username);
         if (!player.answer.isSubmited) player.answer.selectedChoices.set(choice, selection);
+        this.updateChoiceTally(choice, selection, roomCode);
     }
 
     submitAnswer(username: string, roomCode: string) {
@@ -35,10 +40,26 @@ export class AnswerService {
         player.answer.timestamp = Date.now();
     }
 
-    validatePlayerAnswer(selectedChoices: string[], username: string, roomCode: string) {
-        const playerAnswer: Answer = this.playerService.getPlayerByUsername(roomCode, username).answer;
-        const correctAnswer: string[] = this.matchRoomService.getMatchRoomByCode(roomCode).currentQuestionAnswer;
-        const playerChoices = this.filterSelectedChoices(playerAnswer);
+    private getMatchRoomByCode(roomCode: string) {
+        return this.matchRoomService.getMatchRoomByCode(roomCode);
+    }
+
+    private updateChoiceTally(choice: string, selection: boolean, roomCode: string) {
+        const choiceTally = this.getMatchRoomByCode(roomCode).choiceTally;
+        if (selection) choiceTally.incrementCount(choice);
+        else choiceTally.decrementCount(choice);
+        this.updateHistogram(choiceTally, roomCode);
+    }
+
+    private updateHistogram(choiceTally: ChoiceTally, roomCode: string) {
+        const matchRoom = this.getMatchRoomByCode(roomCode);
+        const currentTally = Array.from(choiceTally);
+        matchRoom.hostSocket.send('currentTally', currentTally);
+    }
+
+    private isCorrectPlayerAnswer(player: Player, roomCode: string) {
+        const correctAnswer: string[] = this.getMatchRoomByCode(roomCode).currentQuestionAnswer;
+        const playerChoices = this.filterSelectedChoices(player.answer);
         return playerChoices.sort().toString() === correctAnswer.sort().toString();
     }
 
@@ -60,7 +81,44 @@ export class AnswerService {
             }
         });
     }
-    // TODO validatePlayer Answer for each player
-    // TODO calculate points
-    // TODO send answers and points to client
+
+    private getCurrentQuestionValue(roomCode: string): number {
+        const matchRoom = this.getMatchRoomByCode(roomCode);
+        const currentQuestionIndex = matchRoom.currentQuestionIndex;
+        return matchRoom.game.questions[currentQuestionIndex].points;
+    }
+
+    private calculateScore(roomCode: string) {
+        const currentQuestionPoints = this.getCurrentQuestionValue(roomCode);
+        const players: Player[] = this.playerService.getPlayers(roomCode);
+        const correctPlayers: Player[] = [];
+        let fastestTime;
+        players.forEach((player) => {
+            if (this.isCorrectPlayerAnswer(player, roomCode)) {
+                player.score += currentQuestionPoints;
+                correctPlayers.push(player);
+                if (!fastestTime || player.answer.timestamp < fastestTime) fastestTime = player.answer.timestamp;
+            }
+        });
+
+        this.computeFastestPlayerBonus(currentQuestionPoints, fastestTime, correctPlayers);
+    }
+
+    private computeFastestPlayerBonus(points: number, fastestTime: number, correctPlayers: Player[]) {
+        const fastestPlayers = correctPlayers.filter((player) => player.answer.timestamp === fastestTime);
+        if (fastestPlayers.length > 1) return;
+
+        const fastestPlayer = fastestPlayers[0];
+        fastestPlayer.score += points * BONUS_FACTOR;
+        fastestPlayer.bonusCount++;
+    }
+
+    private sendFeedback(roomCode: string) {
+        const correctAnswer: string[] = this.getMatchRoomByCode(roomCode).currentQuestionAnswer;
+        const players: Player[] = this.playerService.getPlayers(roomCode);
+        players.forEach((player: Player) => {
+            const feedback: Feedback = { score: player.score, correctAnswer };
+            player.socket.send('feedback', feedback);
+        });
+    }
 }

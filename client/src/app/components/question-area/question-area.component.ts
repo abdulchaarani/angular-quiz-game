@@ -83,8 +83,8 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
             this.timeService.handleStopTimer();
 
             this.currentQuestion = history.state.question;
-            // this.gameDuration = history.state.gameDuration;
-            this.gameDuration = 4;
+            this.gameDuration = history.state.duration;
+            console.log('gameDuration', this.gameDuration);
         }
 
         if (this.currentQuestion.choices) {
@@ -102,6 +102,11 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         // });
     }
 
+    // ngAfterViewInit(): void {
+    //     if (this.context === 'testPage') {
+    //         this.timeService.startTimer(this.matchRoomCode, this.gameDuration);
+    //     }
+    // }
     ngOnChanges(changes: SimpleChanges): void {
         if (changes.currentQuestion) {
             const newQuestion = changes.currentQuestion.currentValue;
@@ -113,12 +118,6 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
                 this.matchService.questionId = this.currentQuestion.id;
             }
             this.resetStateForNewQuestion();
-        }
-    }
-
-    ngAfterViewInit(): void {
-        if (this.context === 'testPage') {
-            this.timeService.startTimer(this.matchRoomCode, this.gameDuration);
         }
     }
 

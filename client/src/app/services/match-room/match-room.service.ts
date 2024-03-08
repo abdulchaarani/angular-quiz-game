@@ -129,6 +129,7 @@ export class MatchRoomService {
     private beginQuiz() {
         this.socketService.on('beginQuiz', (data: { firstQuestion: Question; gameDuration: number }) => {
             const { firstQuestion, gameDuration } = data;
+            console.log(gameDuration);
             this.router.navigate(['/play-match'], { state: { question: firstQuestion, duration: gameDuration } });
         });
     }

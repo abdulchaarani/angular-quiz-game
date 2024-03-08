@@ -37,11 +37,6 @@ interface PlayerInfo {
     gameTitle: string;
 }
 
-interface TimerInfo {
-    roomCode: string;
-    time: number;
-}
-
 // TODO: Open socket only if code and user are valid + Allow host to be able to disconnect banned players
 
 @WebSocketGateway({ cors: true })
@@ -123,6 +118,7 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     letsStartQuiz(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
         this.matchRoomService.markGameAsPlaying(roomCode);
         this.matchRoomService.sendFirstQuestion(this.server, roomCode);
+        this.timeService.startTimer(roomCode, this.matchRoomService.getGameDuration(roomCode), this.server);
     }
 
     @SubscribeMessage(MatchEvents.NextQuestion)

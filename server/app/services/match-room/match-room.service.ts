@@ -129,7 +129,7 @@ export class MatchRoomService {
         else matchRoom.choiceTally.decrementCount(choice);
     }
 
-    private canStartMatch(matchRoomCode: string): boolean {
+    canStartMatch(matchRoomCode: string): boolean {
         const room = this.getMatchRoomByCode(matchRoomCode);
         if (!room) {
             return false;
@@ -159,7 +159,7 @@ export class MatchRoomService {
         question.choices.forEach((choice: Choice) => delete choice.isCorrect);
     }
 
-    private getGameDuration(matchRoomCode: string) {
+    getGameDuration(matchRoomCode: string) {
         return this.getMatchRoomByCode(matchRoomCode).game.duration;
     }
 }

@@ -4,8 +4,8 @@ import { PlayerRoomService } from '@app/services/player-room/player-room.service
 import { Player } from '@app/model/schema/player.schema';
 import { Answer } from '@app/model/schema/answer.schema';
 import { OnEvent } from '@nestjs/event-emitter';
-import { AnswerEvents } from '@app/gateways/anwser/answer.gateway.events';
 import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
+import { TimerEvents } from '@app/constants/timer-events';
 
 // TODO move to constants
 const BONUS_FACTOR = 0.2;
@@ -20,9 +20,8 @@ export class AnswerService {
         private playerService: PlayerRoomService,
     ) {}
 
-    @OnEvent(AnswerEvents.TimerExpired, { prependListener: true })
-    handleTimerExpiredEvent(roomCode: string) {
-        if (!this.matchRoomService.isGamePlaying(roomCode)) return;
+    @OnEvent(TimerEvents.QuestionTimerExpired)
+    onQuestionTimerExpired(roomCode: string) {
         this.autoSubmitAnswers(roomCode);
         this.calculateScore(roomCode);
         this.sendFeedback(roomCode);

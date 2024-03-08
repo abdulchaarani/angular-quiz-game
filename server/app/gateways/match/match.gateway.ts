@@ -16,6 +16,7 @@ import { Server, Socket } from 'socket.io';
 import { MatchEvents } from './match.gateway.events';
 import { OnEvent } from '@nestjs/event-emitter';
 import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
+import { TimerEvents } from '@app/constants/timer-events';
 
 interface UserInfo {
     roomCode: string;
@@ -90,22 +91,20 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     @SubscribeMessage(MatchEvents.NextQuestion)
     nextQuestion(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
-        this.matchRoomService.sendNextQuestion(this.server, roomCode);
+        this.matchRoomService.startNextQuestionCooldown(this.server, roomCode);
     }
 
-    @OnEvent(MatchEvents.TimerExpired)
-    handleTimerExpiredEvent(matchRoomCode: string) {
-        if (this.matchRoomService.isGamePlaying(matchRoomCode)) return;
-        this.matchRoomService.sendNextQuestion(this.server, matchRoomCode);
+    @OnEvent(TimerEvents.CountdownTimerExpired)
+    onCountdownTimerExpired(matchRoomCode: string) {
         this.server.in(matchRoomCode).emit('beginQuiz');
         this.matchRoomService.markGameAsPlaying(matchRoomCode);
-        return false;
+        this.matchRoomService.sendNextQuestion(this.server, matchRoomCode);
     }
 
-    // @SubscribeMessage(MatchEvents.StopTimer)
-    // stopTimer(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
-    //     this.timeService.stopTimer(roomCode, this.server);
-    // }
+    @OnEvent(TimerEvents.CooldownTimerExpired)
+    onCooldownTimerExpired(matchRoomCode: string) {
+        this.matchRoomService.sendNextQuestion(this.server, matchRoomCode);
+    }
 
     // eslint-disable-next-line no-unused-vars
     handleConnection(@ConnectedSocket() socket: Socket) {

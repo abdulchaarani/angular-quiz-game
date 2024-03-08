@@ -6,11 +6,14 @@ import { Choice } from '@app/model/database/choice';
 import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
 import { Question } from '@app/model/database/question';
 import { TimeService } from '@app/services/time/time.service';
+import { OnEvent } from '@nestjs/event-emitter';
+import { TimerEvents } from '@app/constants/timer-events';
 
 // TODO: move to constants
 const FACTOR = 9000;
 const MAXIMUM_CODE_LENGTH = 4;
 const COUNTDOWN_TIME = 5;
+const COOLDOWN_TIME = 3;
 
 @Injectable()
 export class MatchRoomService {
@@ -90,7 +93,7 @@ export class MatchRoomService {
 
     startMatch(server: Server, matchRoomCode: string) {
         if (!this.canStartMatch(matchRoomCode)) return;
-        this.timeService.startTimer(matchRoomCode, COUNTDOWN_TIME, server);
+        this.timeService.startTimer(server, matchRoomCode, COUNTDOWN_TIME, TimerEvents.CountdownTimerExpired);
     }
 
     markGameAsPlaying(matchRoomCode: string): void {
@@ -100,6 +103,10 @@ export class MatchRoomService {
 
     isGamePlaying(matchRoomCode: string): boolean {
         return this.getMatchRoomByCode(matchRoomCode).isPlaying;
+    }
+
+    startNextQuestionCooldown(server: Server, matchRoomCode: string): void {
+        this.timeService.startTimer(server, matchRoomCode, COOLDOWN_TIME, TimerEvents.CooldownTimerExpired);
     }
 
     sendNextQuestion(server: Server, matchRoomCode: string): void {
@@ -116,7 +123,7 @@ export class MatchRoomService {
         this.removeIsCorrectField(nextQuestion);
         server.in(matchRoomCode).emit('nextQuestion', nextQuestion);
         matchRoom.hostSocket.send('currentAnswers', matchRoom.currentQuestionAnswer);
-        this.timeService.startTimer(matchRoomCode, this.getGameDuration(matchRoomCode), server);
+        this.timeService.startTimer(server, matchRoomCode, this.getGameDuration(matchRoomCode), TimerEvents.QuestionTimerExpired);
     }
 
     private canStartMatch(matchRoomCode: string): boolean {

@@ -50,7 +50,7 @@ export class WaitPageComponent implements OnInit {
         // TODO: Check if isLocked + if at least one player (send event to server)
         this.startTimerButton = true;
         this.timeService.time = COUNTDOWN_DURATION;
-        // this.startTimer();
+        // this.startTimer(); // TODO: Actually start the timer
         this.matchRoomService.startMatch();
     }
 

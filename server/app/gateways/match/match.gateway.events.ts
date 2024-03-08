@@ -10,5 +10,4 @@ export enum MatchEvents {
     SendPlayersData = 'sendPlayersData',
     StartMatch = 'startMatch',
     NextQuestion = 'nextQuestion',
-    TimerExpired = 'timerExpired',
 }

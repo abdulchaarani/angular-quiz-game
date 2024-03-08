@@ -124,6 +124,7 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @SubscribeMessage(MatchEvents.NextQuestion)
     nextQuestion(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
         this.matchRoomService.sendNextQuestion(this.server, roomCode);
+        this.timeService.startTimer(roomCode, this.matchRoomService.getGameDuration(roomCode), this.server);
     }
 
     @OnEvent(MatchEvents.TimerExpired)

@@ -50,6 +50,16 @@
                 {{ i + 1 }}. {{ choice.text }}
             </button>
         </div>
+        <div id="host-area" *ngIf="context === 'hostView'">
+            <div class="histogram-container">
+                <app-histogram></app-histogram>
+                <!-- TODO: a revoir quand l'histogramme est fait -->
+            </div>
+            <div id="buttons-container">
+                <button mat-raised-button>Présenter les résultats finaux</button>
+                <button mat-raised-button color="primary" (click)="nextQuestion()">Question suivante</button>
+            </div>
+        </div>
         <div id="submit-button-container" *ngIf="context === 'testPage' || context === 'playerView'">
             <button mat-raised-button color="primary" id="submitButton" *ngIf="isSelectionEnabled" (click)="submitAnswers()">SOUMETTRE</button>
         </div>

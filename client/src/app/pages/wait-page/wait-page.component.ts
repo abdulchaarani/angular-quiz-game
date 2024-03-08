@@ -80,8 +80,4 @@ export class WaitPageComponent implements OnInit {
     computeTimerProgress(): number {
         return (this.timeService.time / COUNTDOWN_DURATION) * MULTIPLICATION_FACTOR;
     }
-
-    nextQuestion() {
-        this.matchRoomService.nextQuestion();
-    }
 }

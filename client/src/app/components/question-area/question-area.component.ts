@@ -27,7 +27,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     havePointsBeenAdded: boolean;
     bonus: number;
     context: 'testPage' | 'hostView' | 'playerView';
-    correctAnswers: Choice[];
+    correctAnswers: string[];
 
     readonly bonusFactor = 0.2;
     private readonly multiplicationFactor = 100;
@@ -94,6 +94,8 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
             this.matchRoomService.feedback$.subscribe((feedback) => {
                 if (feedback) {
                     this.correctAnswers = feedback.correctAnswer;
+                    console.log('Correct answers:', this.correctAnswers);
+                    this.showFeedback = true;
                 }
             });
         }
@@ -172,7 +174,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     }
 
     isCorrectAnswer(choice: Choice): boolean {
-        return this.correctAnswers && this.correctAnswers.includes(choice);
+        return this.correctAnswers.includes(choice.text);
     }
 
     playerScoreUpdate(): void {
@@ -191,17 +193,18 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     }
 
     afterFeedback(): void {
-        //TODO: move to service
-        if (this.havePointsBeenAdded === false) {
-            this.playerScoreUpdate();
-            this.havePointsBeenAdded = true;
-        }
+        //TODO: uncomment when done
+        // if (this.havePointsBeenAdded === false) {
+        //     this.playerScoreUpdate();
+        //     this.havePointsBeenAdded = true;
+        // }
         this.showFeedback = true;
         setTimeout(() => {
-            this.matchService.advanceQuestion();
+            // this.matchService.advanceQuestion();
+            this.matchRoomService.nextQuestion();
             this.resetStateForNewQuestion();
-            this.timeService.stopTimer(this.matchRoomCode);
-            this.timeService.startTimer(this.matchRoomCode, this.gameDuration);
+            // this.timeService.stopTimer(this.matchRoomCode);
+            // this.timeService.startTimer(this.matchRoomCode, this.gameDuration);
         }, this.timeout);
     }
 

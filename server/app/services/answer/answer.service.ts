@@ -115,7 +115,6 @@ export class AnswerService {
         const players: Player[] = this.playerService.getPlayers(roomCode);
         players.forEach((player: Player) => {
             const feedback: Feedback = { score: player.score, correctAnswer };
-            console.log('feedback sent', correctAnswer, 'game :', this.getMatchRoomByCode(roomCode).game.questions[0].choices);
             player.socket.emit('feedback', feedback);
         });
     }

@@ -114,16 +114,15 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
             };
             socket.to(roomCode).emit('matchStarting', playerInfo); //TODO: add matchstarting to the events
 
-            this.timeService.startTimer(this.server, roomCode, this.COUNTDOWN_TIME + 1, TimerEvents.CountdownTimerExpired);
+            this.timeService.startTimer(this.server, roomCode, this.COUNTDOWN_TIME, TimerEvents.CountdownTimerExpired);
         }
     }
 
-    @SubscribeMessage('startQuiz')
-    letsStartQuiz(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
-        this.matchRoomService.markGameAsPlaying(roomCode);
-        this.matchRoomService.sendFirstQuestion(this.server, roomCode);
-        this.timeService.startTimer(this.server, roomCode, this.matchRoomService.getGameDuration(roomCode), TimerEvents.CooldownTimerExpired);
-    }
+    // @SubscribeMessage('startQuiz')
+    // letsStartQuiz(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
+    //     this.matchRoomService.markGameAsPlaying(roomCode);
+    //     this.matchRoomService.sendFirstQuestion(this.server, roomCode);
+    // }
 
     @SubscribeMessage(MatchEvents.NextQuestion)
     nextQuestion(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
@@ -132,9 +131,9 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     @OnEvent(TimerEvents.CountdownTimerExpired)
     onCountdownTimerExpired(matchRoomCode: string) {
-        this.server.in(matchRoomCode).emit('beginQuiz');
         this.matchRoomService.markGameAsPlaying(matchRoomCode);
-        this.matchRoomService.sendNextQuestion(this.server, matchRoomCode);
+        console.log('Countdown timer expired');
+        this.matchRoomService.sendFirstQuestion(this.server, matchRoomCode);
     }
 
     @OnEvent(TimerEvents.CooldownTimerExpired)

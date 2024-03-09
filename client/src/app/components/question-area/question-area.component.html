@@ -39,16 +39,18 @@
         </div>
 
         <div id="choice-area" *ngIf="context === 'testPage' || context === 'playerView'">
-            <button
-                *ngFor="let choice of currentQuestion.choices; let i = index"
-                class="answer"
-                [class.selected]="isSelected(choice) && !showFeedback"
-                [class.correct]="showFeedback && choice.isCorrect"
-                [class.incorrect]="showFeedback && !choice.isCorrect && isSelected(choice)"
-                (click)="selectChoice(choice)"
-            >
-                {{ i + 1 }}. {{ choice.text }}
-            </button>
+            <div id="choice-area" *ngIf="context === 'testPage' || context === 'playerView'">
+                <button
+                    *ngFor="let choice of currentQuestion.choices; let i = index"
+                    class="answer"
+                    [class.selected]="isSelected(choice) && !showFeedback"
+                    [class.correct]="showFeedback && isCorrectAnswer(choice)"
+                    [class.incorrect]="showFeedback && !isCorrectAnswer(choice) && isSelected(choice)"
+                    (click)="selectChoice(choice)"
+                >
+                    {{ i + 1 }}. {{ choice.text }}
+                </button>
+            </div>
         </div>
         <div id="host-area" *ngIf="context === 'hostView'">
             <div class="histogram-container">

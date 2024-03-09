@@ -29,7 +29,7 @@ export class AnwserGateway {
     }
 
     @SubscribeMessage(AnswerEvents.SubmitAnswer)
-    submitAnswer(@ConnectedSocket() socket: Socket, @MessageBody() choice: ChoiceInfo) {
-        this.answerService.submitAnswer(choice.userInfo.username, choice.userInfo.roomCode);
+    submitAnswer(@ConnectedSocket() socket: Socket, @MessageBody() userInfo: UserInfo) {
+        this.answerService.submitAnswer(userInfo.username, userInfo.roomCode);
     }
 }

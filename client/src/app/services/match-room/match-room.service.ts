@@ -4,6 +4,7 @@ import { Player } from '@app/interfaces/player';
 import { Question } from '@app/interfaces/question';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
+import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Observable } from 'rxjs/internal/Observable';
 import { Subject } from 'rxjs/internal/Subject';
 
@@ -16,6 +17,8 @@ interface UserInfo {
 })
 export class MatchRoomService {
     players: Player[];
+    private feedbackSource = new BehaviorSubject<any>(null);
+    public feedback$ = this.feedbackSource.asObservable();
     private startMatchSubject = new Subject<void>();
     private gameTitle = new Subject<string>();
     private matchRoomCode: string;
@@ -109,7 +112,7 @@ export class MatchRoomService {
         });
     }
 
-    private beginQuiz() {
+    beginQuiz() {
         this.socketService.on('beginQuiz', (data: { firstQuestion: Question; gameDuration: number }) => {
             const { firstQuestion, gameDuration } = data;
             this.router.navigate(['/play-match'], { state: { question: firstQuestion, duration: gameDuration } });
@@ -170,7 +173,12 @@ export class MatchRoomService {
         this.players = [];
     }
 
-    private feedback() {
-        this.socketService.on('feedback', (feedback) => console.log(feedback));
+    feedback() {
+        this.socketService.on('feedback', (data) => this.handleFeedback(data));
+    }
+
+    handleFeedback(data: any) {
+        console.log('handleFeedback', data);
+        this.feedbackSource.next(data);
     }
 }

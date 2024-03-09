@@ -1,4 +1,3 @@
-import { BONUS_FACTOR } from '@app/constants/match-constants';
 import { TimerEvents } from '@app/constants/timer-events';
 import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
 import { Answer } from '@app/model/schema/answer.schema';
@@ -23,7 +22,7 @@ export class AnswerService {
     @OnEvent(TimerEvents.QuestionTimerExpired)
     onQuestionTimerExpired(roomCode: string) {
         this.autoSubmitAnswers(roomCode);
-        this.calculateScore(roomCode);
+        // this.calculateScore(roomCode);
         this.sendFeedback(roomCode);
     }
     // permit more paramters to make method reusable
@@ -88,37 +87,36 @@ export class AnswerService {
         return matchRoom.game.questions[currentQuestionIndex].points;
     }
 
-    private calculateScore(roomCode: string) {
-        const currentQuestionPoints = this.getCurrentQuestionValue(roomCode);
-        const players: Player[] = this.playerService.getPlayers(roomCode);
-        const correctPlayers: Player[] = [];
-        let fastestTime;
-        players.forEach((player) => {
-            if (this.isCorrectPlayerAnswer(player, roomCode)) {
-                player.score += currentQuestionPoints;
-                correctPlayers.push(player);
-                if (!fastestTime || player.answer.timestamp < fastestTime) fastestTime = player.answer.timestamp;
-            }
-        });
+    // private calculateScore(roomCode: string) {
+    //     const currentQuestionPoints = this.getCurrentQuestionValue(roomCode);
+    //     const players: Player[] = this.playerService.getPlayers(roomCode);
+    //     const correctPlayers: Player[] = [];
+    //     let fastestTime;
+    //     players.forEach((player) => {
+    //         if (this.isCorrectPlayerAnswer(player, roomCode)) {
+    //             player.score += currentQuestionPoints;
+    //             correctPlayers.push(player);
+    //             if (!fastestTime || player.answer.timestamp < fastestTime) fastestTime = player.answer.timestamp;
+    //         }
+    //     });
 
-        this.computeFastestPlayerBonus(currentQuestionPoints, fastestTime, correctPlayers);
-    }
+    //     if (fastestTime) this.computeFastestPlayerBonus(currentQuestionPoints, fastestTime, correctPlayers);
+    // }
 
-    private computeFastestPlayerBonus(points: number, fastestTime: number, correctPlayers: Player[]) {
-        const fastestPlayers = correctPlayers.filter((player) => player.answer.timestamp === fastestTime);
-        if (fastestPlayers.length > 1) return;
-
-        const fastestPlayer = fastestPlayers[0];
-        fastestPlayer.score += points * BONUS_FACTOR;
-        fastestPlayer.bonusCount++;
-    }
-
+    // private computeFastestPlayerBonus(points: number, fastestTime: number, correctPlayers: Player[]) {
+    //     const fastestPlayers = correctPlayers.filter((player) => player.answer.timestamp === fastestTime);
+    //     if (fastestPlayers.length === 0 || fastestPlayers.length > 1) return;
+    //     const fastestPlayer = fastestPlayers[0];
+    //     fastestPlayer.score += points * BONUS_FACTOR;
+    //     fastestPlayer.bonusCount++;
+    // }
     private sendFeedback(roomCode: string) {
         const correctAnswer: string[] = this.getMatchRoomByCode(roomCode).currentQuestionAnswer;
         const players: Player[] = this.playerService.getPlayers(roomCode);
         players.forEach((player: Player) => {
             const feedback: Feedback = { score: player.score, correctAnswer };
-            player.socket.send('feedback', feedback);
+            console.log('feedback sent', correctAnswer, 'game :', this.getMatchRoomByCode(roomCode).game.questions[0].choices);
+            player.socket.emit('feedback', feedback);
         });
     }
 }

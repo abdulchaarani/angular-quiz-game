@@ -4,6 +4,7 @@ import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { MatchService } from '@app/services/match/match.service';
 import { QuestionContextService } from '@app/services/question-context/question-context.service';
 import { TimeService } from '@app/services/time/time.service';
+import { Subscription } from 'rxjs/internal/Subscription';
 
 const COUNTDOWN_DURATION = 5;
 const MULTIPLICATION_FACTOR = 100;
@@ -17,6 +18,7 @@ export class WaitPageComponent implements OnInit {
     isLocked: boolean;
     startTimerButton: boolean;
     gameTitle: string;
+    private subscriptions: Subscription[] = [];
     constructor(
         public matchRoomService: MatchRoomService,
         public timeService: TimeService,
@@ -31,7 +33,6 @@ export class WaitPageComponent implements OnInit {
     get time() {
         return this.timeService.time;
     }
-
     get isHost() {
         return this.matchRoomService.getUsername() === 'Organisateur';
     }
@@ -46,16 +47,26 @@ export class WaitPageComponent implements OnInit {
             this.gameTitle = this.matchService.currentGame.title;
             this.questionContextService.setContext('hostView');
         } else {
-            this.matchRoomService.getGameTitleObservable().subscribe((title) => {
-                this.gameTitle = title;
-            });
+            this.subscriptions.push(
+                this.matchRoomService.getGameTitleObservable().subscribe((title) => {
+                    this.gameTitle = title;
+                }),
+            );
             this.questionContextService.setContext('playerView');
         }
 
         this.matchRoomService.matchStarted();
-        this.matchRoomService.getStartMatchObservable().subscribe(() => {
-            this.startTimerButton = true;
-        });
+        this.matchRoomService.beginQuiz();
+        this.subscriptions.push(
+            this.matchRoomService.getStartMatchObservable().subscribe(() => {
+                this.startTimerButton = true;
+            }),
+        );
+    }
+
+    ngOnDestroy(): void {
+        this.subscriptions.forEach((subscription) => subscription.unsubscribe());
+        this.subscriptions = [];
     }
 
     toggleLock() {
@@ -71,14 +82,17 @@ export class WaitPageComponent implements OnInit {
         this.matchRoomService.startMatch();
         this.timeService.timerFinished$.subscribe((finished) => {
             if (finished) {
-                this.matchRoomService.letsStartQuiz();
-                console.log('Timer finished');
+                // this.matchRoomService.letsStartQuiz();
+                this.ngOnDestroy();
             }
         });
     }
 
-    // TODO: Migrate to time service
     computeTimerProgress(): number {
         return (this.timeService.time / COUNTDOWN_DURATION) * MULTIPLICATION_FACTOR;
+    }
+
+    nextQuestion() {
+        this.matchRoomService.nextQuestion();
     }
 }

@@ -27,6 +27,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     havePointsBeenAdded: boolean;
     bonus: number;
     context: 'testPage' | 'hostView' | 'playerView';
+    correctAnswers: Choice[];
 
     readonly bonusFactor = 0.2;
     private readonly multiplicationFactor = 100;
@@ -48,6 +49,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         this.playerScore = 0;
         this.havePointsBeenAdded = false;
         this.bonus = 0;
+        this.correctAnswers = [];
     }
 
     get time() {
@@ -87,7 +89,13 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
             this.currentQuestion = history.state.question;
             this.gameDuration = history.state.duration;
 
-            // this.matchRoomService.feedback()
+            this.matchRoomService.feedback();
+
+            this.matchRoomService.feedback$.subscribe((feedback) => {
+                if (feedback) {
+                    this.correctAnswers = feedback.correctAnswer;
+                }
+            });
         }
 
         if (this.currentQuestion.choices) {
@@ -100,7 +108,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
 
         // this.timeService.timerFinished$.subscribe((timerFinished) => {
         //     if (timerFinished) {
-        //         this.checkAnswers();
+        //         console.log('Timer finished');
         //     }
         // });
     }
@@ -139,7 +147,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
             this.timeService.stopTimer(this.matchRoomCode);
             this.checkAnswers();
         } else {
-            this.answerService.submitAnswer(this.username);
+            this.answerService.submitAnswer({ username: this.username, roomCode: this.matchRoomCode });
         }
     }
 
@@ -148,12 +156,12 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
             if (!this.selectedAnswers.includes(choice)) {
                 this.selectedAnswers.push(choice);
                 if (this.context !== 'testPage') {
-                    this.answerService.selectChoice(choice.text, this.username);
+                    this.answerService.selectChoice(choice.text, { username: this.username, roomCode: this.matchRoomCode });
                 }
             } else {
                 this.selectedAnswers = this.selectedAnswers.filter((answer) => answer !== choice);
                 if (this.context !== 'testPage') {
-                    this.answerService.deselectChoice(choice.text, this.username);
+                    this.answerService.deselectChoice(choice.text, { username: this.username, roomCode: this.matchRoomCode });
                 }
             }
         }
@@ -161,6 +169,10 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
 
     isSelected(choice: Choice): boolean {
         return this.selectedAnswers.includes(choice);
+    }
+
+    isCorrectAnswer(choice: Choice): boolean {
+        return this.correctAnswers && this.correctAnswers.includes(choice);
     }
 
     playerScoreUpdate(): void {
@@ -200,6 +212,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         this.isCorrect = false;
         this.havePointsBeenAdded = false;
         this.bonus = 0;
+        this.correctAnswers = [];
     }
     nextQuestion() {
         this.matchRoomService.nextQuestion();

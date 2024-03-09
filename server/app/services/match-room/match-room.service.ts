@@ -98,11 +98,16 @@ export class MatchRoomService {
     isGamePlaying(matchRoomCode: string): boolean {
         return this.getMatchRoomByCode(matchRoomCode).isPlaying;
     }
+
     sendFirstQuestion(server: Server, matchRoomCode: string): void {
         const matchRoom: MatchRoom = this.getMatchRoomByCode(matchRoomCode);
         const firstQuestion = matchRoom.game.questions[0];
         const gameDuration: number = matchRoom.game.duration;
+        matchRoom.currentQuestionAnswer = this.filterCorrectChoices(firstQuestion);
+        this.removeIsCorrectField(firstQuestion);
+        matchRoom.hostSocket.send('currentAnswers', matchRoom.currentQuestionAnswer);
         server.in(matchRoomCode).emit('beginQuiz', { firstQuestion: firstQuestion, gameDuration: gameDuration });
+        this.timeService.startTimer(server, matchRoomCode, this.getGameDuration(matchRoomCode), TimerEvents.QuestionTimerExpired);
     }
 
     startNextQuestionCooldown(server: Server, matchRoomCode: string): void {

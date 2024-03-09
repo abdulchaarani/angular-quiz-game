@@ -8,12 +8,14 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance, stub } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
 import { MatchGateway } from './match.gateway';
+import { ChatService } from '@app/services/chat/chat.service';
 
 describe('MatchGateway', () => {
     let gateway: MatchGateway;
     let matchRoomSpy: SinonStubbedInstance<MatchRoomService>;
     let matchBackupSpy: SinonStubbedInstance<MatchBackupService>;
     let timeSpy: SinonStubbedInstance<TimeService>;
+    let chatSpy: SinonStubbedInstance<ChatService>;
     let playerRoomSpy: SinonStubbedInstance<PlayerRoomService>;
     let socket: SinonStubbedInstance<Socket>;
     let server: SinonStubbedInstance<Server>;
@@ -23,6 +25,7 @@ describe('MatchGateway', () => {
         matchBackupSpy = createStubInstance(MatchBackupService);
         timeSpy = createStubInstance(TimeService);
         playerRoomSpy = createStubInstance(PlayerRoomService);
+        chatSpy = createStubInstance(ChatService);
         socket = createStubInstance<Socket>(Socket);
         server = createStubInstance<Server>(Server);
         const module: TestingModule = await Test.createTestingModule({
@@ -32,6 +35,7 @@ describe('MatchGateway', () => {
                 { provide: MatchBackupService, useValue: matchBackupSpy },
                 { provide: TimeService, useValue: timeSpy },
                 { provide: PlayerRoomService, useValue: playerRoomSpy },
+                { provide: ChatService, useValue: chatSpy },
             ],
         }).compile();
 

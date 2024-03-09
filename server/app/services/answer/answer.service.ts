@@ -120,8 +120,8 @@ export class AnswerService {
             const feedback: Feedback = { score: player.score, correctAnswer };
             player.socket.emit('feedback', feedback);
             player.answer = { ...emptyAnswer };
-            // TODO: migrate
-            this.matchRoomService.getMatchRoomByCode(roomCode).currentQuestionIndex++;
         });
+        // TODO: migrate
+        this.matchRoomService.getMatchRoomByCode(roomCode).currentQuestionIndex++;
     }
 }

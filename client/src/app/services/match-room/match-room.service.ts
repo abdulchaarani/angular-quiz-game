@@ -17,8 +17,7 @@ interface UserInfo {
 })
 export class MatchRoomService {
     players: Player[];
-    private feedbackSource = new BehaviorSubject<any>(null);
-    public feedback$ = this.feedbackSource.asObservable();
+
     private startMatchSubject = new Subject<void>();
     private gameTitle = new Subject<string>();
     private currentQuestionSource = new BehaviorSubject<any>(null);
@@ -54,7 +53,7 @@ export class MatchRoomService {
             this.beginQuiz();
             this.moveToNextQuestion();
             this.gameOver();
-            this.feedback();
+            // this.feedback();
         }
     }
 
@@ -130,9 +129,7 @@ export class MatchRoomService {
     }
 
     nextQuestion() {
-        this.socketService.on('nextQuestion', (question) => {
-            this.currentQuestionSource.next(question);
-        });
+        this.socketService.send('nextQuestion', this.matchRoomCode);
     }
 
     updatePlayerScore(username: string, points: number) {
@@ -149,7 +146,7 @@ export class MatchRoomService {
 
     moveToNextQuestion() {
         this.socketService.on('nextQuestion', (question: Question) => {
-            console.log(question);
+            this.currentQuestionSource.next(question);
         });
     }
 
@@ -171,13 +168,5 @@ export class MatchRoomService {
         this.matchRoomCode = '';
         this.username = '';
         this.players = [];
-    }
-
-    feedback() {
-        this.socketService.on('feedback', (data) => this.handleFeedback(data));
-    }
-
-    handleFeedback(data: any) {
-        this.feedbackSource.next(data);
     }
 }

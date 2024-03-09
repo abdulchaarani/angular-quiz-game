@@ -28,6 +28,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     bonus: number;
     context: 'testPage' | 'hostView' | 'playerView';
     correctAnswers: string[];
+    isFirstQuestion: boolean = true;
 
     readonly bonusFactor = 0.2;
     private readonly multiplicationFactor = 100;
@@ -86,8 +87,17 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
             this.timeService.handleTimer();
             this.timeService.handleStopTimer();
 
-            this.currentQuestion = history.state.question;
-            this.gameDuration = history.state.duration;
+            if (this.isFirstQuestion) {
+                this.currentQuestion = history.state.question;
+                this.gameDuration = history.state.duration;
+                this.isFirstQuestion = false;
+            } else {
+                this.matchRoomService.currentQuestion$.subscribe((question) => {
+                    if (question) {
+                        this.currentQuestion = question;
+                    }
+                });
+            }
 
             this.answerService.feedback();
             this.answerService.bonusPoints();
@@ -103,6 +113,16 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
             this.matchRoomService.currentQuestion$.subscribe((question) => {
                 if (question) {
                     this.currentQuestion = question;
+                    this.ngOnChanges({
+                        currentQuestion: {
+                            currentValue: question,
+                            previousValue: this.currentQuestion,
+                            firstChange: false,
+                            isFirstChange: function (): boolean {
+                                return false;
+                            },
+                        },
+                    });
                 }
             });
 
@@ -122,8 +142,8 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         }
 
         // this.timeService.timerFinished$.subscribe((timerFinished) => {
-        //     if (timerFinished) {
-        //         console.log('Timer finished');
+        //     if (this.context === 'hostView' && timerFinished) {
+        //         this.showFeedback = true;
         //     }
         // });
     }
@@ -161,7 +181,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         if (this.context === 'testPage') {
             this.timeService.stopTimer(this.matchRoomCode);
             this.checkAnswers();
-        } else {
+        } else if (this.context === 'playerView') {
             this.answerService.submitAnswer({ username: this.username, roomCode: this.matchRoomCode });
         }
     }
@@ -170,12 +190,12 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         if (this.isSelectionEnabled) {
             if (!this.selectedAnswers.includes(choice)) {
                 this.selectedAnswers.push(choice);
-                if (this.context !== 'testPage') {
+                if (this.context === 'playerView') {
                     this.answerService.selectChoice(choice.text, { username: this.username, roomCode: this.matchRoomCode });
                 }
             } else {
                 this.selectedAnswers = this.selectedAnswers.filter((answer) => answer !== choice);
-                if (this.context !== 'testPage') {
+                if (this.context === 'playerView') {
                     this.answerService.deselectChoice(choice.text, { username: this.username, roomCode: this.matchRoomCode });
                 }
             }
@@ -191,6 +211,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     }
 
     playerScoreUpdate(): void {
+        //testpage
         if (this.isCorrect) {
             if (this.context === 'testPage') {
                 this.bonus = this.currentQuestion.points * this.bonusFactor;
@@ -221,6 +242,12 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         }, this.timeout);
     }
 
+    nextQuestion() {
+        if (this.context === 'hostView') {
+            this.matchRoomService.nextQuestion();
+        }
+    }
+
     resetStateForNewQuestion(): void {
         this.showFeedback = false;
         this.isSelectionEnabled = true;
@@ -229,8 +256,5 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         this.havePointsBeenAdded = false;
         this.bonus = 0;
         this.correctAnswers = [];
-    }
-    nextQuestion() {
-        this.matchRoomService.nextQuestion();
     }
 }

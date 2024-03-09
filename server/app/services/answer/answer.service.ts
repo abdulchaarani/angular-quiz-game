@@ -106,8 +106,7 @@ export class AnswerService {
 
     private computeFastestPlayerBonus(points: number, fastestTime: number, correctPlayers: Player[]) {
         const fastestPlayers = correctPlayers.filter((player) => player.answer.timestamp === fastestTime);
-        if (fastestPlayers.length > 1) return;
-
+        if (fastestPlayers.length === 0 || fastestPlayers.length > 1) return;
         const fastestPlayer = fastestPlayers[0];
         fastestPlayer.score += points * BONUS_FACTOR;
         fastestPlayer.bonusCount++;
@@ -118,7 +117,7 @@ export class AnswerService {
         const players: Player[] = this.playerService.getPlayers(roomCode);
         players.forEach((player: Player) => {
             const feedback: Feedback = { score: player.score, correctAnswer };
-            player.socket.send('feedback', feedback);
+            player.socket.emit('feedback', feedback);
         });
     }
 }

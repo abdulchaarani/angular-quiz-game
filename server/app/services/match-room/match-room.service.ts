@@ -144,7 +144,7 @@ export class MatchRoomService {
         return correctChoices;
     }
 
-    private removeIsCorrectField(question: Question): void {
+    private removeIsCorrectField(question: Question) {
         question.choices.forEach((choice: Choice) => delete choice.isCorrect);
     }
 

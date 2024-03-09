@@ -36,17 +36,21 @@ export class TimeService {
                     server.in(roomId).emit('timer', currentTime);
                     this.counters.set(roomId, currentTime - 1);
                 } else {
-                    this.stopTimer(roomId, server, onTimerExpiredEvent);
+                    this.expireTimer(roomId, server, onTimerExpiredEvent);
                 }
             }, this.tick),
         );
     }
 
-    stopTimer(roomId: string, server: Server, onTimerExpiredEvent: TimerEvents) {
+    expireTimer(roomId: string, server: Server, onTimerExpiredEvent: TimerEvents) {
+        this.terminateTimer(roomId);
+        server.to(roomId).emit('stopTimer'); // TODO: verify if still needed
+        this.eventEmitter.emit(onTimerExpiredEvent, roomId);
+    }
+
+    terminateTimer(roomId: string) {
         clearInterval(this.intervals.get(roomId));
         this.intervals.delete(roomId);
         this.counters.delete(roomId);
-        server.to(roomId).emit('stopTimer');
-        this.eventEmitter.emit(onTimerExpiredEvent, roomId);
     }
 }

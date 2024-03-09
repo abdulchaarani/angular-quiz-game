@@ -53,6 +53,8 @@ export class MatchRoomService {
             choiceTally: new ChoiceTally(),
             bannedUsernames: [],
             players: [],
+            activePlayers: 0,
+            submittedPlayers: 0,
             messages: [],
         };
         this.matchRooms.push(newRoom);

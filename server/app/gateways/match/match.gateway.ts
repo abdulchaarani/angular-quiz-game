@@ -9,18 +9,9 @@ import { MatchEvents } from './match.gateway.events';
 import { OnEvent } from '@nestjs/event-emitter';
 import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
 import { TimerEvents } from '@app/constants/timer-events';
-
-interface UserInfo {
-    roomCode: string;
-    username: string;
-}
+import { UserInfo } from '@app/model/schema/answer.schema';
 
 // TODO: Open socket only if code and user are valid + Allow host to be able to disconnect banned players
-// interface TimerInfo {
-//     roomCode: string;
-//     time: number;
-// }
-
 @WebSocketGateway({ cors: true })
 @Injectable()
 export class MatchGateway implements OnGatewayDisconnect {

@@ -48,7 +48,7 @@ describe('AnwserGateway', () => {
     it('submitAnswer() should delegate submitting of answer to answer service', () => {
         const submitAnswerSpy = jest.spyOn(answerServiceSpy, 'submitAnswer').mockReturnThis();
         stub(socket, 'rooms').value(new Set([MOCK_ROOM_CODE]));
-        gateway.submitAnswer(socket, choice);
+        gateway.submitAnswer(socket, choice.userInfo);
         expect(submitAnswerSpy).toHaveBeenCalledWith(choice.userInfo.username, choice.userInfo.roomCode);
     });
 });

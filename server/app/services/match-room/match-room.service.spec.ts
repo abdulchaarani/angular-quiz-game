@@ -103,6 +103,8 @@ describe('MatchRoomService', () => {
             choiceTally: new ChoiceTally(),
             bannedUsernames: [],
             players: [],
+            activePlayers: 0,
+            submittedPlayers: 0,
             messages: [],
         };
         const result = service.addMatchRoom(mockGame, socket);

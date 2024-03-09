@@ -3,28 +3,52 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-
-import { MatchRoomService } from '@app/services/match-room/match-room.service';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialogModule } from '@angular/material/dialog';
 import { ChatComponent } from './chat.component';
+import { ChatService } from '@app/services/chat/chat.service';
 
-describe('ChatComponent', () => {
+fdescribe('ChatComponent', () => {
     let component: ChatComponent;
     let fixture: ComponentFixture<ChatComponent>;
-    let matchRoomSpy: jasmine.SpyObj<MatchRoomService>;
+    let chatService: ChatService;
+    
 
     beforeEach(() => {
-        matchRoomSpy = jasmine.createSpyObj('MatchRoomService', ['getUsername']); // TODO: Add methods
+        const chatServiceSpy = jasmine.createSpyObj('ChatService', ['fetchOldMessages', 'sendMessage']);
+        chatServiceSpy.messages = jasmine.createSpyObj('messages', ['get']);
         TestBed.configureTestingModule({
             declarations: [ChatComponent],
-            imports: [MatIconModule, MatFormFieldModule, MatInputModule, BrowserAnimationsModule],
-            providers: [{ provide: MatchRoomService, useValue: matchRoomSpy }],
-        });
+            imports: [MatIconModule, MatFormFieldModule, MatInputModule, BrowserAnimationsModule, MatSnackBarModule, MatDialogModule],
+            providers: [
+                { provide: ChatService, useValue: chatServiceSpy },
+            ],
+        }).compileComponents();
+
         fixture = TestBed.createComponent(ChatComponent);
         component = fixture.componentInstance;
+        chatService = TestBed.inject(ChatService);
         fixture.detectChanges();
     });
 
     it('should create', () => {
         expect(component).toBeTruthy();
+    });
+
+    it('should call fetchOldMessages on ngOnInit', () => {
+        component.ngOnInit();
+        expect(chatService.fetchOldMessages).toHaveBeenCalled();
+    });
+
+    it('should send a message', () => {
+        const messageText = 'Test Message';
+        component.sendMessage(messageText);
+        expect(chatService.sendMessage).toHaveBeenCalled();
+    });
+
+    it('should not send an empty message', () => {
+        const messageText = '';
+        component.sendMessage(messageText);
+        expect(chatService.sendMessage).not.toHaveBeenCalled();
     });
 });

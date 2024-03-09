@@ -12,8 +12,8 @@ interface sentData {
     providedIn: 'root',
 })
 export class ChatService {
-    private matchRoomCode: string; //
-    private message: Message;
+    private matchRoomCode: string;
+    public message: Message;
     messages: Map<string, Message[]> = new Map();
 
     constructor(
@@ -29,25 +29,24 @@ export class ChatService {
         });
     }
 
-    get socketId() {
-        return this.socketHandler.socket.id ? this.socketHandler.socket.id : '';
-    }
-
     connect() {
         if (!this.socketHandler.isSocketAlive()) {
-            this.socketHandler.connect();
             this.fetchOldMessages();
         }
     }
 
     fetchOldMessages() {
-        this.socketHandler.on('fetchOldMessages', () => {
-            return this.messages.get(this.matchRoomCode) || [];
+        // this.socketHandler.on('fetchOldMessages', () => {
+        //     this.messages.get(this.matchRoomCode) || [];
+        // });
+        this.socketHandler.on('fetchOldMessages', (oldMessages: Message[]) => {
+            this.messages.set(this.matchRoomCode, oldMessages);
         });
+        // Write a separate function for this.
         return this.messages.get(this.matchRoomCode) || [];
     }
 
-    getMatchRoomCode(){
+    getMatchRoomCode() {
         return this.matchRoomCode;
     }
 

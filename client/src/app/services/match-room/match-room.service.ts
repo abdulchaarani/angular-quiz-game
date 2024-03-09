@@ -141,10 +141,6 @@ export class MatchRoomService {
         this.socketService.send('updateScore', { sentUserInfo, points });
     }
 
-    // letsStartQuiz() {
-    //     this.socketService.send('startQuiz', this.matchRoomCode);
-    // }
-
     gameOver() {
         this.socketService.on('gameOver', () => {
             console.log('gameOver');

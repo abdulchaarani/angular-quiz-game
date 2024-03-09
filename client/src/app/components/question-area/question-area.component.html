@@ -7,7 +7,7 @@
         </div>
 
         <div id="question-timer-area">
-            <div id="score-feedback-area" *ngIf="context === 'testPage' && showFeedback && bonus > 0; else elseBlock">
+            <div id="score-feedback-area" *ngIf="showFeedback && bonus > 0; else elseBlock">
                 <h1 id="score">SCORE : {{ playerScore }}</h1>
                 <h1 id="bonus-points">✨Vous avez obtenu un bonus de {{ bonus }} points!✨</h1>
             </div>

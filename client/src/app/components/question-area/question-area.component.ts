@@ -89,12 +89,13 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
             this.currentQuestion = history.state.question;
             this.gameDuration = history.state.duration;
 
-            this.matchRoomService.feedback();
+            this.answerService.feedback();
+            this.answerService.bonusPoints();
 
-            this.matchRoomService.feedback$.subscribe((feedback) => {
+            this.answerService.feedback$.subscribe((feedback) => {
                 if (feedback) {
                     this.correctAnswers = feedback.correctAnswer;
-                    console.log('Correct answers:', this.correctAnswers);
+                    this.playerScore = feedback.score;
                     this.showFeedback = true;
                 }
             });
@@ -102,6 +103,12 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
             this.matchRoomService.currentQuestion$.subscribe((question) => {
                 if (question) {
                     this.currentQuestion = question;
+                }
+            });
+
+            this.answerService.bonusPoints$.subscribe((bonus) => {
+                if (bonus) {
+                    this.bonus = bonus;
                 }
             });
         }
@@ -207,7 +214,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         this.showFeedback = true;
         setTimeout(() => {
             // this.matchService.advanceQuestion();
-            this.matchRoomService.nextQuestion();
+            // this.matchRoomService.nextQuestion();
             this.resetStateForNewQuestion();
             // this.timeService.stopTimer(this.matchRoomCode);
             // this.timeService.startTimer(this.matchRoomCode, this.gameDuration);

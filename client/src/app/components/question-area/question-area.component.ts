@@ -98,6 +98,12 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
                     this.showFeedback = true;
                 }
             });
+
+            this.matchRoomService.currentQuestion$.subscribe((question) => {
+                if (question) {
+                    this.currentQuestion = question;
+                }
+            });
         }
 
         if (this.currentQuestion.choices) {

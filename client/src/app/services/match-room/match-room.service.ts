@@ -21,6 +21,8 @@ export class MatchRoomService {
     public feedback$ = this.feedbackSource.asObservable();
     private startMatchSubject = new Subject<void>();
     private gameTitle = new Subject<string>();
+    private currentQuestionSource = new BehaviorSubject<any>(null);
+    public currentQuestion$ = this.currentQuestionSource.asObservable();
     private matchRoomCode: string;
     private username: string;
 
@@ -128,7 +130,9 @@ export class MatchRoomService {
     }
 
     nextQuestion() {
-        this.socketService.send('nextQuestion', this.matchRoomCode);
+        this.socketService.on('nextQuestion', (question) => {
+            this.currentQuestionSource.next(question);
+        });
     }
 
     updatePlayerScore(username: string, points: number) {
@@ -137,9 +141,9 @@ export class MatchRoomService {
         this.socketService.send('updateScore', { sentUserInfo, points });
     }
 
-    letsStartQuiz() {
-        this.socketService.send('startQuiz', this.matchRoomCode);
-    }
+    // letsStartQuiz() {
+    //     this.socketService.send('startQuiz', this.matchRoomCode);
+    // }
 
     gameOver() {
         this.socketService.on('gameOver', () => {
@@ -178,7 +182,6 @@ export class MatchRoomService {
     }
 
     handleFeedback(data: any) {
-        console.log('handleFeedback', data);
         this.feedbackSource.next(data);
     }
 }

@@ -38,7 +38,6 @@ export class TimeService {
     handleTimer(): void {
         this.socketService.on('timer', (currentTime: number) => {
             this.counter = currentTime;
-            console.log('Current time : ', currentTime);
         });
     }
 

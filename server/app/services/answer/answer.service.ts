@@ -1,7 +1,7 @@
 import { BONUS_FACTOR } from '@app/constants/match-constants';
 import { TimerEvents } from '@app/constants/timer-events';
 import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
-import { Answer } from '@app/model/schema/answer.schema';
+import { Answer, emptyAnswer } from '@app/model/schema/answer.schema';
 import { Player } from '@app/model/schema/player.schema';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
@@ -35,6 +35,7 @@ export class AnswerService {
     }
 
     submitAnswer(username: string, roomCode: string) {
+        console.log('submit code:', roomCode);
         const player: Player = this.playerService.getPlayerByUsername(roomCode, username);
         player.answer.isSubmited = true;
         player.answer.timestamp = Date.now();
@@ -118,6 +119,7 @@ export class AnswerService {
         players.forEach((player: Player) => {
             const feedback: Feedback = { score: player.score, correctAnswer };
             player.socket.emit('feedback', feedback);
+            player.answer = { ...emptyAnswer };
         });
     }
 }

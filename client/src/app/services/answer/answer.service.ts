@@ -1,7 +1,14 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { SocketHandlerService } from '../socket-handler/socket-handler.service';
-
+interface UserInfo {
+    roomCode: string;
+    username: string;
+}
+interface ChoiceInfo {
+    userInfo: UserInfo;
+    choice: string;
+}
 @Injectable({
     providedIn: 'root',
 })
@@ -14,16 +21,18 @@ export class AnswerService {
 
     constructor(public socketService: SocketHandlerService) {}
 
-    selectChoice(choice: string, userInfo: any) {
-        this.socketService.send('selectChoice', { choice, userInfo });
+    selectChoice(choice: string, userInfo: UserInfo) {
+        const choiceInfo: ChoiceInfo = { choice, userInfo };
+        this.socketService.send('selectChoice', choiceInfo);
     }
 
-    deselectChoice(choice: string, userInfo: any) {
-        this.socketService.send('deselectChoice', { choice, userInfo });
+    deselectChoice(choice: string, userInfo: UserInfo) {
+        const choiceInfo: ChoiceInfo = { choice, userInfo };
+        this.socketService.send('deselectChoice', choiceInfo);
     }
 
-    submitAnswer(userInfo: any) {
-        this.socketService.send('submitAnswer', { userInfo });
+    submitAnswer(userInfo: UserInfo) {
+        this.socketService.send('submitAnswer', userInfo);
     }
 
     feedback() {

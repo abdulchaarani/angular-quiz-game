@@ -20,16 +20,20 @@ export class AnwserGateway {
 
     @SubscribeMessage(AnswerEvents.SelectChoice)
     selectChoice(@ConnectedSocket() socket: Socket, @MessageBody() choice: ChoiceInfo) {
+        console.log('select:', choice.choice, choice.userInfo.username, choice.userInfo.roomCode);
+
         this.answerService.updateChoice(choice.choice, true, choice.userInfo.username, choice.userInfo.roomCode);
     }
 
     @SubscribeMessage(AnswerEvents.DeselectChoice)
     deselectChoice(@ConnectedSocket() socket: Socket, @MessageBody() choice: ChoiceInfo) {
+        console.log('deselect:', choice.choice, choice.userInfo.username, choice.userInfo.roomCode);
         this.answerService.updateChoice(choice.choice, false, choice.userInfo.username, choice.userInfo.roomCode);
     }
 
     @SubscribeMessage(AnswerEvents.SubmitAnswer)
     submitAnswer(@ConnectedSocket() socket: Socket, @MessageBody() userInfo: UserInfo) {
+        console.log('submit:', userInfo.username);
         this.answerService.submitAnswer(userInfo.username, userInfo.roomCode);
     }
 }

@@ -106,7 +106,7 @@ export class MatchRoomService {
         matchRoom.currentQuestionAnswer = this.filterCorrectChoices(firstQuestion);
         this.removeIsCorrectField(firstQuestion);
         matchRoom.hostSocket.send('currentAnswers', matchRoom.currentQuestionAnswer);
-        server.in(matchRoomCode).emit('beginQuiz', { firstQuestion: firstQuestion, gameDuration: gameDuration });
+        server.in(matchRoomCode).emit('beginQuiz', { firstQuestion, gameDuration });
         this.timeService.startTimer(server, matchRoomCode, this.getGameDuration(matchRoomCode), TimerEvents.QuestionTimerExpired);
     }
 

@@ -8,3 +8,8 @@ export const emptyAnswer: Answer = {
     selectedChoices: new Map<string, boolean>(),
     isSubmited: false,
 };
+
+export interface Feedback {
+    score: number;
+    correctAnswer: string[];
+}

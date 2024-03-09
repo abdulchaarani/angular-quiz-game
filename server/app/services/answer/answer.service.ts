@@ -2,17 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
 import { Player } from '@app/model/schema/player.schema';
-import { Answer } from '@app/model/schema/answer.schema';
+import { Answer, Feedback } from '@app/model/schema/answer.schema';
 import { OnEvent } from '@nestjs/event-emitter';
 import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
 import { TimerEvents } from '@app/constants/timer-events';
 import { BONUS_FACTOR } from '@app/constants/match-constants';
 
 // TODO move to constants
-interface Feedback {
-    score: number;
-    correctAnswer: string[];
-}
+
 @Injectable()
 export class AnswerService {
     constructor(
@@ -101,7 +98,7 @@ export class AnswerService {
             }
         });
 
-        this.computeFastestPlayerBonus(currentQuestionPoints, fastestTime, correctPlayers);
+        if (fastestTime) this.computeFastestPlayerBonus(currentQuestionPoints, fastestTime, correctPlayers);
     }
 
     private computeFastestPlayerBonus(points: number, fastestTime: number, correctPlayers: Player[]) {

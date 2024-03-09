@@ -3,15 +3,7 @@ import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
 import { Injectable } from '@nestjs/common';
-import {
-    ConnectedSocket,
-    MessageBody,
-    OnGatewayConnection,
-    OnGatewayDisconnect,
-    SubscribeMessage,
-    WebSocketGateway,
-    WebSocketServer,
-} from '@nestjs/websockets';
+import { ConnectedSocket, MessageBody, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { MatchEvents } from './match.gateway.events';
 import { OnEvent } from '@nestjs/event-emitter';
@@ -31,7 +23,7 @@ interface UserInfo {
 
 @WebSocketGateway({ cors: true })
 @Injectable()
-export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class MatchGateway implements OnGatewayDisconnect {
     @WebSocketServer() private server: Server;
 
     constructor(
@@ -104,12 +96,6 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @OnEvent(TimerEvents.CooldownTimerExpired)
     onCooldownTimerExpired(matchRoomCode: string) {
         this.matchRoomService.sendNextQuestion(this.server, matchRoomCode);
-    }
-
-    // eslint-disable-next-line no-unused-vars
-    handleConnection(@ConnectedSocket() socket: Socket) {
-        // eslint-disable-next-line
-        // console.log(`Connexion par l'utilisateur avec id : ${socket.id}`); // TODO: Remove once debugging is finished
     }
 
     handleDisconnect(@ConnectedSocket() socket: Socket) {

@@ -2,15 +2,7 @@ import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSo
 import { Server, Socket } from 'socket.io';
 import { AnswerEvents } from './answer.gateway.events';
 import { AnswerService } from '@app/services/answer/answer.service';
-
-interface UserInfo {
-    roomCode: string;
-    username: string;
-}
-interface ChoiceInfo {
-    userInfo: UserInfo;
-    choice: string;
-}
+import { ChoiceInfo } from '@app/model/schema/answer.schema';
 
 @WebSocketGateway({ cors: true })
 export class AnwserGateway {

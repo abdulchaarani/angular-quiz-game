@@ -62,12 +62,6 @@ export class MatchGateway implements OnGatewayDisconnect {
         this.sendPlayersData(socket, data.roomCode);
     }
 
-    @SubscribeMessage(MatchEvents.UpdateScore)
-    updateScore(@ConnectedSocket() socket: Socket, @MessageBody() data: UserInfo, @MessageBody() points: number) {
-        this.playerRoomService.updateScore(data.roomCode, data.username, points);
-        this.sendPlayersData(socket, data.roomCode);
-    }
-
     @SubscribeMessage(MatchEvents.SendPlayersData)
     sendPlayersData(@ConnectedSocket() socket: Socket, @MessageBody() matchRoomCode: string) {
         if (socket.rooms.has(matchRoomCode)) {

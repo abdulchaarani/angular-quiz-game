@@ -110,13 +110,4 @@ export class PlayerRoomService {
         const isUsedUsername = this.getPlayerByUsername(matchRoomCode, username) ? true : false;
         return !hasHostConflict && !isBannedUsername && !isUsedUsername;
     }
-
-    updateScore(matchRoomCode: string, username: string, points: number): void {
-        const player = this.getPlayerByUsername(matchRoomCode, username);
-        player.score += points;
-    }
-
-    getPlayerScore(matchRoomCode: string, username: string): number {
-        return this.getPlayerByUsername(matchRoomCode, username).score;
-    }
 }

@@ -123,7 +123,6 @@ export class MatchRoomService {
     }
 
     sendNextQuestion(server: Server, matchRoomCode: string): void {
-        // this.startNextQuestionCooldown(server, matchRoomCode);
         const matchRoom: MatchRoom = this.getMatchRoomByCode(matchRoomCode);
         if (matchRoom.currentQuestionIndex === matchRoom.gameLength) {
             server.in(matchRoomCode).emit('gameOver');

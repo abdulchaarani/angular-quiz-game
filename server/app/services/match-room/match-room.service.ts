@@ -8,7 +8,7 @@ import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { TimeService } from '@app/services/time/time.service';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
-import { GameInfo } from '@common/interfaces/player-info';
+import { GameInfo } from '@common/interfaces/game-info';
 
 @Injectable()
 export class MatchRoomService {

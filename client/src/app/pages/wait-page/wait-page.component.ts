@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { MatchService } from '@app/services/match/match.service';
@@ -14,11 +14,14 @@ const MULTIPLICATION_FACTOR = 100;
     templateUrl: './wait-page.component.html',
     styleUrls: ['./wait-page.component.scss'],
 })
-export class WaitPageComponent implements OnInit {
+export class WaitPageComponent implements OnInit, OnDestroy {
     isLocked: boolean;
     startTimerButton: boolean;
     gameTitle: string;
     private subscriptions: Subscription[] = [];
+
+    // permit more class parameters to decouple services
+    // eslint-disable-next-line max-params
     constructor(
         public matchRoomService: MatchRoomService,
         public timeService: TimeService,

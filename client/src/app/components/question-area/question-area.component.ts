@@ -42,16 +42,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         private readonly matchRoomService: MatchRoomService,
         private readonly questionContextService: QuestionContextService,
         private readonly answerService: AnswerService,
-    ) {
-        this.selectedAnswers = [];
-        this.isSelectionEnabled = true;
-        this.showFeedback = false;
-        this.isCorrect = false;
-        this.playerScore = 0;
-        this.havePointsBeenAdded = false;
-        this.bonus = 0;
-        this.correctAnswers = [];
-    }
+    ) {}
 
     get time() {
         return this.timeService.time;
@@ -87,6 +78,8 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
 
     // TODO: seperate subscriptions into different functions
     ngOnInit(): void {
+        this.resetStateForNewQuestion();
+
         this.context = this.questionContextService.getContext();
         if (this.context !== 'testPage') {
             this.timeService.handleTimer();

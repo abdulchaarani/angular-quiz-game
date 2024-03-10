@@ -15,6 +15,8 @@ export interface MatchRoom {
     choiceTally: ChoiceTally;
     bannedUsernames: string[];
     players: Player[];
+    activePlayers: number;
+    submittedPlayers: number;
     messages: Message[];
     hostSocket: Socket;
 }

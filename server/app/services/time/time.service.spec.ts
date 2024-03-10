@@ -62,7 +62,7 @@ describe('TimeService', () => {
 
     it('should emit stopTimer event when time has run out', () => {
         service['counters'] = FAKE_COUNTER;
-        const spy = jest.spyOn(service, 'stopTimer');
+        const spy = jest.spyOn(service, 'expireTimer');
         server.to.returns({
             emit: (event: string) => {
                 expect(event).toEqual('stopTimer');

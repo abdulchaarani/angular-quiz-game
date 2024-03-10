@@ -1,5 +1,6 @@
 import { TimerEvents } from '@app/constants/timer-events';
 import { Game } from '@app/model/database/game';
+import { UserInfo } from '@app/model/schema/answer.schema';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
@@ -9,16 +10,6 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { ConnectedSocket, MessageBody, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { MatchEvents } from './match.gateway.events';
-
-interface UserInfo {
-    roomCode: string;
-    username: string;
-}
-
-// interface TimerInfo {
-//     roomCode: string;
-//     time: number;
-// }
 
 @WebSocketGateway({ cors: true })
 @Injectable()

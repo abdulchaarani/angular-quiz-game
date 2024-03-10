@@ -2,7 +2,7 @@ import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSo
 import { Server, Socket } from 'socket.io';
 import { AnswerEvents } from './answer.gateway.events';
 import { AnswerService } from '@app/services/answer/answer.service';
-import { ChoiceInfo } from '@app/model/schema/answer.schema';
+import { ChoiceInfo, UserInfo } from '@app/model/schema/answer.schema';
 
 @WebSocketGateway({ cors: true })
 export class AnwserGateway {
@@ -21,7 +21,7 @@ export class AnwserGateway {
     }
 
     @SubscribeMessage(AnswerEvents.SubmitAnswer)
-    submitAnswer(@ConnectedSocket() socket: Socket, @MessageBody() choice: ChoiceInfo) {
-        this.answerService.submitAnswer(choice.userInfo.username, choice.userInfo.roomCode);
+    submitAnswer(@ConnectedSocket() socket: Socket, @MessageBody() userInfo: UserInfo) {
+        this.answerService.submitAnswer(userInfo.username, userInfo.roomCode);
     }
 }

@@ -16,13 +16,12 @@ import {
     WebSocketServer,
 } from '@nestjs/websockets';
 
-
 import { Server, Socket } from 'socket.io';
 import { MatchEvents } from './match.gateway.events';
 import { OnEvent } from '@nestjs/event-emitter';
 import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
 import { TimerEvents } from '@app/constants/timer-events';
-import { UserInfo } from '@app/model/schema/answer.schema';
+//import { UserInfo } from '@app/model/schema/answer.schema';
 
 interface UserInfo {
     roomCode: string;
@@ -98,12 +97,10 @@ export class MatchGateway implements OnGatewayDisconnect {
 
     @SubscribeMessage(MatchEvents.RoomMessage)
     handleSockets(@ConnectedSocket() socket: Socket, @MessageBody() data: MessageInfo) {
-        console.log('messages', data.message);
-        console.log('code', data.roomCode);
         this.chatService.addMessage(data.message, data.roomCode);
-        this.server.sockets.emit('newMessage', data);
+        this.server.sockets.emit(MatchEvents.NewMessage, data);
         this.matchRoomService?.getMatchRoomByCode(data.roomCode).messages?.push(data.message);
-        console.log('m', this.matchRoomService?.getMatchRoomByCode(data.roomCode).messages);
+        this.chatService.messages.get(data.roomCode).push(data.message);
         return { code: data.roomCode, message: data.message };
     }
 
@@ -111,11 +108,6 @@ export class MatchGateway implements OnGatewayDisconnect {
     // startTimer(@ConnectedSocket() socket: Socket, @MessageBody() data: TimerInfo) {
     //     this.timeService.startTimer(data.roomCode, data.time, this.server);
     // }
-
-    @SubscribeMessage(MatchEvents.SendOldMessages)
-    SendMessages(@ConnectedSocket() socket: Socket, @MessageBody() matchRoomCode: string) {
-        this.handleSentMessages(matchRoomCode);
-    }
 
     // @SubscribeMessage(MatchEvents.StopTimer)
     // stopTimer(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
@@ -164,10 +156,5 @@ export class MatchGateway implements OnGatewayDisconnect {
         this.server.to(matchRoomCode).emit('fetchPlayersData', this.playerRoomService.getPlayersStringified(matchRoomCode));
     }
 
-    private handleSentMessages(matchRoomCode: string) {
-        this.server.emit('fetchOldMessages', this.chatService?.getMessages(matchRoomCode));
-    }
-
     // TODO: Start match: Do not forget to make isPlaying = true in MatchRoom object!!
 }
-

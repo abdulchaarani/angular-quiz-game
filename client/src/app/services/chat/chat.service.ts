@@ -14,7 +14,7 @@ interface sentData {
 export class ChatService {
     private matchRoomCode: string;
     public message: Message;
-    messages: Map<string, Message[]> = new Map();
+    messages: Map<string, Message[]> = new Map<string, Message[]>();
 
     constructor(
         private socketHandler: SocketHandlerService,
@@ -29,35 +29,21 @@ export class ChatService {
         });
     }
 
-    connect() {
-        if (!this.socketHandler.isSocketAlive()) {
-            this.fetchOldMessages();
-        }
-    }
-
-    fetchOldMessages() {
-        // this.socketHandler.on('fetchOldMessages', () => {
-        //     this.messages.get(this.matchRoomCode) || [];
-        // });
-        this.socketHandler.on('fetchOldMessages', (oldMessages: Message[]) => {
-            this.messages.set(this.matchRoomCode, oldMessages);
-        });
-        // Write a separate function for this.
-        return this.messages.get(this.matchRoomCode) || [];
-    }
-
     getMatchRoomCode() {
         return this.matchRoomCode;
     }
 
     sendMessage(roomCode: string, message: Message): void {
         const sentData: sentData = { roomCode, message };
-        //this.socketHandler.send('roomMessage', {text: message, author: this.matchRoomService.getUsername(),  date: new Date() }); //rename roomMessage
         this.socketHandler.send('roomMessage', sentData, (res: { code: string; message: Message }) => {
             this.matchRoomCode = res.code;
             this.message.author = res.message.author;
             this.message.text = res.message.text;
             this.message.date = res.message.date;
         });
+
+        const roomMessages = this.messages.get(roomCode) || [];
+        roomMessages.push(message);
+        this.messages.set(roomCode, roomMessages);
     }
 }

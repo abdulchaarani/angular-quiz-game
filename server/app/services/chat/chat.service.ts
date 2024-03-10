@@ -14,12 +14,21 @@ export class ChatService {
     constructor(private playerRoomService: PlayerRoomService, private matchRoomService: MatchRoomService) {
     }
 
-    addMessage(message: Message, roomCode: string){
+    addMessage(message: Message, roomCode: string): Message{
         this.matchRoomService?.getMatchRoomByCode(roomCode)?.messages.push(message);
         const roomMessages = this.messages.get(roomCode) || [];
         roomMessages.push(message);
         this.messages.set(roomCode, roomMessages);
         return message;
+    }
+    
+    getMessagesStringified(code: string): string{
+        const messages = this.messages.get(code);
+        return JSON.stringify(messages, (key, value) => {
+            if (key !== 'socket') {
+                return value;
+            }
+        });
     }
 
     getMessages(roomCode: string): Message[] {

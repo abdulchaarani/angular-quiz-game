@@ -10,8 +10,7 @@ import { ChatService } from '@app/services/chat/chat.service';
 })
 export class ChatComponent implements AfterViewChecked {
     @ViewChild('messagesContainer', { static: true }) messagesContainer: ElementRef;
-    message: string = '';
-    // messages: Message[] = [];
+
     constructor(
         readonly matchRoomService: MatchRoomService,
         readonly chatService: ChatService,
@@ -19,13 +18,6 @@ export class ChatComponent implements AfterViewChecked {
 
     ngAfterViewChecked() {
         this.scrollToBottom();
-    }
-
-    ngOnInit() {
-        this.chatService.messages.get(this.matchRoomService.getMatchRoomCode());
-        this.matchRoomService.getMatchRoomCode();
-        this.chatService.fetchOldMessages();
-        // console.log('messages',this.chatService.messages.get(this.matchRoomService.getMatchRoomCode()));
     }
 
     sendMessage(messageText: string): void {
@@ -37,7 +29,6 @@ export class ChatComponent implements AfterViewChecked {
             };
 
             this.chatService.sendMessage(this.matchRoomService.getMatchRoomCode(), newMessage);
-            // console.log(this.chatService.messages.get(this.matchRoomService.getMatchRoomCode()));
         }
     }
 

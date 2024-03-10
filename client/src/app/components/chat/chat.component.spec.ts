@@ -12,17 +12,14 @@ fdescribe('ChatComponent', () => {
     let component: ChatComponent;
     let fixture: ComponentFixture<ChatComponent>;
     let chatService: ChatService;
-    
 
     beforeEach(() => {
-        const chatServiceSpy = jasmine.createSpyObj('ChatService', ['fetchOldMessages', 'sendMessage']);
+        const chatServiceSpy = jasmine.createSpyObj('ChatService', ['sendMessage']);
         chatServiceSpy.messages = jasmine.createSpyObj('messages', ['get']);
         TestBed.configureTestingModule({
             declarations: [ChatComponent],
             imports: [MatIconModule, MatFormFieldModule, MatInputModule, BrowserAnimationsModule, MatSnackBarModule, MatDialogModule],
-            providers: [
-                { provide: ChatService, useValue: chatServiceSpy },
-            ],
+            providers: [{ provide: ChatService, useValue: chatServiceSpy }],
         }).compileComponents();
 
         fixture = TestBed.createComponent(ChatComponent);
@@ -33,11 +30,6 @@ fdescribe('ChatComponent', () => {
 
     it('should create', () => {
         expect(component).toBeTruthy();
-    });
-
-    it('should call fetchOldMessages on ngOnInit', () => {
-        component.ngOnInit();
-        expect(chatService.fetchOldMessages).toHaveBeenCalled();
     });
 
     it('should send a message', () => {

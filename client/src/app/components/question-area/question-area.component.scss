@@ -234,3 +234,27 @@ button.answer.selected {
     padding-left: 50px;
     padding-right: 50px;
 }
+
+#game-starting {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+    height: auto;
+}
+#timer-cooldown {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#time-left-cooldown {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 6rem;
+    color: #000000;
+    margin: 0;
+}

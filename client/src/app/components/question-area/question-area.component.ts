@@ -7,7 +7,6 @@ import { AnswerService } from '@app/services/answer/answer.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { MatchService } from '@app/services/match/match.service';
 import { QuestionContextService } from '@app/services/question-context/question-context.service';
-
 import { TimeService } from '@app/services/time/time.service';
 @Component({
     selector: 'app-question-area',
@@ -29,6 +28,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     context: 'testPage' | 'hostView' | 'playerView';
     correctAnswers: string[];
     isFirstQuestion: boolean = true;
+    isCooldown: boolean = false;
 
     readonly bonusFactor = 0.2;
     private readonly multiplicationFactor = 100;
@@ -131,6 +131,16 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
                     this.bonus = bonus;
                 }
             });
+
+            // this.matchRoomService.getCooldownTimeObservable().subscribe(() => {
+            //     this.isCooldown = true;
+            //     console.log('cooldown', this.isCooldown);
+            //     // this.timeService.timerFinished$.subscribe((timerFinished) => {
+            //     //     // if (timerFinished) {
+            //     //     //     this.isCooldown = false;
+            //     //     // }
+            //     // });
+            // });
         }
 
         if (this.currentQuestion.choices) {
@@ -162,8 +172,8 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         }
     }
 
-    computeTimerProgress(): number {
-        return (this.timeService.time / this.gameDuration) * this.multiplicationFactor;
+    computeTimerProgress(duration: number): number {
+        return (this.timeService.time / duration) * this.multiplicationFactor;
     }
 
     checkAnswers(): void {

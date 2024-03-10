@@ -22,6 +22,7 @@ export class MatchRoomService {
     private gameTitle = new Subject<string>();
     private currentQuestionSource = new BehaviorSubject<any>(null);
     public currentQuestion$ = this.currentQuestionSource.asObservable();
+    // private cooldownTime = new Subject<void>();
     private matchRoomCode: string;
     private username: string;
 
@@ -131,6 +132,16 @@ export class MatchRoomService {
     nextQuestion() {
         this.socketService.send('nextQuestion', this.matchRoomCode);
     }
+
+    // startCooldown() {
+    //     this.socketService.on('startCooldown', () => {
+    //         this.cooldownTime.next();
+    //     });
+    // }
+
+    // getCooldownTimeObservable(): Observable<void> {
+    //     return this.cooldownTime.asObservable();
+    // }
 
     updatePlayerScore(username: string, points: number) {
         const sentUserInfo: UserInfo = { roomCode: this.matchRoomCode, username };

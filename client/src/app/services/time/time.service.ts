@@ -22,6 +22,10 @@ export class TimeService {
         return this.timerFinished.asObservable();
     }
 
+    set time(newTime: number) {
+        this.counter = newTime;
+    }
+
     startTimer(roomCode: string, time: number): void {
         this.socketService.send('startTimer', { roomCode, time });
     }
@@ -33,6 +37,7 @@ export class TimeService {
     handleTimer(): void {
         this.socketService.on('timer', (currentTime: number) => {
             this.counter = currentTime;
+            console.log('Current time : ', currentTime);
         });
     }
 

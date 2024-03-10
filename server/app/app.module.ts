@@ -12,6 +12,7 @@ import { GameService } from '@app/services/game/game.service';
 import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
 import { QuestionService } from '@app/services/question/question.service';
 import { Logger, Module } from '@nestjs/common';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { BackupController } from './controllers/backup/backup.controller';
@@ -19,6 +20,8 @@ import { MatchRoomService } from './services/match-room/match-room.service';
 import { PlayerRoomService } from './services/player-room/player-room.service';
 import { TimeService } from './services/time/time.service';
 import { ChatService } from './services/chat/chat.service';
+import { AnwserGateway } from './gateways/anwser/anwser.gateway';
+import { AnswerService } from './services/answer/answer.service';
 
 @Module({
     imports: [
@@ -32,6 +35,7 @@ import { ChatService } from './services/chat/chat.service';
         }),
         MongooseModule.forFeature([{ name: Game.name, schema: gameSchema }]),
         MongooseModule.forFeature([{ name: Question.name, schema: questionSchema }]),
+        EventEmitterModule.forRoot(),
     ],
     controllers: [QuestionController, GameController, MatchController, AuthenticationController, BackupController],
     providers: [
@@ -47,6 +51,8 @@ import { ChatService } from './services/chat/chat.service';
         TimeService,
         PlayerRoomService,
         ChatService,
+        AnwserGateway,
+        AnswerService,
     ],
 })
 export class AppModule {}

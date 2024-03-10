@@ -1,3 +1,4 @@
+import { emptyAnswer } from '@app/model/schema/answer.schema';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Player } from '@app/model/schema/player.schema';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
@@ -29,12 +30,17 @@ export class PlayerRoomService {
         }
         const newPlayer: Player = {
             username: newUsername,
+            answer: { ...emptyAnswer },
             score: 0,
             bonusCount: 0,
             isPlaying: true,
             socket: playerSocket,
         };
-        this.matchRoomService.getMatchRoomByCode(matchRoomCode).players.push(newPlayer);
+
+        const matchRoom = this.matchRoomService.getMatchRoomByCode(matchRoomCode);
+        matchRoom.players.push(newPlayer);
+        matchRoom.activePlayers++;
+
         return newPlayer;
     }
 
@@ -68,6 +74,7 @@ export class PlayerRoomService {
         });
         if (roomIndex !== INDEX_NOT_FOUND && playerIndex !== INDEX_NOT_FOUND) {
             this.matchRoomService.matchRooms[roomIndex].players[playerIndex].isPlaying = false;
+            this.matchRoomService.matchRooms[roomIndex].activePlayers--;
         }
     }
 

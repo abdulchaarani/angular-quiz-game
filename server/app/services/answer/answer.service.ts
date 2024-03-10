@@ -121,8 +121,10 @@ export class AnswerService {
         const fastestPlayers = correctPlayers.filter((player) => player.answer.timestamp === fastestTime);
         if (fastestPlayers.length === 0 || fastestPlayers.length > 1) return;
         const fastestPlayer = fastestPlayers[0];
-        fastestPlayer.score += points * BONUS_FACTOR;
+        const bonus = points * BONUS_FACTOR;
+        fastestPlayer.score += bonus;
         fastestPlayer.bonusCount++;
+        fastestPlayer.socket.emit('bonus', bonus);
     }
 
     private sendFeedback(roomCode: string) {

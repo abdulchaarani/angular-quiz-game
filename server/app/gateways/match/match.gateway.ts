@@ -69,7 +69,7 @@ export class MatchGateway implements OnGatewayDisconnect {
     // TODO: Start match: Do not forget to make isPlaying = true in MatchRoom object!!
     @SubscribeMessage(MatchEvents.StartMatch)
     startMatch(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
-        this.matchRoomService.startMatch(this.server, roomCode);
+        this.matchRoomService.startMatch(socket, this.server, roomCode);
     }
 
     @SubscribeMessage(MatchEvents.NextQuestion)
@@ -79,7 +79,7 @@ export class MatchGateway implements OnGatewayDisconnect {
 
     @OnEvent(TimerEvents.CountdownTimerExpired)
     onCountdownTimerExpired(matchRoomCode: string) {
-        this.server.in(matchRoomCode).emit('beginQuiz');
+        // this.server.in(matchRoomCode).emit('beginQuiz');
         this.matchRoomService.markGameAsPlaying(matchRoomCode);
         this.matchRoomService.sendNextQuestion(this.server, matchRoomCode);
     }

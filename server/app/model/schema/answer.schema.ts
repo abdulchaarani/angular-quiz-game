@@ -4,6 +4,12 @@ export interface Answer {
     isSubmited: boolean;
     timestamp?: number;
 }
+
+export interface PlayerInfo {
+    start: boolean;
+    gameTitle: string;
+}
+
 export interface UserInfo {
     roomCode: string;
     username: string;

@@ -1,11 +1,12 @@
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
 import { Player } from '@app/model/schema/player.schema';
-import { Answer, Feedback } from '@app/model/schema/answer.schema';
+import { Answer } from '@app/model/schema/answer.schema';
+import { Feedback } from '@common/interfaces/feedback';
 import { OnEvent } from '@nestjs/event-emitter';
 import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
 import { TimerEvents } from '@app/constants/timer-events';
-import { BONUS_FACTOR } from '@app/constants/match-constants';
+import { BONUS_FACTOR } from '@common/constants/match-constants';
 import { TimeService } from '@app/services/time/time.service';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Injectable } from '@nestjs/common';

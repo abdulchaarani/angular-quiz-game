@@ -1,5 +1,5 @@
 import { ADMIN_PASSWORD } from '@app/constants/admin-auth-info';
-import { Message } from '@common/message';
+import { Message } from '@common/interfaces/message';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()

@@ -4,25 +4,22 @@ import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
-import { TimeService } from '@app/services/time/time.service';
 import { Injectable } from '@nestjs/common';
 import { ConnectedSocket, MessageBody, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { MatchEvents } from './match.gateway.events';
 import { OnEvent } from '@nestjs/event-emitter';
-import { UserInfo } from '@app/model/schema/answer.schema';
+import { UserInfo } from '@common/interfaces/user-info';
 
 // TODO: Open socket only if code and user are valid + Allow host to be able to disconnect banned players
 @WebSocketGateway({ cors: true })
 @Injectable()
 export class MatchGateway implements OnGatewayDisconnect {
     @WebSocketServer() private server: Server;
-    private readonly COUNTDOWN_TIME = 5;
 
     constructor(
         private matchRoomService: MatchRoomService,
         private playerRoomService: PlayerRoomService,
-        private timeService: TimeService,
         private matchBackupService: MatchBackupService,
     ) {}
 
@@ -92,19 +89,26 @@ export class MatchGateway implements OnGatewayDisconnect {
     }
 
     handleDisconnect(@ConnectedSocket() socket: Socket) {
-        // eslint-disable-next-line
-        // console.log(`Déconnexion par l'utilisateur avec id : ${socket.id}`); // TODO: Remove once debugging is finished
         const matchRoomCode = this.matchRoomService.getRoomCodeByHostSocket(socket.id);
         if (matchRoomCode) {
-            this.server.in(matchRoomCode).disconnectSockets();
-            this.matchRoomService.deleteMatchRoom(matchRoomCode);
+            this.deleteMatchRoom(matchRoomCode);
             return;
         }
         const roomCode = this.playerRoomService.deletePlayerBySocket(socket.id);
-        if (roomCode) {
-            this.handleSendPlayersData(roomCode);
-            // TODO: If no more players left, disconnect the host and delete the match.
+        if (!roomCode) {
+            return;
         }
+        const room = this.matchRoomService.getMatchRoomByCode(roomCode);
+        if (room.players.length === 0 && room.isPlaying) {
+            this.deleteMatchRoom(matchRoomCode);
+            return;
+        }
+        this.handleSendPlayersData(roomCode);
+    }
+
+    deleteMatchRoom(matchRoomCode: string) {
+        this.server.in(matchRoomCode).disconnectSockets();
+        this.matchRoomService.deleteMatchRoom(matchRoomCode);
     }
 
     handleSendPlayersData(matchRoomCode: string) {

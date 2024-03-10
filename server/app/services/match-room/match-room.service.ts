@@ -1,4 +1,4 @@
-import { COOLDOWN_TIME, COUNTDOWN_TIME, FACTOR, MAXIMUM_CODE_LENGTH } from '@app/constants/match-constants';
+import { COOLDOWN_TIME, COUNTDOWN_TIME, FACTOR, MAXIMUM_CODE_LENGTH } from '@common/constants/match-constants';
 import { TimerEvents } from '@app/constants/timer-events';
 import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
 import { Choice } from '@app/model/database/choice';
@@ -8,7 +8,7 @@ import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { TimeService } from '@app/services/time/time.service';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
-import { PlayerInfo } from '@app/model/schema/answer.schema';
+import { PlayerInfo } from '@common/interfaces/player-info';
 
 @Injectable()
 export class MatchRoomService {
@@ -92,7 +92,7 @@ export class MatchRoomService {
         if (!this.canStartMatch(matchRoomCode)) return;
         const gameTitle = this.getGameTitle(matchRoomCode);
         const playerInfo: PlayerInfo = { start: true, gameTitle };
-        socket.to(matchRoomCode).emit('matchStarting', playerInfo); //TODO: add matchstarting to the events
+        socket.to(matchRoomCode).emit('matchStarting', playerInfo); // TODO: add matchstarting to the events
 
         this.timeService.startTimer(server, matchRoomCode, COUNTDOWN_TIME, TimerEvents.CountdownTimerExpired);
     }

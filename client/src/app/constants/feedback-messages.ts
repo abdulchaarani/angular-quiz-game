@@ -21,3 +21,7 @@ export enum GameStatus {
     DUPLICATE = 'Cette question fait déjà partie de la liste des questions de ce jeu! 😾',
     FAILURE = "Échec d'obtention du jeu 😿",
 }
+
+export enum MatchStatus {
+    PREPARE = 'Préparez vous pour la prochaine question! ⏳',
+}

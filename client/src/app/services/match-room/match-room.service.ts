@@ -4,7 +4,7 @@ import { Player } from '@app/interfaces/player';
 import { Question } from '@app/interfaces/question';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
-import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
+import { BehaviorSubject } from 'rxjs';
 import { Observable } from 'rxjs/internal/Observable';
 import { Subject } from 'rxjs/internal/Subject';
 
@@ -18,17 +18,15 @@ interface UserInfo {
 export class MatchRoomService {
     players: Player[];
 
+    currentQuestion$: Observable<Question>;
+    displayCooldown$: Observable<boolean>;
     private startMatchSubject = new Subject<void>();
     private gameTitle = new Subject<string>();
-    private currentQuestionSource = new BehaviorSubject<any>(null);
-    public currentQuestion$ = this.currentQuestionSource.asObservable();
-    // private cooldownTime = new Subject<void>();
+    private currentQuestionSource = new Subject<Question>();
+    private displayCooldownSource = new BehaviorSubject<boolean>(false);
     private matchRoomCode: string;
     private username: string;
 
-    get socketId() {
-        return this.socketService.socket.id ? this.socketService.socket.id : '';
-    }
     constructor(
         public socketService: SocketHandlerService,
         private router: Router,
@@ -37,7 +35,14 @@ export class MatchRoomService {
         this.matchRoomCode = '';
         this.username = '';
         this.players = [];
+        this.currentQuestion$ = this.currentQuestionSource.asObservable();
+        this.displayCooldown$ = this.displayCooldownSource.asObservable();
     }
+
+    get socketId() {
+        return this.socketService.socket.id ? this.socketService.socket.id : '';
+    }
+
     getMatchRoomCode() {
         return this.matchRoomCode;
     }
@@ -54,6 +59,7 @@ export class MatchRoomService {
             this.beginQuiz();
             this.moveToNextQuestion();
             this.gameOver();
+            this.startCooldown();
             // this.feedback();
         }
     }
@@ -133,15 +139,11 @@ export class MatchRoomService {
         this.socketService.send('nextQuestion', this.matchRoomCode);
     }
 
-    // startCooldown() {
-    //     this.socketService.on('startCooldown', () => {
-    //         this.cooldownTime.next();
-    //     });
-    // }
-
-    // getCooldownTimeObservable(): Observable<void> {
-    //     return this.cooldownTime.asObservable();
-    // }
+    startCooldown() {
+        this.socketService.on('startCooldown', () => {
+            this.displayCooldownSource.next(true);
+        });
+    }
 
     updatePlayerScore(username: string, points: number) {
         const sentUserInfo: UserInfo = { roomCode: this.matchRoomCode, username };
@@ -157,6 +159,7 @@ export class MatchRoomService {
 
     moveToNextQuestion() {
         this.socketService.on('nextQuestion', (question: Question) => {
+            this.displayCooldownSource.next(false);
             this.currentQuestionSource.next(question);
         });
     }

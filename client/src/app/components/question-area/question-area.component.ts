@@ -1,6 +1,6 @@
 import { HttpResponse } from '@angular/common/http';
 import { Component, HostListener, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatchStatus } from '@app/constants/feedback-messages';
 import { Choice } from '@app/interfaces/choice';
 import { Question } from '@app/interfaces/question';
 import { AnswerService } from '@app/services/answer/answer.service';
@@ -8,6 +8,7 @@ import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { MatchService } from '@app/services/match/match.service';
 import { QuestionContextService } from '@app/services/question-context/question-context.service';
 import { TimeService } from '@app/services/time/time.service';
+import { BONUS_FACTOR, MULTIPLICATION_FACTOR } from '@common/constants/match-constants';
 @Component({
     selector: 'app-question-area',
     templateUrl: './question-area.component.html',
@@ -30,18 +31,17 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     isFirstQuestion: boolean = true;
     isCooldown: boolean = false;
 
-    readonly bonusFactor = 0.2;
-    private readonly multiplicationFactor = 100;
+    // TODO: verify if still needed then move to constants
     private readonly timeout = 3000;
-    router: any;
 
+    // permit more class parameters to decouple services
+    // eslint-disable-next-line max-params
     constructor(
-        public timeService: TimeService,
-        public dialog: MatDialog,
-        private matchService: MatchService,
-        private matchRoomService: MatchRoomService,
-        private questionContextService: QuestionContextService,
-        private answerService: AnswerService,
+        private readonly timeService: TimeService,
+        private readonly matchService: MatchService,
+        private readonly matchRoomService: MatchRoomService,
+        private readonly questionContextService: QuestionContextService,
+        private readonly answerService: AnswerService,
     ) {
         this.selectedAnswers = [];
         this.isSelectionEnabled = true;
@@ -81,6 +81,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         }
     }
 
+    // TODO: seperate subscriptions into different functions
     ngOnInit(): void {
         this.context = this.questionContextService.getContext();
         if (this.context !== 'testPage') {
@@ -118,9 +119,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
                             currentValue: question,
                             previousValue: this.currentQuestion,
                             firstChange: false,
-                            isFirstChange: function (): boolean {
-                                return false;
-                            },
+                            isFirstChange: () => false,
                         },
                     });
                 }
@@ -132,15 +131,9 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
                 }
             });
 
-            // this.matchRoomService.getCooldownTimeObservable().subscribe(() => {
-            //     this.isCooldown = true;
-            //     console.log('cooldown', this.isCooldown);
-            //     // this.timeService.timerFinished$.subscribe((timerFinished) => {
-            //     //     // if (timerFinished) {
-            //     //     //     this.isCooldown = false;
-            //     //     // }
-            //     // });
-            // });
+            this.matchRoomService.displayCooldown$.subscribe((isCooldown) => {
+                if (isCooldown) this.currentQuestion.text = MatchStatus.PREPARE;
+            });
         }
 
         if (this.currentQuestion.choices) {
@@ -172,8 +165,8 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         }
     }
 
-    computeTimerProgress(duration: number): number {
-        return (this.timeService.time / duration) * this.multiplicationFactor;
+    computeTimerProgress(): number {
+        return (this.timeService.time / this.timeService.duration) * MULTIPLICATION_FACTOR;
     }
 
     checkAnswers(): void {
@@ -221,10 +214,10 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     }
 
     playerScoreUpdate(): void {
-        //testpage
+        // testpage
         if (this.isCorrect) {
             if (this.context === 'testPage') {
-                this.bonus = this.currentQuestion.points * this.bonusFactor;
+                this.bonus = this.currentQuestion.points * BONUS_FACTOR;
                 this.playerScore += this.currentQuestion.points;
                 this.playerScore += this.bonus;
             } else if (this.context === 'playerView') {
@@ -237,7 +230,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     }
 
     afterFeedback(): void {
-        //TODO: uncomment when done
+        // TODO: uncomment when done
         // if (this.havePointsBeenAdded === false) {
         //     this.playerScoreUpdate();
         //     this.havePointsBeenAdded = true;

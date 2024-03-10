@@ -21,6 +21,7 @@
                 </div>
             </ng-template>
 
+            <!-- TODO: remove the ! -->
             <div id="question">
                 <h1>{{ this.currentQuestion!.text }}</h1>
                 <h1 id="points">{{ currentQuestion.points }} points</h1>
@@ -29,7 +30,7 @@
             <div id="timer-area">
                 <div class="circle">
                     <div id="timer">
-                        <mat-progress-spinner [value]="computeTimerProgress(gameDuration)" mode="determinate" diameter="90"> </mat-progress-spinner>
+                        <mat-progress-spinner [value]="computeTimerProgress()" mode="determinate" diameter="90"> </mat-progress-spinner>
                         <h2 id="time-left">
                             {{ time }}
                         </h2>
@@ -65,15 +66,6 @@
         <div id="submit-button-container" *ngIf="context === 'testPage' || context === 'playerView'">
             <button mat-raised-button color="primary" id="submitButton" *ngIf="isSelectionEnabled" (click)="submitAnswers()">SOUMETTRE</button>
         </div>
-    </div>
-</div>
-<div id="game-starting" *ngIf="isCooldown">
-    <h1>Prochaine question dans..</h1>
-    <div id="timer-cooldown">
-        <mat-progress-spinner [value]="computeTimerProgress(3)" mode="determinate" diameter="350"> </mat-progress-spinner>
-        <h2 id="time-left-cooldown">
-            {{ time }}
-        </h2>
     </div>
 </div>
 <app-players-list *ngIf="context === 'playerView' || context === 'hostView'"></app-players-list>

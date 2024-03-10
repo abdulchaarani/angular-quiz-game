@@ -118,7 +118,7 @@ export class MatchRoomService {
     }
 
     startNextQuestionCooldown(server: Server, matchRoomCode: string): void {
-        server.in(matchRoomCode).emit('startCooldown');
+        server.in(matchRoomCode).emit('startCooldown', matchRoomCode);
         this.timeService.startTimer(server, matchRoomCode, COOLDOWN_TIME, TimerEvents.CooldownTimerExpired);
     }
 

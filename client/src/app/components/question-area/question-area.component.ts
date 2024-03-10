@@ -1,5 +1,5 @@
 import { HttpResponse } from '@angular/common/http';
-import { Component, HostListener, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, HostListener, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { MatchStatus } from '@app/constants/feedback-messages';
 import { Choice } from '@app/interfaces/choice';
 import { Question } from '@app/interfaces/question';
@@ -9,12 +9,13 @@ import { MatchService } from '@app/services/match/match.service';
 import { QuestionContextService } from '@app/services/question-context/question-context.service';
 import { TimeService } from '@app/services/time/time.service';
 import { BONUS_FACTOR, MULTIPLICATION_FACTOR } from '@common/constants/match-constants';
+import { Subscription } from 'rxjs';
 @Component({
     selector: 'app-question-area',
     templateUrl: './question-area.component.html',
     styleUrls: ['./question-area.component.scss'],
 })
-export class QuestionAreaComponent implements OnInit, OnChanges {
+export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
     @Input() currentQuestion: Question;
     @Input() gameDuration: number;
 
@@ -30,10 +31,10 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     correctAnswers: string[];
     isFirstQuestion: boolean = true;
     isCooldown: boolean = false;
-
     // TODO: verify if still needed then move to constants
     private readonly timeout = 3000;
 
+    private subscriptions: Subscription[];
     // permit more class parameters to decouple services
     // eslint-disable-next-line max-params
     constructor(
@@ -78,7 +79,10 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
 
     // TODO: seperate subscriptions into different functions
     ngOnInit(): void {
+        this.subscriptions = [];
+        console.log('pre', this.bonus);
         this.resetStateForNewQuestion();
+        console.log('post', this.bonus);
 
         this.context = this.questionContextService.getContext();
         if (this.context !== 'testPage') {
@@ -90,17 +94,20 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
                 this.gameDuration = history.state.duration;
                 this.isFirstQuestion = false;
             } else {
-                this.matchRoomService.currentQuestion$.subscribe((question) => {
+                // TODO: check if duplication is needed see below;
+                const currentQuestionSubscription = this.matchRoomService.currentQuestion$.subscribe((question) => {
                     if (question) {
                         this.currentQuestion = question;
                     }
                 });
+
+                this.subscriptions.push(currentQuestionSubscription);
             }
 
             this.answerService.feedback();
             this.answerService.bonusPoints();
 
-            this.answerService.feedback$.subscribe((feedback) => {
+            const feedbackSubscription = this.answerService.feedback$.subscribe((feedback) => {
                 if (feedback) {
                     this.correctAnswers = feedback.correctAnswer;
                     this.playerScore = feedback.score;
@@ -108,8 +115,10 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
                     this.showFeedback = true;
                 }
             });
+            this.subscriptions.push(feedbackSubscription);
 
-            this.matchRoomService.currentQuestion$.subscribe((question) => {
+            // TODO: check if duplication is needed see above;
+            const s = this.matchRoomService.currentQuestion$.subscribe((question) => {
                 if (question) {
                     this.currentQuestion = question;
                     this.ngOnChanges({
@@ -122,16 +131,23 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
                     });
                 }
             });
+            this.subscriptions.push(s);
 
-            this.answerService.bonusPoints$.subscribe((bonus) => {
+            console.log('pre sub', this.bonus);
+            const bonusPointsSubscription = this.answerService.bonusPoints$.subscribe((bonus) => {
                 if (bonus) {
                     this.bonus = bonus;
+                    console.log('bonus value', bonus);
                 }
             });
+            this.subscriptions.push(bonusPointsSubscription);
+            console.log('post sub', this.bonus);
 
-            this.matchRoomService.displayCooldown$.subscribe((isCooldown) => {
+            const displayCoolDownSubscription = this.matchRoomService.displayCooldown$.subscribe((isCooldown) => {
                 if (isCooldown) this.currentQuestion.text = MatchStatus.PREPARE;
             });
+
+            this.subscriptions.push(displayCoolDownSubscription);
         }
 
         if (this.currentQuestion.choices) {
@@ -149,6 +165,10 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         // });
     }
 
+    ngOnDestroy() {
+        this.subscriptions.forEach((subscription) => subscription.unsubscribe());
+    }
+
     ngOnChanges(changes: SimpleChanges): void {
         if (changes.currentQuestion) {
             const newQuestion = changes.currentQuestion.currentValue;
@@ -164,6 +184,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     }
 
     computeTimerProgress(): number {
+        console.log(this.bonus);
         return (this.timeService.time / this.timeService.duration) * MULTIPLICATION_FACTOR;
     }
 

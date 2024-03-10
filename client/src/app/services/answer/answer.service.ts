@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
-import { SocketHandlerService } from '../socket-handler/socket-handler.service';
+import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
+import { Feedback } from '@common/interfaces/feedback';
+import { Observable, Subject } from 'rxjs';
 interface UserInfo {
     roomCode: string;
     username: string;
@@ -13,13 +14,14 @@ interface ChoiceInfo {
     providedIn: 'root',
 })
 export class AnswerService {
-    private feedbackSource = new BehaviorSubject<any>(null);
-    public feedback$ = this.feedbackSource.asObservable();
+    feedback$: Observable<Feedback>;
+    bonusPoints$: Observable<number>;
+    private feedbackSource: Subject<Feedback>;
+    private bonusPointsSubject: Subject<number>;
 
-    private bonusPointsSubject = new BehaviorSubject<any>(null);
-    public bonusPoints$ = this.bonusPointsSubject.asObservable();
-
-    constructor(public socketService: SocketHandlerService) {}
+    constructor(public socketService: SocketHandlerService) {
+        this.initialiseAnwserSubjects();
+    }
 
     selectChoice(choice: string, userInfo: UserInfo) {
         const choiceInfo: ChoiceInfo = { choice, userInfo };
@@ -36,12 +38,19 @@ export class AnswerService {
     }
 
     feedback() {
-        this.socketService.on('feedback', (data) => this.feedbackSource.next(data));
+        this.socketService.on('feedback', (data: Feedback) => this.feedbackSource.next(data));
     }
 
     bonusPoints() {
-        this.socketService.on('bonus', (data: any) => {
+        this.socketService.on('bonus', (data: number) => {
             this.bonusPointsSubject.next(data);
         });
+    }
+
+    private initialiseAnwserSubjects() {
+        this.feedbackSource = new Subject<Feedback>();
+        this.bonusPointsSubject = new Subject<number>();
+        this.feedback$ = this.feedbackSource.asObservable();
+        this.bonusPoints$ = this.bonusPointsSubject.asObservable();
     }
 }

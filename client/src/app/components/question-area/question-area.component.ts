@@ -65,6 +65,10 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         return this.matchRoomService.getUsername();
     }
 
+    get players() {
+        return this.matchRoomService.players;
+    }
+
     @HostListener('document:keydown', ['$event'])
     handleKeyboardEvent(event: KeyboardEvent) {
         if (event.key === 'Enter' && this.isSelectionEnabled) {
@@ -107,6 +111,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
                 if (feedback) {
                     this.correctAnswers = feedback.correctAnswer;
                     this.playerScore = feedback.score;
+                    this.matchRoomService.sendPlayersData(this.matchRoomCode);
                     this.showFeedback = true;
                 }
             });
@@ -220,12 +225,12 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
                 this.bonus = this.currentQuestion.points * BONUS_FACTOR;
                 this.playerScore += this.currentQuestion.points;
                 this.playerScore += this.bonus;
-            } else if (this.context === 'playerView') {
-                const updatedScore = this.matchRoomService.updatePlayerScore(this.username, this.currentQuestion.points);
-                if (updatedScore !== void 0) {
-                    this.playerScore = updatedScore;
-                }
             }
+            // else if (this.context === 'playerView') {
+            // const updatedScore = this.matchRoomService.updatePlayerScore(this.username, this.currentQuestion.points);
+            // if (updatedScore !== void 0) {
+            //     this.playerScore = updatedScore;
+            // }
         }
     }
 
@@ -259,5 +264,9 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         this.havePointsBeenAdded = false;
         this.bonus = 0;
         this.correctAnswers = [];
+    }
+
+    handleQuit() {
+        this.matchRoomService.disconnect();
     }
 }

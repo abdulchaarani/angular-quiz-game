@@ -3,7 +3,7 @@
 <div id="main-container" *ngIf="!isCooldown">
     <div id="question-area">
         <div id="exit-button-container">
-            <button id="exitButton" routerLink="/host">QUITTER</button>
+            <button id="exitButton" routerLink="/home" (click)="handleQuit()">QUITTER</button>
         </div>
 
         <div id="question-timer-area">
@@ -68,4 +68,4 @@
         </div>
     </div>
 </div>
-<app-players-list *ngIf="context === 'playerView' || context === 'hostView'"></app-players-list>
+<app-players-list [players]="this.players" *ngIf="context === 'playerView' || context === 'hostView'"></app-players-list>

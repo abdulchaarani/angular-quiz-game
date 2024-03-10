@@ -8,7 +8,7 @@ import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { TimeService } from '@app/services/time/time.service';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
-import { PlayerInfo } from '@common/interfaces/player-info';
+import { GameInfo } from '@common/interfaces/player-info';
 
 @Injectable()
 export class MatchRoomService {
@@ -91,8 +91,8 @@ export class MatchRoomService {
     startMatch(socket: Socket, server: Server, matchRoomCode: string) {
         if (!this.canStartMatch(matchRoomCode)) return;
         const gameTitle = this.getGameTitle(matchRoomCode);
-        const playerInfo: PlayerInfo = { start: true, gameTitle };
-        socket.to(matchRoomCode).emit('matchStarting', playerInfo); // TODO: add matchstarting to the events
+        const gameInfo: GameInfo = { start: true, gameTitle };
+        socket.to(matchRoomCode).emit('matchStarting', gameInfo);
 
         this.timeService.startTimer(server, matchRoomCode, COUNTDOWN_TIME, TimerEvents.CountdownTimerExpired);
     }

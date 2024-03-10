@@ -145,11 +145,11 @@ export class MatchRoomService {
         });
     }
 
-    updatePlayerScore(username: string, points: number) {
-        const sentUserInfo: UserInfo = { roomCode: this.matchRoomCode, username };
+    // updatePlayerScore(username: string, points: number) {
+    //     const sentUserInfo: UserInfo = { roomCode: this.matchRoomCode, username };
 
-        this.socketService.send('updateScore', { sentUserInfo, points });
-    }
+    //     this.socketService.send('updateScore', { sentUserInfo, points });
+    // }
 
     gameOver() {
         this.socketService.on('gameOver', () => {

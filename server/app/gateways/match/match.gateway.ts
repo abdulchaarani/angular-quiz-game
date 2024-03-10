@@ -15,7 +15,6 @@ interface UserInfo {
     username: string;
 }
 
-// TODO: Open socket only if code and user are valid + Allow host to be able to disconnect banned players
 // interface TimerInfo {
 //     roomCode: string;
 //     time: number;

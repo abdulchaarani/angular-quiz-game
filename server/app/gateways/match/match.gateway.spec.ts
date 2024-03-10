@@ -8,6 +8,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance, stub } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
 import { MatchGateway } from './match.gateway';
+import { TimerEvents } from '@app/constants/timer-events';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 describe('MatchGateway', () => {
     let gateway: MatchGateway;
@@ -17,6 +19,7 @@ describe('MatchGateway', () => {
     let playerRoomSpy: SinonStubbedInstance<PlayerRoomService>;
     let socket: SinonStubbedInstance<Socket>;
     let server: SinonStubbedInstance<Server>;
+    let eventEmitter: EventEmitter2;
 
     beforeEach(async () => {
         matchRoomSpy = createStubInstance(MatchRoomService);
@@ -25,6 +28,7 @@ describe('MatchGateway', () => {
         playerRoomSpy = createStubInstance(PlayerRoomService);
         socket = createStubInstance<Socket>(Socket);
         server = createStubInstance<Server>(Server);
+
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 MatchGateway,
@@ -32,9 +36,11 @@ describe('MatchGateway', () => {
                 { provide: MatchBackupService, useValue: matchBackupSpy },
                 { provide: TimeService, useValue: timeSpy },
                 { provide: PlayerRoomService, useValue: playerRoomSpy },
+                EventEmitter2,
             ],
         }).compile();
 
+        eventEmitter = module.get<EventEmitter2>(EventEmitter2);
         gateway = module.get<MatchGateway>(MatchGateway);
         // We want to assign a value to the private field
         // eslint-disable-next-line dot-notation
@@ -156,5 +162,51 @@ describe('MatchGateway', () => {
         } as BroadcastOperator<unknown, unknown>);
         gateway.handleSendPlayersData(MOCK_ROOM_CODE);
         expect(getSpy).toHaveBeenCalled();
+    });
+
+    it('startMatch() should delegate starting match to match room service', () => {
+        const startSpy = jest.spyOn(matchRoomSpy, 'startMatch').mockReturnThis();
+        stub(socket, 'rooms').value(new Set([MOCK_ROOM_CODE]));
+        gateway.startMatch(socket, MOCK_ROOM_CODE);
+        expect(startSpy).toHaveBeenCalledWith(server, MOCK_ROOM_CODE);
+    });
+
+    it('nextQuestion() should delegate starting next question to match room service', () => {
+        const nextSpy = jest.spyOn(matchRoomSpy, 'startNextQuestionCooldown').mockReturnThis();
+        stub(socket, 'rooms').value(new Set([MOCK_ROOM_CODE]));
+        gateway.nextQuestion(socket, MOCK_ROOM_CODE);
+        expect(nextSpy).toHaveBeenCalledWith(server, MOCK_ROOM_CODE);
+    });
+
+    it('onCountdownTimerExpired() should call helper functions when CountdownTimerExpired event is emitted', () => {
+        const markGameSpy = jest.spyOn(matchRoomSpy, 'markGameAsPlaying');
+        const sendNextQuestionSpy = jest.spyOn(matchRoomSpy, 'sendNextQuestion');
+
+        eventEmitter.addListener(TimerEvents.CountdownTimerExpired, gateway.onCountdownTimerExpired);
+        expect(eventEmitter.hasListeners(TimerEvents.CountdownTimerExpired)).toBe(true);
+
+        server.in.returns({
+            emit: (event: string) => {
+                expect(event).toEqual('beginQuiz');
+            },
+        } as BroadcastOperator<unknown, unknown>);
+
+        gateway.onCountdownTimerExpired(MOCK_ROOM_CODE);
+        expect(markGameSpy).toHaveBeenCalledWith(MOCK_ROOM_CODE);
+        expect(sendNextQuestionSpy).toHaveBeenCalledWith(server, MOCK_ROOM_CODE);
+
+        eventEmitter.removeListener(TimerEvents.CountdownTimerExpired, gateway.onCountdownTimerExpired);
+    });
+
+    it('onCooldownTimerExpired() should call helper functions when CooldownTimerExpired event is emitted', () => {
+        const sendNextQuestionSpy = jest.spyOn(matchRoomSpy, 'sendNextQuestion');
+
+        eventEmitter.addListener(TimerEvents.CooldownTimerExpired, gateway.onCountdownTimerExpired);
+        expect(eventEmitter.hasListeners(TimerEvents.CooldownTimerExpired)).toBe(true);
+
+        gateway.onCooldownTimerExpired(MOCK_ROOM_CODE);
+        expect(sendNextQuestionSpy).toHaveBeenCalledWith(server, MOCK_ROOM_CODE);
+
+        eventEmitter.removeListener(TimerEvents.CooldownTimerExpired, gateway.onCountdownTimerExpired);
     });
 });

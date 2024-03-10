@@ -1,23 +1,21 @@
-import { BONUS_FACTOR } from '@app/constants/match-constants';
-import { TimerEvents } from '@app/constants/timer-events';
-import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
-import { Answer, emptyAnswer } from '@app/model/schema/answer.schema';
-import { Player } from '@app/model/schema/player.schema';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
-import { Injectable } from '@nestjs/common';
+import { Player } from '@app/model/schema/player.schema';
+import { Answer, Feedback } from '@app/model/schema/answer.schema';
 import { OnEvent } from '@nestjs/event-emitter';
+import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
+import { TimerEvents } from '@app/constants/timer-events';
+import { BONUS_FACTOR } from '@app/constants/match-constants';
+import { TimeService } from '@app/services/time/time.service';
+import { MatchRoom } from '@app/model/schema/match-room.schema';
+import { Injectable } from '@nestjs/common';
 
-// TODO move to constants
-interface Feedback {
-    score: number;
-    correctAnswer: string[];
-}
 @Injectable()
 export class AnswerService {
     constructor(
         private matchRoomService: MatchRoomService,
         private playerService: PlayerRoomService,
+        private timeService: TimeService,
     ) {}
 
     @OnEvent(TimerEvents.QuestionTimerExpired)
@@ -25,6 +23,8 @@ export class AnswerService {
         this.autoSubmitAnswers(roomCode);
         this.calculateScore(roomCode);
         this.sendFeedback(roomCode);
+        this.resetPlayersAnswer(roomCode);
+        this.matchRoomService.incrementCurrentQuestionIndex(roomCode);
     }
     // permit more paramters to make method reusable
     // eslint-disable-next-line max-params
@@ -35,10 +35,14 @@ export class AnswerService {
     }
 
     submitAnswer(username: string, roomCode: string) {
-        console.log('submit code:', roomCode);
         const player: Player = this.playerService.getPlayerByUsername(roomCode, username);
+        const matchRoom = this.getMatchRoomByCode(roomCode);
+
         player.answer.isSubmited = true;
         player.answer.timestamp = Date.now();
+        matchRoom.submittedPlayers++;
+
+        this.handleFinalAnswerSubmitted(matchRoom);
     }
 
     private getMatchRoomByCode(roomCode: string) {
@@ -72,6 +76,13 @@ export class AnswerService {
         return selectedChoices;
     }
 
+    private handleFinalAnswerSubmitted(matchRoom: MatchRoom) {
+        if (matchRoom.submittedPlayers === matchRoom.activePlayers) {
+            this.timeService.terminateTimer(matchRoom.code);
+            this.onQuestionTimerExpired(matchRoom.code);
+        }
+    }
+
     private autoSubmitAnswers(roomCode: string) {
         const submitTime = Date.now();
         const players: Player[] = this.playerService.getPlayers(roomCode);
@@ -93,11 +104,12 @@ export class AnswerService {
         const currentQuestionPoints = this.getCurrentQuestionValue(roomCode);
         const players: Player[] = this.playerService.getPlayers(roomCode);
         const correctPlayers: Player[] = [];
-        let fastestTime;
+        let fastestTime: number;
         players.forEach((player) => {
             if (this.isCorrectPlayerAnswer(player, roomCode)) {
                 player.score += currentQuestionPoints;
                 correctPlayers.push(player);
+                // TODO: replace with Math.min
                 if (!fastestTime || player.answer.timestamp < fastestTime) fastestTime = player.answer.timestamp;
             }
         });
@@ -109,9 +121,10 @@ export class AnswerService {
         const fastestPlayers = correctPlayers.filter((player) => player.answer.timestamp === fastestTime);
         if (fastestPlayers.length === 0 || fastestPlayers.length > 1) return;
         const fastestPlayer = fastestPlayers[0];
-        fastestPlayer.score += points * BONUS_FACTOR;
+        const bonus = points * BONUS_FACTOR;
+        fastestPlayer.score += bonus;
         fastestPlayer.bonusCount++;
-        fastestPlayer.socket.emit('bonus', points * BONUS_FACTOR);
+        fastestPlayer.socket.emit('bonus', bonus);
     }
     private sendFeedback(roomCode: string) {
         const correctAnswer: string[] = this.getMatchRoomByCode(roomCode).currentQuestionAnswer;
@@ -119,15 +132,16 @@ export class AnswerService {
         players.forEach((player: Player) => {
             const feedback: Feedback = { score: player.score, correctAnswer };
             player.socket.emit('feedback', feedback);
-            this.resetPlayerAnswer(player);
         });
-        // TODO: migrate
-        this.matchRoomService.getMatchRoomByCode(roomCode).currentQuestionIndex++;
     }
+    private resetPlayersAnswer(roomCode: string) {
+        this.getMatchRoomByCode(roomCode).submittedPlayers = 0;
 
-    private resetPlayerAnswer(player: Player) {
-        player.answer.selectedChoices.clear();
-        player.answer.isSubmited = false;
-        player.answer.timestamp = undefined;
+        const players: Player[] = this.playerService.getPlayers(roomCode);
+        players.forEach((player) => {
+            player.answer.selectedChoices.clear();
+            player.answer.isSubmited = false;
+            player.answer.timestamp = undefined;
+        });
     }
 }

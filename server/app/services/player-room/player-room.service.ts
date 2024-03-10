@@ -36,7 +36,11 @@ export class PlayerRoomService {
             isPlaying: true,
             socket: playerSocket,
         };
-        this.matchRoomService.getMatchRoomByCode(matchRoomCode).players.push(newPlayer);
+
+        const matchRoom = this.matchRoomService.getMatchRoomByCode(matchRoomCode);
+        matchRoom.players.push(newPlayer);
+        matchRoom.activePlayers++;
+
         return newPlayer;
     }
 
@@ -70,6 +74,7 @@ export class PlayerRoomService {
         });
         if (roomIndex !== INDEX_NOT_FOUND && playerIndex !== INDEX_NOT_FOUND) {
             this.matchRoomService.matchRooms[roomIndex].players[playerIndex].isPlaying = false;
+            this.matchRoomService.matchRooms[roomIndex].activePlayers--;
         }
     }
 

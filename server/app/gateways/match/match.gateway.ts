@@ -6,44 +6,16 @@ import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
 import { TimeService } from '@app/services/time/time.service';
 import { Injectable } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
-import {
-    ConnectedSocket,
-    MessageBody,
-    OnGatewayConnection,
-    OnGatewayDisconnect,
-    SubscribeMessage,
-    WebSocketGateway,
-    WebSocketServer,
-} from '@nestjs/websockets';
+import { ConnectedSocket, MessageBody, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { MatchEvents } from './match.gateway.events';
-
-interface UserInfo {
-    roomCode: string;
-    username: string;
-}
-
-interface PlayerInfo {
-    start: boolean;
-    gameTitle: string;
-}
-
-interface TimerInfo {
-    roomCode: string;
-    time: number;
-}
-
-interface PlayerInfo {
-    start: boolean;
-    gameTitle: string;
-}
+import { OnEvent } from '@nestjs/event-emitter';
+import { UserInfo } from '@app/model/schema/answer.schema';
 
 // TODO: Open socket only if code and user are valid + Allow host to be able to disconnect banned players
-
 @WebSocketGateway({ cors: true })
 @Injectable()
-export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class MatchGateway implements OnGatewayDisconnect {
     @WebSocketServer() private server: Server;
     private readonly COUNTDOWN_TIME = 5;
 
@@ -106,23 +78,8 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     // TODO: Start match: Do not forget to make isPlaying = true in MatchRoom object!!
     @SubscribeMessage(MatchEvents.StartMatch)
     startMatch(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
-        if (this.matchRoomService.canStartMatch(roomCode)) {
-            const gameTitle = this.matchRoomService.getGameTitle(roomCode);
-            const playerInfo: PlayerInfo = {
-                start: true,
-                gameTitle: gameTitle,
-            };
-            socket.to(roomCode).emit('matchStarting', playerInfo); //TODO: add matchstarting to the events
-
-            this.timeService.startTimer(this.server, roomCode, this.COUNTDOWN_TIME, TimerEvents.CountdownTimerExpired);
-        }
+        this.matchRoomService.startMatch(socket, this.server, roomCode);
     }
-
-    // @SubscribeMessage('startQuiz')
-    // letsStartQuiz(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
-    //     this.matchRoomService.markGameAsPlaying(roomCode);
-    //     this.matchRoomService.sendFirstQuestion(this.server, roomCode);
-    // }
 
     @SubscribeMessage(MatchEvents.NextQuestion)
     nextQuestion(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
@@ -132,19 +89,12 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @OnEvent(TimerEvents.CountdownTimerExpired)
     onCountdownTimerExpired(matchRoomCode: string) {
         this.matchRoomService.markGameAsPlaying(matchRoomCode);
-        console.log('Countdown timer expired');
         this.matchRoomService.sendFirstQuestion(this.server, matchRoomCode);
     }
 
     @OnEvent(TimerEvents.CooldownTimerExpired)
     onCooldownTimerExpired(matchRoomCode: string) {
         this.matchRoomService.sendNextQuestion(this.server, matchRoomCode);
-    }
-
-    // eslint-disable-next-line no-unused-vars
-    handleConnection(@ConnectedSocket() socket: Socket) {
-        // eslint-disable-next-line
-        // console.log(`Connexion par l'utilisateur avec id : ${socket.id}`); // TODO: Remove once debugging is finished
     }
 
     handleDisconnect(@ConnectedSocket() socket: Socket) {

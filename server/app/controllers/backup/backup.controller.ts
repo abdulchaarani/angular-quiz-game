@@ -17,7 +17,8 @@ export class BackupController {
             ? response.status(HttpStatus.OK).json(choices)
             : response.status(HttpStatus.NOT_FOUND).send({ message: ERROR_QUESTION_NOT_FOUND });
     }
-
+    // permits versatile route to avoid duplication
+    // eslint-disable-next-line max-params
     @Post('/:gameId/questions/:questionId/validate-choice')
     validatePlayerChoice(
         @Param('gameId') gameId: string,

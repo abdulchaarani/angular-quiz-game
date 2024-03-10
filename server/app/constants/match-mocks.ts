@@ -24,6 +24,8 @@ const MOCK_MATCH_ROOM: MatchRoom = {
     choiceTally: new ChoiceTally(),
     bannedUsernames: [],
     players: [],
+    activePlayers: 0,
+    submittedPlayers: 0,
     messages: [],
     hostSocket: undefined,
 };
@@ -39,6 +41,8 @@ const MOCK_PLAYER_ROOM: MatchRoom = {
     choiceTally: new ChoiceTally(),
     bannedUsernames: [],
     players: [MOCK_PLAYER],
+    activePlayers: 1,
+    submittedPlayers: 0,
     messages: [],
     hostSocket: undefined,
 };

@@ -8,6 +8,7 @@ import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { TimeService } from '@app/services/time/time.service';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
+import { PlayerInfo } from '@app/model/schema/answer.schema';
 
 @Injectable()
 export class MatchRoomService {
@@ -53,6 +54,8 @@ export class MatchRoomService {
             choiceTally: new ChoiceTally(),
             bannedUsernames: [],
             players: [],
+            activePlayers: 0,
+            submittedPlayers: 0,
             messages: [],
         };
         this.matchRooms.push(newRoom);
@@ -85,8 +88,12 @@ export class MatchRoomService {
         return !room.isLocked;
     }
 
-    startMatch(server: Server, matchRoomCode: string) {
+    startMatch(socket: Socket, server: Server, matchRoomCode: string) {
         if (!this.canStartMatch(matchRoomCode)) return;
+        const gameTitle = this.getGameTitle(matchRoomCode);
+        const playerInfo: PlayerInfo = { start: true, gameTitle };
+        socket.to(matchRoomCode).emit('matchStarting', playerInfo); //TODO: add matchstarting to the events
+
         this.timeService.startTimer(server, matchRoomCode, COUNTDOWN_TIME, TimerEvents.CountdownTimerExpired);
     }
 
@@ -132,6 +139,14 @@ export class MatchRoomService {
         this.timeService.startTimer(server, matchRoomCode, this.getGameDuration(matchRoomCode), TimerEvents.QuestionTimerExpired);
     }
 
+    incrementCurrentQuestionIndex(matchRoomCode: string) {
+        this.getMatchRoomByCode(matchRoomCode).currentQuestionIndex++;
+    }
+
+    getGameTitle(matchRoomCode: string): string {
+        return this.getMatchRoomByCode(matchRoomCode).game.title;
+    }
+
     canStartMatch(matchRoomCode: string): boolean {
         const room = this.getMatchRoomByCode(matchRoomCode);
         if (!room) {
@@ -140,8 +155,8 @@ export class MatchRoomService {
         return room.isLocked && room.players.length > 0;
     }
 
-    getGameTitle(matchRoomCode: string): string {
-        return this.getMatchRoomByCode(matchRoomCode).game.title;
+    getGameDuration(matchRoomCode: string) {
+        return this.getMatchRoomByCode(matchRoomCode).game.duration;
     }
 
     private resetChoiceTally(matchRoomCode: string) {
@@ -160,11 +175,7 @@ export class MatchRoomService {
         return correctChoices;
     }
 
-    private removeIsCorrectField(question: Question): void {
+    private removeIsCorrectField(question: Question) {
         question.choices.forEach((choice: Choice) => delete choice.isCorrect);
-    }
-
-    getGameDuration(matchRoomCode: string) {
-        return this.getMatchRoomByCode(matchRoomCode).game.duration;
     }
 }

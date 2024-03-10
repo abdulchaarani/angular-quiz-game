@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Player } from '@app/interfaces/player';
+import { MatchRoomService } from '@app/services/match-room/match-room.service';
 
 @Component({
     selector: 'app-players-list',
@@ -7,19 +7,5 @@ import { Player } from '@app/interfaces/player';
     styleUrls: ['./players-list.component.scss'],
 })
 export class PlayersListComponent {
-    players: Player[] = [
-        { username: 'Bibi', score: 1000, bonusCount: 10, isPlaying: true },
-        { username: 'Totoro', score: 1, bonusCount: 0, isPlaying: true },
-        { username: 'Kiki', score: 6, bonusCount: 0, isPlaying: true },
-        { username: 'Nausicaa', score: 5, bonusCount: 0, isPlaying: false },
-        { username: 'Pom Poko', score: 8, bonusCount: 0, isPlaying: true },
-        { username: 'Porco Rosso', score: 9, bonusCount: 0, isPlaying: false },
-        { username: 'Lorem', score: 4, bonusCount: 0, isPlaying: true },
-        { username: 'Ipsum', score: 3, bonusCount: 0, isPlaying: true },
-        { username: 'Kaneshiro', score: 2, bonusCount: 0, isPlaying: true },
-        { username: 'C00', score: 0, bonusCount: 0, isPlaying: true },
-        { username: 'A00', score: 0, bonusCount: 0, isPlaying: true },
-        { username: 'D00', score: 0, bonusCount: 0, isPlaying: true },
-        { username: 'B00', score: 0, bonusCount: 0, isPlaying: true },
-    ];
+    constructor(public matchRoomService: MatchRoomService) {}
 }

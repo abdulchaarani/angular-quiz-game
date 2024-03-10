@@ -5,7 +5,7 @@ import { MOCK_MATCH_ROOM, MOCK_PLAYER, MOCK_PLAYER_ROOM, MOCK_ROOM_CODE } from '
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
-import { Server, Socket } from 'socket.io';
+import { Socket } from 'socket.io';
 import { MatchRoomService } from './match-room.service';
 import { TimeService } from '@app/services/time/time.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -103,6 +103,8 @@ describe('MatchRoomService', () => {
             choiceTally: new ChoiceTally(),
             bannedUsernames: [],
             players: [],
+            activePlayers: 0,
+            submittedPlayers: 0,
             messages: [],
         };
         const result = service.addMatchRoom(mockGame, socket);

@@ -102,7 +102,6 @@ export class MatchRoomService {
     sendFirstQuestion(server: Server, matchRoomCode: string): void {
         const matchRoom: MatchRoom = this.getMatchRoomByCode(matchRoomCode);
         const firstQuestion = matchRoom.game.questions[0];
-        matchRoom.currentQuestionIndex++;
         const gameDuration: number = matchRoom.game.duration;
         matchRoom.currentQuestionAnswer = this.filterCorrectChoices(firstQuestion);
         this.removeIsCorrectField(firstQuestion);

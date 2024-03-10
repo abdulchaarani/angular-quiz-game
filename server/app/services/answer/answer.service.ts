@@ -119,9 +119,15 @@ export class AnswerService {
         players.forEach((player: Player) => {
             const feedback: Feedback = { score: player.score, correctAnswer };
             player.socket.emit('feedback', feedback);
-            player.answer = { ...emptyAnswer };
+            this.resetPlayerAnswer(player);
         });
         // TODO: migrate
         this.matchRoomService.getMatchRoomByCode(roomCode).currentQuestionIndex++;
+    }
+
+    private resetPlayerAnswer(player: Player) {
+        player.answer.selectedChoices.clear();
+        player.answer.isSubmited = false;
+        player.answer.timestamp = undefined;
     }
 }

@@ -23,7 +23,8 @@ export class AnswerService {
         this.autoSubmitAnswers(roomCode);
         this.calculateScore(roomCode);
         this.sendFeedback(roomCode);
-        this.resetSubmittedPlayers(roomCode);
+        this.resetPlayersAnswer(roomCode);
+        this.matchRoomService.incrementCurrentQuestionIndex(roomCode);
     }
     // permit more paramters to make method reusable
     // eslint-disable-next-line max-params
@@ -132,8 +133,14 @@ export class AnswerService {
             player.socket.emit('feedback', feedback);
         });
     }
-
-    private resetSubmittedPlayers(roomCode: string) {
+    private resetPlayersAnswer(roomCode: string) {
         this.getMatchRoomByCode(roomCode).submittedPlayers = 0;
+
+        const players: Player[] = this.playerService.getPlayers(roomCode);
+        players.forEach((player) => {
+            player.answer.selectedChoices.clear();
+            player.answer.isSubmited = false;
+            player.answer.timestamp = undefined;
+        });
     }
 }

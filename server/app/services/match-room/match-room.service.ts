@@ -114,12 +114,16 @@ export class MatchRoomService {
         }
 
         this.resetChoiceTally(matchRoomCode);
-        const nextQuestion = matchRoom.game.questions[matchRoom.currentQuestionIndex++];
+        const nextQuestion = matchRoom.game.questions[matchRoom.currentQuestionIndex];
         matchRoom.currentQuestionAnswer = this.filterCorrectChoices(nextQuestion);
         this.removeIsCorrectField(nextQuestion);
         server.in(matchRoomCode).emit('nextQuestion', nextQuestion);
         matchRoom.hostSocket.send('currentAnswers', matchRoom.currentQuestionAnswer);
         this.timeService.startTimer(server, matchRoomCode, this.getGameDuration(matchRoomCode), TimerEvents.QuestionTimerExpired);
+    }
+
+    incrementCurrentQuestionIndex(matchRoomCode: string) {
+        this.getMatchRoomByCode(matchRoomCode).currentQuestionIndex++;
     }
 
     private canStartMatch(matchRoomCode: string): boolean {

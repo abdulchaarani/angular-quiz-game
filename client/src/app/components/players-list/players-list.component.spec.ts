@@ -6,14 +6,15 @@ import { PlayersListComponent } from './players-list.component';
 describe('PlayersListComponent', () => {
     let component: PlayersListComponent;
     let fixture: ComponentFixture<PlayersListComponent>;
-   // let pipe: SortByScorePipe; // TODO: Mock
+    let matchRoomSpy: jasmine.SpyObj<MatchRoomService>;
+    // let pipe: SortByScorePipe; // TODO: Mock
 
     beforeEach(() => {
         matchRoomSpy = jasmine.createSpyObj(MatchRoomService, ['']);
         matchRoomSpy.players = [];
         TestBed.configureTestingModule({
             declarations: [PlayersListComponent, SortByScorePipe],
-            imports: [],
+            providers: [{ provide: MatchRoomService, useValue: matchRoomSpy }],
         });
         fixture = TestBed.createComponent(PlayersListComponent);
         component = fixture.componentInstance;

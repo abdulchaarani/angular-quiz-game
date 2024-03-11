@@ -221,8 +221,6 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
             if (feedback) {
                 this.isSelectionEnabled = false;
                 this.correctAnswers = feedback.correctAnswer;
-                console.log(feedback.score);
-                console.log(this.playerScore);
                 if (this.playerScore < feedback.score) {
                     this.isRightAnswer = true;
                 }
@@ -231,7 +229,13 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
                 this.showFeedback = true;
             }
         });
+        const feedbackObservable = this.answerService.feedbackSub$.subscribe(() => {
+            console.log('feedbackSubject');
+            this.showFeedback = true;
+        });
+
         this.subscriptions.push(feedbackSubscription);
+        this.subscriptions.push(feedbackObservable);
     }
 
     private subscribeToCurrentQuestion() {

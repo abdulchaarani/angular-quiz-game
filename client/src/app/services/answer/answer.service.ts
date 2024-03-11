@@ -15,7 +15,10 @@ interface ChoiceInfo {
 })
 export class AnswerService {
     feedback$: Observable<Feedback>;
+    feedbackSub$: Observable<void>;
     bonusPoints$: Observable<number>;
+
+    private feedbackSubject: Subject<void>;
     private feedbackSource: Subject<Feedback>;
     private bonusPointsSubject: Subject<number>;
 
@@ -38,7 +41,10 @@ export class AnswerService {
     }
 
     feedback() {
-        this.socketService.on('feedback', (data: Feedback) => this.feedbackSource.next(data));
+        this.socketService.on('feedback', (data: Feedback) => {
+            this.feedbackSource.next(data);
+            this.feedbackSubject.next();
+        });
     }
 
     bonusPoints() {
@@ -50,7 +56,9 @@ export class AnswerService {
     private initialiseAnwserSubjects() {
         this.feedbackSource = new Subject<Feedback>();
         this.bonusPointsSubject = new Subject<number>();
+        this.feedbackSubject = new Subject<void>();
         this.feedback$ = this.feedbackSource.asObservable();
         this.bonusPoints$ = this.bonusPointsSubject.asObservable();
+        this.feedbackSub$ = this.feedbackSubject.asObservable();
     }
 }

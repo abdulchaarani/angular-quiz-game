@@ -64,7 +64,7 @@
             </div>
             <div id="buttons-container">
                 <button mat-raised-button>Présenter les résultats finaux</button>
-                <button mat-raised-button color="primary" (click)="nextQuestion()">Question suivante</button>
+                <button mat-raised-button color="primary" (click)="nextQuestion()" *ngIf="showFeedback">Question suivante</button>
             </div>
         </div>
         <div id="submit-button-container" *ngIf="context === 'testPage' || context === 'playerView'">

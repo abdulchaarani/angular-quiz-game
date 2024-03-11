@@ -1,5 +1,9 @@
+import { TimerEvents } from '@app/constants/timer-events';
 import { Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Server } from 'socket.io';
+// Ref
+// https://stackoverflow.com/questions/42398795/countdown-timer-broadcast-with-socket-io-and-node-js
 
 @Injectable()
 export class TimeService {
@@ -7,7 +11,7 @@ export class TimeService {
     private intervals: Map<string, NodeJS.Timeout>;
     private counters: Map<string, number>;
 
-    constructor() {
+    constructor(private eventEmitter: EventEmitter2) {
         this.counters = new Map();
         this.intervals = new Map();
         this.tick = 1000;
@@ -17,28 +21,36 @@ export class TimeService {
         return this.counters.get(roomId);
     }
 
-    startTimer(roomId: string, startValue: number, server: Server) {
+    // passing event permits decoupling of timer service
+    // eslint-disable-next-line max-params
+    startTimer(server: Server, roomId: string, startValue: number, onTimerExpiredEvent: TimerEvents) {
         if (this.intervals.has(roomId)) return;
 
-        this.counters.set(roomId, startValue);
+        this.counters.set(roomId, startValue - 1);
 
         this.intervals.set(
             roomId,
             setInterval(() => {
                 const currentTime = this.counters.get(roomId);
-                if (currentTime > 0) {
+                if (currentTime >= 0) {
                     server.in(roomId).emit('timer', currentTime);
                     this.counters.set(roomId, currentTime - 1);
                 } else {
-                    this.stopTimer(roomId, server);
+                    this.expireTimer(roomId, server, onTimerExpiredEvent);
                 }
             }, this.tick),
         );
     }
 
-    stopTimer(roomId: string, server: Server) {
+    expireTimer(roomId: string, server: Server, onTimerExpiredEvent: TimerEvents) {
+        this.terminateTimer(roomId);
+        server.to(roomId).emit('stopTimer'); // TODO: verify if still needed
+        this.eventEmitter.emit(onTimerExpiredEvent, roomId);
+    }
+
+    terminateTimer(roomId: string) {
+        clearInterval(this.intervals.get(roomId));
         this.intervals.delete(roomId);
-        clearInterval(this.counters.get(roomId));
-        server.to(roomId).emit('stopTimer');
+        this.counters.delete(roomId);
     }
 }

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Player } from '@app/interfaces/player';
+import { Question } from '@app/interfaces/question';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 
@@ -13,9 +14,10 @@ interface UserInfo {
 })
 export class MatchRoomService {
     players: Player[];
-    get socketId() {
-        return this.socketService.socket.id ? this.socketService.socket.id : '';
-    }
+
+    private matchRoomCode: string;
+    private username: string;
+
     constructor(
         public socketService: SocketHandlerService,
         private router: Router,
@@ -25,9 +27,10 @@ export class MatchRoomService {
         this.username = '';
         this.players = [];
     }
-    private matchRoomCode: string;
-    private username: string;
 
+    get socketId() {
+        return this.socketService.socket.id ? this.socketService.socket.id : '';
+    }
     getMatchRoomCode() {
         return this.matchRoomCode;
     }
@@ -41,6 +44,10 @@ export class MatchRoomService {
             this.socketService.connect();
             this.redirectAfterDisconnection();
             this.fetchPlayersData();
+            this.beginQuiz();
+            this.moveToNextQuestion();
+            this.gameOver();
+            this.feedback();
         }
     }
 
@@ -49,8 +56,8 @@ export class MatchRoomService {
         this.resetMatchValues();
     }
 
-    createRoom(stringifiedGame: string) {
-        this.socketService.send('createRoom', stringifiedGame, (res: { code: string }) => {
+    createRoom(gameId: string) {
+        this.socketService.send('createRoom', gameId, (res: { code: string }) => {
             this.matchRoomCode = res.code;
             this.username = 'Organisateur';
             this.router.navigateByUrl('/match-room');
@@ -64,7 +71,7 @@ export class MatchRoomService {
             this.username = res.username;
             this.router.navigateByUrl('/match-room');
         });
-        this.sendPlayersData(this.matchRoomCode);
+        this.sendPlayersData(roomCode);
     }
 
     sendPlayersData(roomCode: string) {
@@ -85,6 +92,32 @@ export class MatchRoomService {
         }
     }
 
+    startMatch() {
+        this.socketService.send('startMatch', this.matchRoomCode);
+    }
+
+    nextQuestion() {
+        this.socketService.send('nextQuestion', this.matchRoomCode);
+    }
+
+    beginQuiz() {
+        this.socketService.on('beginQuiz', () => {
+            console.log('beginQuiz');
+        });
+    }
+
+    gameOver() {
+        this.socketService.on('gameOver', () => {
+            console.log('gameOver');
+        });
+    }
+
+    moveToNextQuestion() {
+        this.socketService.on('nextQuestion', (question: Question) => {
+            console.log(question);
+        });
+    }
+
     fetchPlayersData() {
         this.socketService.on('fetchPlayersData', (res: string) => {
             this.players = JSON.parse(res);
@@ -103,5 +136,9 @@ export class MatchRoomService {
         this.matchRoomCode = '';
         this.username = '';
         this.players = [];
+    }
+
+    private feedback() {
+        this.socketService.on('feedback', (feedback) => console.log(feedback));
     }
 }

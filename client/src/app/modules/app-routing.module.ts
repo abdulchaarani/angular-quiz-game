@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { HostQuestionAreaComponent } from '@app/components/host-question-area/host-question-area.component';
-import { ManagementState } from '@app/constants/states';
+import { ManagementState, MatchState } from '@app/constants/states';
 import { adminLoginGuard } from '@app/guards/admin-login/admin-login.guard';
 import { matchLoginGuard } from '@app/guards/match-login/match-login.guard';
 import { pendingChangesGuard } from '@app/guards/pending-changes/pending-changes.guard';
@@ -17,7 +17,8 @@ import { WaitPageComponent } from '@app/pages/wait-page/wait-page.component';
 
 const routes: Routes = [
     { path: '', redirectTo: '/home', pathMatch: 'full' },
-    { path: 'play', component: TestPageComponent },
+    { path: 'test', component: TestPageComponent, data: { state: MatchState.Test } },
+    { path: 'play', component: TestPageComponent, data: { state: MatchState.Play } },
     { path: 'home', component: HomePageComponent },
     {
         path: 'admin',

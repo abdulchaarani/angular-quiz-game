@@ -1,6 +1,7 @@
 import { Game } from '@app/model/database/game';
 import { VALID_QUESTION } from './question-mocks';
 import { getRandomString } from './test-utils';
+import { Choice } from '@app/model/database/choice';
 
 const gameYear = 2020;
 
@@ -32,6 +33,10 @@ const getMockGame = (): Game => ({
     ],
 });
 
+const MOCK_CHOICES: Choice[] = [
+    { text: 'correct choice', isCorrect: true },
+    { text: 'incorrect choice', isCorrect: false },
+];
 const GAME_VALID_QUESTION = getMockGame();
 GAME_VALID_QUESTION.questions = [VALID_QUESTION];
 
@@ -122,4 +127,4 @@ const GAME_WITHOUT_IS_CORRECT_FIELD: Game = {
     ],
 };
 
-export { GAME_VALID_QUESTION, GAME_WITHOUT_IS_CORRECT_FIELD, GAME_WITH_IS_CORRECT_FIELD, getMockGame };
+export { GAME_VALID_QUESTION, GAME_WITHOUT_IS_CORRECT_FIELD, GAME_WITH_IS_CORRECT_FIELD, MOCK_CHOICES, getMockGame };

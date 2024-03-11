@@ -1,9 +1,11 @@
 // import { getMockGame } from '@app/constants/game-mocks';
 import { MOCK_MATCH_ROOM, MOCK_PLAYER, MOCK_ROOM_CODE, MOCK_USER_INFO } from '@app/constants/match-mocks';
+import { TimerEvents } from '@app/constants/timer-events';
 import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
 import { TimeService } from '@app/services/time/time.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance, stub } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
@@ -17,6 +19,7 @@ describe('MatchGateway', () => {
     let playerRoomSpy: SinonStubbedInstance<PlayerRoomService>;
     let socket: SinonStubbedInstance<Socket>;
     let server: SinonStubbedInstance<Server>;
+    let eventEmitter: EventEmitter2;
 
     beforeEach(async () => {
         matchRoomSpy = createStubInstance(MatchRoomService);
@@ -25,6 +28,7 @@ describe('MatchGateway', () => {
         playerRoomSpy = createStubInstance(PlayerRoomService);
         socket = createStubInstance<Socket>(Socket);
         server = createStubInstance<Server>(Server);
+
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 MatchGateway,
@@ -32,9 +36,11 @@ describe('MatchGateway', () => {
                 { provide: MatchBackupService, useValue: matchBackupSpy },
                 { provide: TimeService, useValue: timeSpy },
                 { provide: PlayerRoomService, useValue: playerRoomSpy },
+                EventEmitter2,
             ],
         }).compile();
 
+        eventEmitter = module.get<EventEmitter2>(EventEmitter2);
         gateway = module.get<MatchGateway>(MatchGateway);
         // We want to assign a value to the private field
         // eslint-disable-next-line dot-notation
@@ -126,22 +132,20 @@ describe('MatchGateway', () => {
         expect(spy).not.toHaveBeenCalled();
     });
 
-    // it('startTimer() should start the timer', () => {
-    //     matchRoomSpy.getMatchRoomByCode.returns(MOCK_MATCH_ROOM);
-    //     matchBackupSpy.getBackupGame.returns(getMockGame());
-    //     const timeMethodSpy = jest.spyOn(timeSpy, 'startTimer').mockReturnThis();
-    //     gateway.startTimer(socket, MOCK_ROOM_CODE);
-    //     expect(timeMethodSpy).toHaveBeenCalled();
-    // });
-
-    it('handleDisconnect() should disconnect host and all other players and delete the match room if the host disconnects', () => {
-        matchRoomSpy.getRoomCodeByHostSocket.returns(MOCK_ROOM_CODE);
+    it('deleteMatchRoom() should disconnect all sockets and delete the match room', () => {
         const deleteSpy = jest.spyOn(matchRoomSpy, 'deleteMatchRoom').mockReturnThis();
         server.in.returns({
             disconnectSockets: () => {
                 return null;
             },
         } as BroadcastOperator<unknown, unknown>);
+        gateway.deleteMatchRoom('');
+        expect(deleteSpy).toHaveBeenCalled();
+    });
+
+    it('handleDisconnect() should disconnect host and all other players and delete the match room if the host disconnects', () => {
+        matchRoomSpy.getRoomCodeByHostSocket.returns(MOCK_ROOM_CODE);
+        const deleteSpy = jest.spyOn(gateway, 'deleteMatchRoom').mockReturnThis();
         gateway.handleDisconnect(socket);
         expect(deleteSpy).toHaveBeenCalled();
     });
@@ -149,9 +153,39 @@ describe('MatchGateway', () => {
     it('handleDisconnect() should disconnect the player and update list if a player disconnects', () => {
         matchRoomSpy.getRoomCodeByHostSocket.returns(undefined);
         playerRoomSpy.deletePlayerBySocket.returns(MOCK_ROOM_CODE);
+        matchRoomSpy.getMatchRoomByCode.returns(MOCK_MATCH_ROOM);
         const handleSpy = jest.spyOn(gateway, 'handleSendPlayersData').mockReturnThis();
         gateway.handleDisconnect(socket);
         expect(handleSpy).toHaveBeenCalled();
+    });
+
+    it('handleDisconnect() should disconnect the player and update list if a player disconnects', () => {
+        matchRoomSpy.getRoomCodeByHostSocket.returns(undefined);
+        const mockRoomToDelete = MOCK_MATCH_ROOM;
+        mockRoomToDelete.players = [];
+        mockRoomToDelete.isPlaying = true;
+        playerRoomSpy.deletePlayerBySocket.returns(MOCK_ROOM_CODE);
+        matchRoomSpy.getMatchRoomByCode.returns(mockRoomToDelete);
+        const handleSpy = jest.spyOn(gateway, 'handleSendPlayersData').mockReturnThis();
+        const deleteSpy = jest.spyOn(gateway, 'deleteMatchRoom').mockReturnThis();
+        gateway.handleDisconnect(socket);
+        expect(handleSpy).not.toHaveBeenCalled();
+        expect(deleteSpy).toHaveBeenCalled();
+    });
+
+    it('handleDisconnect() should do nothing if there is no corresponding roomCode for the player', () => {
+        matchRoomSpy.getRoomCodeByHostSocket.returns(undefined);
+        const mockRoomToDelete = MOCK_MATCH_ROOM;
+        mockRoomToDelete.players = [];
+        mockRoomToDelete.isPlaying = true;
+        playerRoomSpy.deletePlayerBySocket.returns(undefined);
+        const getSpy = jest.spyOn(matchRoomSpy, 'getMatchRoomByCode').mockReturnThis();
+        const handleSpy = jest.spyOn(gateway, 'handleSendPlayersData').mockReturnThis();
+        const deleteSpy = jest.spyOn(gateway, 'deleteMatchRoom').mockReturnThis();
+        gateway.handleDisconnect(socket);
+        expect(getSpy).not.toHaveBeenCalled();
+        expect(handleSpy).not.toHaveBeenCalled();
+        expect(deleteSpy).not.toHaveBeenCalled();
     });
 
     it('handleSendPlayersData() should emit a fetch event to the match room with a list of stringified players', () => {
@@ -164,5 +198,51 @@ describe('MatchGateway', () => {
         } as BroadcastOperator<unknown, unknown>);
         gateway.handleSendPlayersData(MOCK_ROOM_CODE);
         expect(getSpy).toHaveBeenCalled();
+    });
+
+    it('startMatch() should delegate starting match to match room service', () => {
+        const startSpy = jest.spyOn(matchRoomSpy, 'startMatch').mockReturnThis();
+        stub(socket, 'rooms').value(new Set([MOCK_ROOM_CODE]));
+        gateway.startMatch(socket, MOCK_ROOM_CODE);
+        expect(startSpy).toHaveBeenCalledWith(server, MOCK_ROOM_CODE);
+    });
+
+    it('nextQuestion() should delegate starting next question to match room service', () => {
+        const nextSpy = jest.spyOn(matchRoomSpy, 'startNextQuestionCooldown').mockReturnThis();
+        stub(socket, 'rooms').value(new Set([MOCK_ROOM_CODE]));
+        gateway.nextQuestion(socket, MOCK_ROOM_CODE);
+        expect(nextSpy).toHaveBeenCalledWith(server, MOCK_ROOM_CODE);
+    });
+
+    it('onCountdownTimerExpired() should call helper functions when CountdownTimerExpired event is emitted', () => {
+        const markGameSpy = jest.spyOn(matchRoomSpy, 'markGameAsPlaying');
+        const sendNextQuestionSpy = jest.spyOn(matchRoomSpy, 'sendNextQuestion');
+
+        eventEmitter.addListener(TimerEvents.CountdownTimerExpired, gateway.onCountdownTimerExpired);
+        expect(eventEmitter.hasListeners(TimerEvents.CountdownTimerExpired)).toBe(true);
+
+        server.in.returns({
+            emit: (event: string) => {
+                expect(event).toEqual('beginQuiz');
+            },
+        } as BroadcastOperator<unknown, unknown>);
+
+        gateway.onCountdownTimerExpired(MOCK_ROOM_CODE);
+        expect(markGameSpy).toHaveBeenCalledWith(MOCK_ROOM_CODE);
+        expect(sendNextQuestionSpy).toHaveBeenCalledWith(server, MOCK_ROOM_CODE);
+
+        eventEmitter.removeListener(TimerEvents.CountdownTimerExpired, gateway.onCountdownTimerExpired);
+    });
+
+    it('onCooldownTimerExpired() should call helper functions when CooldownTimerExpired event is emitted', () => {
+        const sendNextQuestionSpy = jest.spyOn(matchRoomSpy, 'sendNextQuestion');
+
+        eventEmitter.addListener(TimerEvents.CooldownTimerExpired, gateway.onCountdownTimerExpired);
+        expect(eventEmitter.hasListeners(TimerEvents.CooldownTimerExpired)).toBe(true);
+
+        gateway.onCooldownTimerExpired(MOCK_ROOM_CODE);
+        expect(sendNextQuestionSpy).toHaveBeenCalledWith(server, MOCK_ROOM_CODE);
+
+        eventEmitter.removeListener(TimerEvents.CooldownTimerExpired, gateway.onCountdownTimerExpired);
     });
 });

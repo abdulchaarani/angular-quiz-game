@@ -98,10 +98,12 @@ export class MatchGateway implements OnGatewayDisconnect {
             return;
         }
         const room = this.matchRoomService.getMatchRoomByCode(roomCode);
-        if (room.players.length === 0 && room.isPlaying) {
+        const allPlayersQuit = room.players.every((player) => player.isPlaying === false);
+        if (room.isPlaying && allPlayersQuit) {
             this.deleteMatchRoom(matchRoomCode);
             return;
         }
+
         this.handleSendPlayersData(roomCode);
     }
 

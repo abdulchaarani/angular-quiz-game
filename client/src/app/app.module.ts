@@ -24,7 +24,6 @@ import { AdminPageComponent } from './pages/admin-page/admin-main-page/admin-pag
 import { AdminQuestionBankComponent } from './pages/admin-page/admin-question-bank/admin-question-bank.component';
 import { AdminQuestionsListComponent } from './pages/admin-page/admin-questions-list/admin-questions-list.component';
 import { HomePageComponent } from './pages/home-page/home-page.component';
-import { HostQuestionComponent } from './pages/host-question/host-question.component';
 import { MatchCreationPageComponent } from './pages/match-creation-page/match-creation-page.component';
 import { PlayerPageComponent } from './pages/player-page/player-page.component';
 import { ResultsPageComponent } from './pages/results-page/results-page.component';
@@ -65,7 +64,6 @@ import { SortByScorePipe } from './pipes/sort-by-score.pipe';
         PlayersListComponent,
         SortByScorePipe,
         HistogramComponent,
-        HostQuestionComponent,
     ],
     imports: [
         AppMaterialModule,

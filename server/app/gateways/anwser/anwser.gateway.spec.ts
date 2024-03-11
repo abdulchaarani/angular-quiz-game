@@ -1,10 +1,10 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { AnwserGateway } from './anwser.gateway';
+import { MOCK_ROOM_CODE } from '@app/constants/match-mocks';
 import { AnswerService } from '@app/services/answer/answer.service';
+import { ChoiceInfo } from '@common/interfaces/choice-info';
+import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance, stub } from 'sinon';
 import { Server, Socket } from 'socket.io';
-import { MOCK_ROOM_CODE } from '@app/constants/match-mocks';
-import { ChoiceInfo } from '@app/model/schema/answer.schema';
+import { AnwserGateway } from './anwser.gateway';
 
 describe('AnwserGateway', () => {
     let gateway: AnwserGateway;

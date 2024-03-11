@@ -18,6 +18,7 @@ export class ChatComponent implements AfterViewChecked {
 
     ngOnInit(): void {
         this.chatService.displayOldMessages();
+        this.chatService.handleReceivedMessages();
     }
 
     ngAfterViewChecked() {

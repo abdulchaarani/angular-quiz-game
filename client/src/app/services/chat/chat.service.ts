@@ -15,9 +15,7 @@ export class ChatService {
     constructor(
         private socketHandler: SocketHandlerService,
         readonly matchRoomService: MatchRoomService,
-    ) {
-        this.handleReceivedMessages();
-    }
+    ) {}
 
     sendMessage(roomCode: string, message: Message): void {
         const sentData: SentData = { roomCode, message };

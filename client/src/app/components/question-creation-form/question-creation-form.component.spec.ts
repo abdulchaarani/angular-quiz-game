@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatOptionModule } from '@angular/material/core';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -46,21 +47,22 @@ describe('QuestionCreationFormComponent', () => {
                 FormsModule,
                 MatSnackBarModule,
                 MatSelectModule,
+                MatOptionModule,
                 MatFormFieldModule,
                 MatInputModule,
                 NoopAnimationsModule,
+               // BrowserAnimationsModule,
                 MatIconModule,
             ],
             providers: [{ provide: MatSnackBar, useValue: snackBarSpyObj }, FormBuilder, { provide: MAT_DIALOG_DATA, useValue: dialogData }],
-        });
+        }).compileComponents();
 
         snackBarSpy = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
         fixture = TestBed.createComponent(QuestionCreationFormComponent);
         formBuilder = TestBed.inject(FormBuilder);
         component = fixture.componentInstance;
-
+        component.question = mockQuestion;
         fixture.detectChanges();
-
         component.dialogData = dialogData;
         component.questionForm.setValue({
             text: 'Test',

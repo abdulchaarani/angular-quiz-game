@@ -15,6 +15,7 @@ import { GameService } from '@app/services/game/game.service';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { QuestionService } from '@app/services/question/question.service';
 import { AdminQuestionsListComponent } from './admin-questions-list.component';
+import { QuestionListItemComponent } from '@app/components/question-list-item/question-list-item.component';
 
 import { CdkDragDrop, CdkDragEnd, DragDropModule } from '@angular/cdk/drag-drop';
 import { ScrollingModule } from '@angular/cdk/scrolling';
@@ -29,6 +30,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { Component, Input } from '@angular/core';
 
 describe('AdminQuestionsListComponent', () => {
     let component: AdminQuestionsListComponent;
@@ -81,6 +83,14 @@ describe('AdminQuestionsListComponent', () => {
     const mockNewQuestion = { id: '3', text: 'Question 3', type: 'QCM', points: 10, lastModification: '' };
 
     const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK', body: JSON.stringify(mockNewQuestion) });
+    @Component({
+        selector: 'app-question-creation-form',
+        template: '',
+    })
+    class MockCreateQuestionComponent {
+        @Input() modificationState: ManagementState;
+        @Input() question: Question;
+    }
 
     beforeEach(() => {
         routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -140,7 +150,7 @@ describe('AdminQuestionsListComponent', () => {
                 ScrollingModule,
                 MatSliderModule,
             ],
-            declarations: [AdminQuestionsListComponent, SortByLastModificationPipe],
+            declarations: [AdminQuestionsListComponent, SortByLastModificationPipe, MockCreateQuestionComponent, QuestionListItemComponent],
             providers: [
                 { provide: GameService, useValue: gamesServiceSpy },
                 { provide: MatDialog, useValue: matDialogSpy },

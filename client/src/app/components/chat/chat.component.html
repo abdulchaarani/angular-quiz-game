@@ -20,8 +20,8 @@
     <form id="chat-form">
         <mat-form-field id="chat-input-container">
             <mat-label>Message</mat-label>
-            <input matInput #message maxlength="200" placeholder="..." />
-            <mat-icon id="chat-send-icon">send</mat-icon>
+            <input matInput id="chat-input" #message maxlength="200" placeholder="..." />
+            <mat-icon id="chat-send-icon" (click) = "sendMessage(message.value)"  message.value = " "  >send</mat-icon>
         </mat-form-field>
     </form>
 </div>

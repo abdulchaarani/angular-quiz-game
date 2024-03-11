@@ -11,7 +11,7 @@ import { MatchGateway } from './match.gateway';
 import { ChatService } from '@app/services/chat/chat.service';
 import { TimerEvents } from '@app/constants/timer-events';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import * as sinon from 'sinon';
+import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 
 describe('MatchGateway', () => {
     let gateway: MatchGateway;
@@ -120,25 +120,22 @@ describe('MatchGateway', () => {
         expect(sendSpy).toHaveBeenCalledWith(MOCK_MESSAGE_INFO);
     });
 
-    it('sendMessageToClients() should emit a NewMessage event to the correct room', () => {
-        const mockMessageInfo = MOCK_MESSAGE_INFO;
-        const spy = jest.spyOn(gateway, 'sendMessageToClients').mockReturnThis();
-        stub(socket, 'rooms').value(new Set([MOCK_ROOM_CODE]));
-        gateway.sendMessageToClients(mockMessageInfo);
-        expect(spy).toHaveBeenCalledWith(mockMessageInfo);
+    it('sendMessageToClients() should emit a NewMessage event and send the messages to the players in the right room', () => {
+        const toSpy = jest.spyOn(server, 'to').mockReturnValue({
+            emit: (event: string, messageInfo) => {
+                expect(event).toEqual('newMessage');
+                expect(messageInfo).toEqual(MOCK_MESSAGE_INFO);
+            },
+        } as unknown as BroadcastOperator<DefaultEventsMap, any>);
+        gateway.sendMessageToClients(MOCK_MESSAGE_INFO);
+        expect(toSpy).toHaveBeenCalledWith(MOCK_MESSAGE_INFO.roomCode);
     });
 
-    it('sendMessageToClients() should emit a NewMessage event with the correct roomCode and message', () => {
+    it('sendMessageToClients() should emit a NewMessage event to the player in the right room', () => {
         const spy = jest.spyOn(gateway, 'sendMessageToClients').mockReturnThis();
-        const mockMessageInfo = MOCK_MESSAGE_INFO;
-        server.to.returns({
-            emit: (event: string, res) => {
-                expect(event).toEqual('newMessage');
-                expect(res).toEqual(mockMessageInfo);
-            },
-        } as BroadcastOperator<unknown, unknown>);
-        gateway.sendMessageToClients(mockMessageInfo);
-        expect(spy).toHaveBeenCalledWith(mockMessageInfo);
+        stub(socket, 'rooms').value(new Set([MOCK_MESSAGE_INFO.roomCode]));
+        gateway.sendMessageToClients(MOCK_MESSAGE_INFO);
+        expect(spy).toHaveBeenCalledWith(MOCK_MESSAGE_INFO);
     });
 
     it('sendMessagesHistory() should call handleSentMessagesHistory if it is in the correct room', () => {

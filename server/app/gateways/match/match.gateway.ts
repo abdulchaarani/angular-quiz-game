@@ -156,7 +156,6 @@ export class MatchGateway implements OnGatewayDisconnect {
     }
 
     sendMessageToClients(data: MessageInfo) {
-        // uncovered line 
         this.server.to(data.roomCode).emit(MatchEvents.NewMessage, data);
     }
 

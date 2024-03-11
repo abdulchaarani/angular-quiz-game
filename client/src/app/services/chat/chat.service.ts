@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { SocketHandlerService } from '../socket-handler/socket-handler.service';
+import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 import { Message } from '@app/interfaces/message';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 
-interface sentData {
+interface SentData {
     roomCode: string;
     message: Message;
 }
@@ -20,7 +20,7 @@ export class ChatService {
     }
 
     sendMessage(roomCode: string, message: Message): void {
-        const sentData: sentData = { roomCode, message };
+        const sentData: SentData = { roomCode, message };
         this.socketHandler.send('roomMessage', sentData);
     }
 
@@ -40,10 +40,10 @@ export class ChatService {
     }
 
     handleReceivedMessages() {
-        this.socketHandler.on('newMessage', (data: sentData) => {
+        this.socketHandler.on('newMessage', (data: SentData) => {
             this.matchRoomService.messages.push(data.message);
         });
     }
 }
 
-//https://stackoverflow.com/questions/26091844/calling-on-before-emit-in-event-emitter-is-there-a-timing-issue
+// https://stackoverflow.com/questions/26091844/calling-on-before-emit-in-event-emitter-is-there-a-timing-issue

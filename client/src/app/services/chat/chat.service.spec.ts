@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { SocketHandlerService } from '../socket-handler/socket-handler.service';
+import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 import { Message } from '@app/interfaces/message';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -7,7 +7,7 @@ import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { ChatService } from './chat.service';
 import SpyObj = jasmine.SpyObj;
 
-fdescribe('ChatService', () => {
+describe('ChatService', () => {
     let service: ChatService;
     let socketHandlerSpy: SpyObj<SocketHandlerService>;
     let matchRoomServiceSpy: SpyObj<MatchRoomService>;
@@ -27,6 +27,7 @@ fdescribe('ChatService', () => {
         socketHandlerSpy = TestBed.inject(SocketHandlerService) as jasmine.SpyObj<SocketHandlerService>;
         matchRoomServiceSpy = TestBed.inject(MatchRoomService) as jasmine.SpyObj<MatchRoomService>;
     });
+
     const mockMessage: Message = {
         text: 'Test Text',
         author: 'User1',
@@ -41,18 +42,19 @@ fdescribe('ChatService', () => {
         },
     ];
 
+    const mockRoomCode = '1234';
+
     it('should be created', () => {
         expect(service).toBeTruthy();
     });
 
     it('should send message', () => {
-        service.sendMessage('1234', mockMessage);
+        service.sendMessage(mockRoomCode, mockMessage);
         expect(socketHandlerSpy.send).toHaveBeenCalled();
     });
 
     it('should handle newMessage event', () => {
-        const sentData = { roomCode: '1234', message: mockMessage };
-
+        const sentData = { roomCode: mockRoomCode, message: mockMessage };
         service.handleReceivedMessages();
         socketHandlerSpy.on.calls.mostRecent().args[1](sentData);
         const roomMessages = matchRoomServiceSpy.messages;
@@ -60,7 +62,7 @@ fdescribe('ChatService', () => {
     });
 
     it('should send messages history', () => {
-        service.sendMessagesHistory('1234');
+        service.sendMessagesHistory(mockRoomCode);
         expect(socketHandlerSpy.send).toHaveBeenCalled();
     });
 
@@ -71,7 +73,6 @@ fdescribe('ChatService', () => {
     });
 
     it('should display old messages', () => {
-        const mockRoomCode = '1234';
         matchRoomServiceSpy.getMatchRoomCode.and.returnValue(mockRoomCode);
         service.displayOldMessages();
         expect(socketHandlerSpy.on).toHaveBeenCalled();
@@ -79,7 +80,7 @@ fdescribe('ChatService', () => {
     });
 
     it('should send message', () => {
-        service.sendMessage('1234', mockMessage);
+        service.sendMessage(mockRoomCode, mockMessage);
         expect(socketHandlerSpy.send).toHaveBeenCalled();
     });
 });

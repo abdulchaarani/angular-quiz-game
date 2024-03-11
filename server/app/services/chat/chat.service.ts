@@ -1,17 +1,25 @@
+import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { Message } from '@app/model/schema/message.schema';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class ChatService {
-    messages: Map<string, Message[]> = new Map();
-    constructor() {}
+    constructor(private matchRoomService: MatchRoomService) {}
 
-    addMessage(message: Message, roomCode: string): Message {
-        const roomMessages = this.messages.get(roomCode) || [];
-        roomMessages.push(message);
-        this.messages.set(roomCode, roomMessages);
+    addMessage(message: Message, roomCode: string) {
+        const matchRoomIndex = this.matchRoomService.getRoomIndexByCode(roomCode);
+        if (matchRoomIndex === -1) {
+            return;
+        }
+        this.matchRoomService.matchRooms[matchRoomIndex].messages.push(message);
         return message;
     }
 
     getMessages(roomCode: string): Message[] {
-        return this.messages.get(roomCode);
+        const matchRoomIndex = this.matchRoomService.getRoomIndexByCode(roomCode);
+        if (matchRoomIndex === -1) {
+            return [];
+        }
+        return this.matchRoomService.matchRooms[matchRoomIndex].messages;
     }
 }

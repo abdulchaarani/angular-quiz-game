@@ -98,16 +98,18 @@ export class MatchGateway implements OnGatewayDisconnect {
     @SubscribeMessage(MatchEvents.RoomMessage)
     handleSockets(@ConnectedSocket() socket: Socket, @MessageBody() data: MessageInfo) {
         this.chatService.addMessage(data.message, data.roomCode);
-        this.server.sockets.emit(MatchEvents.NewMessage, data);
-        this.matchRoomService?.getMatchRoomByCode(data.roomCode).messages?.push(data.message);
-        this.chatService.messages.get(data.roomCode).push(data.message);
+        this.server.sockets.to(data.roomCode).emit('newMessage', data); // add to constantes file
         return { code: data.roomCode, message: data.message };
     }
 
     // @SubscribeMessage(MatchEvents.StartTimer)
     // startTimer(@ConnectedSocket() socket: Socket, @MessageBody() data: TimerInfo) {
     //     this.timeService.startTimer(data.roomCode, data.time, this.server);
-    // }
+    // }       
+    @SubscribeMessage(MatchEvents.SendMessagesHistory)
+    SendMessages(@ConnectedSocket() socket: Socket, @MessageBody() matchRoomCode: string) {
+        this.handleSentMessages(matchRoomCode);
+    }
 
     // @SubscribeMessage(MatchEvents.StopTimer)
     // stopTimer(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
@@ -154,6 +156,11 @@ export class MatchGateway implements OnGatewayDisconnect {
 
     handleSendPlayersData(matchRoomCode: string) {
         this.server.to(matchRoomCode).emit('fetchPlayersData', this.playerRoomService.getPlayersStringified(matchRoomCode));
+    }
+
+    private handleSentMessages(matchRoomCode: string) {
+        this.server.to(matchRoomCode).emit('fetchOldMessages', this.chatService.getMessages(matchRoomCode));
+        console.log('res',this.chatService.getMessages(matchRoomCode));
     }
 
     // TODO: Start match: Do not forget to make isPlaying = true in MatchRoom object!!

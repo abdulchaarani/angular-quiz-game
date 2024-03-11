@@ -16,6 +16,10 @@ export class ChatComponent implements AfterViewChecked {
         readonly chatService: ChatService,
     ) {}
 
+    ngOnInit(): void {
+        this.chatService.displayOldMessages();
+    }
+
     ngAfterViewChecked() {
         this.scrollToBottom();
     }
@@ -27,7 +31,6 @@ export class ChatComponent implements AfterViewChecked {
                 author: this.matchRoomService.getUsername(),
                 date: new Date(),
             };
-
             this.chatService.sendMessage(this.matchRoomService.getMatchRoomCode(), newMessage);
         }
     }

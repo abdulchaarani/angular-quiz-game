@@ -14,16 +14,14 @@ interface sentData {
 export class ChatService {
     private matchRoomCode: string;
     public message: Message;
-    messages: Map<string, Message[]> = new Map<string, Message[]>();
 
     constructor(
         private socketHandler: SocketHandlerService,
         readonly matchRoomService: MatchRoomService,
     ) {
-        this.matchRoomCode = '';
-        this.message = { author: '', text: '', date: new Date() };
-        this.handleReceivedMessages();
-
+        this.socketHandler.on('newMessage', (data: sentData) => {
+            this.matchRoomService.messages.push(data.message);
+        });
     }
 
     getMatchRoomCode() {
@@ -32,19 +30,23 @@ export class ChatService {
 
     sendMessage(roomCode: string, message: Message): void {
         const sentData: sentData = { roomCode, message };
-        this.socketHandler.send('roomMessage', sentData, (res: { code: string; message: Message }) => {
-            this.matchRoomCode = res.code;
-            this.message.author = res.message.author;
-            this.message.text = res.message.text;
-            this.message.date = res.message.date;
+        this.socketHandler.send('roomMessage', sentData);
+    }
+
+    sendMessagesHistory(roomCode: string) {
+        this.socketHandler.send('sendMessagesHistory', roomCode);
+    }
+
+    fetchOldMessages() {
+        this.socketHandler.on('fetchOldMessages', (res: Message[]) => {
+            this.matchRoomService.messages = res;
         });
     }
 
-    handleReceivedMessages(){
-         this.socketHandler.on('newMessage', (data: sentData) => {
-            const roomMessages = this.messages.get(data.roomCode) || [];
-            roomMessages.push(data.message);
-            this.messages.set(data.roomCode, roomMessages);
-         });
+    displayOldMessages() {
+        this.fetchOldMessages();
+        this.sendMessagesHistory(this.matchRoomService.getMatchRoomCode());
     }
 }
+
+//https://stackoverflow.com/questions/26091844/calling-on-before-emit-in-event-emitter-is-there-a-timing-issue

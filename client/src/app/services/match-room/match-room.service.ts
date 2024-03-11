@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
+import { Message } from '@app/interfaces/message';
 import { Player } from '@app/interfaces/player';
 import { Question } from '@app/interfaces/question';
 import { NotificationService } from '@app/services/notification/notification.service';
@@ -14,6 +15,7 @@ interface UserInfo {
 })
 export class MatchRoomService {
     players: Player[];
+    messages: Message [];
 
     private matchRoomCode: string;
     private username: string;
@@ -26,6 +28,7 @@ export class MatchRoomService {
         this.matchRoomCode = '';
         this.username = '';
         this.players = [];
+        this.messages = [];
     }
 
     get socketId() {
@@ -121,6 +124,7 @@ export class MatchRoomService {
     fetchPlayersData() {
         this.socketService.on('fetchPlayersData', (res: string) => {
             this.players = JSON.parse(res);
+            console.log('players', res);
         });
     }
 

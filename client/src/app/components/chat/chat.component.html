@@ -1,7 +1,7 @@
 <div id="main-chat-container">
     <h2 id="current-username">{{ this.matchRoomService.getUsername() }}</h2>
     <div id="messages-container"  #messagesContainer>
-        <div *ngFor="let message of this.chatService.messages.get(this.matchRoomService.getMatchRoomCode())" class="message-container">
+        <div *ngFor="let message of this.matchRoomService.messages" class="message-container">
             <div class="message-info-container">
                 <p class="message-author">{{ message.author }}</p>
                 <p>{{ message.date | date: 'hh:mm' }}</p>

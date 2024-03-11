@@ -12,10 +12,8 @@ import { ChatComponent } from './components/chat/chat.component';
 import { DialogAdminPasswordComponent } from './components/dialog-admin-password/dialog-admin-password.component';
 import { DialogConfirmComponent } from './components/dialog-confirm/dialog-confirm.component';
 import { DialogTextInputComponent } from './components/dialog-text-input/dialog-text-input.component';
-import { FeedbackComponent } from './components/feedback/feedback.component';
 import { GameListItemComponent } from './components/game-list-item/game-list-item.component';
 import { HistogramComponent } from './components/histogram/histogram.component';
-import { HostQuestionAreaComponent } from './components/host-question-area/host-question-area.component';
 import { PlayersListComponent } from './components/players-list/players-list.component';
 import { QuestionAreaComponent } from './components/question-area/question-area.component';
 import { QuestionListItemComponent } from './components/question-list-item/question-list-item.component';
@@ -26,6 +24,7 @@ import { AdminPageComponent } from './pages/admin-page/admin-main-page/admin-pag
 import { AdminQuestionBankComponent } from './pages/admin-page/admin-question-bank/admin-question-bank.component';
 import { AdminQuestionsListComponent } from './pages/admin-page/admin-questions-list/admin-questions-list.component';
 import { HomePageComponent } from './pages/home-page/home-page.component';
+import { HostQuestionComponent } from './pages/host-question/host-question.component';
 import { MatchCreationPageComponent } from './pages/match-creation-page/match-creation-page.component';
 import { PlayerPageComponent } from './pages/player-page/player-page.component';
 import { ResultsPageComponent } from './pages/results-page/results-page.component';
@@ -33,8 +32,6 @@ import { TestPageComponent } from './pages/test-page/test-page.component';
 import { WaitPageComponent } from './pages/wait-page/wait-page.component';
 import { SortByLastModificationPipe } from './pipes/sort-by-last-modification.pipe';
 import { SortByScorePipe } from './pipes/sort-by-score.pipe';
-import { PlayerQuestionComponent } from './pages/player-question/player-question/player-question.component';
-import { HostQuestionComponent } from './pages/host-question/host-question.component';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -59,7 +56,6 @@ import { HostQuestionComponent } from './pages/host-question/host-question.compo
         ClickStopPropagationDirective,
         TestPageComponent,
         ChatComponent,
-        FeedbackComponent,
         WaitPageComponent,
         DialogAdminPasswordComponent,
         ShortQuestionComponent,
@@ -69,8 +65,6 @@ import { HostQuestionComponent } from './pages/host-question/host-question.compo
         PlayersListComponent,
         SortByScorePipe,
         HistogramComponent,
-        HostQuestionAreaComponent,
-        PlayerQuestionComponent,
         HostQuestionComponent,
     ],
     imports: [

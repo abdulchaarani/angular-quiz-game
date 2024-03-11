@@ -1,4 +1,3 @@
-import { COOLDOWN_TIME, COUNTDOWN_TIME, FACTOR, MAXIMUM_CODE_LENGTH } from '@common/constants/match-constants';
 import { TimerEvents } from '@app/constants/timer-events';
 import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
 import { Choice } from '@app/model/database/choice';
@@ -6,9 +5,10 @@ import { Game } from '@app/model/database/game';
 import { Question } from '@app/model/database/question';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { TimeService } from '@app/services/time/time.service';
+import { COOLDOWN_TIME, COUNTDOWN_TIME, FACTOR, MAXIMUM_CODE_LENGTH } from '@common/constants/match-constants';
+import { GameInfo } from '@common/interfaces/game-info';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
-import { GameInfo } from '@common/interfaces/game-info';
 
 @Injectable()
 export class MatchRoomService {

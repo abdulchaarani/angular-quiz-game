@@ -3,3 +3,13 @@ export interface Answer {
     isSubmited: boolean;
     timestamp?: number;
 }
+
+export interface PlayerInfo {
+    gameTitle: string;
+    start: boolean;
+}
+
+export interface Feedback {
+    score: number;
+    correctAnswer: string[];
+}

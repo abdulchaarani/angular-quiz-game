@@ -102,10 +102,17 @@
     font-size: 125%;
     color: #777777;
 }
-#bonus-points {
+.points {
     font-size: 150%;
     margin-top: 10px;
+}
+
+#right-answer {
     color: #4caf50;
+}
+
+#wrong-answer {
+    color: #f44336;
 }
 
 #choice-area {
@@ -202,6 +209,7 @@
     font-size: 150%;
     box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
 }
+
 #score {
     font-size: 125%;
     color: #777777;

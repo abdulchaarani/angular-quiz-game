@@ -24,13 +24,14 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
     isSelectionEnabled: boolean;
     showFeedback: boolean;
     isCorrect: boolean;
-    playerScore: number;
+    playerScore: number = 0;
     havePointsBeenAdded: boolean;
     bonus: number;
     context: 'testPage' | 'hostView' | 'playerView';
     correctAnswers: string[];
     isFirstQuestion: boolean = true;
     isCooldown: boolean = false;
+    isRightAnswer: boolean = false;
 
     // TODO: verify if still needed then move to constants
     private readonly timeout = 3000;
@@ -208,6 +209,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         this.havePointsBeenAdded = false;
         this.bonus = 0;
         this.correctAnswers = [];
+        this.isRightAnswer = false;
     }
 
     handleQuit() {
@@ -217,7 +219,13 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
     private subscribeToFeedback() {
         const feedbackSubscription = this.answerService.feedback$.subscribe((feedback) => {
             if (feedback) {
+                this.isSelectionEnabled = false;
                 this.correctAnswers = feedback.correctAnswer;
+                console.log(feedback.score);
+                console.log(this.playerScore);
+                if (this.playerScore < feedback.score) {
+                    this.isRightAnswer = true;
+                }
                 this.playerScore = feedback.score;
                 this.matchRoomService.sendPlayersData(this.matchRoomCode);
                 this.showFeedback = true;

@@ -7,13 +7,19 @@
         </div>
 
         <div id="question-timer-area">
-            <div id="score-feedback-area" *ngIf="showFeedback && bonus > 0 && context !== 'hostView'; else elseBlock">
+            <div id="score-feedback-area" *ngIf="showFeedback && context !== 'hostView'; else elseBlock">
                 <h1 id="score">SCORE : {{ playerScore }}</h1>
-                <h1 id="bonus-points">✨Vous avez obtenu un bonus de {{ bonus }} points!✨</h1>
+                <h1 class="points" id="right-answer" *ngIf="bonus > 0 && isRightAnswer">
+                    ✨Bonne Réponse! Vous avez obtenu {{ currentQuestion.points }} points et un bonus de {{ bonus }} points!✨
+                </h1>
+                <h1 class="points" id="right-answer" *ngIf="bonus == 0 && isRightAnswer">
+                    ✨Bonne Réponse! Vous avez obtenu {{ currentQuestion.points }} points et un bonus de {{ bonus }} points!✨
+                </h1>
+                <h1 class="points" id="wrong-answer" *ngIf="!isRightAnswer">😔Mauvaise Réponse😔</h1>
             </div>
 
             <ng-template #elseBlock>
-                <div id="score-area">
+                <div id="score-area" *ngIf="context !== 'hostView'">
                     <h1 id="score">
                         SCORE :
                         {{ playerScore }}
@@ -40,22 +46,20 @@
         </div>
 
         <div id="choice-area" *ngIf="context === 'testPage' || context === 'playerView'">
-            <div id="choice-area" *ngIf="context === 'testPage' || context === 'playerView'">
-                <button
-                    *ngFor="let choice of currentQuestion.choices; let i = index"
-                    class="answer"
-                    [class.selected]="isSelected(choice) && !showFeedback"
-                    [class.correct]="showFeedback && isCorrectAnswer(choice)"
-                    [class.incorrect]="showFeedback && !isCorrectAnswer(choice) && isSelected(choice)"
-                    (click)="selectChoice(choice)"
-                >
-                    {{ i + 1 }}. {{ choice.text }}
-                </button>
-            </div>
+            <button
+                *ngFor="let choice of currentQuestion.choices; let i = index"
+                class="answer"
+                [class.selected]="isSelected(choice) && !showFeedback"
+                [class.correct]="showFeedback && isCorrectAnswer(choice)"
+                [class.incorrect]="showFeedback && !isCorrectAnswer(choice) && isSelected(choice)"
+                (click)="selectChoice(choice)"
+            >
+                {{ i + 1 }}. {{ choice.text }}
+            </button>
         </div>
         <div id="host-area" *ngIf="context === 'hostView'">
             <div class="histogram-container">
-                <app-histogram></app-histogram>*
+                <!-- <app-histogram></app-histogram> -->
                 <!-- TODO: a revoir quand l'histogramme est fait -->
             </div>
             <div id="buttons-container">

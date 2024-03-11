@@ -11,6 +11,7 @@ import { MatchGateway } from './match.gateway';
 import { ChatService } from '@app/services/chat/chat.service';
 import { TimerEvents } from '@app/constants/timer-events';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import * as sinon from 'sinon';
 
 describe('MatchGateway', () => {
     let gateway: MatchGateway;
@@ -110,18 +111,59 @@ describe('MatchGateway', () => {
         expect(sendSpy).toHaveBeenCalledWith(socket, MOCK_USER_INFO.roomCode);
     });
 
-    it('handleMessages() should add the received message to the list of messages, and emit a newMessage event', () => {
-        const mockMessage = MOCK_MESSAGE;
+    it('handleIncomingRoomMessages() should add the received message to the list of messages, and emit a newMessage event', () => {
         const mockMessageInfo = MOCK_MESSAGE_INFO;
-        const serverMock = { sockets: { emit: jest.fn() } };
-        const addMessageSpy = jest.spyOn(chatSpy, 'addMessage').mockReturnValue(mockMessage);
-        const emitSpy = jest.spyOn(serverMock.sockets, 'emit');
-        const gatewayMock = gateway as any;  
-        gatewayMock.server = serverMock;  
-        gateway.handleMessages(socket as any, mockMessageInfo);
-
+        const sendSpy = jest.spyOn(gateway, 'sendMessageToClients').mockReturnThis();
+        const addMessageSpy = jest.spyOn(chatSpy, 'addMessage').mockReturnThis();
+        gateway.handleIncomingRoomMessages(socket, mockMessageInfo);
         expect(addMessageSpy).toHaveBeenCalledWith(mockMessageInfo.message, mockMessageInfo.roomCode);
-        expect(emitSpy).toHaveBeenCalledWith('newMessage', mockMessageInfo);
+        expect(sendSpy).toHaveBeenCalledWith(MOCK_MESSAGE_INFO);
+    });
+
+    it('sendMessageToClients() should emit a NewMessage event to the correct room', () => {
+        const mockMessageInfo = MOCK_MESSAGE_INFO;
+        const spy = jest.spyOn(gateway, 'sendMessageToClients').mockReturnThis();
+        stub(socket, 'rooms').value(new Set([MOCK_ROOM_CODE]));
+        gateway.sendMessageToClients(mockMessageInfo);
+        expect(spy).toHaveBeenCalledWith(mockMessageInfo);
+    });
+
+    it('sendMessageToClients() should emit a NewMessage event with the correct roomCode and message', () => {
+        const spy = jest.spyOn(gateway, 'sendMessageToClients').mockReturnThis();
+        const mockMessageInfo = MOCK_MESSAGE_INFO;
+        server.to.returns({
+            emit: (event: string, res) => {
+                expect(event).toEqual('newMessage');
+                expect(res).toEqual(mockMessageInfo);
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        gateway.sendMessageToClients(mockMessageInfo);
+        expect(spy).toHaveBeenCalledWith(mockMessageInfo);
+    });
+
+    it('sendMessagesHistory() should call handleSentMessagesHistory if it is in the correct room', () => {
+        const mockMatchRoomCode = MOCK_ROOM_CODE;
+        const handleSentMessagesHistorySpy = jest.spyOn(gateway, 'handleSentMessagesHistory').mockReturnThis();
+        stub(socket, 'rooms').value(new Set([MOCK_ROOM_CODE]));
+        gateway.sendMessagesHistory(socket, mockMatchRoomCode);
+        expect(handleSentMessagesHistorySpy).toHaveBeenCalledWith(mockMatchRoomCode);
+    });
+
+    it('handleSentMessagesHistory() should emit fetchOldMessages event and get the messages', () => {
+        const mockMatchRoomCode = MOCK_MESSAGE_INFO.roomCode;
+        const mockMessageInfo = MOCK_MESSAGE_INFO;
+        const mockMessages = [mockMessageInfo.message, mockMessageInfo.message];
+        const getMessagesSpy = jest.spyOn(chatSpy, 'getMessages').mockReturnValue(mockMessages);
+
+        server.to.returns({
+            emit: (event: string, res) => {
+                expect(event).toEqual('fetchOldMessages');
+                expect(res).toEqual(mockMessages);
+            },
+        } as BroadcastOperator<unknown, unknown>);
+
+        gateway.handleSentMessagesHistory(mockMatchRoomCode);
+        expect(getMessagesSpy).toHaveBeenCalledWith(mockMatchRoomCode);
     });
 
     it('banUsername() should add username to banned usernames list then update list (if player is not found)', () => {

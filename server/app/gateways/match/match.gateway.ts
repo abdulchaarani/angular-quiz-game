@@ -96,19 +96,20 @@ export class MatchGateway implements OnGatewayDisconnect {
     }
 
     @SubscribeMessage(MatchEvents.RoomMessage)
-    handleSockets(@ConnectedSocket() socket: Socket, @MessageBody() data: MessageInfo) {
+    handleIncomingRoomMessages(@ConnectedSocket() socket: Socket, @MessageBody() data: MessageInfo) {
         this.chatService.addMessage(data.message, data.roomCode);
-        this.server.sockets.to(data.roomCode).emit('newMessage', data); // add to constantes file
-        return { code: data.roomCode, message: data.message };
+        this.sendMessageToClients(data);
     }
 
     // @SubscribeMessage(MatchEvents.StartTimer)
     // startTimer(@ConnectedSocket() socket: Socket, @MessageBody() data: TimerInfo) {
     //     this.timeService.startTimer(data.roomCode, data.time, this.server);
-    // }       
+    // }
     @SubscribeMessage(MatchEvents.SendMessagesHistory)
-    SendMessages(@ConnectedSocket() socket: Socket, @MessageBody() matchRoomCode: string) {
-        this.handleSentMessages(matchRoomCode);
+    sendMessagesHistory(@ConnectedSocket() socket: Socket, @MessageBody() matchRoomCode: string) {
+        if (socket.rooms.has(matchRoomCode)) {
+            this.handleSentMessagesHistory(matchRoomCode);
+        }
     }
 
     // @SubscribeMessage(MatchEvents.StopTimer)
@@ -154,13 +155,16 @@ export class MatchGateway implements OnGatewayDisconnect {
         }
     }
 
+    sendMessageToClients(data: MessageInfo) {
+        this.server.to(data.roomCode).emit(MatchEvents.NewMessage, data);
+    }
+
     handleSendPlayersData(matchRoomCode: string) {
         this.server.to(matchRoomCode).emit('fetchPlayersData', this.playerRoomService.getPlayersStringified(matchRoomCode));
     }
 
-    private handleSentMessages(matchRoomCode: string) {
+    handleSentMessagesHistory(matchRoomCode: string) {
         this.server.to(matchRoomCode).emit('fetchOldMessages', this.chatService.getMessages(matchRoomCode));
-        console.log('res',this.chatService.getMessages(matchRoomCode));
     }
 
     // TODO: Start match: Do not forget to make isPlaying = true in MatchRoom object!!

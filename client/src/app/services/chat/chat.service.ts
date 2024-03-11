@@ -12,20 +12,11 @@ interface sentData {
     providedIn: 'root',
 })
 export class ChatService {
-    private matchRoomCode: string;
-    public message: Message;
-
     constructor(
         private socketHandler: SocketHandlerService,
         readonly matchRoomService: MatchRoomService,
     ) {
-        this.socketHandler.on('newMessage', (data: sentData) => {
-            this.matchRoomService.messages.push(data.message);
-        });
-    }
-
-    getMatchRoomCode() {
-        return this.matchRoomCode;
+        this.handleReceivedMessages();
     }
 
     sendMessage(roomCode: string, message: Message): void {
@@ -46,6 +37,12 @@ export class ChatService {
     displayOldMessages() {
         this.fetchOldMessages();
         this.sendMessagesHistory(this.matchRoomService.getMatchRoomCode());
+    }
+
+    handleReceivedMessages() {
+        this.socketHandler.on('newMessage', (data: sentData) => {
+            this.matchRoomService.messages.push(data.message);
+        });
     }
 }
 

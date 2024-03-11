@@ -1,5 +1,5 @@
 // import { getMockGame } from '@app/constants/game-mocks';
-import { MOCK_MATCH_ROOM, MOCK_PLAYER, MOCK_ROOM_CODE, MOCK_USER_INFO } from '@app/constants/match-mocks';
+import { MOCK_MATCH_ROOM, MOCK_MESSAGE, MOCK_MESSAGE_INFO, MOCK_PLAYER, MOCK_ROOM_CODE, MOCK_USER_INFO } from '@app/constants/match-mocks';
 import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
@@ -108,6 +108,20 @@ describe('MatchGateway', () => {
         expect(playerSpy).toHaveBeenCalledWith(MOCK_USER_INFO.roomCode, MOCK_USER_INFO.username);
         expect(deleteSpy).toHaveBeenCalledWith(MOCK_USER_INFO.roomCode, MOCK_USER_INFO.username);
         expect(sendSpy).toHaveBeenCalledWith(socket, MOCK_USER_INFO.roomCode);
+    });
+
+    it('handleMessages() should add the received message to the list of messages, and emit a newMessage event', () => {
+        const mockMessage = MOCK_MESSAGE;
+        const mockMessageInfo = MOCK_MESSAGE_INFO;
+        const serverMock = { sockets: { emit: jest.fn() } };
+        const addMessageSpy = jest.spyOn(chatSpy, 'addMessage').mockReturnValue(mockMessage);
+        const emitSpy = jest.spyOn(serverMock.sockets, 'emit');
+        const gatewayMock = gateway as any;  
+        gatewayMock.server = serverMock;  
+        gateway.handleMessages(socket as any, mockMessageInfo);
+
+        expect(addMessageSpy).toHaveBeenCalledWith(mockMessageInfo.message, mockMessageInfo.roomCode);
+        expect(emitSpy).toHaveBeenCalledWith('newMessage', mockMessageInfo);
     });
 
     it('banUsername() should add username to banned usernames list then update list (if player is not found)', () => {

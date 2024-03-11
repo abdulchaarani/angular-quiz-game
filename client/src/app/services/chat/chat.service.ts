@@ -22,11 +22,8 @@ export class ChatService {
     ) {
         this.matchRoomCode = '';
         this.message = { author: '', text: '', date: new Date() };
-        this.socketHandler.on('newMessage', (data: sentData) => {
-            const roomMessages = this.messages.get(data.roomCode) || [];
-            roomMessages.push(data.message);
-            this.messages.set(data.roomCode, roomMessages);
-        });
+        this.handleReceivedMessages();
+
     }
 
     getMatchRoomCode() {
@@ -41,9 +38,13 @@ export class ChatService {
             this.message.text = res.message.text;
             this.message.date = res.message.date;
         });
+    }
 
-        const roomMessages = this.messages.get(roomCode) || [];
-        roomMessages.push(message);
-        this.messages.set(roomCode, roomMessages);
+    handleReceivedMessages(){
+         this.socketHandler.on('newMessage', (data: sentData) => {
+            const roomMessages = this.messages.get(data.roomCode) || [];
+            roomMessages.push(data.message);
+            this.messages.set(data.roomCode, roomMessages);
+         });
     }
 }

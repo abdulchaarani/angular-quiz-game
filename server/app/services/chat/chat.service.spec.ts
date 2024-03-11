@@ -25,21 +25,20 @@ describe('ChatService', () => {
         const roomCode = '1234';
         const message: Message = { text: 'Test Text', author: 'User', date: new Date() };
         matchRoomService.getMatchRoomByCode.mockReturnValue({ messages: [] });
+        
         service.addMessage(message, roomCode);
         expect(service.getMessages(roomCode)).toEqual([message]);
     });
 
+
+
     it('should add and get messages', () => {
         const roomCode = '1234';
         const message: Message = { text: 'Test Text', author: 'User', date: new Date() };
-
         const mockMatchRoom = { messages: [] };
         jest.spyOn(matchRoomService, 'getMatchRoomByCode').mockReturnValue(mockMatchRoom);
-
         service.addMessage(message, roomCode);
-
         const messages = service.getMessages(roomCode);
-
         expect(messages).toEqual([message]);
     });
 });

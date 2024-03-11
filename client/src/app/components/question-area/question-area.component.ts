@@ -31,10 +31,12 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
     correctAnswers: string[];
     isFirstQuestion: boolean = true;
     isCooldown: boolean = false;
+
     // TODO: verify if still needed then move to constants
     private readonly timeout = 3000;
 
     private subscriptions: Subscription[];
+
     // permit more class parameters to decouple services
     // eslint-disable-next-line max-params
     constructor(
@@ -77,92 +79,21 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         }
     }
 
-    // TODO: seperate subscriptions into different functions
     ngOnInit(): void {
         this.subscriptions = [];
-        console.log('pre', this.bonus);
         this.resetStateForNewQuestion();
-        console.log('post', this.bonus);
 
         this.context = this.questionContextService.getContext();
         if (this.context !== 'testPage') {
-            this.timeService.handleTimer();
-            this.timeService.handleStopTimer();
-
             if (this.isFirstQuestion) {
                 this.currentQuestion = history.state.question;
                 this.gameDuration = history.state.duration;
                 this.isFirstQuestion = false;
-            } else {
-                // TODO: check if duplication is needed see below;
-                const currentQuestionSubscription = this.matchRoomService.currentQuestion$.subscribe((question) => {
-                    if (question) {
-                        this.currentQuestion = question;
-                    }
-                });
-
-                this.subscriptions.push(currentQuestionSubscription);
             }
 
-            this.answerService.feedback();
-            this.answerService.bonusPoints();
-
-            const feedbackSubscription = this.answerService.feedback$.subscribe((feedback) => {
-                if (feedback) {
-                    this.correctAnswers = feedback.correctAnswer;
-                    this.playerScore = feedback.score;
-                    this.matchRoomService.sendPlayersData(this.matchRoomCode);
-                    this.showFeedback = true;
-                }
-            });
-            this.subscriptions.push(feedbackSubscription);
-
-            // TODO: check if duplication is needed see above;
-            const s = this.matchRoomService.currentQuestion$.subscribe((question) => {
-                if (question) {
-                    this.currentQuestion = question;
-                    this.ngOnChanges({
-                        currentQuestion: {
-                            currentValue: question,
-                            previousValue: this.currentQuestion,
-                            firstChange: false,
-                            isFirstChange: () => false,
-                        },
-                    });
-                }
-            });
-            this.subscriptions.push(s);
-
-            console.log('pre sub', this.bonus);
-            const bonusPointsSubscription = this.answerService.bonusPoints$.subscribe((bonus) => {
-                if (bonus) {
-                    this.bonus = bonus;
-                    console.log('bonus value', bonus);
-                }
-            });
-            this.subscriptions.push(bonusPointsSubscription);
-            console.log('post sub', this.bonus);
-
-            const displayCoolDownSubscription = this.matchRoomService.displayCooldown$.subscribe((isCooldown) => {
-                if (isCooldown) this.currentQuestion.text = MatchStatus.PREPARE;
-            });
-
-            this.subscriptions.push(displayCoolDownSubscription);
+            this.listenToGameEvents();
+            this.initialiseSubscriptions();
         }
-
-        if (this.currentQuestion.choices) {
-            this.answers = this.currentQuestion.choices;
-        }
-
-        if (this.currentQuestion.id && this.context === 'testPage') {
-            this.matchService.questionId = this.currentQuestion.id;
-        }
-
-        // this.timeService.timerFinished$.subscribe((timerFinished) => {
-        //     if (this.context === 'hostView' && timerFinished) {
-        //         this.showFeedback = true;
-        //     }
-        // });
     }
 
     ngOnDestroy() {
@@ -184,7 +115,6 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     computeTimerProgress(): number {
-        console.log(this.bonus);
         return (this.timeService.time / this.timeService.duration) * MULTIPLICATION_FACTOR;
     }
 
@@ -282,5 +212,65 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
 
     handleQuit() {
         this.matchRoomService.disconnect();
+    }
+
+    private subscribeToFeedback() {
+        const feedbackSubscription = this.answerService.feedback$.subscribe((feedback) => {
+            if (feedback) {
+                this.correctAnswers = feedback.correctAnswer;
+                this.playerScore = feedback.score;
+                this.matchRoomService.sendPlayersData(this.matchRoomCode);
+                this.showFeedback = true;
+            }
+        });
+        this.subscriptions.push(feedbackSubscription);
+    }
+
+    private subscribeToCurrentQuestion() {
+        const currentQuestionSubscription = this.matchRoomService.currentQuestion$.subscribe((question) => {
+            if (question) {
+                this.currentQuestion = question;
+                this.ngOnChanges({
+                    currentQuestion: {
+                        currentValue: question,
+                        previousValue: this.currentQuestion,
+                        firstChange: false,
+                        isFirstChange: () => false,
+                    },
+                });
+            }
+        });
+        this.subscriptions.push(currentQuestionSubscription);
+    }
+
+    private subscribeToBonus() {
+        const bonusPointsSubscription = this.answerService.bonusPoints$.subscribe((bonus) => {
+            if (bonus) {
+                this.bonus = bonus;
+            }
+        });
+        this.subscriptions.push(bonusPointsSubscription);
+    }
+
+    private subscribeToCooldown() {
+        const displayCoolDownSubscription = this.matchRoomService.displayCooldown$.subscribe((isCooldown) => {
+            if (isCooldown) this.currentQuestion.text = MatchStatus.PREPARE;
+        });
+
+        this.subscriptions.push(displayCoolDownSubscription);
+    }
+
+    private listenToGameEvents() {
+        this.timeService.handleTimer();
+        this.timeService.handleStopTimer();
+        this.answerService.feedback();
+        this.answerService.bonusPoints();
+    }
+
+    private initialiseSubscriptions() {
+        this.subscribeToFeedback();
+        this.subscribeToCurrentQuestion();
+        this.subscribeToBonus();
+        this.subscribeToCooldown();
     }
 }

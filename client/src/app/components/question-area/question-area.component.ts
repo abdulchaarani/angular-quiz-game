@@ -210,6 +210,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         this.bonus = 0;
         this.correctAnswers = [];
         this.isRightAnswer = false;
+        this.isCooldown = false;
     }
 
     handleQuit() {
@@ -266,7 +267,10 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
 
     private subscribeToCooldown() {
         const displayCoolDownSubscription = this.matchRoomService.displayCooldown$.subscribe((isCooldown) => {
-            if (isCooldown) this.currentQuestion.text = MatchStatus.PREPARE;
+            if (isCooldown) {
+                this.isCooldown = true;
+                this.currentQuestion.text = MatchStatus.PREPARE;
+            }
         });
 
         this.subscriptions.push(displayCoolDownSubscription);

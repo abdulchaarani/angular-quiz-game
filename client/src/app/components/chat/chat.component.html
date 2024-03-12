@@ -1,7 +1,7 @@
 <div id="main-chat-container">
     <h2 id="current-username">{{ this.matchRoomService.getUsername() }}</h2>
-    <div id="messages-container">
-        <div *ngFor="let message of messages" class="message-container">
+    <div id="messages-container"  #messagesContainer>
+        <div *ngFor="let message of this.matchRoomService.messages" class="message-container">
             <div class="message-info-container">
                 <p class="message-author">{{ message.author }}</p>
                 <p>{{ message.date | date: 'hh:mm' }}</p>
@@ -20,8 +20,8 @@
     <form id="chat-form">
         <mat-form-field id="chat-input-container">
             <mat-label>Message</mat-label>
-            <input matInput id="chat-input" #message maxlength="200" placeholder="..." />
-            <mat-icon id="chat-send-icon" (click) = "sendMessage(message.value)"  message.value = " "  >send</mat-icon>
+            <input matInput #message maxlength="200" placeholder="..."  (keydown.enter)="sendMessage(message.value); message.value=''" />
+            <mat-icon id="chat-send-icon" (click) = "sendMessage(message.value); message.value=''" >send</mat-icon>
         </mat-form-field>
     </form>
 </div>

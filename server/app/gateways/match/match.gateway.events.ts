@@ -8,6 +8,8 @@ export enum MatchEvents {
     ToggleLock = 'toggleLock',
     BanUsername = 'banUsername',
     SendPlayersData = 'sendPlayersData',
+    NewMessage = 'newMessage',
     StartMatch = 'startMatch',
     NextQuestion = 'nextQuestion',
+    SendMessagesHistory = 'sendMessagesHistory'
 }

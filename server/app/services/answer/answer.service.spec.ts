@@ -254,6 +254,8 @@ describe('AnswerService', () => {
         const autoSubmitAnswersSpy = jest.spyOn<any, any>(service, 'autoSubmitAnswers');
         const calculateScoreSpy = jest.spyOn<any, any>(service, 'calculateScore');
         const sendFeedbackSpy = jest.spyOn<any, any>(service, 'sendFeedback');
+        const resetPlayersAnswerSpy = jest.spyOn<any, any>(service, 'resetPlayersAnswer');
+        matchRoomServiceSpy = jest.spyOn<any, any>(matchRoomService, 'incrementCurrentQuestionIndex');
 
         eventEmitter.addListener(TimerEvents.QuestionTimerExpired, service.onQuestionTimerExpired);
         expect(eventEmitter.hasListeners(TimerEvents.QuestionTimerExpired)).toBe(true);
@@ -263,11 +265,14 @@ describe('AnswerService', () => {
         expect(autoSubmitAnswersSpy).toHaveBeenCalledWith(MOCK_ROOM_CODE);
         expect(calculateScoreSpy).toHaveBeenCalledWith(MOCK_ROOM_CODE);
         expect(sendFeedbackSpy).toHaveBeenCalledWith(MOCK_ROOM_CODE);
+        expect(resetPlayersAnswerSpy).toHaveBeenCalledWith(MOCK_ROOM_CODE);
+        expect(matchRoomServiceSpy).toHaveBeenCalledWith(MOCK_ROOM_CODE);
 
         eventEmitter.removeListener(TimerEvents.QuestionTimerExpired, service.onQuestionTimerExpired);
     });
 
     it('handleFinalAnswerSubmitted() should cancel current timer and call score calculating functions if all active players have submitted', () => {
+        jest.spyOn<any, any>(service, 'getCurrentQuestionValue').mockReturnValue(30);
         matchRoom.activePlayers = 2;
         matchRoom.submittedPlayers = 2;
         const timerSpy = jest.spyOn<any, any>(timeService, 'terminateTimer').mockImplementation();
@@ -287,9 +292,17 @@ describe('AnswerService', () => {
         expect(timerExpiredSpy).not.toHaveBeenCalled();
     });
 
-    it('resetSubmittedPlayers() should set submittedPlayers value to 0', () => {
+    it('resetPlayersAnswer() should set submittedPlayers value to 0', () => {
         matchRoom.submittedPlayers = 3;
-        service['resetSubmittedPlayers'](matchRoom.code);
+        service['resetPlayersAnswer'](matchRoom.code);
         expect(matchRoom.submittedPlayers).toEqual(0);
+    });
+
+    it('resetPlayersAnswer() should set player answer to an ampty answer ', () => {
+        jest.spyOn<any, any>(playerService, 'getPlayers').mockReturnValue([player2]);
+        service['resetPlayersAnswer'](matchRoom.code);
+        expect(player2.answer.isSubmited).toBe(false);
+        expect(player2.answer.timestamp).toBeUndefined();
+        expect(player2.answer.selectedChoices.size).toBe(0);
     });
 });

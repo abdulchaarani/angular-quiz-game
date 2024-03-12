@@ -1,13 +1,13 @@
-import { Game } from '@app/model/database/game';
-import { MatchRoom } from '@app/model/schema/match-room.schema';
-import { Injectable } from '@nestjs/common';
-import { Socket, Server } from 'socket.io';
-import { Choice } from '@app/model/database/choice';
-import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
-import { Question } from '@app/model/database/question';
-import { TimeService } from '@app/services/time/time.service';
-import { TimerEvents } from '@app/constants/timer-events';
 import { COOLDOWN_TIME, COUNTDOWN_TIME, FACTOR, MAXIMUM_CODE_LENGTH } from '@app/constants/match-constants';
+import { TimerEvents } from '@app/constants/timer-events';
+import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
+import { Choice } from '@app/model/database/choice';
+import { Game } from '@app/model/database/game';
+import { Question } from '@app/model/database/question';
+import { MatchRoom } from '@app/model/schema/match-room.schema';
+import { TimeService } from '@app/services/time/time.service';
+import { Injectable } from '@nestjs/common';
+import { Server, Socket } from 'socket.io';
 
 @Injectable()
 export class MatchRoomService {
@@ -114,12 +114,16 @@ export class MatchRoomService {
         }
 
         this.resetChoiceTally(matchRoomCode);
-        const nextQuestion = matchRoom.game.questions[matchRoom.currentQuestionIndex++];
+        const nextQuestion = matchRoom.game.questions[matchRoom.currentQuestionIndex];
         matchRoom.currentQuestionAnswer = this.filterCorrectChoices(nextQuestion);
         this.removeIsCorrectField(nextQuestion);
         server.in(matchRoomCode).emit('nextQuestion', nextQuestion);
         matchRoom.hostSocket.send('currentAnswers', matchRoom.currentQuestionAnswer);
         this.timeService.startTimer(server, matchRoomCode, this.getGameDuration(matchRoomCode), TimerEvents.QuestionTimerExpired);
+    }
+
+    incrementCurrentQuestionIndex(matchRoomCode: string) {
+        this.getMatchRoomByCode(matchRoomCode).currentQuestionIndex++;
     }
 
     private canStartMatch(matchRoomCode: string): boolean {

@@ -3,7 +3,7 @@
     <div id="buttons-container">
         <div id="new-game-buttons-container">
             <button mat-raised-button color="primary" routerLink="/admin/games/new/"><mat-icon>add</mat-icon>Créer un nouveau jeu</button>
-            <input type="file" accept="application/json" class="file-input" (change)="onFileSelected($event)" #fileUpload />
+            <input type="file" accept="application/json" class="file-input" (change)="this.onFileSelected($event)" #fileUpload />
             <div class="file-upload">
                 <button mat-raised-button color="primary" class="upload-btn" (click)="fileUpload.click()">
                     <mat-icon>upload</mat-icon>Importer un jeu (JSON)
@@ -16,7 +16,12 @@
         <div id="game-list-information-container">
             <h2>Liste des jeux existants</h2>
         </div>
-        <app-game-list-item *ngFor="let game of games" [game]="game" (deleteGameFromList)="onDeleteGameFromList($event)" [isAdminMode]="true">
+        <app-game-list-item
+            *ngFor="let game of this.gameService.games"
+            [game]="game"
+            (deleteGameFromList)="onDeleteGameFromList($event)"
+            [isAdminMode]="true"
+        >
         </app-game-list-item>
     </div>
 </div>

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
+import { Message } from '@app/interfaces/message';
 import { Player } from '@app/interfaces/player';
 import { Question } from '@app/interfaces/question';
 import { NotificationService } from '@app/services/notification/notification.service';
@@ -17,6 +18,7 @@ interface UserInfo {
 })
 export class MatchRoomService {
     players: Player[];
+    messages: Message[];
 
     currentQuestion$: Observable<Question>;
     displayCooldown$: Observable<boolean>;
@@ -35,6 +37,7 @@ export class MatchRoomService {
         this.matchRoomCode = '';
         this.username = '';
         this.players = [];
+        this.messages = [];
         this.initialiseMatchSubjects();
     }
 

@@ -5,6 +5,9 @@ import { Player } from '@app/interfaces/player';
 import { Question } from '@app/interfaces/question';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
+import { BehaviorSubject } from 'rxjs';
+import { Observable } from 'rxjs/internal/Observable';
+import { Subject } from 'rxjs/internal/Subject';
 
 interface UserInfo {
     roomCode: string;
@@ -15,8 +18,14 @@ interface UserInfo {
 })
 export class MatchRoomService {
     players: Player[];
-    messages: Message [];
+    messages: Message[];
 
+    currentQuestion$: Observable<Question>;
+    displayCooldown$: Observable<boolean>;
+    private startMatchSubject = new Subject<void>();
+    private gameTitle = new Subject<string>();
+    private currentQuestionSource = new Subject<Question>();
+    private displayCooldownSource = new BehaviorSubject<boolean>(false);
     private matchRoomCode: string;
     private username: string;
 
@@ -29,11 +38,13 @@ export class MatchRoomService {
         this.username = '';
         this.players = [];
         this.messages = [];
+        this.initialiseMatchSubjects();
     }
 
     get socketId() {
         return this.socketService.socket.id ? this.socketService.socket.id : '';
     }
+
     getMatchRoomCode() {
         return this.matchRoomCode;
     }
@@ -50,7 +61,7 @@ export class MatchRoomService {
             this.beginQuiz();
             this.moveToNextQuestion();
             this.gameOver();
-            this.feedback();
+            this.startCooldown();
         }
     }
 
@@ -99,13 +110,39 @@ export class MatchRoomService {
         this.socketService.send('startMatch', this.matchRoomCode);
     }
 
+    matchStarted() {
+        this.socketService.on('matchStarting', (data: { start: boolean; gameTitle: string }) => {
+            if (data.start) {
+                this.startMatchSubject.next();
+            }
+            if (data.gameTitle) {
+                this.gameTitle.next(data.gameTitle);
+            }
+        });
+    }
+
+    beginQuiz() {
+        this.socketService.on('beginQuiz', (data: { firstQuestion: Question; gameDuration: number }) => {
+            const { firstQuestion, gameDuration } = data;
+            this.router.navigate(['/play-match'], { state: { question: firstQuestion, duration: gameDuration } });
+        });
+    }
+
+    getStartMatchObservable(): Observable<void> {
+        return this.startMatchSubject.asObservable();
+    }
+
+    getGameTitleObservable(): Observable<string> {
+        return this.gameTitle.asObservable();
+    }
+
     nextQuestion() {
         this.socketService.send('nextQuestion', this.matchRoomCode);
     }
 
-    beginQuiz() {
-        this.socketService.on('beginQuiz', () => {
-            console.log('beginQuiz');
+    startCooldown() {
+        this.socketService.on('startCooldown', () => {
+            this.displayCooldownSource.next(true);
         });
     }
 
@@ -117,7 +154,8 @@ export class MatchRoomService {
 
     moveToNextQuestion() {
         this.socketService.on('nextQuestion', (question: Question) => {
-            console.log(question);
+            this.displayCooldownSource.next(false);
+            this.currentQuestionSource.next(question);
         });
     }
 
@@ -142,7 +180,12 @@ export class MatchRoomService {
         this.players = [];
     }
 
-    private feedback() {
-        this.socketService.on('feedback', (feedback) => console.log(feedback));
+    private initialiseMatchSubjects() {
+        this.startMatchSubject = new Subject<void>();
+        this.gameTitle = new Subject<string>();
+        this.currentQuestionSource = new Subject<Question>();
+        this.displayCooldownSource = new BehaviorSubject<boolean>(false);
+        this.currentQuestion$ = this.currentQuestionSource.asObservable();
+        this.displayCooldown$ = this.displayCooldownSource.asObservable();
     }
 }

@@ -1,5 +1,6 @@
 import { Socket } from 'socket.io';
-import { Answer } from './answer.schema';
+import { Answer } from '@app/model/schema/answer.schema';
+
 export interface Player {
     username: string;
     answer: Answer;

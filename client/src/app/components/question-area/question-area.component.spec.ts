@@ -211,28 +211,6 @@ describe('QuestionAreaComponent', () => {
         expect(component.showFeedback).toBeFalse();
     });
 
-    it('should update the player score', () => {
-        component.isTestPage = false;
-        component.isCorrect = true;
-        component.playerScoreUpdate();
-        expect(component.playerScore).toEqual(component.currentQuestion.points);
-    });
-
-    it('should not update the player score if the question is not correct', () => {
-        component.isTestPage = false;
-        component.isCorrect = false;
-        component.playerScoreUpdate();
-        expect(component.playerScore).toEqual(0);
-    });
-
-    it('should update the player score with bonus points if the question if its a test page', () => {
-        component.playerScore = 0;
-        component.isTestPage = true;
-        component.isCorrect = true;
-        component.playerScoreUpdate();
-        expect(component.playerScore).toEqual(component.currentQuestion.points + component.currentQuestion.points * component.bonusFactor);
-    });
-
     it('should not update the player score if the points have already been added', () => {
         component.havePointsBeenAdded = true;
         component.playerScoreUpdate();

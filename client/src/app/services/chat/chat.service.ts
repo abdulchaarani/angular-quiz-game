@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
+
 import { Message } from '@app/interfaces/message';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
+import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 
 interface SentData {
     roomCode: string;
@@ -12,10 +13,13 @@ interface SentData {
     providedIn: 'root',
 })
 export class ChatService {
+    messages: Message[];
+
     constructor(
         private socketHandler: SocketHandlerService,
         readonly matchRoomService: MatchRoomService,
     ) {
+        this.messages = [];
         this.handleReceivedMessages();
     }
 

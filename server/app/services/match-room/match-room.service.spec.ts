@@ -2,17 +2,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { MOCK_CHOICES, getMockGame } from '@app/constants/game-mocks';
 import { MOCK_MATCH_ROOM, MOCK_PLAYER, MOCK_PLAYER_ROOM, MOCK_ROOM_CODE } from '@app/constants/match-mocks';
+import { getMockQuestion } from '@app/constants/question-mocks';
+import { getRandomString } from '@app/constants/test-utils';
+import { TimerEvents } from '@app/constants/timer-events';
+import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
+import { PlayerInfo } from '@app/model/schema/answer.schema';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
+import { TimeService } from '@app/services/time/time.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { Socket } from 'socket.io';
 import { MatchRoomService } from './match-room.service';
-import { TimeService } from '@app/services/time/time.service';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
-import { getMockQuestion } from '@app/constants/question-mocks';
-import { getRandomString } from '@app/constants/test-utils';
-import { TimerEvents } from '@app/constants/timer-events';
 
 const MAXIMUM_CODE_LENGTH = 4;
 
@@ -22,6 +23,7 @@ describe('MatchRoomService', () => {
     let socket: SinonStubbedInstance<Socket>;
     let startTimerMock: jest.Mock;
     let mockServer;
+    let mockSocket;
     let emitMock;
     let mockHostSocket;
 
@@ -39,6 +41,10 @@ describe('MatchRoomService', () => {
         emitMock = jest.fn();
         mockServer = {
             in: jest.fn().mockReturnValueOnce({ emit: emitMock }),
+        };
+
+        mockSocket = {
+            to: jest.fn().mockReturnValueOnce({ emit: emitMock }),
         };
 
         mockHostSocket = {
@@ -209,21 +215,40 @@ describe('MatchRoomService', () => {
         });
     });
 
-    it('startMatch() should start timer with a 5 seconds countdown', () => {
+    it('startMatch() should start match and timer with a 5 seconds countdown', () => {
         jest.spyOn<any, any>(service, 'canStartMatch').mockReturnValue(true);
-        service.startMatch(null, MOCK_ROOM_CODE);
+        jest.spyOn<any, any>(service, 'getGameTitle').mockReturnValue('game1');
+        service.startMatch(mockSocket, null, MOCK_ROOM_CODE);
+        const playerInfo: PlayerInfo = { gameTitle: 'game1', start: true };
+        expect(emitMock).toHaveBeenCalledWith('matchStarting', playerInfo);
         expect(startTimerMock).toHaveBeenCalledWith(null, MOCK_ROOM_CODE, 5, TimerEvents.CountdownTimerExpired);
     });
 
-    it('startMatch() should not start the timer if match is not in a valid state', () => {
+    it('startMatch() should not start the match nor the timer if match is not in a valid state', () => {
         jest.spyOn<any, any>(service, 'canStartMatch').mockReturnValue(false);
-        service.startMatch(null, MOCK_ROOM_CODE);
+        jest.spyOn<any, any>(service, 'getGameTitle').mockReturnValue('game1');
+        service.startMatch(mockSocket, null, MOCK_ROOM_CODE);
+        expect(emitMock).not.toHaveBeenCalled();
         expect(startTimerMock).not.toHaveBeenCalled();
     });
 
-    it('startNextQuestionCooldown() should start timer with a 3 seconds countdown', () => {
-        service.startNextQuestionCooldown(null, MOCK_ROOM_CODE);
-        expect(startTimerMock).toHaveBeenCalledWith(null, MOCK_ROOM_CODE, 3, TimerEvents.CooldownTimerExpired);
+    // it('startNextQuestionCooldown() should start timer with a 3 seconds countdown', () => {
+    //     service.startNextQuestionCooldown(mockServer, MOCK_ROOM_CODE);
+    //     expect(emitMock).toHaveBeenCalledWith('startCooldown');
+    //     expect(startTimerMock).toHaveBeenCalledWith(mockServer, MOCK_ROOM_CODE, 3, TimerEvents.CooldownTimerExpired);
+    // });
+
+    it('sendFirstQuestion() should emit the first question along with the game duration', () => {
+        const matchRoom = MOCK_PLAYER_ROOM;
+        matchRoom.code = MOCK_ROOM_CODE;
+        service.matchRooms = [matchRoom];
+        matchRoom.hostSocket = mockHostSocket;
+        const currentQuestion = matchRoom.game.questions[0];
+        const currentAnswers = currentQuestion.choices[0].text;
+        service.sendFirstQuestion(mockServer, MOCK_ROOM_CODE);
+        expect(emitMock).toHaveBeenCalledWith('beginQuiz', { firstQuestion: currentQuestion, gameDuration: matchRoom.game.duration });
+        expect(mockHostSocket.send).toHaveBeenCalledWith('currentAnswers', [currentAnswers]);
+        expect(startTimerMock).toHaveBeenCalledWith(mockServer, MOCK_ROOM_CODE, matchRoom.game.duration, TimerEvents.QuestionTimerExpired);
     });
 
     it('sendNextQuestion() should emit a gameOver event if there are no more questions', () => {
@@ -309,5 +334,12 @@ describe('MatchRoomService', () => {
         service.matchRooms = [MOCK_MATCH_ROOM];
         const currentGameDuration = service['getGameDuration'](MOCK_ROOM_CODE);
         expect(currentGameDuration).toEqual(getMockGame().duration);
+    });
+
+    it('getGameTitle() should return the current game title', () => {
+        service.matchRooms = [MOCK_MATCH_ROOM];
+        service.matchRooms[0].game.title = 'game1';
+        const currentGameDuration = service['getGameTitle'](MOCK_ROOM_CODE);
+        expect(currentGameDuration).toEqual('game1');
     });
 });

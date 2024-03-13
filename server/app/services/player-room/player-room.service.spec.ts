@@ -5,7 +5,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { Socket } from 'socket.io';
 import { PlayerRoomService } from './player-room.service';
-import { emptyAnswer } from '@app/model/schema/answer.schema';
 
 describe('PlayerRoomService', () => {
     let service: PlayerRoomService;
@@ -52,7 +51,7 @@ describe('PlayerRoomService', () => {
         const mockUsername = 'mock';
         const expectedResult: Player = {
             username: mockUsername,
-            answer: { ...emptyAnswer },
+            answer: { selectedChoices: new Map<string, boolean>(), isSubmited: false },
             score: 0,
             bonusCount: 0,
             isPlaying: true,

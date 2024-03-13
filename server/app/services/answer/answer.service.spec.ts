@@ -1,16 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
+import { MOCK_MATCH_ROOM, MOCK_PLAYER, MOCK_ROOM_CODE } from '@app/constants/match-mocks';
+import { TimerEvents } from '@app/constants/timer-events';
+import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
+import { Feedback } from '@app/model/schema/answer.schema';
+import { MatchRoomService } from '@app/services/match-room/match-room.service';
+import { PlayerRoomService } from '@app/services/player-room/player-room.service';
+import { TimeService } from '@app/services/time/time.service';
+import { BONUS_FACTOR } from '@common/constants/match-constants';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AnswerService } from './answer.service';
-import { MatchRoomService } from '@app/services/match-room/match-room.service';
-import { TimeService } from '@app/services/time/time.service';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { MOCK_MATCH_ROOM, MOCK_PLAYER, MOCK_ROOM_CODE } from '@app/constants/match-mocks';
-import { PlayerRoomService } from '@app/services/player-room/player-room.service';
-import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
-import { BONUS_FACTOR } from '@app/constants/match-constants';
-import { Feedback } from '@app/model/schema/answer.schema';
-import { TimerEvents } from '@app/constants/timer-events';
 
 describe('AnswerService', () => {
     let service: AnswerService;

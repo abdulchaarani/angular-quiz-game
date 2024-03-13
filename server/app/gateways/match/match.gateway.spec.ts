@@ -1,5 +1,8 @@
 // import { getMockGame } from '@app/constants/game-mocks';
-import { MOCK_MATCH_ROOM, MOCK_MESSAGE, MOCK_MESSAGE_INFO, MOCK_PLAYER, MOCK_ROOM_CODE, MOCK_USER_INFO } from '@app/constants/match-mocks';
+import { MOCK_MATCH_ROOM, MOCK_MESSAGE_INFO, MOCK_PLAYER, MOCK_ROOM_CODE, MOCK_USER_INFO } from '@app/constants/match-mocks';
+import { TimerEvents } from '@app/constants/timer-events';
+import { MatchGateway } from '@app/gateways/match/match.gateway';
+import { ChatService } from '@app/services/chat/chat.service';
 import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
@@ -8,9 +11,6 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance, stub } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
-import { MatchGateway } from './match.gateway';
-import { ChatService } from '@app/services/chat/chat.service';
-import { TimerEvents } from '@app/constants/timer-events';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 
 describe('MatchGateway', () => {
@@ -259,9 +259,8 @@ describe('MatchGateway', () => {
 
     it('startMatch() should delegate starting match to match room service', () => {
         const startSpy = jest.spyOn(matchRoomSpy, 'startMatch').mockReturnThis();
-        stub(socket, 'rooms').value(new Set([MOCK_ROOM_CODE]));
         gateway.startMatch(socket, MOCK_ROOM_CODE);
-        expect(startSpy).toHaveBeenCalledWith(server, MOCK_ROOM_CODE);
+        expect(startSpy).toHaveBeenCalledWith(socket, server, MOCK_ROOM_CODE);
     });
 
     it('nextQuestion() should delegate starting next question to match room service', () => {
@@ -273,7 +272,7 @@ describe('MatchGateway', () => {
 
     it('onCountdownTimerExpired() should call helper functions when CountdownTimerExpired event is emitted', () => {
         const markGameSpy = jest.spyOn(matchRoomSpy, 'markGameAsPlaying');
-        const sendNextQuestionSpy = jest.spyOn(matchRoomSpy, 'sendNextQuestion');
+        const sendFirstQuestionSpy = jest.spyOn(matchRoomSpy, 'sendFirstQuestion');
 
         eventEmitter.addListener(TimerEvents.CountdownTimerExpired, gateway.onCountdownTimerExpired);
         expect(eventEmitter.hasListeners(TimerEvents.CountdownTimerExpired)).toBe(true);
@@ -286,7 +285,7 @@ describe('MatchGateway', () => {
 
         gateway.onCountdownTimerExpired(MOCK_ROOM_CODE);
         expect(markGameSpy).toHaveBeenCalledWith(MOCK_ROOM_CODE);
-        expect(sendNextQuestionSpy).toHaveBeenCalledWith(server, MOCK_ROOM_CODE);
+        expect(sendFirstQuestionSpy).toHaveBeenCalledWith(server, MOCK_ROOM_CODE);
 
         eventEmitter.removeListener(TimerEvents.CountdownTimerExpired, gateway.onCountdownTimerExpired);
     });

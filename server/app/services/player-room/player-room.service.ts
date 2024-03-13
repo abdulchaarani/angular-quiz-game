@@ -1,4 +1,3 @@
-import { emptyAnswer } from '@app/model/schema/answer.schema';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Player } from '@app/model/schema/player.schema';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
@@ -28,9 +27,10 @@ export class PlayerRoomService {
         if (!this.isValidUsername(matchRoomCode, newUsername)) {
             return undefined;
         }
+
         const newPlayer: Player = {
             username: newUsername,
-            answer: { ...emptyAnswer },
+            answer: { selectedChoices: new Map<string, boolean>(), isSubmited: false },
             score: 0,
             bonusCount: 0,
             isPlaying: true,

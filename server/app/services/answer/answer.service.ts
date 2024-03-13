@@ -1,14 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { TimerEvents } from '@app/constants/timer-events';
+import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
+import { Answer } from '@app/model/schema/answer.schema';
+import { MatchRoom } from '@app/model/schema/match-room.schema';
+import { Player } from '@app/model/schema/player.schema';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
-import { Player } from '@app/model/schema/player.schema';
-import { Answer, Feedback } from '@app/model/schema/answer.schema';
-import { OnEvent } from '@nestjs/event-emitter';
-import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
-import { TimerEvents } from '@app/constants/timer-events';
-import { BONUS_FACTOR } from '@app/constants/match-constants';
 import { TimeService } from '@app/services/time/time.service';
-import { MatchRoom } from '@app/model/schema/match-room.schema';
+import { BONUS_FACTOR } from '@common/constants/match-constants';
+import { Feedback } from '@common/interfaces/feedback';
+import { Injectable } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
 
 @Injectable()
 export class AnswerService {
@@ -121,10 +122,11 @@ export class AnswerService {
         const fastestPlayers = correctPlayers.filter((player) => player.answer.timestamp === fastestTime);
         if (fastestPlayers.length === 0 || fastestPlayers.length > 1) return;
         const fastestPlayer = fastestPlayers[0];
-        fastestPlayer.score += points * BONUS_FACTOR;
+        const bonus = points * BONUS_FACTOR;
+        fastestPlayer.score += bonus;
         fastestPlayer.bonusCount++;
+        fastestPlayer.socket.emit('bonus', bonus);
     }
-
     private sendFeedback(roomCode: string) {
         const correctAnswer: string[] = this.getMatchRoomByCode(roomCode).currentQuestionAnswer;
         const players: Player[] = this.playerService.getPlayers(roomCode);
@@ -132,6 +134,7 @@ export class AnswerService {
             const feedback: Feedback = { score: player.score, correctAnswer };
             player.socket.emit('feedback', feedback);
         });
+        this.matchRoomService.getMatchRoomByCode(roomCode).hostSocket.emit('feedback');
     }
     private resetPlayersAnswer(roomCode: string) {
         this.getMatchRoomByCode(roomCode).submittedPlayers = 0;

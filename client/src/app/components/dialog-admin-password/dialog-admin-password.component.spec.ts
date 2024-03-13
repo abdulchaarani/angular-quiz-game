@@ -4,9 +4,36 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { DialogAdminPasswordComponent } from './dialog-admin-password.component';
 import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { Component } from '@angular/core';
+
+
+@Component({
+    selector: 'app-chat',
+    template: '',
+})
+class MockChatComponent {}
+
+
+@Component({
+    selector: 'app-histogram',
+    template: '',
+})
+class MockAppHistogramComponent {}
+
+@Component({
+    selector: 'mat-icon',
+    template: '',
+})
+class MockMatIconComponent {}
+
+@Component({
+    selector: 'app-players-list',
+    template: '',
+})
+class MockAppPlayersListComponent {}
 
 describe('DialogAdminPasswordComponent', () => {
     let component: DialogAdminPasswordComponent;
@@ -15,8 +42,14 @@ describe('DialogAdminPasswordComponent', () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            imports: [MatDialogModule, FormsModule, MatIconModule, MatFormFieldModule, MatInputModule, BrowserAnimationsModule],
-            declarations: [DialogAdminPasswordComponent],
+            imports: [MatDialogModule, FormsModule, MatFormFieldModule, MatInputModule, BrowserAnimationsModule, MatExpansionModule],
+            declarations: [
+                DialogAdminPasswordComponent, 
+                MockChatComponent, 
+                MockAppHistogramComponent,
+                MockAppPlayersListComponent,
+                MockMatIconComponent
+            ],
             providers: [
                 {
                     provide: MatDialogRef,

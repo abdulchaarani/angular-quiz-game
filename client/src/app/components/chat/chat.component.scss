@@ -21,10 +21,31 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    &::-webkit-scrollbar {
+        width: 0;
+        background: transparent; 
+    }
+}
+
+@keyframes slideUp {
+    0% {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
 .message-container {
+    position: relative;
     margin: 1rem;
+    overflow-wrap: break-word;
+    padding: 0.625rem 1.25rem;
+    border-radius: 1.125rem;
+    cursor: pointer;
+    animation: slideUp 0.15s ;
 }
 
 .message-info-container {
@@ -43,7 +64,7 @@
 }
 
 .own-message {
-    background-color: #303f9f;
+    background-color: #5b6feb;
     color: #fff;
 }
 

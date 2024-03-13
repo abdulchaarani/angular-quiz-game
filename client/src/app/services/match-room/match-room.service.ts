@@ -162,6 +162,7 @@ export class MatchRoomService {
     fetchPlayersData() {
         this.socketService.on('fetchPlayersData', (res: string) => {
             this.players = JSON.parse(res);
+            console.log('players', res);
         });
     }
 

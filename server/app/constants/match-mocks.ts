@@ -4,6 +4,8 @@ import { getMockGame } from './game-mocks';
 import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
 
 const MOCK_USER_INFO = { roomCode: '', username: '' };
+const MOCK_MESSAGE = {text: 'Text', author: '', date: new Date()};
+const MOCK_MESSAGE_INFO ={ roomCode: '', message: MOCK_MESSAGE }
 const MOCK_PLAYER: Player = {
     username: '',
     answer: { selectedChoices: new Map<string, boolean>(), isSubmited: false },
@@ -47,4 +49,4 @@ const MOCK_PLAYER_ROOM: MatchRoom = {
 };
 const MOCK_ROOM_CODE = 'mockCode';
 const MOCK_USERNAME = 'mockUsername';
-export { MOCK_MATCH_ROOM, MOCK_PLAYER, MOCK_PLAYER_ROOM, MOCK_ROOM_CODE, MOCK_USERNAME, MOCK_USER_INFO };
+export { MOCK_MATCH_ROOM, MOCK_PLAYER, MOCK_PLAYER_ROOM, MOCK_ROOM_CODE, MOCK_USERNAME, MOCK_USER_INFO, MOCK_MESSAGE_INFO, MOCK_MESSAGE };

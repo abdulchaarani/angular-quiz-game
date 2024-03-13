@@ -1,15 +1,29 @@
 import { TimerEvents } from '@app/constants/timer-events';
 import { Game } from '@app/model/database/game';
-import { UserInfo } from '@common/interfaces/user-info';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
+import { Message } from '@app/model/schema/message.schema';
+import { ChatService } from '@app/services/chat/chat.service';
 import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
+import { UserInfo } from '@common/interfaces/user-info';
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { ConnectedSocket, MessageBody, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { MatchEvents } from './match.gateway.events';
+
+import { ConnectedSocket, MessageBody, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+
+interface MessageInfo {
+    roomCode: string;
+    message: Message;
+}
+
+// Future TODO: Open socket only if code and user are valid + Allow host to be able to disconnect banned players
+interface TimerInfo {
+    roomCode: string;
+    time: number;
+}
 
 @WebSocketGateway({ cors: true })
 @Injectable()
@@ -20,6 +34,7 @@ export class MatchGateway implements OnGatewayDisconnect {
         private matchRoomService: MatchRoomService,
         private playerRoomService: PlayerRoomService,
         private matchBackupService: MatchBackupService,
+        private chatService: ChatService,
     ) {}
 
     @SubscribeMessage(MatchEvents.JoinRoom)
@@ -65,6 +80,27 @@ export class MatchGateway implements OnGatewayDisconnect {
         }
     }
 
+    @SubscribeMessage(MatchEvents.RoomMessage)
+    handleIncomingRoomMessages(@ConnectedSocket() socket: Socket, @MessageBody() data: MessageInfo) {
+        this.chatService.addMessage(data.message, data.roomCode);
+        this.sendMessageToClients(data);
+    }
+
+    // @SubscribeMessage(MatchEvents.StartTimer)
+    // startTimer(@ConnectedSocket() socket: Socket, @MessageBody() data: TimerInfo) {
+    //     this.timeService.startTimer(data.roomCode, data.time, this.server);
+    // }
+    @SubscribeMessage(MatchEvents.SendMessagesHistory)
+    sendMessagesHistory(@ConnectedSocket() socket: Socket, @MessageBody() matchRoomCode: string) {
+        if (socket.rooms.has(matchRoomCode)) {
+            this.handleSentMessagesHistory(matchRoomCode);
+        }
+    }
+
+    // @SubscribeMessage(MatchEvents.StopTimer)
+    // stopTimer(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
+    //     this.timeService.stopTimer(roomCode, this.server);
+    // }
     // TODO: Start match: Do not forget to make isPlaying = true in MatchRoom object!!
     @SubscribeMessage(MatchEvents.StartMatch)
     startMatch(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
@@ -112,7 +148,17 @@ export class MatchGateway implements OnGatewayDisconnect {
         this.matchRoomService.deleteMatchRoom(matchRoomCode);
     }
 
+    sendMessageToClients(data: MessageInfo) {
+        this.server.to(data.roomCode).emit(MatchEvents.NewMessage, data);
+    }
+
     handleSendPlayersData(matchRoomCode: string) {
         this.server.to(matchRoomCode).emit('fetchPlayersData', this.playerRoomService.getPlayersStringified(matchRoomCode));
     }
+
+    handleSentMessagesHistory(matchRoomCode: string) {
+        this.server.to(matchRoomCode).emit('fetchOldMessages', this.chatService.getMessages(matchRoomCode));
+    }
+
+    // TODO: Start match: Do not forget to make isPlaying = true in MatchRoom object!!
 }

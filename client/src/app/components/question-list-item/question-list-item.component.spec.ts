@@ -1,14 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { QuestionCreationFormComponent } from '@app/components/question-creation-form/question-creation-form.component';
-import { ManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
 import { QuestionListItemComponent } from './question-list-item.component';
+import { ManagementState } from '@app/constants/states';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatIconModule } from '@angular/material/icon';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { Component, Input } from '@angular/core';
+import { MatSelectModule } from '@angular/material/select';
 
 describe('QuestionListItemComponent', () => {
     let component: QuestionListItemComponent;
     let fixture: ComponentFixture<QuestionListItemComponent>;
-
     const mockQuestion: Question = {
         id: '1',
         type: 'QCM',
@@ -17,55 +20,57 @@ describe('QuestionListItemComponent', () => {
         lastModification: new Date().toString(),
     };
 
+    @Component({
+        selector: 'mat-label',
+        template: '',
+    })
+    class MockMatLabelComponent {}
+    @Component({
+        selector: 'app-question-creation-form',
+      })
+      class MockQuestionCreationFormComponent {
+        @Input() modificationState: ManagementState;
+        @Input() question: Question;
+      }
+      
     beforeEach(() => {
         TestBed.configureTestingModule({
-            declarations: [QuestionListItemComponent, QuestionCreationFormComponent],
-            imports: [MatSnackBarModule],
-        });
-
+            declarations: [MockQuestionCreationFormComponent, QuestionListItemComponent,  MockMatLabelComponent],
+            imports: [ MatSnackBarModule, MatExpansionModule, MatIconModule, NoopAnimationsModule, MatSelectModule],
+        }).compileComponents();
         fixture = TestBed.createComponent(QuestionListItemComponent);
         component = fixture.componentInstance;
-
         component.question = mockQuestion;
+        component.isBankQuestion = true; 
+        component.index = 0;
     });
 
     it('should create', () => {
         expect(component).toBeTruthy();
     });
-
     it('should display question details', () => {
         fixture.detectChanges();
-
         const dom = fixture.nativeElement;
-
         expect(dom.textContent).toContain(mockQuestion.text);
         expect(dom.textContent).toContain(mockQuestion.points);
     });
-
     it('should emit deleteQuestionEvent when deleteQuestion is called', () => {
         const spy = spyOn(component.deleteQuestionEvent, 'emit').and.callThrough();
-
         component.deleteQuestion();
-
         expect(spy).toHaveBeenCalled();
         expect(spy).toHaveBeenCalledWith(mockQuestion.id);
     });
-
     it('should emit updateQuestionEvent when dispatchQuestion is called', () => {
         const spy = spyOn(component.updateQuestionEvent, 'emit').and.callThrough();
-
         component.dispatchModifiedQuestion();
-
         expect(spy).toHaveBeenCalled();
         expect(spy).toHaveBeenCalledWith(mockQuestion);
     });
-
     it('should set modificationState to BankModify if it is a bank question', () => {
         component.isBankQuestion = true;
         component.ngOnInit();
         expect(component.modificationState).toBe(ManagementState.BankModify);
     });
-
     it('should set modificationState to GameModify if it is not a bank question', () => {
         component.isBankQuestion = false;
         component.ngOnInit();

@@ -15,7 +15,7 @@ interface UserInfo {
 })
 export class MatchRoomService {
     players: Player[];
-    messages: Message [];
+    messages: Message[];
 
     private matchRoomCode: string;
     private username: string;
@@ -64,6 +64,13 @@ export class MatchRoomService {
             this.matchRoomCode = res.code;
             this.username = 'Organisateur';
             this.router.navigateByUrl('/match-room');
+        });
+    }
+
+    createTestRoom(gameId: string) {
+        this.socketService.send('createTestRoom', gameId, (res: { code: string; username: string }) => {
+            this.matchRoomCode = res.code;
+            this.username = res.username;
         });
     }
 

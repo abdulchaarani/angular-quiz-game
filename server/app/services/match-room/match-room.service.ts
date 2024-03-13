@@ -61,6 +61,27 @@ export class MatchRoomService {
         return newRoom;
     }
 
+    addTestMatchRoom(selectedGame: Game, socket: Socket): MatchRoom {
+        const newRoom: MatchRoom = {
+            code: '00000',
+            hostSocket: socket,
+            isLocked: true,
+            isPlaying: true,
+            game: selectedGame,
+            gameLength: selectedGame.questions.length,
+            currentQuestionIndex: 0,
+            currentQuestionAnswer: [],
+            choiceTally: new ChoiceTally(),
+            bannedUsernames: [],
+            players: [],
+            activePlayers: 0,
+            submittedPlayers: 0,
+            messages: [],
+        };
+        this.matchRooms.push(newRoom);
+        return newRoom;
+    }
+
     getRoomCodeByHostSocket(socketId: string): string {
         let matchRoomCode: string;
         this.matchRooms.forEach((matchRoom: MatchRoom) => {

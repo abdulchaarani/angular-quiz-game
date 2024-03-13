@@ -1,26 +1,17 @@
 import { TimerEvents } from '@app/constants/timer-events';
 import { Game } from '@app/model/database/game';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
+import { Message } from '@app/model/schema/message.schema';
+import { ChatService } from '@app/services/chat/chat.service';
 import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
 import { Injectable } from '@nestjs/common';
-import { ChatService } from '@app/services/chat/chat.service';
-import { Message } from '@app/model/schema/message.schema';
+import { OnEvent } from '@nestjs/event-emitter';
 import { Server, Socket } from 'socket.io';
 import { MatchEvents } from './match.gateway.events';
-import { OnEvent } from '@nestjs/event-emitter';
 
-import {
-    ConnectedSocket,
-    MessageBody,
-    OnGatewayConnection,
-    OnGatewayDisconnect,
-    SubscribeMessage,
-    WebSocketGateway,
-    WebSocketServer,
-} from '@nestjs/websockets';
-
+import { ConnectedSocket, MessageBody, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 
 interface UserInfo {
     roomCode: string;
@@ -59,6 +50,15 @@ export class MatchGateway implements OnGatewayDisconnect {
             const newPlayer = this.playerRoomService.addPlayer(socket, data.roomCode, data.username);
             return { code: data.roomCode, username: newPlayer.username };
         }
+    }
+
+    @SubscribeMessage('createTestRoom')
+    createTestRoom(@ConnectedSocket() socket: Socket, @MessageBody() gameId: string) {
+        const selectedGame: Game = this.matchBackupService.getBackupGame(gameId);
+        const newMatchRoom: MatchRoom = this.matchRoomService.addMatchRoom(selectedGame, socket);
+        const newPlayer = this.playerRoomService.addPlayer(socket, '00000', 'tester');
+        socket.join(newMatchRoom.code);
+        return { code: newMatchRoom.code, username: newPlayer.username };
     }
 
     @SubscribeMessage(MatchEvents.CreateRoom)

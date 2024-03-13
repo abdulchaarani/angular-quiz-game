@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { MatchRoomService } from '@app/services/match-room/match-room.service';
+import { Component, Input } from '@angular/core';
+import { Player } from '@app/interfaces/player';
 
 @Component({
     selector: 'app-players-list',
@@ -7,5 +7,5 @@ import { MatchRoomService } from '@app/services/match-room/match-room.service';
     styleUrls: ['./players-list.component.scss'],
 })
 export class PlayersListComponent {
-    constructor(public matchRoomService: MatchRoomService) {}
+    @Input() players: Player[];
 }

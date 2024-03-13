@@ -1,53 +1,67 @@
 import { HttpResponse } from '@angular/common/http';
-import { Component, HostListener, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { ChatComponent } from '@app/components/chat/chat.component';
+import { Component, HostListener, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { MatchStatus } from '@app/constants/feedback-messages';
 import { Choice } from '@app/interfaces/choice';
 import { Question } from '@app/interfaces/question';
-// import { MatchRoomService } from '@app/services/match-room/match-room.service';
+import { AnswerService } from '@app/services/answer/answer.service';
+import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { MatchService } from '@app/services/match/match.service';
+import { QuestionContextService } from '@app/services/question-context/question-context.service';
 import { TimeService } from '@app/services/time/time.service';
-
+import { BONUS_FACTOR, MULTIPLICATION_FACTOR } from '@common/constants/match-constants';
+import { Subscription } from 'rxjs';
 @Component({
     selector: 'app-question-area',
     templateUrl: './question-area.component.html',
     styleUrls: ['./question-area.component.scss'],
 })
-export class QuestionAreaComponent implements OnInit, OnChanges {
+export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
     @Input() currentQuestion: Question;
     @Input() gameDuration: number;
-    @Input() isTestPage: boolean;
 
     answers: Choice[];
     selectedAnswers: Choice[];
     isSelectionEnabled: boolean;
     showFeedback: boolean;
     isCorrect: boolean;
-    playerScore: number;
+    playerScore: number = 0;
     havePointsBeenAdded: boolean;
     bonus: number;
+    context: 'testPage' | 'hostView' | 'playerView';
+    correctAnswers: string[];
+    isFirstQuestion: boolean = true;
+    isCooldown: boolean = false;
+    isRightAnswer: boolean = false;
 
-    readonly bonusFactor = 0.2;
-    private readonly multiplicationFactor = 100;
+    // TODO: verify if still needed then move to constants
     private readonly timeout = 3000;
 
+    private subscriptions: Subscription[];
+
+    // permit more class parameters to decouple services
+    // eslint-disable-next-line max-params
     constructor(
-        public timeService: TimeService,
-        public dialog: MatDialog,
-        private matchService: MatchService,
-    ) // private matchRoomService: MatchRoomService,
-    {
-        this.selectedAnswers = [];
-        this.isSelectionEnabled = true;
-        this.showFeedback = false;
-        this.isCorrect = false;
-        this.playerScore = 0;
-        this.havePointsBeenAdded = false;
-        this.bonus = 0;
-    }
+        private readonly timeService: TimeService,
+        private readonly matchService: MatchService,
+        private readonly matchRoomService: MatchRoomService,
+        private readonly questionContextService: QuestionContextService,
+        private readonly answerService: AnswerService,
+    ) {}
 
     get time() {
         return this.timeService.time;
+    }
+
+    get matchRoomCode() {
+        return this.matchRoomService.getMatchRoomCode();
+    }
+
+    get username() {
+        return this.matchRoomService.getUsername();
+    }
+
+    get players() {
+        return this.matchRoomService.players;
     }
 
     @HostListener('document:keydown', ['$event'])
@@ -67,28 +81,27 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     }
 
     ngOnInit(): void {
-        // this.timeService.stopTimer();
-        // this.timeService.startTimer(this.gameDuration);
-        if (this.currentQuestion.choices) {
-            this.answers = this.currentQuestion.choices;
-        }
-        if (this.currentQuestion.id) {
-            this.matchService.questionId = this.currentQuestion.id;
-        }
+        this.subscriptions = [];
+        this.resetStateForNewQuestion();
 
-        this.timeService.timerFinished$.subscribe((timerFinished) => {
-            if (timerFinished) {
-                this.checkAnswers();
+        this.context = this.questionContextService.getContext();
+        if (this.context !== 'testPage') {
+            if (this.isFirstQuestion) {
+                this.currentQuestion = history.state.question;
+                this.gameDuration = history.state.duration;
+                this.isFirstQuestion = false;
             }
-        });
+
+            this.listenToGameEvents();
+            this.initialiseSubscriptions();
+        }
+    }
+
+    ngOnDestroy() {
+        this.subscriptions.forEach((subscription) => subscription.unsubscribe());
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes.gameDuration) {
-            // const newTimeLimit = changes.gameDuration.currentValue;
-            // this.timeService.startTimer(newTimeLimit);
-        }
-
         if (changes.currentQuestion) {
             const newQuestion = changes.currentQuestion.currentValue;
             this.currentQuestion = newQuestion;
@@ -103,7 +116,7 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
     }
 
     computeTimerProgress(): number {
-        return (this.timeService.time / this.gameDuration) * this.multiplicationFactor;
+        return (this.timeService.time / this.timeService.duration) * MULTIPLICATION_FACTOR;
     }
 
     checkAnswers(): void {
@@ -118,14 +131,26 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
 
     submitAnswers(): void {
         this.isSelectionEnabled = false;
+        if (this.context === 'testPage') {
+            this.timeService.stopTimer(this.matchRoomCode);
+            this.checkAnswers();
+        } else if (this.context === 'playerView') {
+            this.answerService.submitAnswer({ username: this.username, roomCode: this.matchRoomCode });
+        }
     }
 
     selectChoice(choice: Choice): void {
         if (this.isSelectionEnabled) {
             if (!this.selectedAnswers.includes(choice)) {
                 this.selectedAnswers.push(choice);
+                if (this.context === 'playerView') {
+                    this.answerService.selectChoice(choice.text, { username: this.username, roomCode: this.matchRoomCode });
+                }
             } else {
                 this.selectedAnswers = this.selectedAnswers.filter((answer) => answer !== choice);
+                if (this.context === 'playerView') {
+                    this.answerService.deselectChoice(choice.text, { username: this.username, roomCode: this.matchRoomCode });
+                }
             }
         }
     }
@@ -134,35 +159,46 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         return this.selectedAnswers.includes(choice);
     }
 
-    openChatDialog(): void {
-        this.dialog.open(ChatComponent, {
-            width: '50%',
-            height: '50%',
-        });
+    isCorrectAnswer(choice: Choice): boolean {
+        return this.correctAnswers.includes(choice.text);
     }
 
     playerScoreUpdate(): void {
-        if (this.isCorrect === true) {
-            if (this.isTestPage === true) {
-                this.bonus = this.currentQuestion.points * this.bonusFactor;
+        // testpage
+        if (this.isCorrect) {
+            if (this.context === 'testPage') {
+                this.bonus = this.currentQuestion.points * BONUS_FACTOR;
+                this.playerScore += this.currentQuestion.points;
+                this.playerScore += this.bonus;
             }
-            this.playerScore += this.currentQuestion.points;
-            this.playerScore += this.bonus;
+            // else if (this.context === 'playerView') {
+            // const updatedScore = this.matchRoomService.updatePlayerScore(this.username, this.currentQuestion.points);
+            // if (updatedScore !== void 0) {
+            //     this.playerScore = updatedScore;
+            // }
         }
     }
 
     afterFeedback(): void {
-        if (this.havePointsBeenAdded === false) {
-            this.playerScoreUpdate();
-            this.havePointsBeenAdded = true;
-        }
+        // TODO: uncomment when done
+        // if (this.havePointsBeenAdded === false) {
+        //     this.playerScoreUpdate();
+        //     this.havePointsBeenAdded = true;
+        // }
         this.showFeedback = true;
         setTimeout(() => {
-            this.matchService.advanceQuestion();
+            // this.matchService.advanceQuestion();
+            // this.matchRoomService.nextQuestion();
             this.resetStateForNewQuestion();
-            // this.timeService.stopTimer();
-            // this.timeService.startTimer(this.gameDuration);
+            // this.timeService.stopTimer(this.matchRoomCode);
+            // this.timeService.startTimer(this.matchRoomCode, this.gameDuration);
         }, this.timeout);
+    }
+
+    nextQuestion() {
+        if (this.context === 'hostView') {
+            this.matchRoomService.nextQuestion();
+        }
     }
 
     resetStateForNewQuestion(): void {
@@ -172,5 +208,85 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         this.isCorrect = false;
         this.havePointsBeenAdded = false;
         this.bonus = 0;
+        this.correctAnswers = [];
+        this.isRightAnswer = false;
+        this.isCooldown = false;
+    }
+
+    handleQuit() {
+        this.matchRoomService.disconnect();
+    }
+
+    private subscribeToFeedback() {
+        const feedbackSubscription = this.answerService.feedback$.subscribe((feedback) => {
+            if (feedback) {
+                this.isSelectionEnabled = false;
+                this.correctAnswers = feedback.correctAnswer;
+                if (this.playerScore < feedback.score) {
+                    this.isRightAnswer = true;
+                }
+                this.playerScore = feedback.score;
+                this.matchRoomService.sendPlayersData(this.matchRoomCode);
+                this.showFeedback = true;
+            }
+        });
+        const feedbackObservable = this.answerService.feedbackSub$.subscribe(() => {
+            console.log('feedbackSubject');
+            this.showFeedback = true;
+        });
+
+        this.subscriptions.push(feedbackSubscription);
+        this.subscriptions.push(feedbackObservable);
+    }
+
+    private subscribeToCurrentQuestion() {
+        const currentQuestionSubscription = this.matchRoomService.currentQuestion$.subscribe((question) => {
+            if (question) {
+                this.currentQuestion = question;
+                this.ngOnChanges({
+                    currentQuestion: {
+                        currentValue: question,
+                        previousValue: this.currentQuestion,
+                        firstChange: false,
+                        isFirstChange: () => false,
+                    },
+                });
+            }
+        });
+        this.subscriptions.push(currentQuestionSubscription);
+    }
+
+    private subscribeToBonus() {
+        const bonusPointsSubscription = this.answerService.bonusPoints$.subscribe((bonus) => {
+            if (bonus) {
+                this.bonus = bonus;
+            }
+        });
+        this.subscriptions.push(bonusPointsSubscription);
+    }
+
+    private subscribeToCooldown() {
+        const displayCoolDownSubscription = this.matchRoomService.displayCooldown$.subscribe((isCooldown) => {
+            if (isCooldown) {
+                this.isCooldown = true;
+                this.currentQuestion.text = MatchStatus.PREPARE;
+            }
+        });
+
+        this.subscriptions.push(displayCoolDownSubscription);
+    }
+
+    private listenToGameEvents() {
+        this.timeService.handleTimer();
+        this.timeService.handleStopTimer();
+        this.answerService.feedback();
+        this.answerService.bonusPoints();
+    }
+
+    private initialiseSubscriptions() {
+        this.subscribeToFeedback();
+        this.subscribeToCurrentQuestion();
+        this.subscribeToBonus();
+        this.subscribeToCooldown();
     }
 }

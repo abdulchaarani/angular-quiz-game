@@ -1,4 +1,5 @@
 import { TimerEvents } from '@app/constants/timer-events';
+import { TimerInfo } from '@common/interfaces/timer-info';
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Server } from 'socket.io';
@@ -25,6 +26,8 @@ export class TimeService {
     // eslint-disable-next-line max-params
     startTimer(server: Server, roomId: string, startValue: number, onTimerExpiredEvent: TimerEvents) {
         if (this.intervals.has(roomId)) return;
+        let timerInfo: TimerInfo = { currentTime: startValue, duration: startValue };
+        server.in(roomId).emit('timer', timerInfo);
 
         this.counters.set(roomId, startValue - 1);
 
@@ -33,7 +36,8 @@ export class TimeService {
             setInterval(() => {
                 const currentTime = this.counters.get(roomId);
                 if (currentTime >= 0) {
-                    server.in(roomId).emit('timer', currentTime);
+                    timerInfo = { currentTime, duration: startValue };
+                    server.in(roomId).emit('timer', timerInfo);
                     this.counters.set(roomId, currentTime - 1);
                 } else {
                     this.expireTimer(roomId, server, onTimerExpiredEvent);

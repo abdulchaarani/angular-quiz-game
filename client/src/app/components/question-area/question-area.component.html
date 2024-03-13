@@ -3,17 +3,23 @@
 <div id="main-container">
     <div id="question-area">
         <div id="exit-button-container">
-            <button id="exitButton" routerLink="/host">QUITTER</button>
+            <button id="exitButton" routerLink="/home" (click)="handleQuit()">QUITTER</button>
         </div>
 
         <div id="question-timer-area">
-            <div id="score-feedback-area" *ngIf="isTestPage && showFeedback && bonus > 0; else elseBlock">
+            <div id="score-feedback-area" *ngIf="showFeedback && context !== 'hostView' && !isCooldown; else elseBlock">
                 <h1 id="score">SCORE : {{ playerScore }}</h1>
-                <h1 id="bonus-points">✨Vous avez obtenu un bonus de {{ bonus }} points!✨</h1>
+                <h1 class="points" id="right-answer" *ngIf="bonus > 0 && isRightAnswer">
+                    ✨Bonne Réponse! Vous avez obtenu {{ currentQuestion.points }} points et un bonus de {{ bonus }} points!✨
+                </h1>
+                <h1 class="points" id="right-answer" *ngIf="bonus == 0 && isRightAnswer">
+                    ✨Bonne Réponse! Vous avez obtenu {{ currentQuestion.points }} points et un bonus de {{ bonus }} points!✨
+                </h1>
+                <h1 class="points" id="wrong-answer" *ngIf="!isRightAnswer">😔Mauvaise Réponse😔</h1>
             </div>
 
             <ng-template #elseBlock>
-                <div id="score-area">
+                <div id="score-area" *ngIf="context !== 'hostView'">
                     <h1 id="score">
                         SCORE :
                         {{ playerScore }}
@@ -21,6 +27,7 @@
                 </div>
             </ng-template>
 
+            <!-- TODO: remove the ! -->
             <div id="question">
                 <h1>{{ this.currentQuestion!.text }}</h1>
                 <h1 id="points">{{ currentQuestion.points }} points</h1>
@@ -38,20 +45,31 @@
             </div>
         </div>
 
-        <div id="choice-area">
+        <div id="choice-area" *ngIf="(context === 'testPage' || context === 'playerView') && !isCooldown">
             <button
                 *ngFor="let choice of currentQuestion.choices; let i = index"
                 class="answer"
                 [class.selected]="isSelected(choice) && !showFeedback"
-                [class.correct]="showFeedback && choice.isCorrect"
-                [class.incorrect]="showFeedback && !choice.isCorrect && isSelected(choice)"
+                [class.correct]="showFeedback && isCorrectAnswer(choice)"
+                [class.incorrect]="showFeedback && !isCorrectAnswer(choice) && isSelected(choice)"
                 (click)="selectChoice(choice)"
             >
                 {{ i + 1 }}. {{ choice.text }}
             </button>
         </div>
-        <div id="submit-button-container">
+        <div id="host-area" *ngIf="context === 'hostView'">
+            <div class="histogram-container">
+                <!-- <app-histogram></app-histogram> -->
+                <!-- TODO: a revoir quand l'histogramme est fait -->
+            </div>
+            <div id="buttons-container">
+                <button mat-raised-button>Présenter les résultats finaux</button>
+                <button mat-raised-button color="primary" (click)="nextQuestion()" *ngIf="showFeedback">Question suivante</button>
+            </div>
+        </div>
+        <div id="submit-button-container" *ngIf="context === 'testPage' || context === 'playerView'">
             <button mat-raised-button color="primary" id="submitButton" *ngIf="isSelectionEnabled" (click)="submitAnswers()">SOUMETTRE</button>
         </div>
     </div>
 </div>
+<app-players-list [players]="this.players" *ngIf="context === 'playerView' || context === 'hostView'"></app-players-list>

@@ -1,21 +1,28 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
+import { BehaviorSubject } from 'rxjs';
+import { TimerInfo } from '@common/interfaces/timer-info';
 
 @Injectable({
     providedIn: 'root',
 })
 export class TimeService {
-    counter: number;
+    private counter: number;
+    private initialValue: number;
     private timerFinished: BehaviorSubject<boolean>;
 
     constructor(private socketService: SocketHandlerService) {
         this.counter = 0;
+        this.initialValue = 0;
         this.timerFinished = new BehaviorSubject<boolean>(false);
     }
 
     get time() {
         return this.counter;
+    }
+
+    get duration() {
+        return this.initialValue;
     }
 
     get timerFinished$() {
@@ -35,9 +42,9 @@ export class TimeService {
     }
 
     handleTimer(): void {
-        this.socketService.on('timer', (currentTime: number) => {
-            this.counter = currentTime;
-            console.log('Current time : ', currentTime);
+        this.socketService.on('timer', (timerInfo: TimerInfo) => {
+            this.counter = timerInfo.currentTime;
+            this.initialValue = timerInfo.duration;
         });
     }
 

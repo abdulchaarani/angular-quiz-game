@@ -12,10 +12,8 @@ import { ChatComponent } from './components/chat/chat.component';
 import { DialogAdminPasswordComponent } from './components/dialog-admin-password/dialog-admin-password.component';
 import { DialogConfirmComponent } from './components/dialog-confirm/dialog-confirm.component';
 import { DialogTextInputComponent } from './components/dialog-text-input/dialog-text-input.component';
-import { FeedbackComponent } from './components/feedback/feedback.component';
 import { GameListItemComponent } from './components/game-list-item/game-list-item.component';
 import { HistogramComponent } from './components/histogram/histogram.component';
-import { HostQuestionAreaComponent } from './components/host-question-area/host-question-area.component';
 import { PlayersListComponent } from './components/players-list/players-list.component';
 import { QuestionAreaComponent } from './components/question-area/question-area.component';
 import { QuestionListItemComponent } from './components/question-list-item/question-list-item.component';
@@ -58,7 +56,6 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
         ClickStopPropagationDirective,
         TestPageComponent,
         ChatComponent,
-        FeedbackComponent,
         WaitPageComponent,
         DialogAdminPasswordComponent,
         ShortQuestionComponent,
@@ -68,7 +65,6 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
         PlayersListComponent,
         SortByScorePipe,
         HistogramComponent,
-        HostQuestionAreaComponent,
     ],
     imports: [
         AppMaterialModule,

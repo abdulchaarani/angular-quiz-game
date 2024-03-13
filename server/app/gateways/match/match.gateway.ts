@@ -6,6 +6,7 @@ import { ChatService } from '@app/services/chat/chat.service';
 import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
+import { UserInfo } from '@common/interfaces/user-info';
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Server, Socket } from 'socket.io';
@@ -117,7 +118,7 @@ export class MatchGateway implements OnGatewayDisconnect {
     // TODO: Start match: Do not forget to make isPlaying = true in MatchRoom object!!
     @SubscribeMessage(MatchEvents.StartMatch)
     startMatch(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
-        this.matchRoomService.startMatch(this.server, roomCode);
+        this.matchRoomService.startMatch(socket, this.server, roomCode);
     }
 
     @SubscribeMessage(MatchEvents.NextQuestion)
@@ -127,9 +128,8 @@ export class MatchGateway implements OnGatewayDisconnect {
 
     @OnEvent(TimerEvents.CountdownTimerExpired)
     onCountdownTimerExpired(matchRoomCode: string) {
-        this.server.in(matchRoomCode).emit('beginQuiz');
         this.matchRoomService.markGameAsPlaying(matchRoomCode);
-        this.matchRoomService.sendNextQuestion(this.server, matchRoomCode);
+        this.matchRoomService.sendFirstQuestion(this.server, matchRoomCode);
     }
 
     @OnEvent(TimerEvents.CooldownTimerExpired)
@@ -148,10 +148,12 @@ export class MatchGateway implements OnGatewayDisconnect {
             return;
         }
         const room = this.matchRoomService.getMatchRoomByCode(roomCode);
-        if (room.players.length === 0 && room.isPlaying) {
+        const allPlayersQuit = room.players.every((player) => player.isPlaying === false);
+        if (room.isPlaying && allPlayersQuit) {
             this.deleteMatchRoom(matchRoomCode);
             return;
         }
+
         this.handleSendPlayersData(roomCode);
     }
 

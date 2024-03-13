@@ -8,7 +8,7 @@ interface AuthentificationInfo {
 
 @Controller('/login')
 export class AuthenticationController {
-    constructor(private authService: AuthenticationService) {}
+    constructor(private readonly authService: AuthenticationService) {}
 
     @Post('/')
     signIn(@Body() signInInfo: AuthentificationInfo, @Res() response: Response) {

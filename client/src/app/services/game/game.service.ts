@@ -5,8 +5,8 @@ import { DialogTextInputComponent } from '@app/components/dialog-text-input/dial
 import { ManagementState } from '@app/constants/states';
 import { Game } from '@app/interfaces/game';
 import { CommunicationService } from '@app/services/communication/communication.service';
+import { NotificationService } from '@app/services/notification/notification.service';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { NotificationService } from '../notification/notification.service';
 
 @Injectable({
     providedIn: 'root',
@@ -65,7 +65,7 @@ export class GameService extends CommunicationService<Game> {
                 if (error.message === 'Un jeu du même titre existe déjà.' || error.status === HttpStatusCode.Conflict) {
                     this.openDialog(newGame);
                 } else {
-                    this.notificationService.displayErrorMessage(`Le jeu n'a pas pu être ajouté. 😿 \n ${error}`);
+                    this.notificationService.displayErrorMessage(`Le jeu n'a pas pu être ajouté. 😿 \n ${error.message}`);
                 }
             },
         });

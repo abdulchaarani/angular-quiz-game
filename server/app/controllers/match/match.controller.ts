@@ -4,6 +4,8 @@ import { PlayerRoomService } from '@app/services/player-room/player-room.service
 import { Body, Controller, Get, HttpStatus, Param, Post, Res } from '@nestjs/common';
 import { Response } from 'express';
 
+// TODO: Consider migrating interfaces in separate file
+
 interface MatchRoomCodeInfo {
     matchRoomCode: string;
 }
@@ -17,8 +19,8 @@ interface MatchUsernameInfo {
 export class MatchController {
     constructor(
         private readonly matchBackupService: MatchBackupService,
-        private matchRoomService: MatchRoomService,
-        private playerRoomService: PlayerRoomService,
+        private readonly matchRoomService: MatchRoomService,
+        private readonly playerRoomService: PlayerRoomService,
     ) {}
 
     @Get('/games')

@@ -4,6 +4,7 @@ import {
     ERROR_GAME_SAME_TITLE,
     ERROR_INVALID_GAME,
     ERROR_QUESTION_NOT_FOUND,
+    ERROR_WRONG_FORMAT,
 } from '@app/constants/request-errors';
 import { Choice } from '@app/model/database/choice';
 import { Game, GameDocument } from '@app/model/database/game';
@@ -19,8 +20,8 @@ import { Model } from 'mongoose';
 export class GameService {
     constructor(
         @InjectModel(Game.name) public gameModel: Model<GameDocument>,
-        private validation: GameValidationService,
-        private creationService: GameCreationService,
+        private readonly validation: GameValidationService,
+        private readonly creationService: GameCreationService,
     ) {}
 
     async getAllGames(): Promise<Game[]> {
@@ -68,7 +69,7 @@ export class GameService {
                 return Promise.reject(`${ERROR_INVALID_GAME}\n${errorMessages.join('\n')}`);
             }
         } catch (error) {
-            return Promise.reject(`${ERROR_DEFAULT} ${error}`);
+            return Promise.reject(`${ERROR_DEFAULT} ${ERROR_WRONG_FORMAT}`);
         }
     }
 

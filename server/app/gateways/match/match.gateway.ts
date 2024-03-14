@@ -124,9 +124,9 @@ export class MatchGateway implements OnGatewayDisconnect {
     }
 
     handleDisconnect(@ConnectedSocket() socket: Socket) {
-        const matchRoomCode = this.matchRoomService.getRoomCodeByHostSocket(socket.id);
-        if (matchRoomCode) {
-            this.deleteMatchRoom(matchRoomCode);
+        const hostRoomCode = this.matchRoomService.getRoomCodeByHostSocket(socket.id);
+        if (hostRoomCode) {
+            this.deleteMatchRoom(hostRoomCode);
             return;
         }
         const roomCode = this.playerRoomService.deletePlayerBySocket(socket.id);
@@ -136,7 +136,7 @@ export class MatchGateway implements OnGatewayDisconnect {
         const room = this.matchRoomService.getMatchRoomByCode(roomCode);
         const allPlayersQuit = room.players.every((player) => player.isPlaying === false);
         if (room.isPlaying && allPlayersQuit) {
-            this.deleteMatchRoom(matchRoomCode);
+            this.deleteMatchRoom(roomCode);
             return;
         }
 

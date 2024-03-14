@@ -1,11 +1,8 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
 <app-chat></app-chat>
 <div id="main-container">
+    <button id="exitButton" routerLink="/home" (click)="handleQuit()">QUITTER</button>
     <div id="question-area">
-        <div id="exit-button-container">
-            <button id="exitButton" routerLink="/home" (click)="handleQuit()">QUITTER</button>
-        </div>
-
         <div id="question-timer-area">
             <div id="score-feedback-area" *ngIf="showFeedback && context !== 'hostView' && !isCooldown; else elseBlock">
                 <h1 id="score">SCORE : {{ playerScore }}</h1>

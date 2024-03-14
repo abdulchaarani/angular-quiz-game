@@ -104,6 +104,7 @@ export class MatchGateway implements OnGatewayDisconnect {
     // TODO: Start match: Do not forget to make isPlaying = true in MatchRoom object!!
     @SubscribeMessage(MatchEvents.StartMatch)
     startMatch(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
+        this.matchRoomService.markGameAsPlaying(roomCode);
         this.matchRoomService.startMatch(socket, this.server, roomCode);
     }
 
@@ -114,7 +115,6 @@ export class MatchGateway implements OnGatewayDisconnect {
 
     @OnEvent(TimerEvents.CountdownTimerExpired)
     onCountdownTimerExpired(matchRoomCode: string) {
-        this.matchRoomService.markGameAsPlaying(matchRoomCode);
         this.matchRoomService.sendFirstQuestion(this.server, matchRoomCode);
     }
 

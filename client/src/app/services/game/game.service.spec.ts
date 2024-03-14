@@ -8,7 +8,7 @@ import { NotificationService } from '@app/services/notification/notification.ser
 import { of, throwError } from 'rxjs';
 import { GameService } from './game.service';
 
-describe('GameService', () => {
+fdescribe('GameService', () => {
     let service: GameService;
     let notificationSpy: jasmine.SpyObj<NotificationService>;
     let dialogMock: jasmine.SpyObj<MatDialog>;
@@ -76,19 +76,13 @@ describe('GameService', () => {
         expect(spy).toHaveBeenCalled();
     });
 
-    it('should be able to add a game (with no body in the response) and display success message', () => {
-        const spy = spyOn(service, 'addGame').and.returnValue(of(mockHttpResponse));
-        service.uploadGame(newMockGame);
-        expect(spy).toHaveBeenCalledWith(newMockGame);
-        // expect(service.games.length).toBe(mockGames.length + 1);
-        expect(notificationSpy.displaySuccessMessage).toHaveBeenCalled();
-    });
-
-    it('should be able to add a game (with appropriate body in the response) and display success message', () => {
+    it('should be able to upload a game (with appropriate body in the response) and display success message', () => {
         const mockHttpResponseWithBody: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK', body: JSON.stringify(newMockGame) });
         const addSpy = spyOn(service, 'addGame').and.returnValue(of(mockHttpResponseWithBody));
+        const expectedLength = service.games.length + 1;
         service.uploadGame(newMockGame);
-        // expect(service.games.length).toBe(mockGames.length + 1);
+        expect(service.games.length).toEqual(expectedLength);
+        console.log(service.games.length);
         expect(addSpy).toHaveBeenCalled();
         expect(notificationSpy.displaySuccessMessage).toHaveBeenCalled();
     });

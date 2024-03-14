@@ -5,7 +5,6 @@ import { GameService } from '@app/services/game/game.service';
 import { MatchService } from '@app/services/match/match.service';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { QuestionContextService } from '@app/services/question-context/question-context.service';
-import { VirtualHostService } from '@app/services/virtual-host.service';
 
 @Component({
     selector: 'app-match-creation-page',
@@ -22,7 +21,6 @@ export class MatchCreationPageComponent implements OnInit {
         private notificationService: NotificationService,
         private matchService: MatchService,
         private questionContextService: QuestionContextService,
-        private virtualHostService: VirtualHostService,
     ) {
         this.gameIsValid = false;
     }
@@ -69,8 +67,7 @@ export class MatchCreationPageComponent implements OnInit {
     }
 
     createTestMatch(): void {
-        // this.matchService.createMatch(true);
-        this.virtualHostService.ngOnInit();
+        this.matchService.createMatch(true);
         this.questionContextService.setContext('testPage');
     }
 }

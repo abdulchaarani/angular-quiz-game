@@ -71,13 +71,12 @@ export class MatchRoomService {
     }
 
     createRoom(gameId: string, isTestRoom: boolean = false) {
-        console.log('Creating room', isTestRoom);
         this.socketService.send('createRoom', { gameId, isTestPage: isTestRoom }, (res: { code: string }) => {
             this.matchRoomCode = res.code;
             this.username = 'Organisateur';
             if (isTestRoom) {
                 // this.beginQuiz();
-                this.players = [{ username: 'tester', score: 0, bonusCount: 0, isPlaying: true }];
+                this.players = [{ username: this.username, score: 0, bonusCount: 0, isPlaying: true }];
                 this.router.navigateByUrl('/play-test');
             } else this.router.navigateByUrl('/match-room');
         });
@@ -89,15 +88,6 @@ export class MatchRoomService {
             this.matchRoomCode = res.code;
             this.username = res.username;
             this.router.navigateByUrl('/match-room');
-        });
-        this.sendPlayersData(roomCode);
-    }
-
-    joinTestRoom(roomCode: string, username: string) {
-        const sentInfo: UserInfo = { roomCode, username };
-        this.socketService.send('joinRoom', sentInfo, (res: { code: string; username: string }) => {
-            this.matchRoomCode = res.code;
-            this.username = res.username;
         });
         this.sendPlayersData(roomCode);
     }
@@ -140,7 +130,6 @@ export class MatchRoomService {
             const { firstQuestion, gameDuration, isTestRoom } = data;
             if (isTestRoom) {
                 this.router.navigate(['/play-test'], { state: { question: firstQuestion, duration: gameDuration } });
-                console.log('beginQuiz', firstQuestion, gameDuration);
             } else this.router.navigate(['/play-match'], { state: { question: firstQuestion, duration: gameDuration } });
         });
     }
@@ -184,7 +173,6 @@ export class MatchRoomService {
     fetchPlayersData() {
         this.socketService.on('fetchPlayersData', (res: string) => {
             this.players = JSON.parse(res);
-            console.log('players', res);
         });
     }
 

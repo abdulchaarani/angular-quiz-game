@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { QuestionAreaComponent } from '@app/components/question-area/question-area.component';
-import { ManagementState, MatchState } from '@app/constants/states';
+import { ManagementState } from '@app/constants/states';
 import { adminLoginGuard } from '@app/guards/admin-login/admin-login.guard';
 import { matchLoginGuard } from '@app/guards/match-login/match-login.guard';
 import { pendingChangesGuard } from '@app/guards/pending-changes/pending-changes.guard';
@@ -12,13 +12,10 @@ import { HomePageComponent } from '@app/pages/home-page/home-page.component';
 import { MatchCreationPageComponent } from '@app/pages/match-creation-page/match-creation-page.component';
 import { PlayerPageComponent } from '@app/pages/player-page/player-page.component';
 import { ResultsPageComponent } from '@app/pages/results-page/results-page.component';
-import { TestPageComponent } from '@app/pages/test-page/test-page.component';
 import { WaitPageComponent } from '@app/pages/wait-page/wait-page.component';
 
 const routes: Routes = [
     { path: '', redirectTo: '/home', pathMatch: 'full' },
-    { path: 'test', component: TestPageComponent, data: { state: MatchState.Test } },
-    { path: 'play', component: TestPageComponent, data: { state: MatchState.Play } },
     { path: 'home', component: HomePageComponent },
     {
         path: 'admin',
@@ -44,6 +41,7 @@ const routes: Routes = [
     { path: 'player', canActivate: [matchLoginGuard], component: PlayerPageComponent },
     { path: 'match-room', canActivate: [matchLoginGuard], component: WaitPageComponent },
     { path: 'results', canActivate: [matchLoginGuard], component: ResultsPageComponent },
+    { path: 'play-test', component: QuestionAreaComponent },
     { path: 'play-match', canActivate: [matchLoginGuard], component: QuestionAreaComponent },
 ];
 

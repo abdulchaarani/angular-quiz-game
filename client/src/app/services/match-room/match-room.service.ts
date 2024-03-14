@@ -70,18 +70,16 @@ export class MatchRoomService {
         this.resetMatchValues();
     }
 
-    createRoom(gameId: string) {
-        this.socketService.send('createRoom', gameId, (res: { code: string }) => {
+    createRoom(gameId: string, isTestRoom: boolean = false) {
+        console.log('Creating room', isTestRoom);
+        this.socketService.send('createRoom', { gameId, isTestPage: isTestRoom }, (res: { code: string }) => {
             this.matchRoomCode = res.code;
             this.username = 'Organisateur';
-            this.router.navigateByUrl('/match-room');
-        });
-    }
-
-    createTestRoom(gameId: string) {
-        this.socketService.send('createTestRoom', gameId, (res: { code: string; username: string }) => {
-            this.matchRoomCode = res.code;
-            this.username = res.username;
+            if (isTestRoom) {
+                // this.beginQuiz();
+                this.players = [{ username: 'tester', score: 0, bonusCount: 0, isPlaying: true }];
+                this.router.navigateByUrl('/play-test');
+            } else this.router.navigateByUrl('/match-room');
         });
     }
 
@@ -91,6 +89,15 @@ export class MatchRoomService {
             this.matchRoomCode = res.code;
             this.username = res.username;
             this.router.navigateByUrl('/match-room');
+        });
+        this.sendPlayersData(roomCode);
+    }
+
+    joinTestRoom(roomCode: string, username: string) {
+        const sentInfo: UserInfo = { roomCode, username };
+        this.socketService.send('joinRoom', sentInfo, (res: { code: string; username: string }) => {
+            this.matchRoomCode = res.code;
+            this.username = res.username;
         });
         this.sendPlayersData(roomCode);
     }
@@ -129,9 +136,12 @@ export class MatchRoomService {
     }
 
     beginQuiz() {
-        this.socketService.on('beginQuiz', (data: { firstQuestion: Question; gameDuration: number }) => {
-            const { firstQuestion, gameDuration } = data;
-            this.router.navigate(['/play-match'], { state: { question: firstQuestion, duration: gameDuration } });
+        this.socketService.on('beginQuiz', (data: { firstQuestion: Question; gameDuration: number; isTestRoom: boolean }) => {
+            const { firstQuestion, gameDuration, isTestRoom } = data;
+            if (isTestRoom) {
+                this.router.navigate(['/play-test'], { state: { question: firstQuestion, duration: gameDuration } });
+                console.log('beginQuiz', firstQuestion, gameDuration);
+            } else this.router.navigate(['/play-match'], { state: { question: firstQuestion, duration: gameDuration } });
         });
     }
 
@@ -154,8 +164,13 @@ export class MatchRoomService {
     }
 
     gameOver() {
-        this.socketService.on('gameOver', () => {
-            console.log('gameOver');
+        this.socketService.on('gameOver', (isTestRoom) => {
+            console.log('gameOver, isTestRoom:', isTestRoom);
+            if (isTestRoom) {
+                this.router.navigateByUrl('/host');
+            } else {
+                console.log('gameOver');
+            }
         });
     }
 

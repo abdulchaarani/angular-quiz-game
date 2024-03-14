@@ -105,6 +105,7 @@ export class PlayerRoomService {
     }
 
     isValidUsername(matchRoomCode: string, username: string) {
+        if (this.matchRoomService.getMatchRoomByCode(matchRoomCode).isTestRoom) return true;
         const hasHostConflict = username.toUpperCase() === 'ORGANISATEUR';
         const isBannedUsername = this.isBannedUsername(matchRoomCode, username);
         const isUsedUsername = this.getPlayerByUsername(matchRoomCode, username) ? true : false;

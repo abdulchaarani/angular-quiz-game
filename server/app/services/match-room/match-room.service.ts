@@ -13,10 +13,17 @@ import { Server, Socket } from 'socket.io';
 @Injectable()
 export class MatchRoomService {
     matchRooms: MatchRoom[];
+    backgroundHostSocket: Socket;
 
     constructor(private timeService: TimeService) {
         this.matchRooms = [];
+        // this.backgroundHostSocket = this.initializeBackgroundHostSocket();
     }
+
+    // initializeBackgroundHostSocket(): Socket {
+    //     const mockSocket = new Socket(); // Placeholder, use your actual method to create or reference a socket
+    //     return mockSocket;
+    // }
 
     generateRoomCode(): string {
         let generatedCode: string;
@@ -41,12 +48,12 @@ export class MatchRoomService {
         });
     }
 
-    addMatchRoom(selectedGame: Game, socket: Socket): MatchRoom {
+    addMatchRoom(selectedGame: Game, socket: Socket, isTestPage: boolean = false): MatchRoom {
         const newRoom: MatchRoom = {
             code: this.generateRoomCode(),
             hostSocket: socket,
-            isLocked: false,
-            isPlaying: false,
+            isLocked: isTestPage,
+            isPlaying: isTestPage,
             game: selectedGame,
             gameLength: selectedGame.questions.length,
             currentQuestionIndex: 0,
@@ -57,14 +64,16 @@ export class MatchRoomService {
             activePlayers: 0,
             submittedPlayers: 0,
             messages: [],
+            isTestRoom: isTestPage,
         };
+
         this.matchRooms.push(newRoom);
         return newRoom;
     }
 
     addTestMatchRoom(selectedGame: Game, socket: Socket): MatchRoom {
         const newRoom: MatchRoom = {
-            code: '00000',
+            code: this.generateRoomCode(),
             hostSocket: socket,
             isLocked: true,
             isPlaying: true,
@@ -78,6 +87,7 @@ export class MatchRoomService {
             activePlayers: 0,
             submittedPlayers: 0,
             messages: [],
+            isTestRoom: true,
         };
         this.matchRooms.push(newRoom);
         return newRoom;
@@ -131,10 +141,13 @@ export class MatchRoomService {
         const matchRoom: MatchRoom = this.getMatchRoomByCode(matchRoomCode);
         const firstQuestion = matchRoom.game.questions[0];
         const gameDuration: number = matchRoom.game.duration;
+        const isTestRoom = matchRoom.isTestRoom;
         matchRoom.currentQuestionAnswer = this.filterCorrectChoices(firstQuestion);
         this.removeIsCorrectField(firstQuestion);
-        matchRoom.hostSocket.send('currentAnswers', matchRoom.currentQuestionAnswer);
-        server.in(matchRoomCode).emit('beginQuiz', { firstQuestion, gameDuration });
+        if (!isTestRoom) {
+            matchRoom.hostSocket.send('currentAnswers', matchRoom.currentQuestionAnswer);
+        }
+        server.in(matchRoomCode).emit('beginQuiz', { firstQuestion, gameDuration, isTestRoom });
         this.timeService.startTimer(server, matchRoomCode, this.getGameDuration(matchRoomCode), TimerEvents.QuestionTimerExpired);
     }
 
@@ -146,7 +159,7 @@ export class MatchRoomService {
     sendNextQuestion(server: Server, matchRoomCode: string): void {
         const matchRoom: MatchRoom = this.getMatchRoomByCode(matchRoomCode);
         if (matchRoom.currentQuestionIndex === matchRoom.gameLength) {
-            server.in(matchRoomCode).emit('gameOver');
+            server.in(matchRoomCode).emit('gameOver', this.getMatchRoomByCode(matchRoomCode).isTestRoom);
             return;
         }
 

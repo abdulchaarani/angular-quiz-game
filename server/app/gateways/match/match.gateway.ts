@@ -6,7 +6,6 @@ import { ChatService } from '@app/services/chat/chat.service';
 import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
-import { UserInfo } from '@common/interfaces/user-info';
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Server, Socket } from 'socket.io';
@@ -53,19 +52,20 @@ export class MatchGateway implements OnGatewayDisconnect {
         }
     }
 
-    @SubscribeMessage('createTestRoom')
-    createTestRoom(@ConnectedSocket() socket: Socket, @MessageBody() gameId: string) {
-        const selectedGame: Game = this.matchBackupService.getBackupGame(gameId);
-        const newMatchRoom: MatchRoom = this.matchRoomService.addMatchRoom(selectedGame, socket);
-        const newPlayer = this.playerRoomService.addPlayer(socket, '00000', 'tester');
-        socket.join(newMatchRoom.code);
-        return { code: newMatchRoom.code, username: newPlayer.username };
-    }
-
     @SubscribeMessage(MatchEvents.CreateRoom)
-    createRoom(@ConnectedSocket() socket: Socket, @MessageBody() gameId: string) {
-        const selectedGame: Game = this.matchBackupService.getBackupGame(gameId);
-        const newMatchRoom: MatchRoom = this.matchRoomService.addMatchRoom(selectedGame, socket);
+    createRoom(@ConnectedSocket() socket: Socket, @MessageBody() data: { gameId: string; isTestPage: boolean }) {
+        const selectedGame: Game = this.matchBackupService.getBackupGame(data.gameId);
+        const newMatchRoom: MatchRoom = this.matchRoomService.addMatchRoom(selectedGame, socket, data.isTestPage);
+        if (data.isTestPage) {
+            const playerInfo = { roomCode: newMatchRoom.code, username: 'organisateur' };
+            socket.join(newMatchRoom.code);
+
+            this.playerRoomService.addPlayer(socket, playerInfo.roomCode, playerInfo.username);
+
+            this.matchRoomService.sendFirstQuestion(this.server, playerInfo.roomCode);
+            return { code: newMatchRoom.code };
+        }
+
         socket.join(newMatchRoom.code);
         return { code: newMatchRoom.code };
     }

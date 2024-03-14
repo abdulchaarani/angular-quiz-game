@@ -1,20 +1,20 @@
 #main-container {
-    display: flex;
-    flex-direction: row;
-    height: 100vh;
-    left: 20vw;
+    padding: 1rem;
     width: 70vw;
     position: relative;
+    left: 7.5vw;
+    height: 100vh;
+    margin: 0 auto;
 }
 
 #question-area {
-    flex-grow: 1;
-    padding: 2%;
+    width: 40vw;
 }
 
-#exit-button-container {
-    display: flex;
-    justify-content: right;
+#exit-button {
+    position: absolute;
+    top: 5vh;
+    right: 0vw;
 }
 
 #submit-button-container {

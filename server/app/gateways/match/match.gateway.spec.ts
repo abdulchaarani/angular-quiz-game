@@ -258,9 +258,11 @@ describe('MatchGateway', () => {
     });
 
     it('startMatch() should delegate starting match to match room service', () => {
+        const markGameSpy = jest.spyOn(matchRoomSpy, 'markGameAsPlaying');
         const startSpy = jest.spyOn(matchRoomSpy, 'startMatch').mockReturnThis();
         gateway.startMatch(socket, MOCK_ROOM_CODE);
         expect(startSpy).toHaveBeenCalledWith(socket, server, MOCK_ROOM_CODE);
+        expect(markGameSpy).toHaveBeenCalled();
     });
 
     it('nextQuestion() should delegate starting next question to match room service', () => {
@@ -271,7 +273,6 @@ describe('MatchGateway', () => {
     });
 
     it('onCountdownTimerExpired() should call helper functions when CountdownTimerExpired event is emitted', () => {
-        const markGameSpy = jest.spyOn(matchRoomSpy, 'markGameAsPlaying');
         const sendFirstQuestionSpy = jest.spyOn(matchRoomSpy, 'sendFirstQuestion');
 
         eventEmitter.addListener(TimerEvents.CountdownTimerExpired, gateway.onCountdownTimerExpired);
@@ -284,7 +285,6 @@ describe('MatchGateway', () => {
         } as BroadcastOperator<unknown, unknown>);
 
         gateway.onCountdownTimerExpired(MOCK_ROOM_CODE);
-        expect(markGameSpy).toHaveBeenCalledWith(MOCK_ROOM_CODE);
         expect(sendFirstQuestionSpy).toHaveBeenCalledWith(server, MOCK_ROOM_CODE);
 
         eventEmitter.removeListener(TimerEvents.CountdownTimerExpired, gateway.onCountdownTimerExpired);

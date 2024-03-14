@@ -32,6 +32,7 @@ export class GameService extends CommunicationService<Game> {
             error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`Échec d'obtention des jeux 😿\n ${error.message}`),
         });
     }
+
     getGameById(id: string): Observable<Game> {
         return this.getById('', id);
     }
@@ -92,11 +93,10 @@ export class GameService extends CommunicationService<Game> {
     }
 
     addStringifiedGame(newGameStringified: string | undefined): void {
-        if (!newGameStringified) {
-            return;
+        if (newGameStringified) {
+            const newGame = JSON.parse(newGameStringified);
+            this.uploadGame(newGame);
         }
-        const newGame = JSON.parse(newGameStringified);
-        this.uploadGame(newGame);
     }
 
     openDialog(newGame: Game): void {

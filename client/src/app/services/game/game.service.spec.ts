@@ -82,12 +82,12 @@ describe('GameService', () => {
     });
 
     it('should be able to upload a game (with appropriate body in the response) and display success message', () => {
-        const MOCK_HTTP_RESPONSE_GAMEWithBody: HttpResponse<string> = new HttpResponse({
+        const MOCK_HTTP_RESPONSE_GAME_WITH_BODY: HttpResponse<string> = new HttpResponse({
             status: 200,
             statusText: 'OK',
             body: JSON.stringify(NEW_MOCK_GAME),
         });
-        const addSpy = spyOn(service, 'addGame').and.returnValue(of(MOCK_HTTP_RESPONSE_GAMEWithBody));
+        const addSpy = spyOn(service, 'addGame').and.returnValue(of(MOCK_HTTP_RESPONSE_GAME_WITH_BODY));
         const expectedLength = service.games.length + 1;
         service.uploadGame(NEW_MOCK_GAME);
         expect(service.games.length).toEqual(expectedLength);

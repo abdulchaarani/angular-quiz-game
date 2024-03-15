@@ -12,7 +12,7 @@ import { Subscription } from 'rxjs/internal/Subscription';
 })
 export class HistogramComponent implements OnInit, OnChanges, OnDestroy {
     @Input() isResultsPage: boolean = false;
-    @Input() currentHistogram: number = 0;
+    @Input() currentHistogram: Histogram = {} as Histogram;
     currentQuestion: string;
     chartOptions: AgChartOptions = {};
     choiceTally: ChoiceTally[] = [];
@@ -33,19 +33,10 @@ export class HistogramComponent implements OnInit, OnChanges, OnDestroy {
                 }),
             );
         } else {
-            this.histogramService.histogramHistory();
-            this.subscriptions.push(
-                this.histogramService.histogramHist$.subscribe((histograms: Histogram[]) => {
-                    this.histogramsGame = histograms;
-                    console.log(histograms);
-                }),
-            );
-            if (this.histogramsGame.length > 0) {
-                this.choiceTally = this.histogramsGame[this.currentHistogram].choiceTallies;
-                const dataTally = this.setUpData();
-                console.log(dataTally);
-                this.setupChart(dataTally);
-            }
+            this.choiceTally = this.currentHistogram.choiceTallies;
+            const dataTally = this.setUpData();
+            console.log(dataTally);
+            this.setupChart(dataTally);
         }
     }
 

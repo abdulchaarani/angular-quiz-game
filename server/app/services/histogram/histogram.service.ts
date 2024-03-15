@@ -11,7 +11,7 @@ export class HistogramService {
         const choiceTracker = this.matchRoomService.getMatchRoomByCode(roomCode).currentChoiceTracker;
         if (selection) choiceTracker.incrementCount(choice);
         else choiceTracker.decrementCount(choice);
-        this.sendHistogram(choiceTracker, roomCode);
+        this.sendHistogram(roomCode);
     }
 
     saveHistogram(matchRoomCode: string) {
@@ -34,16 +34,17 @@ export class HistogramService {
         matchRoom.currentChoiceTracker.resetChoiceTracker(currentQuestion.text, currentQuestion.choices);
     }
 
-    setUpHistogram(matchRoomCode: string) {
-        const matchRoom = this.matchRoomService.getMatchRoomByCode(matchRoomCode);
-        const currentQuestion = matchRoom.game.questions[matchRoom.currentQuestionIndex];
-        matchRoom.currentChoiceTracker = new ChoiceTracker();
-        const histogram: Histogram = this.buildHistogram(matchRoom.currentChoiceTracker);
-        matchRoom.hostSocket.emit('setUpHistogram', histogram);
-    }
+    // setUpHistogram(matchRoomCode: string) {
+    //     const matchRoom = this.matchRoomService.getMatchRoomByCode(matchRoomCode);
+    //     const currentQuestion = matchRoom.game.questions[matchRoom.currentQuestionIndex];
+    //     matchRoom.currentChoiceTracker = new ChoiceTracker();
+    //     const histogram: Histogram = this.buildHistogram(matchRoom.currentChoiceTracker);
+    //     matchRoom.hostSocket.emit('setUpHistogram', histogram);
+    // }
 
-    private sendHistogram(choiceTracker: ChoiceTracker, roomCode: string) {
+    sendHistogram(roomCode: string) {
         const matchRoom = this.matchRoomService.getMatchRoomByCode(roomCode);
+        const choiceTracker = matchRoom.currentChoiceTracker;
         const histogram: Histogram = this.buildHistogram(choiceTracker);
         matchRoom.hostSocket.emit('currentHistogram', histogram);
     }

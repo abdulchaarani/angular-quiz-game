@@ -131,12 +131,14 @@ export class MatchGateway implements OnGatewayDisconnect {
     @OnEvent(TimerEvents.CountdownTimerExpired)
     onCountdownTimerExpired(matchRoomCode: string) {
         this.matchRoomService.sendFirstQuestion(this.server, matchRoomCode);
+        this.histogramService.sendHistogram(matchRoomCode);
     }
 
     @OnEvent(TimerEvents.CooldownTimerExpired)
     onCooldownTimerExpired(matchRoomCode: string) {
         this.matchRoomService.sendNextQuestion(this.server, matchRoomCode);
         this.histogramService.resetChoiceTracker(matchRoomCode);
+        this.histogramService.sendHistogram(matchRoomCode);
     }
 
     handleDisconnect(@ConnectedSocket() socket: Socket) {

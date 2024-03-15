@@ -1,5 +1,4 @@
 import { TimerEvents } from '@app/constants/timer-events';
-import { ChoiceHistogram } from '@app/model/choice-histogram/choice-histogram';
 import { Answer } from '@app/model/schema/answer.schema';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Player } from '@app/model/schema/player.schema';

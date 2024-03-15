@@ -1,14 +1,14 @@
-import { ChoiceHistogram } from './choice-histogram';
+import { ChoiceTracker } from './choice-tracker';
 
 describe('ChoiceTally', () => {
-    let choiceHistogram: ChoiceHistogram;
+    let choiceTracker: ChoiceTracker;
 
     beforeEach(() => {
-        choiceHistogram = new ChoiceHistogram();
+        choiceTracker = new ChoiceTracker();
     });
 
     it('should be defined', () => {
-        expect(choiceHistogram).toBeDefined();
+        expect(choiceTracker).toBeDefined();
     });
 
     // it('incrementCount() should increment the count for the specified choice', () => {

@@ -55,7 +55,7 @@ export class MatchGateway implements OnGatewayDisconnect {
     createRoom(@ConnectedSocket() socket: Socket, @MessageBody() data: { gameId: string; isTestPage: boolean }) {
         const selectedGame: Game = this.matchBackupService.getBackupGame(data.gameId);
         const newMatchRoom: MatchRoom = this.matchRoomService.addMatchRoom(selectedGame, socket, data.isTestPage);
-        this.histogramService.resetChoiceHistogram(newMatchRoom.code);
+        this.histogramService.resetChoiceTracker(newMatchRoom.code);
         if (data.isTestPage) {
             const playerInfo = { roomCode: newMatchRoom.code, username: 'Organisateur' };
             socket.join(newMatchRoom.code);
@@ -136,7 +136,7 @@ export class MatchGateway implements OnGatewayDisconnect {
     @OnEvent(TimerEvents.CooldownTimerExpired)
     onCooldownTimerExpired(matchRoomCode: string) {
         this.matchRoomService.sendNextQuestion(this.server, matchRoomCode);
-        this.histogramService.resetChoiceHistogram(matchRoomCode);
+        this.histogramService.resetChoiceTracker(matchRoomCode);
     }
 
     handleDisconnect(@ConnectedSocket() socket: Socket) {
@@ -150,7 +150,7 @@ export class MatchGateway implements OnGatewayDisconnect {
             return;
         }
         const room = this.matchRoomService.getMatchRoomByCode(roomCode);
-        const allPlayersQuit = room.players.every((player) => player.isPlaying === false);
+        const allPlayersQuit = room.players.every((player) => !player.isPlaying);
         if (room.isPlaying && allPlayersQuit) {
             this.deleteMatchRoom(roomCode);
             return;

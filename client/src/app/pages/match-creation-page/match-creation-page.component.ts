@@ -49,13 +49,6 @@ export class MatchCreationPageComponent implements OnInit {
     validateGame(selectedGame: Game): void {
         if (selectedGame.isVisible) {
             this.gameIsValid = true;
-            // this.matchService.currentGame = selectedGame;
-            // this.matchService.saveBackupGame(selectedGame.id).subscribe((response: HttpResponse<string>) => {
-            //     if (response.body) {
-            //         const backupGame = JSON.parse(response.body);
-            //         this.matchService.currentGame = backupGame;
-            //     }
-            // });
         } else {
             const snackBarRef = this.notificationService.displayErrorMessageAction("Le jeu sélectionné n'est plus visible", 'Actualiser');
             snackBarRef.onAction().subscribe(() => this.reloadAllGames());
@@ -87,6 +80,7 @@ export class MatchCreationPageComponent implements OnInit {
             });
         } else {
             const snackBarRef = this.notificationService.displayErrorMessageAction("Le jeu sélectionné n'est plus visible", 'Actualiser');
+            console.log('caca');
             snackBarRef.onAction().subscribe(() => this.reloadAllGames());
         }
     }

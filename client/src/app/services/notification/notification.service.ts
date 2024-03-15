@@ -9,7 +9,7 @@ import { Observable } from 'rxjs';
 })
 export class NotificationService {
     constructor(
-        private snackBar: MatSnackBar,
+        public snackBar: MatSnackBar,
         public dialog: MatDialog,
     ) {}
 

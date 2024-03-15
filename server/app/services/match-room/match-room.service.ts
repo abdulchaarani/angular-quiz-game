@@ -1,5 +1,5 @@
 import { TimerEvents } from '@app/constants/timer-events';
-import { ChoiceHistogram } from '@app/model/choice-histogram/choice-histogram';
+import { ChoiceTracker } from '@app/model/choice-tracker/choice-tracker';
 import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
 import { Question } from '@app/model/database/question';
@@ -58,7 +58,7 @@ export class MatchRoomService {
             gameLength: selectedGame.questions.length,
             currentQuestionIndex: 0,
             currentQuestionAnswer: [],
-            currentChoiceHistogram: new ChoiceHistogram(),
+            currentChoiceTracker: new ChoiceTracker(),
             matchHistograms: [],
             bannedUsernames: [],
             players: [],
@@ -83,7 +83,7 @@ export class MatchRoomService {
             gameLength: selectedGame.questions.length,
             currentQuestionIndex: 0,
             currentQuestionAnswer: [],
-            currentChoiceHistogram: new ChoiceHistogram(),
+            currentChoiceTracker: new ChoiceTracker(),
             matchHistograms: [],
             bannedUsernames: [],
             players: [],

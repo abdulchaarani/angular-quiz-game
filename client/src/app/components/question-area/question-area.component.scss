@@ -55,6 +55,7 @@
     max-width: 30vw;
     max-height: 18vh;
     font-size: 1rem;
+    overflow: auto;
 }
 
 #points {
@@ -80,6 +81,7 @@
     width: 30vw;
     height: 15vh;
     font-size: 1rem;
+    overflow: auto;
 }
 
 .answer p {
@@ -162,6 +164,7 @@ button.answer.selected {
 #buttons-container button {
     padding: 2rem;
 }
+
 ::-webkit-scrollbar {
     display: none;
     scrollbar-width: thin;

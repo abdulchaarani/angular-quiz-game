@@ -1,0 +1,23 @@
+import { Choice } from '@app/model/database/choice';
+import { ChoiceTally } from '@common/interfaces/choice-tally';
+
+export class ChoiceHistogram {
+    choices: { [key: string]: ChoiceTally } = {};
+
+    resetChoiceHistogram(newChoices: Choice[]): void {
+        this.choices = {};
+        newChoices.forEach((choice) => {
+            this.choices[choice.text] = { text: choice.text, isCorrect: choice.isCorrect, tally: 0 };
+        });
+    }
+
+    incrementCount(key: string): void {
+        if (!this.choices[key]) return;
+        this.choices[key].tally++;
+    }
+
+    decrementCount(key: string): void {
+        if (!this.choices[key]) return;
+        if (this.choices[key].tally > 0) this.choices[key].tally--;
+    }
+}

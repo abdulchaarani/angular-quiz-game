@@ -1,5 +1,5 @@
 import { TimerEvents } from '@app/constants/timer-events';
-import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
+import { ChoiceHistogram } from '@app/model/choice-histogram/choice-histogram';
 import { Answer } from '@app/model/schema/answer.schema';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Player } from '@app/model/schema/player.schema';
@@ -10,6 +10,7 @@ import { BONUS_FACTOR } from '@common/constants/match-constants';
 import { Feedback } from '@common/interfaces/feedback';
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
+import { HistogramService } from '@app/services/histogram/histogram.service';
 
 @Injectable()
 export class AnswerService {
@@ -17,6 +18,7 @@ export class AnswerService {
         private matchRoomService: MatchRoomService,
         private playerService: PlayerRoomService,
         private timeService: TimeService,
+        private histogramService: HistogramService,
     ) {}
 
     @OnEvent(TimerEvents.QuestionTimerExpired)
@@ -32,7 +34,7 @@ export class AnswerService {
     updateChoice(choice: string, selection: boolean, username: string, roomCode: string) {
         const player: Player = this.playerService.getPlayerByUsername(roomCode, username);
         if (!player.answer.isSubmited) player.answer.selectedChoices.set(choice, selection);
-        this.updateChoiceTally(choice, selection, roomCode);
+        this.histogramService.updateHistogram(choice, selection, roomCode);
     }
 
     submitAnswer(username: string, roomCode: string) {
@@ -48,19 +50,6 @@ export class AnswerService {
 
     private getMatchRoomByCode(roomCode: string) {
         return this.matchRoomService.getMatchRoomByCode(roomCode);
-    }
-
-    private updateChoiceTally(choice: string, selection: boolean, roomCode: string) {
-        const choiceTally = this.getMatchRoomByCode(roomCode).choiceTally;
-        if (selection) choiceTally.incrementCount(choice);
-        else choiceTally.decrementCount(choice);
-        this.updateHistogram(choiceTally, roomCode);
-    }
-
-    private updateHistogram(choiceTally: ChoiceTally, roomCode: string) {
-        const matchRoom = this.getMatchRoomByCode(roomCode);
-        const currentTally = Array.from(choiceTally);
-        matchRoom.hostSocket.send('currentTally', currentTally);
     }
 
     private isCorrectPlayerAnswer(player: Player, roomCode: string) {
@@ -137,6 +126,8 @@ export class AnswerService {
         this.matchRoomService.getMatchRoomByCode(roomCode).hostSocket.emit('feedback');
     }
     private resetPlayersAnswer(roomCode: string) {
+        this.histogramService.saveHistogram(roomCode);
+
         this.getMatchRoomByCode(roomCode).submittedPlayers = 0;
 
         const players: Player[] = this.playerService.getPlayers(roomCode);

@@ -3,9 +3,9 @@
 import { MOCK_CHOICES, getMockGame } from '@app/constants/game-mocks';
 import { MOCK_MATCH_ROOM, MOCK_PLAYER, MOCK_PLAYER_ROOM, MOCK_ROOM_CODE } from '@app/constants/match-mocks';
 import { getMockQuestion } from '@app/constants/question-mocks';
-import { getRandomString } from '@app/constants/test-utils';
+// import { getRandomString } from '@app/constants/test-utils';
 import { TimerEvents } from '@app/constants/timer-events';
-import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
+// import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
 import { PlayerInfo } from '@app/model/schema/answer.schema';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { TimeService } from '@app/services/time/time.service';
@@ -291,26 +291,26 @@ describe('MatchRoomService', () => {
         expect(service.isGamePlaying(MOCK_ROOM_CODE)).toEqual(true);
     });
 
-    it('resetChoiceTally() should reset the current choice tally with the appropriate choices', () => {
-        const matchRoom = MOCK_MATCH_ROOM;
-        matchRoom.code = MOCK_ROOM_CODE;
-        service.matchRooms = [matchRoom];
+    // it('resetChoiceTally() should reset the current choice tally with the appropriate choices', () => {
+    //     const matchRoom = MOCK_MATCH_ROOM;
+    //     matchRoom.code = MOCK_ROOM_CODE;
+    //     service.matchRooms = [matchRoom];
 
-        const currentChoiceTally = new ChoiceTally();
-        currentChoiceTally.set(getRandomString(), 0);
-        currentChoiceTally.set(getRandomString(), 1);
-        currentChoiceTally.set(getRandomString(), 2);
-        currentChoiceTally.set(getRandomString(), 3);
+    //     const currentChoiceTally = new ChoiceTally();
+    //     currentChoiceTally.set(getRandomString(), 0);
+    //     currentChoiceTally.set(getRandomString(), 1);
+    //     currentChoiceTally.set(getRandomString(), 2);
+    //     currentChoiceTally.set(getRandomString(), 3);
 
-        matchRoom.choiceTally = currentChoiceTally;
-        service['resetChoiceTally'](MOCK_ROOM_CODE);
+    //     matchRoom.choiceTally = currentChoiceTally;
+    //     service['resetChoiceTally'](MOCK_ROOM_CODE);
 
-        expect(matchRoom.choiceTally.size).toBe(2);
-        expect(matchRoom.choiceTally.has(matchRoom.game.questions[0].choices[0].text)).toBeTruthy();
-        expect(matchRoom.choiceTally.has(matchRoom.game.questions[0].choices[1].text)).toBeTruthy();
-        expect(matchRoom.choiceTally.get(matchRoom.game.questions[0].choices[0].text)).toBe(0);
-        expect(matchRoom.choiceTally.get(matchRoom.game.questions[0].choices[1].text)).toBe(0);
-    });
+    //     expect(matchRoom.choiceTally.size).toBe(2);
+    //     expect(matchRoom.choiceTally.has(matchRoom.game.questions[0].choices[0].text)).toBeTruthy();
+    //     expect(matchRoom.choiceTally.has(matchRoom.game.questions[0].choices[1].text)).toBeTruthy();
+    //     expect(matchRoom.choiceTally.get(matchRoom.game.questions[0].choices[0].text)).toBe(0);
+    //     expect(matchRoom.choiceTally.get(matchRoom.game.questions[0].choices[1].text)).toBe(0);
+    // });
 
     it('filterCorrectChoices() should return a list of correct choices', () => {
         let correctChoices = ['previous correct choice'];

@@ -1,5 +1,5 @@
 import { TimerEvents } from '@app/constants/timer-events';
-import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
+import { ChoiceHistogram } from '@app/model/choice-histogram/choice-histogram';
 import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
 import { Question } from '@app/model/database/question';
@@ -58,7 +58,8 @@ export class MatchRoomService {
             gameLength: selectedGame.questions.length,
             currentQuestionIndex: 0,
             currentQuestionAnswer: [],
-            choiceTally: new ChoiceTally(),
+            currentChoiceHistogram: new ChoiceHistogram(),
+            matchHistograms: [],
             bannedUsernames: [],
             players: [],
             activePlayers: 0,
@@ -71,6 +72,7 @@ export class MatchRoomService {
         return newRoom;
     }
 
+    // TODO see if can avoid duplication
     addTestMatchRoom(selectedGame: Game, socket: Socket): MatchRoom {
         const newRoom: MatchRoom = {
             code: this.generateRoomCode(),
@@ -81,7 +83,8 @@ export class MatchRoomService {
             gameLength: selectedGame.questions.length,
             currentQuestionIndex: 0,
             currentQuestionAnswer: [],
-            choiceTally: new ChoiceTally(),
+            currentChoiceHistogram: new ChoiceHistogram(),
+            matchHistograms: [],
             bannedUsernames: [],
             players: [],
             activePlayers: 0,
@@ -164,7 +167,6 @@ export class MatchRoomService {
             return;
         }
 
-        this.resetChoiceTally(matchRoomCode);
         const nextQuestion = matchRoom.game.questions[matchRoom.currentQuestionIndex];
         matchRoom.currentQuestionAnswer = this.filterCorrectChoices(nextQuestion);
         this.removeIsCorrectField(nextQuestion);
@@ -192,13 +194,6 @@ export class MatchRoomService {
     getGameDuration(matchRoomCode: string) {
         return this.getMatchRoomByCode(matchRoomCode).game.duration;
     }
-
-    private resetChoiceTally(matchRoomCode: string) {
-        const matchRoom = this.getMatchRoomByCode(matchRoomCode);
-        const possibleChoices: Choice[] = matchRoom.game.questions[matchRoom.currentQuestionIndex].choices;
-        matchRoom.choiceTally.resetChoiceTally(possibleChoices);
-    }
-
     private filterCorrectChoices(question: Question) {
         const correctChoices = [];
         question.choices.forEach((choice) => {

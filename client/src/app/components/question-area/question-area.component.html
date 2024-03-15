@@ -61,7 +61,7 @@
                 <app-histogram></app-histogram>
             </div>
             <div id="buttons-container">
-                <button mat-raised-button *ngIf="isLastQuestion">Présenter les résultats finaux</button>
+                <button mat-raised-button *ngIf="isLastQuestion" (click)="routeToResultsPage()">Présenter les résultats finaux</button>
                 <button mat-raised-button color="primary" (click)="nextQuestion()" *ngIf="isNextQuestionButton && !isLastQuestion">
                     Question suivante
                 </button>

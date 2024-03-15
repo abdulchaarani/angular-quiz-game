@@ -12,66 +12,75 @@ import { AgChartOptions } from 'ag-charts-community';
 export class HistogramComponent implements OnInit, OnChanges {
     // TODO : Fix later
     @Input() currentQuestion: Question;
-    // @Input() choices: Choice[] | undefined;
-    // @Input() questionTitle: string;
-    // @Input() picks: number[];
     chartOptions: AgChartOptions;
+    numberOfPicks: number;
+
     ngOnInit(): void {
-        if (this.currentQuestion.choices) {
-            this.chartOptions = {
-                title: { text: this.currentQuestion.text },
-                axes: [
-                    {
-                        type: 'category',
-                        position: 'bottom',
-                        title: { text: 'Choix de réponse' },
-                    },
-                    {
-                        type: 'number',
-                        position: 'left',
-                        title: { text: 'Nombre de sélections' },
-                    },
-                ],
-                // Data: Data to be displayed in the chart,
-                data: [
-                    { text: this.currentQuestion.choices[0].text, picks: 10 },
-                    { text: this.currentQuestion.choices[1].text, picks: 3 },
-                    // { text: this.choices[2].text, picks: 1 },
-                ],
-                series: [{ type: 'bar', xKey: 'text', xName: 'Choix de réponse', yKey: 'picks', yName: 'Nombre de choix' }],
-            };
-        }
+        this.setupChart();
     }
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes.currentQuestion) {
             const newQuestion = changes.currentQuestion.currentValue;
             this.currentQuestion = newQuestion;
-
-            if (this.currentQuestion.choices) {
-                this.chartOptions = {
-                    title: { text: this.currentQuestion.text },
-                    axes: [
-                        {
-                            type: 'category',
-                            position: 'bottom',
-                            title: { text: 'Choix de réponse' },
-                        },
-                        {
-                            type: 'number',
-                            position: 'left',
-                            title: { text: 'Nombre de sélections' },
-                        },
-                    ],
-                    // Data: Data to be displayed in the chart,
-                    data: [
-                        { text: this.currentQuestion.choices[0].text, picks: 10 },
-                        { text: this.currentQuestion.choices[1].text, picks: 3 },
-                        // { text: this.choices[2].text, picks: 1 },
-                    ],
-                    series: [{ type: 'bar', xKey: 'text', xName: 'Choix de réponse', yKey: 'picks', yName: 'Nombre de choix' }],
-                };
-            }
+            this.setupChart();  
         }
     }
+
+    private setupChart(): void {
+        if (!this.currentQuestion.choices) {
+            return;
+        }
+        const data = [];
+        const array: { text: string, isCorrect: boolean | undefined, number: number  }[] = this.currentQuestion.choices.map((choice, index) => ({ 
+            text: choice.text, 
+            isCorrect : choice.isCorrect,
+            number: index + 1, 
+        }));
+
+        for (const element of array) {
+            let textToShow: string = element.text;
+            if (element.isCorrect) {
+                textToShow = `${textToShow} (Correct)`;
+            } else {
+                textToShow = `${textToShow} (Incorrect)`;
+            }
+            data.push({ text: textToShow, picks: element.number });
+        }
+        this.chartOptions = {
+            title: { text: this.currentQuestion.text },
+            axes: [
+                {
+                    type: 'category',
+                    position: 'bottom',
+                    title: { text: 'Choix de réponse' },
+                },
+                {
+                    type: 'number',
+                    position: 'left',
+                    title: { text: 'Nombre de sélections' },
+                },
+            ],
+            data,
+            series: [
+                {
+                    type: 'bar',
+                    xKey: 'text',
+                    xName: 'Choix de réponse',
+                    yKey: 'picks',
+                    yName: 'Nombre de choix',
+                    formatter: (params) => {
+                        let fill;
+                        if (params.datum[params.xKey].includes('Correct')) {
+                            fill = 'green';
+                        } else {
+                            fill = 'red';
+                        }
+                        return { fill };
+                    },
+                },
+            ],
+        };
+    }
 }
+

@@ -33,6 +33,8 @@ export class ResultsPageComponent {
                 choices: [
                     { text: 'La Lanterne', isCorrect: false },
                     { text: 'Sombronces', isCorrect: true },
+                    { text: 'test', isCorrect: false },
+                    { text: 'aaa', isCorrect: true },
                 ],
                 lastModification: '2024-02-23T14:04:17.326Z',
             },
@@ -44,6 +46,8 @@ export class ResultsPageComponent {
                 choices: [
                     { text: 'ouii', isCorrect: true },
                     { text: 'nonnn', isCorrect: false },
+                    { text: 'La Lanterne', isCorrect: false },
+                    { text: 'Sombronces', isCorrect: true },
                 ],
                 lastModification: '2024-02-23T14:04:17.326Z',
             },

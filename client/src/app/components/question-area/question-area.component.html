@@ -1,7 +1,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
 <app-chat *ngIf="context != 'testPage'"></app-chat>
 <div id="main-container">
-    <button id="exitButton" routerLink="/home" (click)="handleQuit()">QUITTER</button>
+    <button mat-raised-button id="exit-button" routerLink="/home" (click)="handleQuit()">QUITTER</button>
     <div id="question-area">
         <div id="question-timer-area">
             <div
@@ -29,24 +29,23 @@
 
             <!-- TODO: remove the ! -->
             <div id="question">
-                <h1>{{ this.currentQuestion!.text }}</h1>
+                <div id="question-text-container">
+                    <h1>{{ this.currentQuestion!.text }}</h1>
+                </div>
                 <h1 id="points">{{ currentQuestion.points }} points</h1>
             </div>
 
             <div id="timer-area">
-                <div class="circle">
-                    <div id="timer">
-                        <mat-progress-spinner [value]="computeTimerProgress()" mode="determinate" diameter="90"> </mat-progress-spinner>
-                        <h2 id="time-left">
-                            {{ time }}
-                        </h2>
-                    </div>
-                </div>
+                <mat-progress-spinner [value]="computeTimerProgress()" mode="determinate" diameter="90"> </mat-progress-spinner>
+                <h2 id="time-left">
+                    {{ time }}
+                </h2>
             </div>
         </div>
 
         <div id="choice-area" *ngIf="context === 'testPage' || (context === 'playerView' && !isCooldown)">
             <button
+                mat-raised-button
                 *ngFor="let choice of currentQuestion.choices; let i = index"
                 class="answer"
                 [class.selected]="isSelected(choice) && !showFeedback"
@@ -54,7 +53,7 @@
                 [class.incorrect]="showFeedback && !isCorrectAnswer(choice) && isSelected(choice)"
                 (click)="selectChoice(choice)"
             >
-                {{ i + 1 }}. {{ choice.text }}
+                <p>{{ i + 1 }}. {{ choice.text }}</p>
             </button>
         </div>
         <div id="host-area" *ngIf="context === 'hostView'">
@@ -68,7 +67,7 @@
             </div>
         </div>
         <div id="submit-button-container" *ngIf="context === 'testPage' || context === 'playerView'">
-            <button mat-raised-button color="primary" id="submitButton" *ngIf="isSelectionEnabled" (click)="submitAnswers()">SOUMETTRE</button>
+            <button mat-raised-button color="primary" id="submit-button" *ngIf="isSelectionEnabled" (click)="submitAnswers()">SOUMETTRE</button>
         </div>
     </div>
 </div>

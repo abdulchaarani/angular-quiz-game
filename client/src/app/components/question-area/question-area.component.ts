@@ -76,6 +76,10 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         }
     }
 
+    getHistoryState() {
+        return history.state;
+    }
+
     ngOnInit(): void {
         this.subscriptions = [];
         this.resetStateForNewQuestion();
@@ -84,16 +88,15 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
 
         if (this.isFirstQuestion) {
             console.log('First question');
-            this.currentQuestion = history.state.question;
-            console.log(this.currentQuestion);
-            this.gameDuration = history.state.duration;
+            this.currentQuestion = this.getHistoryState().question;
+            this.gameDuration = this.getHistoryState().duration;
             this.isFirstQuestion = false;
         }
 
         this.listenToGameEvents();
         this.initialiseSubscriptions();
     }
-
+    
     ngOnDestroy() {
         this.subscriptions.forEach((subscription) => subscription.unsubscribe());
     }

@@ -22,15 +22,14 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
     selectedAnswers: Choice[];
     isSelectionEnabled: boolean;
     showFeedback: boolean;
-    isCorrect: boolean;
     playerScore: number = 0;
-    havePointsBeenAdded: boolean;
     bonus: number;
     context: 'testPage' | 'hostView' | 'playerView';
     correctAnswers: string[];
     isFirstQuestion: boolean = true;
     isCooldown: boolean = false;
     isRightAnswer: boolean = false;
+    isNextQuestionButton: boolean = false;
 
     private subscriptions: Subscription[];
 
@@ -146,14 +145,13 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
 
     nextQuestion() {
         this.matchRoomService.nextQuestion();
+        this.isNextQuestionButton = false;
     }
 
     resetStateForNewQuestion(): void {
         this.showFeedback = false;
         this.isSelectionEnabled = true;
         this.selectedAnswers = [];
-        this.isCorrect = false;
-        this.havePointsBeenAdded = false;
         this.bonus = 0;
         this.correctAnswers = [];
         this.isRightAnswer = false;
@@ -175,14 +173,15 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
                 this.playerScore = feedback.score;
                 this.matchRoomService.sendPlayersData(this.matchRoomCode);
                 this.showFeedback = true;
+
                 if (this.context === 'testPage') {
                     this.nextQuestion();
                 }
             }
         });
         const feedbackObservable = this.answerService.feedbackSub$.subscribe(() => {
-            console.log('feedbackSubject');
             this.showFeedback = true;
+            this.isNextQuestionButton = true;
         });
 
         this.subscriptions.push(feedbackSubscription);

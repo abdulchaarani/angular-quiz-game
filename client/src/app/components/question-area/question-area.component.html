@@ -9,7 +9,7 @@
         <div id="question-timer-area">
             <div
                 id="score-feedback-area"
-                *ngIf="(showFeedback && context !== 'playerView' && !isCooldown) || (showFeedback && context === 'testPage'); else elseBlock"
+                *ngIf="(showFeedback && context === 'playerView' && !isCooldown) || (showFeedback && context === 'testPage'); else elseBlock"
             >
                 <h1 id="score">SCORE : {{ playerScore }}</h1>
                 <h1 class="points" id="right-answer" *ngIf="bonus > 0 && isRightAnswer">
@@ -67,7 +67,7 @@
             </div>
             <div id="buttons-container">
                 <button mat-raised-button>Présenter les résultats finaux</button>
-                <button mat-raised-button color="primary" (click)="nextQuestion()" *ngIf="showFeedback">Question suivante</button>
+                <button mat-raised-button color="primary" (click)="nextQuestion()" *ngIf="isNextQuestionButton">Question suivante</button>
             </div>
         </div>
         <div id="submit-button-container" *ngIf="context === 'testPage' || context === 'playerView'">

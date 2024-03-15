@@ -17,10 +17,12 @@ export class AnswerService {
     feedback$: Observable<Feedback>;
     feedbackSub$: Observable<void>;
     bonusPoints$: Observable<number>;
+    endGame$: Observable<void>;
 
     private feedbackSubject: Subject<void>;
     private feedbackSource: Subject<Feedback>;
     private bonusPointsSubject: Subject<number>;
+    private endGameSubject: Subject<void>;
 
     constructor(public socketService: SocketHandlerService) {
         this.initialiseAnwserSubjects();
@@ -53,12 +55,20 @@ export class AnswerService {
         });
     }
 
+    gameOver() {
+        this.socketService.on('gameOver', () => {
+            this.endGameSubject.next();
+        });
+    }
+
     private initialiseAnwserSubjects() {
         this.feedbackSource = new Subject<Feedback>();
         this.bonusPointsSubject = new Subject<number>();
         this.feedbackSubject = new Subject<void>();
+        this.endGameSubject = new Subject<void>();
         this.feedback$ = this.feedbackSource.asObservable();
         this.bonusPoints$ = this.bonusPointsSubject.asObservable();
         this.feedbackSub$ = this.feedbackSubject.asObservable();
+        this.endGame$ = this.endGameSubject.asObservable();
     }
 }

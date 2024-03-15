@@ -2,6 +2,7 @@ import { TimerEvents } from '@app/constants/timer-events';
 import { Answer } from '@app/model/schema/answer.schema';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Player } from '@app/model/schema/player.schema';
+import { HistogramService } from '@app/services/histogram/histogram.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
 import { TimeService } from '@app/services/time/time.service';
@@ -9,7 +10,6 @@ import { BONUS_FACTOR } from '@common/constants/match-constants';
 import { Feedback } from '@common/interfaces/feedback';
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { HistogramService } from '@app/services/histogram/histogram.service';
 
 @Injectable()
 export class AnswerService {
@@ -123,6 +123,8 @@ export class AnswerService {
             player.socket.emit('feedback', feedback);
         });
         this.matchRoomService.getMatchRoomByCode(roomCode).hostSocket.emit('feedback');
+        if (this.matchRoomService.getMatchRoomByCode(roomCode).gameLength === this.matchRoomService.getMatchRoomByCode(roomCode).currentQuestionIndex)
+            this.matchRoomService.getMatchRoomByCode(roomCode).hostSocket.emit('endGame');
     }
     private resetPlayersAnswer(roomCode: string) {
         this.histogramService.saveHistogram(roomCode);

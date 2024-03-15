@@ -13,7 +13,7 @@ import { Subscription } from 'rxjs/internal/Subscription';
 })
 export class HistogramComponent implements OnInit, OnChanges, OnDestroy {
     currentQuestion: string;
-    chartOptions: AgChartOptions;
+    chartOptions: AgChartOptions = {};
     choiceTally: ChoiceTally[] = [];
     private subscriptions: Subscription[] = [];
 
@@ -26,7 +26,7 @@ export class HistogramComponent implements OnInit, OnChanges, OnDestroy {
                 this.currentQuestion = data.question;
                 this.choiceTally = data.choiceTallies;
                 const dataTally = this.setUpData();
-                this.chartOptions = this.setupChart(dataTally);
+                this.setupChart(dataTally);
             }),
         );
     }
@@ -55,8 +55,8 @@ export class HistogramComponent implements OnInit, OnChanges, OnDestroy {
         }));
     }
 
-    private setupChart(data: any): AgChartOptions {
-        return {
+    private setupChart(data: any): void {
+        this.chartOptions = {
             title: { text: this.currentQuestion },
             axes: [
                 {

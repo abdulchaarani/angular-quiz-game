@@ -52,7 +52,6 @@
 }
 
 #question-text-container {
-    overflow: scroll;
     max-width: 30vw;
     max-height: 18vh;
     font-size: 1rem;
@@ -84,7 +83,6 @@
 }
 
 .answer p {
-    overflow-x: scroll;
     max-width: 30vw;
     max-height: 15vh;
 }

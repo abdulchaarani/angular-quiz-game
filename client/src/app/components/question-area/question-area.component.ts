@@ -29,6 +29,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
     isCooldown: boolean = false;
     isRightAnswer: boolean = false;
     isNextQuestionButton: boolean = false;
+    isLastQuestion: boolean = false;
 
     private subscriptions: Subscription[];
 
@@ -222,6 +223,13 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         this.subscriptions.push(displayCoolDownSubscription);
     }
 
+    private subscribeToGameEnd() {
+        const endGameSubscription = this.answerService.endGame$.subscribe(() => {
+            this.isLastQuestion = true;
+        });
+        this.subscriptions.push(endGameSubscription);
+    }
+
     private listenToGameEvents() {
         this.timeService.handleTimer();
         this.timeService.handleStopTimer();
@@ -234,5 +242,6 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         this.subscribeToCurrentQuestion();
         this.subscribeToBonus();
         this.subscribeToCooldown();
+        this.subscribeToGameEnd();
     }
 }

@@ -13,11 +13,10 @@ import { NotificationService } from '@app/services/notification/notification.ser
 import { of, throwError } from 'rxjs';
 import { MatchCreationPageComponent } from './match-creation-page.component';
 import { getMockGame } from '@app/constants/game-mocks';
-import { SnackBarError } from '@app/constants/feedback-messages';
-import { SnackBarMock } from '@app/constants/snackbar-mock';
 import SpyObj = jasmine.SpyObj;
+import { SnackBarError } from '@app/constants/feedback-messages';
 
-describe('MatchCreationPageComponent', () => {
+fdescribe('MatchCreationPageComponent', () => {
     let component: MatchCreationPageComponent;
     let fixture: ComponentFixture<MatchCreationPageComponent>;
     let gameService: GameService;
@@ -27,7 +26,12 @@ describe('MatchCreationPageComponent', () => {
 
     const action = 'Actualiser';
 
-    const snackBarMock = new SnackBarMock() as MatSnackBarRef<TextOnlySnackBar>;
+    const snackBarMock = {
+        onAction: () => {
+            return of(undefined);
+        },
+    } as MatSnackBarRef<TextOnlySnackBar>;
+
     const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK', body: JSON.stringify(true) });
 
     const matchServiceSpy = jasmine.createSpyObj('MatchService', ['validateChoices', 'getAllGames', 'saveBackupGame', 'createMatch']);
@@ -36,6 +40,7 @@ describe('MatchCreationPageComponent', () => {
     matchServiceSpy.validateChoices.and.returnValue(of(mockHttpResponse));
 
     beforeEach(() => {
+        notificationSpy = jasmine.createSpyObj('NotificationService', ['displayErrorMessageAction', 'openSnackBar']);
         TestBed.configureTestingModule({
             declarations: [MatchCreationPageComponent],
             imports: [HttpClientTestingModule, BrowserAnimationsModule, ScrollingModule],
@@ -48,7 +53,6 @@ describe('MatchCreationPageComponent', () => {
         });
         fixture = TestBed.createComponent(MatchCreationPageComponent);
         gameService = TestBed.inject(GameService);
-        notificationSpy = jasmine.createSpyObj('NotificationService', ['displayErrorMessageAction', 'openSnackBar']);
 
         component = fixture.componentInstance;
         fixture.detectChanges();

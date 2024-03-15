@@ -1,15 +1,19 @@
 import { Injectable } from '@angular/core';
 // import { ChoiceTally } from '@common/interfaces/choice-tally';
 import { Histogram } from '@common/interfaces/histogram';
-import { Observable, Subject } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { SocketHandlerService } from '../socket-handler/socket-handler.service';
 @Injectable({
     providedIn: 'root',
 })
 export class HistogramService {
     constructor(public socketService: SocketHandlerService) {}
-    private choiceTally = new Subject<Histogram>();
-    choiceTally$: Observable<Histogram> = this.choiceTally.asObservable();
+    // TODO: change initial value to smth more meaningful
+    private choiceTally = new BehaviorSubject<Histogram>({
+        question: 'helo',
+        choiceTallies: [{ text: 'hgelo', isCorrect: true, tally: 0 }],
+    });
+    choiceTally$ = this.choiceTally.asObservable();
 
     currentHistogram() {
         this.socketService.on('currentHistogram', (data: Histogram) => {

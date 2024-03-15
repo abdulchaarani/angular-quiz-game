@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable prettier/prettier */
+/* eslint-disable max-lines */
 import { HttpClient } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { SimpleChanges } from '@angular/core';
@@ -53,7 +53,7 @@ fdescribe('QuestionAreaComponent', () => {
         };
         router = jasmine.createSpyObj('Router', ['navigateByUrl']);
         answerSpy = jasmine.createSpyObj('AnswerService', ['selectChoice', 'deselectChoice', 'submitAnswer', 'feedback', 'bonusPoints']);
-        matchRoomSpy = jasmine.createSpyObj('MatchRoomService', ['nextQuestion', 'getUsername', 'getMatchRoomCode', 'disconnect']);
+        matchRoomSpy = jasmine.createSpyObj('MatchRoomService', ['nextQuestion', 'getUsername', 'getMatchRoomCode', 'disconnect', 'sendPlayersData']);
         socketHelper = new SocketTestHelper();
         socketSpy = new SocketHandlerServiceMock(router);
         socketSpy.socket = socketHelper as unknown as Socket;
@@ -163,6 +163,16 @@ fdescribe('QuestionAreaComponent', () => {
         expect(component.answers).toBeDefined();
         expect(matchSpy.questionId).toBe(newQuestion.id);
         expect(component.resetStateForNewQuestion).toHaveBeenCalled();
+    });
+
+    it('should submit answers when submitAnswers is called', () => {
+        component.submitAnswers();
+        expect(answerSpy.submitAnswer).toHaveBeenCalled();
+    });
+
+    it('should go to next question when nextQuestion is called', () => {
+        component.nextQuestion();
+        expect(matchRoomSpy.nextQuestion).toHaveBeenCalled();
     });
 
     it('should add the choice to selectedAnswers if it is not already included', () => {
@@ -280,5 +290,71 @@ fdescribe('QuestionAreaComponent', () => {
         component.handleQuit();
 
         expect(matchRoomSpy.disconnect).toHaveBeenCalled();
+    });
+
+    it('should call handleFeedback when feedback is received', () => {
+        const feedback = {
+            correctAnswer: ['Paris'],
+            score: 20,
+        };
+
+        component.playerScore = 10;
+        component.context = 'testPage';
+
+        spyOn(component, 'nextQuestion');
+
+        component['handleFeedback'](feedback);
+
+        expect(component.isSelectionEnabled).toBeFalse();
+        expect(component.correctAnswers).toEqual(feedback.correctAnswer);
+        expect(component.isRightAnswer).toBeTrue();
+        expect(component.playerScore).toBe(feedback.score);
+        expect(matchRoomSpy.sendPlayersData).toHaveBeenCalledWith(component.matchRoomCode);
+        expect(component.showFeedback).toBeTrue();
+        expect(component.nextQuestion).toHaveBeenCalled();
+    });
+
+    it('should call handleFeedbackSubmission when feedbackSub is received', () => {
+        component['handleFeedbackSubmission']();
+
+        expect(component.showFeedback).toBeTrue();
+    });
+
+    it('should handle question change', () => {
+        const question: Question = {
+            id: '2',
+            type: 'multiple-choice',
+            text: 'What is the capital of Germany?',
+            points: 10,
+            choices: [
+                { text: 'London', isCorrect: false },
+                { text: 'Berlin', isCorrect: true },
+                { text: 'Paris', isCorrect: false },
+                { text: 'Madrid', isCorrect: false },
+            ],
+            lastModification: '2021-07-02T00:00:00.000Z',
+        };
+
+        spyOn(component, 'ngOnChanges');
+
+        component['handleQuestionChange'](question);
+
+        expect(component.currentQuestion).toEqual(question);
+
+        expect(component.ngOnChanges).toHaveBeenCalledTimes(1);
+    });
+
+    it('should handle bonus points', () => {
+        const bonus = 5;
+
+        component['handleBonusPoints'](bonus);
+
+        expect(component.bonus).toBe(bonus);
+    });
+
+    it('should handle cooldown', () => {
+        component['handleCooldown'](true);
+
+        expect(component.isCooldown).toBeTrue();
     });
 });

@@ -70,11 +70,15 @@ export class MatchRoomService {
         this.resetMatchValues();
     }
 
-    createRoom(gameId: string) {
-        this.socketService.send('createRoom', gameId, (res: { code: string }) => {
+    createRoom(gameId: string, isTestRoom: boolean = false) {
+        this.socketService.send('createRoom', { gameId, isTestPage: isTestRoom }, (res: { code: string }) => {
             this.matchRoomCode = res.code;
             this.username = 'Organisateur';
-            this.router.navigateByUrl('/match-room');
+            if (isTestRoom) {
+                // this.beginQuiz();
+                this.players = [{ username: this.username, score: 0, bonusCount: 0, isPlaying: true }];
+                this.router.navigateByUrl('/play-test');
+            } else this.router.navigateByUrl('/match-room');
         });
     }
 
@@ -122,9 +126,11 @@ export class MatchRoomService {
     }
 
     beginQuiz() {
-        this.socketService.on('beginQuiz', (data: { firstQuestion: Question; gameDuration: number }) => {
-            const { firstQuestion, gameDuration } = data;
-            this.router.navigate(['/play-match'], { state: { question: firstQuestion, duration: gameDuration } });
+        this.socketService.on('beginQuiz', (data: { firstQuestion: Question; gameDuration: number; isTestRoom: boolean }) => {
+            const { firstQuestion, gameDuration, isTestRoom } = data;
+            if (isTestRoom) {
+                this.router.navigate(['/play-test'], { state: { question: firstQuestion, duration: gameDuration } });
+            } else this.router.navigate(['/play-match'], { state: { question: firstQuestion, duration: gameDuration } });
         });
     }
 
@@ -147,8 +153,13 @@ export class MatchRoomService {
     }
 
     gameOver() {
-        this.socketService.on('gameOver', () => {
-            console.log('gameOver');
+        this.socketService.on('gameOver', (isTestRoom) => {
+            console.log('gameOver, isTestRoom:', isTestRoom);
+            if (isTestRoom) {
+                this.router.navigateByUrl('/host');
+            } else {
+                console.log('gameOver');
+            }
         });
     }
 
@@ -162,7 +173,6 @@ export class MatchRoomService {
     fetchPlayersData() {
         this.socketService.on('fetchPlayersData', (res: string) => {
             this.players = JSON.parse(res);
-            console.log('players', res);
         });
     }
 

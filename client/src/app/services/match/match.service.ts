@@ -62,9 +62,9 @@ export class MatchService extends CommunicationService<Game> {
         return this.delete(`backups/${id}`);
     }
 
-    createMatch() {
+    createMatch(isTestPage: boolean = false) {
         this.matchRoomService.connect();
-        this.matchRoomService.createRoom(this.selectedGame.id);
+        this.matchRoomService.createRoom(this.selectedGame.id, isTestPage);
     }
 
     validateChoices(choices: string[]) {

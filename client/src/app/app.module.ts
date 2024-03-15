@@ -1,6 +1,6 @@
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { HttpClientModule } from '@angular/common/http';
-import { NgModule } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -27,11 +27,9 @@ import { HomePageComponent } from './pages/home-page/home-page.component';
 import { MatchCreationPageComponent } from './pages/match-creation-page/match-creation-page.component';
 import { PlayerPageComponent } from './pages/player-page/player-page.component';
 import { ResultsPageComponent } from './pages/results-page/results-page.component';
-import { TestPageComponent } from './pages/test-page/test-page.component';
 import { WaitPageComponent } from './pages/wait-page/wait-page.component';
 import { SortByLastModificationPipe } from './pipes/sort-by-last-modification.pipe';
 import { SortByScorePipe } from './pipes/sort-by-score.pipe';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -54,7 +52,6 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
         QuestionCreationFormComponent,
         SortByLastModificationPipe,
         ClickStopPropagationDirective,
-        TestPageComponent,
         ChatComponent,
         WaitPageComponent,
         DialogAdminPasswordComponent,

@@ -1,10 +1,13 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-<app-chat></app-chat>
+<app-chat *ngIf="context != 'testPage'"></app-chat>
 <div id="main-container">
     <button id="exitButton" routerLink="/home" (click)="handleQuit()">QUITTER</button>
     <div id="question-area">
         <div id="question-timer-area">
-            <div id="score-feedback-area" *ngIf="showFeedback && context !== 'hostView' && !isCooldown; else elseBlock">
+            <div
+                id="score-feedback-area"
+                *ngIf="(showFeedback && context !== 'playerView' && !isCooldown) || (showFeedback && context === 'testPage'); else elseBlock"
+            >
                 <h1 id="score">SCORE : {{ playerScore }}</h1>
                 <h1 class="points" id="right-answer" *ngIf="bonus > 0 && isRightAnswer">
                     ✨Bonne Réponse! Vous avez obtenu {{ currentQuestion.points }} points et un bonus de {{ bonus }} points!✨
@@ -42,7 +45,7 @@
             </div>
         </div>
 
-        <div id="choice-area" *ngIf="(context === 'testPage' || context === 'playerView') && !isCooldown">
+        <div id="choice-area" *ngIf="context === 'testPage' || (context === 'playerView' && !isCooldown)">
             <button
                 *ngFor="let choice of currentQuestion.choices; let i = index"
                 class="answer"

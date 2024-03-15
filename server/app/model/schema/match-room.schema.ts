@@ -1,8 +1,8 @@
+import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
 import { Game } from '@app/model/database/game';
 import { Socket } from 'socket.io';
 import { Message } from './message.schema';
 import { Player } from './player.schema';
-import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
 
 export interface MatchRoom {
     code: string;
@@ -19,4 +19,5 @@ export interface MatchRoom {
     submittedPlayers: number;
     messages: Message[];
     hostSocket: Socket;
+    isTestRoom: boolean;
 }

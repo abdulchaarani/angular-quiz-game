@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { ChoiceHistogram } from '@app/model/choice-histogram/choice-histogram';
 import { Choice } from '@app/model/database/choice';
+import { MatchRoomService } from '@app/services/match-room/match-room.service';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class HistogramService {
@@ -22,7 +22,7 @@ export class HistogramService {
     sendHistogramHistory(matchRoomCode) {
         const matchRoom = this.matchRoomService.getMatchRoomByCode(matchRoomCode);
         const histograms = matchRoom.matchHistograms.map((choiceHistogram) => choiceHistogram.choices);
-        matchRoom.hostSocket.send('histogramHistory', histograms);
+        matchRoom.hostSocket.emit('histogramHistory', histograms);
     }
 
     resetChoiceHistogram(matchRoomCode) {
@@ -33,6 +33,6 @@ export class HistogramService {
 
     private sendHistogram(choiceHistogram: ChoiceHistogram, roomCode: string) {
         const matchRoom = this.matchRoomService.getMatchRoomByCode(roomCode);
-        matchRoom.hostSocket.send('currentHistogram', choiceHistogram.choices);
+        matchRoom.hostSocket.emit('currentHistogram', choiceHistogram.choices);
     }
 }

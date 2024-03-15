@@ -1,4 +1,4 @@
-import { Component, HostListener, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, HostListener, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { MatchStatus } from '@app/constants/feedback-messages';
 import { Choice } from '@app/interfaces/choice';
 import { Question } from '@app/interfaces/question';
@@ -15,9 +15,8 @@ import { Subscription } from 'rxjs';
     styleUrls: ['./question-area.component.scss'],
 })
 export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
-    @Input() currentQuestion: Question;
-    @Input() gameDuration: number;
-
+    currentQuestion: Question;
+    gameDuration: number;
     answers: Choice[];
     selectedAnswers: Choice[];
     isSelectionEnabled: boolean;
@@ -82,9 +81,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         this.context = this.questionContextService.getContext();
 
         if (this.isFirstQuestion) {
-            console.log('First question');
             this.currentQuestion = history.state.question;
-            console.log(this.currentQuestion);
             this.gameDuration = history.state.duration;
             this.isFirstQuestion = false;
         }

@@ -11,8 +11,8 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { Server, Socket } from 'socket.io';
 import { MatchEvents } from './match.gateway.events';
 
-import { ConnectedSocket, MessageBody, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { HistogramService } from '@app/services/histogram/histogram.service';
+import { ConnectedSocket, MessageBody, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 
 interface UserInfo {
     roomCode: string;
@@ -150,7 +150,7 @@ export class MatchGateway implements OnGatewayDisconnect {
             return;
         }
         const room = this.matchRoomService.getMatchRoomByCode(roomCode);
-        const allPlayersQuit = room.players.every((player) => player.isPlaying === false);
+        const allPlayersQuit = room.players.every((player) => !player.isPlaying);
         if (room.isPlaying && allPlayersQuit) {
             this.deleteMatchRoom(roomCode);
             return;

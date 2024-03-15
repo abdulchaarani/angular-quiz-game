@@ -25,3 +25,8 @@ export enum GameStatus {
 export enum MatchStatus {
     PREPARE = 'Préparez vous pour la prochaine question! ⏳',
 }
+
+export enum SnackBarError {
+    DELETED = "Le jeu sélectionné n'existe plus",
+    INVISIBLE = "Le jeu sélectionné n'est plus visible",
+}

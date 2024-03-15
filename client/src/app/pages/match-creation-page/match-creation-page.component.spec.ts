@@ -12,50 +12,22 @@ import { MatchService } from '@app/services/match/match.service';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { of, throwError } from 'rxjs';
 import { MatchCreationPageComponent } from './match-creation-page.component';
+import { getMockGame } from '@app/constants/game-mocks';
+import { SnackBarError } from '@app/constants/feedback-messages';
+import { SnackBarMock } from '@app/constants/snackbar-mock';
 import SpyObj = jasmine.SpyObj;
 
-class MatSnackBarStub {
-    open() {
-        return {
-            onAction: () => of({}),
-        };
-    }
-}
-
-fdescribe('MatchCreationPageComponent', () => {
+describe('MatchCreationPageComponent', () => {
     let component: MatchCreationPageComponent;
     let fixture: ComponentFixture<MatchCreationPageComponent>;
     let gameService: GameService;
     let notificationSpy: SpyObj<NotificationService>;
     const invisibleGame: Game = { isVisible: false } as Game;
-    const fakeGame: Game = {
-        id: '0',
-        title: 'title',
-        description: 'desc',
-        lastModification: 'new Date(YEAR, 1, 1)',
-        duration: 30,
-        isVisible: true,
-        questions: [
-            {
-                id: 'getRandomString',
-                type: 'QCM',
-                text: 'getRandomString',
-                points: 30,
-                choices: [],
-                lastModification: ' new Date(YEAR, 1, 1)',
-            },
-        ],
-    };
-    const deletedError = "Le jeu sélectionné n'existe plus";
-    const invisibleError = "Le jeu sélectionné n'est plus visible";
+    const fakeGame: Game = getMockGame();
+
     const action = 'Actualiser';
 
-    const snackBarMock = {
-        onAction: () => {
-            return of(undefined);
-        },
-    } as MatSnackBarRef<TextOnlySnackBar>;
-
+    const snackBarMock = new SnackBarMock() as MatSnackBarRef<TextOnlySnackBar>;
     const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK', body: JSON.stringify(true) });
 
     const matchServiceSpy = jasmine.createSpyObj('MatchService', ['validateChoices', 'getAllGames', 'saveBackupGame', 'createMatch']);
@@ -64,13 +36,11 @@ fdescribe('MatchCreationPageComponent', () => {
     matchServiceSpy.validateChoices.and.returnValue(of(mockHttpResponse));
 
     beforeEach(() => {
-        notificationSpy = jasmine.createSpyObj('NotificationService', ['displayErrorMessageAction', 'openSnackBar']);
         TestBed.configureTestingModule({
             declarations: [MatchCreationPageComponent],
             imports: [HttpClientTestingModule, BrowserAnimationsModule, ScrollingModule],
             providers: [
                 GameService,
-                { provide: MatSnackBarRef, useClass: MatSnackBarStub },
                 { provide: NotificationService, useValue: notificationSpy },
                 { provide: MatchService, useValue: matchServiceSpy },
                 { provide: MatDialog, useClass: MatDialogMock },
@@ -78,6 +48,7 @@ fdescribe('MatchCreationPageComponent', () => {
         });
         fixture = TestBed.createComponent(MatchCreationPageComponent);
         gameService = TestBed.inject(GameService);
+        notificationSpy = jasmine.createSpyObj('NotificationService', ['displayErrorMessageAction', 'openSnackBar']);
 
         component = fixture.componentInstance;
         fixture.detectChanges();
@@ -175,7 +146,7 @@ fdescribe('MatchCreationPageComponent', () => {
         notificationSpy.displayErrorMessageAction.and.returnValue(snackBarMock);
         component.validateGame(invisibleGame);
         tick();
-        expect(notificationSpy.displayErrorMessageAction).toHaveBeenCalledWith(invisibleError, action);
+        expect(notificationSpy.displayErrorMessageAction).toHaveBeenCalledWith(SnackBarError.INVISIBLE, action);
         flush();
     }));
 
@@ -184,7 +155,7 @@ fdescribe('MatchCreationPageComponent', () => {
         component.selectedGame = invisibleGame;
         component.revalidateGame();
         tick();
-        expect(notificationSpy.displayErrorMessageAction).toHaveBeenCalledWith(invisibleError, action);
+        expect(notificationSpy.displayErrorMessageAction).toHaveBeenCalledWith(SnackBarError.INVISIBLE, action);
         flush();
     }));
 
@@ -192,7 +163,7 @@ fdescribe('MatchCreationPageComponent', () => {
         notificationSpy.displayErrorMessageAction.and.returnValue(snackBarMock);
         spyOn(gameService, 'getGameById').and.returnValue(throwError(() => new Error('error')));
         component.loadSelectedGame({ id: '' } as Game);
-        expect(notificationSpy.displayErrorMessageAction).toHaveBeenCalledWith(deletedError, action);
+        expect(notificationSpy.displayErrorMessageAction).toHaveBeenCalledWith(SnackBarError.DELETED, action);
         flush();
     }));
 
@@ -201,7 +172,7 @@ fdescribe('MatchCreationPageComponent', () => {
         notificationSpy.displayErrorMessageAction.and.returnValue(snackBarMock);
         spyOn(gameService, 'getGameById').and.returnValue(throwError(() => new Error('error')));
         component.reloadSelectedGame();
-        expect(notificationSpy.displayErrorMessageAction).toHaveBeenCalledWith(deletedError, action);
+        expect(notificationSpy.displayErrorMessageAction).toHaveBeenCalledWith(SnackBarError.DELETED, action);
         flush();
     }));
 

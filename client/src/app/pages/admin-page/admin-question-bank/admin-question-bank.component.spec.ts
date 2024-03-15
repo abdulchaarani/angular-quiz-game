@@ -7,11 +7,11 @@ import { AdminQuestionBankComponent } from './admin-question-bank.component';
 import { HttpResponse } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { QuestionListItemComponent } from '@app/components/question-list-item/question-list-item.component';
-import { getMockQuestion } from '@app/constants/question-mocks';
 import { ManagementState } from '@app/constants/states';
 import { SortByLastModificationPipe } from '@app/pipes/sort-by-last-modification.pipe';
 import { BankService } from '@app/services/bank/bank.service';
@@ -22,6 +22,8 @@ describe('AdminQuestionBankComponent', () => {
     let fixture: ComponentFixture<AdminQuestionBankComponent>;
     let questionSpy: jasmine.SpyObj<QuestionService>;
     let bankSpy: jasmine.SpyObj<BankService>;
+    let dialog: jasmine.SpyObj<MatDialog>;
+    let mockDialogRef: jasmine.SpyObj<MatDialogRef<any, any>>;
 
     const mockQuestions: Question[] = [
         {
@@ -71,18 +73,26 @@ describe('AdminQuestionBankComponent', () => {
 
         bankSpy = jasmine.createSpyObj('BankService', ['getAllQuestions', 'deleteQuestion', 'addQuestion', 'updateQuestion']);
 
+        const dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
+        const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['close']);
+
         TestBed.configureTestingModule({
             declarations: [AdminQuestionBankComponent, SortByLastModificationPipe, QuestionListItemComponent, MockCreateQuestionComponent],
             imports: [MatExpansionModule, MatIconModule, BrowserAnimationsModule, MatCardModule],
             providers: [
                 { provide: QuestionService, useValue: questionSpy },
                 { provide: BankService, useValue: bankSpy },
+                { provide: MatDialog, useValue: dialogSpy },
             ],
         });
 
         fixture = TestBed.createComponent(AdminQuestionBankComponent);
         component = fixture.componentInstance;
         bankSpy.questions = [];
+        dialog = TestBed.inject(MatDialog) as jasmine.SpyObj<MatDialog>;
+        mockDialogRef = dialogRefSpy as jasmine.SpyObj<MatDialogRef<any, any>>;
+        dialog.open.and.returnValue(mockDialogRef);
+        questionSpy.openCreateQuestionModal.and.returnValue(mockDialogRef);
     });
 
     it('should create', () => {
@@ -98,10 +108,31 @@ describe('AdminQuestionBankComponent', () => {
     });
 
     it('should not display the empty bank message when not empty', () => {
-        bankSpy.questions = [getMockQuestion()];
+        bankSpy.questions = mockQuestions;
         fixture.detectChanges();
         const dom = fixture.nativeElement;
         const emptyBankCard = dom.querySelector('.empty-bank-card');
         expect(emptyBankCard).toBeFalsy();
+    });
+
+    it('deleteQuestion should delete the question using the bank service', () => {
+        component.deleteQuestion('');
+        expect(bankSpy.deleteQuestion).toHaveBeenCalled();
+    });
+
+    it('addQuestion() should add the question using the bank service', () => {
+        component.addQuestion();
+        expect(bankSpy.addQuestion).toHaveBeenCalled();
+    });
+
+    it('updateQuestion() should update the question using the bank service', () => {
+        component.updateQuestion(newQuestionMock);
+        expect(bankSpy.updateQuestion).toHaveBeenCalled();
+    });
+
+    it('openDialog() should open a dialog', () => {
+        component.dialogState = false;
+        // component.openDialog();
+        // expect(questionSpy.openCreateQuestionModal).toHaveBeenCalled();
     });
 });

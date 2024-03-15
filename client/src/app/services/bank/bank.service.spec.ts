@@ -3,7 +3,6 @@ import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -21,8 +20,6 @@ describe('BankService', () => {
     let service: BankService;
     let questionSpy: jasmine.SpyObj<QuestionService>;
     let notificationSpy: jasmine.SpyObj<NotificationService>;
-    let dialog: jasmine.SpyObj<MatDialog>;
-    let mockDialogRef: jasmine.SpyObj<MatDialogRef<any, any>>;
 
     const mockQuestions: Question[] = [
         {
@@ -70,8 +67,6 @@ describe('BankService', () => {
         questionSpy.getAllQuestions.and.returnValue(of(mockQuestions));
         questionSpy.deleteQuestion.and.returnValue(of(mockHttpResponse));
         questionSpy.createQuestion.and.returnValue(of(mockHttpResponse));
-        const dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
-        const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['close']);
 
         TestBed.configureTestingModule({
             declarations: [SortByLastModificationPipe, QuestionListItemComponent, MockCreateQuestionComponent],
@@ -79,13 +74,9 @@ describe('BankService', () => {
             providers: [
                 { provide: QuestionService, useValue: questionSpy },
                 { provide: NotificationService, useValue: notificationSpy },
-                { provide: MatDialog, useValue: dialogSpy },
             ],
         });
         service = TestBed.inject(BankService);
-        dialog = TestBed.inject(MatDialog) as jasmine.SpyObj<MatDialog>;
-        mockDialogRef = dialogRefSpy as jasmine.SpyObj<MatDialogRef<any, any>>;
-        dialog.open.and.returnValue(mockDialogRef);
     });
 
     it('should create', () => {

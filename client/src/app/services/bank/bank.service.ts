@@ -1,6 +1,5 @@
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { BankStatus } from '@app/constants/feedback-messages';
 import { Question } from '@app/interfaces/question';
 import { NotificationService } from '../notification/notification.service';
@@ -12,7 +11,6 @@ import { QuestionService } from '../question/question.service';
 export class BankService {
     questions: Question[] = [];
     constructor(
-        public dialog: MatDialog,
         private readonly questionService: QuestionService,
         private readonly notificationService: NotificationService,
     ) {}

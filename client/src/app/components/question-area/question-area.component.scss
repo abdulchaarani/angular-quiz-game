@@ -164,3 +164,7 @@ button.answer.selected {
 #buttons-container button {
     padding: 2rem;
 }
+::-webkit-scrollbar {
+    display: none;
+    scrollbar-width: thin;
+}

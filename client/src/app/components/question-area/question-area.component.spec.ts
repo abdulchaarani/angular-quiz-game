@@ -1,10 +1,14 @@
+/* eslint-disable max-classes-per-file */
+/* eslint-disable @typescript-eslint/no-empty-function */
+/* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable max-lines */
 import { HttpClient } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { SimpleChanges } from '@angular/core';
+import { Component, SimpleChanges } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -23,6 +27,12 @@ import spyObj = jasmine.SpyObj;
 class SocketHandlerServiceMock extends SocketHandlerService {
     override connect() {}
 }
+
+@Component({
+    selector: 'app-chat',
+    template: '',
+})
+class MockChatComponent {}
 
 describe('QuestionAreaComponent', () => {
     let component: QuestionAreaComponent;
@@ -67,8 +77,8 @@ describe('QuestionAreaComponent', () => {
             'validateChoices',
         ]);
         await TestBed.configureTestingModule({
-            declarations: [QuestionAreaComponent],
-            imports: [RouterTestingModule, HttpClientTestingModule, MatSnackBarModule, MatDialogModule],
+            declarations: [QuestionAreaComponent, MockChatComponent],
+            imports: [RouterTestingModule, HttpClientTestingModule, MatSnackBarModule, MatDialogModule, MatProgressSpinnerModule],
             providers: [
                 HttpClient,
                 { provide: MatchService, useValue: matchSpy },

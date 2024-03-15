@@ -17,4 +17,10 @@
     justify-content: center;
     align-items: center;
     height: 50px;
+    overflow: scroll;
+}
+
+::-webkit-scrollbar {
+    display: none;
+    scrollbar-width: thin;
 }

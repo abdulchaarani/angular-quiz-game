@@ -188,7 +188,7 @@ export class MatchRoomService {
     }
 
     routeToResultsPage() {
-        this.socketService.send('routeToResultsPage', this.matchRoomCode);
+        this.socketService.send('routeToResults', this.matchRoomCode);
     }
 
     listenRouteToResultsPage() {

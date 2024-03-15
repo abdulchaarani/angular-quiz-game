@@ -8,7 +8,6 @@ import { SocketHandlerService } from '../socket-handler/socket-handler.service';
 })
 export class HistogramService {
     constructor(public socketService: SocketHandlerService) {}
-    // TODO: change initial value to smth more meaningful
     private choiceTally = new Subject<Histogram>();
     choiceTally$ = this.choiceTally.asObservable();
     private histogramHist = new Subject<Histogram[]>();

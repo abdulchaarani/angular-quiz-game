@@ -34,14 +34,6 @@ export class HistogramService {
         matchRoom.currentChoiceTracker.resetChoiceTracker(currentQuestion.text, currentQuestion.choices);
     }
 
-    // setUpHistogram(matchRoomCode: string) {
-    //     const matchRoom = this.matchRoomService.getMatchRoomByCode(matchRoomCode);
-    //     const currentQuestion = matchRoom.game.questions[matchRoom.currentQuestionIndex];
-    //     matchRoom.currentChoiceTracker = new ChoiceTracker();
-    //     const histogram: Histogram = this.buildHistogram(matchRoom.currentChoiceTracker);
-    //     matchRoom.hostSocket.emit('setUpHistogram', histogram);
-    // }
-
     sendHistogram(roomCode: string) {
         const matchRoom = this.matchRoomService.getMatchRoomByCode(roomCode);
         const choiceTracker = matchRoom.currentChoiceTracker;

@@ -6,7 +6,7 @@
             #paginator
             class="demo-paginator"
             (page)="handlePageEvent($event)"
-            [length]="this.currentGame.questions.length"
+            [length]="histogramsGame.length"
             [pageSize]="1"
             [disabled]="false"
             [showFirstLastButtons]="true"
@@ -16,9 +16,9 @@
             aria-label="Select page"
         >
         </mat-paginator>
-        <app-histogram [currentQuestion]="this.currentGame.questions[currentQuestionIndex]"></app-histogram>
+        <app-histogram [isResultsPage]="true"></app-histogram>
     </div>
 
-    <button mat-raised-button id="exit-button" routerLink="/home" *ngIf="!isHost">Quitter</button>
+    <button mat-raised-button id="exit-button" routerLink="/home">Quitter</button>
 </div>
-<app-players-list></app-players-list>
+<app-players-list [players]="players"></app-players-list>

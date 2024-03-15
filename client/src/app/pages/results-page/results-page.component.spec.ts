@@ -1,13 +1,12 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ResultsPageComponent } from './results-page.component';
-import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatButtonModule } from '@angular/material/button';
-import { FormsModule } from '@angular/forms';
-import { HistogramComponent } from '@app/components/histogram/histogram.component';
-import { AgChartsAngularModule } from 'ag-charts-angular';
 import { Component } from '@angular/core';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { AgChartsAngularModule } from 'ag-charts-angular';
+import { ResultsPageComponent } from './results-page.component';
 
 @Component({
     selector: 'mat-label',
@@ -20,7 +19,6 @@ class MockMatLabelComponent {}
     template: '',
 })
 class MockMatIconComponent {}
-
 
 @Component({
     selector: 'app-chat',
@@ -48,7 +46,7 @@ describe('ResultsPageComponent', () => {
         TestBed.configureTestingModule({
             declarations: [
                 ResultsPageComponent,
-                HistogramComponent,
+                // HistogramComponent,
                 MockMatIconComponent,
                 MockMatLabelComponent,
                 MockMatFormFieldComponent,

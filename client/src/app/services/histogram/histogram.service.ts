@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 // import { ChoiceTally } from '@common/interfaces/choice-tally';
 import { Histogram } from '@common/interfaces/histogram';
-import { Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { SocketHandlerService } from '../socket-handler/socket-handler.service';
 @Injectable({
     providedIn: 'root',
@@ -9,7 +9,7 @@ import { SocketHandlerService } from '../socket-handler/socket-handler.service';
 export class HistogramService {
     constructor(public socketService: SocketHandlerService) {}
     private choiceTally = new Subject<Histogram>();
-    choiceTally$ = this.choiceTally.asObservable();
+    choiceTally$: Observable<Histogram> = this.choiceTally.asObservable();
 
     currentHistogram() {
         this.socketService.on('currentHistogram', (data: Histogram) => {

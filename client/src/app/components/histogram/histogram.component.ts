@@ -1,6 +1,7 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { HistogramService } from '@app/services/histogram/histogram.service';
 import { ChoiceTally } from '@common/interfaces/choice-tally';
+import { Histogram } from '@common/interfaces/histogram';
 import { AgChartOptions } from 'ag-charts-community';
 import { Subscription } from 'rxjs/internal/Subscription';
 
@@ -11,9 +12,11 @@ import { Subscription } from 'rxjs/internal/Subscription';
 })
 export class HistogramComponent implements OnInit, OnChanges, OnDestroy {
     @Input() isResultsPage: boolean = false;
+    @Input() currentHistogram: number = 0;
     currentQuestion: string;
     chartOptions: AgChartOptions = {};
     choiceTally: ChoiceTally[] = [];
+    histogramsGame: Histogram[] = [];
     private subscriptions: Subscription[] = [];
 
     constructor(private readonly histogramService: HistogramService) {}
@@ -29,11 +32,25 @@ export class HistogramComponent implements OnInit, OnChanges, OnDestroy {
                     this.setupChart(dataTally);
                 }),
             );
+        } else {
+            this.histogramService.histogramHistory();
+            this.subscriptions.push(
+                this.histogramService.histogramHist$.subscribe((histograms: Histogram[]) => {
+                    this.histogramsGame = histograms;
+                    console.log(histograms);
+                }),
+            );
+            if (this.histogramsGame.length > 0) {
+                this.choiceTally = this.histogramsGame[this.currentHistogram].choiceTallies;
+                const dataTally = this.setUpData();
+                console.log(dataTally);
+                this.setupChart(dataTally);
+            }
         }
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (!changes.isResultsPage) {
+        if (changes.currentQuestion || changes.currentHistogram) {
             this.resetChart();
             this.ngOnInit();
         }

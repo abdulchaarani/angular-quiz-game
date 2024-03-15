@@ -71,9 +71,10 @@ export class MatchGateway implements OnGatewayDisconnect {
         return { code: newMatchRoom.code };
     }
 
-    @SubscribeMessage('routeToResults')
+    @SubscribeMessage('routeToResultsPage')
     routeToResultsPage(@ConnectedSocket() socket: Socket, @MessageBody() matchRoomCode: string) {
         this.server.to(matchRoomCode).emit('routeToResultsPage');
+        // this.histogramService.saveHistogram(matchRoomCode);
     }
 
     // TODO: Consider using HTTP instead ?

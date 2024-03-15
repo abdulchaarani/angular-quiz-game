@@ -22,7 +22,6 @@ export class ResultsPageComponent {
     histogramsGame: Histogram[] = [];
 
     ngOnInit(): void {
-        console.log('Results page', this.matchRoomService.getUsername());
         this.players = this.matchRoomService.players;
         this.histogramService.histogramHistory();
         this.histogramService.histogramHist$.subscribe((histograms: Histogram[]) => {

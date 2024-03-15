@@ -222,4 +222,11 @@ fdescribe('MatchCreationPageComponent', () => {
         expect(reloadSpy).toHaveBeenCalled();
         expect(matchServiceSpy.createMatch).toHaveBeenCalled();
     });
+
+    it('createTestMatch() should create a test match', () => {
+        const reloadSpy = spyOn(component, 'reloadSelectedGame');
+        component.createTestMatch();
+        expect(reloadSpy).toHaveBeenCalled();
+        expect(matchServiceSpy.createMatch).toHaveBeenCalledWith(true);
+    });
 });

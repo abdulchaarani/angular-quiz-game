@@ -1,6 +1,5 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 // import { Choice } from '@app/interfaces/choice';
-import { Question } from '@app/interfaces/question';
 import { HistogramService } from '@app/services/histogram/histogram.service';
 import { ChoiceTally } from '@common/interfaces/choice-tally';
 // import { AgChartsAngular } from 'ag-charts-angular';
@@ -12,8 +11,7 @@ import { AgChartOptions } from 'ag-charts-community';
     styleUrls: ['./histogram.component.scss'],
 })
 export class HistogramComponent implements OnInit, OnChanges {
-    // TODO : Fix later
-    @Input() currentQuestion: Question;
+    currentQuestion: string;
     chartOptions: AgChartOptions;
     numberOfPicks: number;
     choiceTally: ChoiceTally[] = [];
@@ -24,8 +22,9 @@ export class HistogramComponent implements OnInit, OnChanges {
 
     ngOnInit(): void {
         this.histogramService.currentHistogram();
-        this.histogramService.choiceTally$.subscribe((choiceTally) => {
-            this.choiceTally = choiceTally;
+        this.histogramService.choiceTally$.subscribe((data) => {
+            this.currentQuestion = data.question;
+            this.choiceTally = data.choiceTallies;
             this.setupChart();
         });
     }
@@ -55,7 +54,7 @@ export class HistogramComponent implements OnInit, OnChanges {
         }
         this.chartOptions = {
             //not change
-            title: { text: this.currentQuestion.text },
+            title: { text: this.currentQuestion },
             axes: [
                 {
                     type: 'category',
@@ -88,5 +87,6 @@ export class HistogramComponent implements OnInit, OnChanges {
                 },
             ],
         };
+        console.log(this.chartOptions.series);
     }
 }

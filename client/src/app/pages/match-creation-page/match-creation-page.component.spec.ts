@@ -50,6 +50,12 @@ fdescribe('MatchCreationPageComponent', () => {
     const invisibleError = "Le jeu sélectionné n'est plus visible";
     const action = 'Actualiser';
 
+    const snackBarMock = {
+        onAction: () => {
+            return of(undefined);
+        },
+    } as MatSnackBarRef<TextOnlySnackBar>;
+
     const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK', body: JSON.stringify(true) });
 
     const matchServiceSpy = jasmine.createSpyObj('MatchService', ['validateChoices', 'getAllGames', 'saveBackupGame', 'createMatch']);
@@ -145,6 +151,7 @@ fdescribe('MatchCreationPageComponent', () => {
     }));
 
     it('should not load a deleted selected game', fakeAsync(() => {
+        notificationSpy.displayErrorMessageAction.and.returnValue(snackBarMock);
         spyOn(gameService, 'getGameById').and.returnValue(throwError(() => new Error('error')));
         const spy = spyOn(component, 'validateGame');
         component.loadSelectedGame({ id: '' } as Game);
@@ -165,7 +172,7 @@ fdescribe('MatchCreationPageComponent', () => {
     }));
 
     it('should open a snackbar when selecting an invisible game', fakeAsync(() => {
-        spyOn(notificationSpy.snackBar, 'open').and.callThrough();
+        notificationSpy.displayErrorMessageAction.and.returnValue(snackBarMock);
         component.validateGame(invisibleGame);
         tick();
         expect(notificationSpy.displayErrorMessageAction).toHaveBeenCalledWith(invisibleError, action);
@@ -173,6 +180,7 @@ fdescribe('MatchCreationPageComponent', () => {
     }));
 
     it('should open a snackbar when revalidating an invisible game', fakeAsync(() => {
+        notificationSpy.displayErrorMessageAction.and.returnValue(snackBarMock);
         component.selectedGame = invisibleGame;
         component.revalidateGame();
         tick();
@@ -181,11 +189,6 @@ fdescribe('MatchCreationPageComponent', () => {
     }));
 
     it('should open a snackbar when selecting a deleted game', fakeAsync(() => {
-        const snackBarMock = {
-            onAction: () => {
-                of(undefined);
-            },
-        } as MatSnackBarRef<TextOnlySnackBar>;
         notificationSpy.displayErrorMessageAction.and.returnValue(snackBarMock);
         spyOn(gameService, 'getGameById').and.returnValue(throwError(() => new Error('error')));
         component.loadSelectedGame({ id: '' } as Game);

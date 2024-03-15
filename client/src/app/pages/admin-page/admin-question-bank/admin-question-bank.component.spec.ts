@@ -5,13 +5,14 @@ import { QuestionService } from '@app/services/question/question.service';
 import { AdminQuestionBankComponent } from './admin-question-bank.component';
 
 import { HttpResponse } from '@angular/common/http';
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { QuestionListItemComponent } from '@app/components/question-list-item/question-list-item.component';
+import { getMockQuestion } from '@app/constants/question-mocks';
 import { ManagementState } from '@app/constants/states';
 import { SortByLastModificationPipe } from '@app/pipes/sort-by-last-modification.pipe';
 import { BankService } from '@app/services/bank/bank.service';
@@ -57,6 +58,7 @@ describe('AdminQuestionBankComponent', () => {
     class MockCreateQuestionComponent {
         @Input() modificationState: ManagementState;
         @Input() question: Question;
+        @Output() createQuestionEvent: EventEmitter<Question>;
     }
 
     beforeEach(() => {
@@ -92,7 +94,6 @@ describe('AdminQuestionBankComponent', () => {
         dialog = TestBed.inject(MatDialog) as jasmine.SpyObj<MatDialog>;
         mockDialogRef = dialogRefSpy as jasmine.SpyObj<MatDialogRef<any, any>>;
         dialog.open.and.returnValue(mockDialogRef);
-        questionSpy.openCreateQuestionModal.and.returnValue(mockDialogRef);
     });
 
     it('should create', () => {
@@ -130,9 +131,28 @@ describe('AdminQuestionBankComponent', () => {
         expect(bankSpy.updateQuestion).toHaveBeenCalled();
     });
 
-    it('openDialog() should open a dialog', () => {
+    it('openDialog() should not open a dialog if dialogState is true', () => {
+        component.dialogState = true;
+        component.openDialog();
+        expect(questionSpy.openCreateQuestionModal).not.toHaveBeenCalled();
+    });
+
+    it('openDialog() should open a dialog if dialogState is false', () => {
         component.dialogState = false;
-        // component.openDialog();
-        // expect(questionSpy.openCreateQuestionModal).toHaveBeenCalled();
+        questionSpy.openCreateQuestionModal.and.returnValue(mockDialogRef);
+        const mock = new MockCreateQuestionComponent();
+        mockDialogRef.componentInstance = mock;
+        mock.createQuestionEvent = new EventEmitter<Question>();
+        component.openDialog();
+        expect(questionSpy.openCreateQuestionModal).toHaveBeenCalled();
+    });
+
+    it('handleDialog() should add question if applicable and close dialog', () => {
+        const spyAdd = spyOn(component, 'addQuestion');
+        const mockQuestion = getMockQuestion();
+        component.handleDialog(mockQuestion, mockDialogRef);
+        expect(spyAdd).toHaveBeenCalled();
+        expect(mockDialogRef.close).toHaveBeenCalled();
+        expect(component.dialogState).toBeFalsy();
     });
 });

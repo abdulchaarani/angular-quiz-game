@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { QuestionCreationFormComponent } from '@app/components/question-creation-form/question-creation-form.component';
 import { ManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
 import { BankService } from '@app/services/bank/bank.service';
@@ -47,18 +48,20 @@ export class AdminQuestionBankComponent implements OnInit {
         this.bankService.updateQuestion(newQuestion);
     }
 
-    // TODO: Re-test open dialog
     openDialog() {
         if (!this.dialogState) {
             const dialogRef = this.questionService.openCreateQuestionModal(ManagementState.BankCreate);
-
             dialogRef.componentInstance.createQuestionEvent.subscribe((newQuestion: Question) => {
-                if (newQuestion) {
-                    this.addQuestion(newQuestion);
-                    dialogRef.close();
-                }
-                this.dialogState = false;
+                this.handleDialog(newQuestion, dialogRef);
             });
         }
+    }
+
+    handleDialog(newQuestion: Question, dialogRef: MatDialogRef<QuestionCreationFormComponent, any>) {
+        if (newQuestion) {
+            this.addQuestion(newQuestion);
+            dialogRef.close();
+        }
+        this.dialogState = false;
     }
 }

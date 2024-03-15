@@ -14,22 +14,21 @@ import { Subscription } from 'rxjs/internal/Subscription';
 export class HistogramComponent implements OnInit, OnChanges, OnDestroy {
     currentQuestion: string;
     chartOptions: AgChartOptions = {};
-    numberOfPicks: number;
     choiceTally: ChoiceTally[] = [];
     private subscriptions: Subscription[] = [];
+    private colors: string[] = [];
 
-    constructor(
-        private readonly histogramService: HistogramService, // private matchRoomService: MatchRoomService,
-    ) {}
+    constructor(private readonly histogramService: HistogramService) {}
 
     ngOnInit(): void {
-        this.histogramService.setUpHistogram();
         this.histogramService.currentHistogram();
         this.subscriptions.push(
             this.histogramService.choiceTally$.subscribe((data) => {
                 this.currentQuestion = data.question;
                 this.choiceTally = data.choiceTallies;
-                let dataTally = this.setUpData();
+                if (this.colors.length === 0) this.colors = this.choiceTally.map(() => this.getRandomColor());
+                const dataTally = this.setUpData();
+                console.log(dataTally);
                 this.setupChart(dataTally);
             }),
         );
@@ -37,8 +36,6 @@ export class HistogramComponent implements OnInit, OnChanges, OnDestroy {
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes.currentQuestion) {
-            const newQuestion = changes.currentQuestion.currentValue;
-            this.currentQuestion = newQuestion;
             this.resetChart();
             this.ngOnInit();
         }
@@ -46,28 +43,21 @@ export class HistogramComponent implements OnInit, OnChanges, OnDestroy {
 
     ngOnDestroy(): void {
         this.subscriptions.forEach((sub) => sub.unsubscribe());
-        this.subscriptions = [];
     }
 
     resetChart(): void {
         this.chartOptions = {};
         this.choiceTally = [];
+        this.colors = [];
     }
 
     setUpData() {
-        const data = [];
-
-        for (const element of this.choiceTally) {
-            let textToShow: string = element.text;
-            if (element.isCorrect) {
-                textToShow = `${textToShow} (Correct)`;
-            } else {
-                textToShow = `${textToShow} (Incorrect)`;
-            }
-            data.push({ text: textToShow, picks: element.tally });
-        }
-
-        return data;
+        return this.choiceTally.map((element, index) => ({
+            label: `C${index + 1} ${element.isCorrect ? '✅' : '❌'}`,
+            text: element.text,
+            picks: element.tally,
+            color: this.colors[index],
+        }));
     }
 
     private setupChart(data: any): void {
@@ -89,21 +79,33 @@ export class HistogramComponent implements OnInit, OnChanges, OnDestroy {
             series: [
                 {
                     type: 'bar',
-                    xKey: 'text',
+                    xKey: 'label',
                     xName: 'Choix de réponse',
                     yKey: 'picks',
                     yName: 'Nombre de choix',
-                    formatter: (params) => {
-                        let fill;
-                        if (params.datum[params.xKey].includes('Correct')) {
-                            fill = 'green';
-                        } else {
-                            fill = 'red';
-                        }
+                    tooltip: {
+                        enabled: true,
+                        renderer: (params: any) => {
+                            return {
+                                content: `Choice: ${params.datum.text} <br/> Selections: ${params.datum.picks}`,
+                            };
+                        },
+                    },
+                    formatter: (params: any) => {
+                        const fill = params.datum[params.xKey].includes('✅') ? 'green' : 'red';
                         return { fill };
                     },
                 },
             ],
         };
+    }
+
+    private getRandomColor(): string {
+        const letters = '0123456789ABCDEF';
+        let color = '#';
+        for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
     }
 }

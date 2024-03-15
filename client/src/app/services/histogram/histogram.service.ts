@@ -18,13 +18,6 @@ export class HistogramService {
         });
     }
 
-    setUpHistogram() {
-        this.socketService.on('setUpHistogram', (data: Histogram) => {
-            console.log(data);
-            this.choiceTally.next(data);
-        });
-    }
-
     histogramHistory() {
         this.socketService.on('histogramHistory', (data: Histogram[]) => {
             console.log(data);

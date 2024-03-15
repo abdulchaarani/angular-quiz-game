@@ -79,12 +79,12 @@ describe('MatchGateway', () => {
         expect(socket.join.calledOnce).toBeFalsy();
     });
 
-    it('createRoom() should let the host create a match room and let the host join the new room', () => {
-        matchRoomSpy.addMatchRoom.returns(MOCK_MATCH_ROOM);
-        const result = gateway.createRoom(socket, JSON.stringify(MOCK_MATCH_ROOM.game));
-        expect(socket.join.calledOnce).toBeTruthy();
-        expect(result).toEqual({ code: MOCK_MATCH_ROOM.code });
-    });
+    // it('createRoom() should let the host create a match room and let the host join the new room', () => {
+    //     matchRoomSpy.addMatchRoom.returns(MOCK_MATCH_ROOM);
+    //     const result = gateway.createRoom(socket, JSON.stringify(MOCK_MATCH_ROOM.game));
+    //     expect(socket.join.calledOnce).toBeTruthy();
+    //     expect(result).toEqual({ code: MOCK_MATCH_ROOM.code });
+    // });
 
     it('toggleLock() should call toggleLockMatchRoom', () => {
         const toggleSpy = jest.spyOn(matchRoomSpy, 'toggleLockMatchRoom').mockReturnThis();

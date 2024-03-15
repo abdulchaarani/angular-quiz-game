@@ -198,6 +198,8 @@ fdescribe('MatchCreationPageComponent', () => {
 
     it('should open a snackbar when revalidating a deleted game', fakeAsync(() => {
         component.selectedGame = { id: '' } as Game;
+        notificationSpy.displayErrorMessageAction.and.returnValue(snackBarMock);
+        spyOn(gameService, 'getGameById').and.returnValue(throwError(() => new Error('error')));
         component.reloadSelectedGame();
         expect(notificationSpy.displayErrorMessageAction).toHaveBeenCalledWith(deletedError, action);
         flush();

@@ -46,15 +46,6 @@ export class MatchCreationPageComponent implements OnInit {
         });
     }
 
-    validateGame(selectedGame: Game): void {
-        if (selectedGame.isVisible) {
-            this.gameIsValid = true;
-        } else {
-            const snackBarRef = this.notificationService.displayErrorMessageAction("Le jeu sélectionné n'est plus visible", 'Actualiser');
-            snackBarRef.onAction().subscribe(() => this.reloadAllGames());
-        }
-    }
-
     reloadSelectedGame(): void {
         this.gameService.getGameById(this.selectedGame.id).subscribe({
             next: (data: Game) => {
@@ -66,6 +57,15 @@ export class MatchCreationPageComponent implements OnInit {
                 snackBarRef.onAction().subscribe(() => this.reloadAllGames());
             },
         });
+    }
+
+    validateGame(selectedGame: Game): void {
+        if (selectedGame.isVisible) {
+            this.gameIsValid = true;
+        } else {
+            const snackBarRef = this.notificationService.displayErrorMessageAction("Le jeu sélectionné n'est plus visible", 'Actualiser');
+            snackBarRef.onAction().subscribe(() => this.reloadAllGames());
+        }
     }
 
     revalidateGame(): void {
@@ -80,7 +80,6 @@ export class MatchCreationPageComponent implements OnInit {
             });
         } else {
             const snackBarRef = this.notificationService.displayErrorMessageAction("Le jeu sélectionné n'est plus visible", 'Actualiser');
-            console.log('caca');
             snackBarRef.onAction().subscribe(() => this.reloadAllGames());
         }
     }

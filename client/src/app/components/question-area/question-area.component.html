@@ -53,7 +53,7 @@
                 [class.incorrect]="showFeedback && !isCorrectAnswer(choice) && isSelected(choice)"
                 (click)="selectChoice(choice)"
             >
-                {{ i + 1 }}. {{ choice.text }}
+                <p>{{ i + 1 }}. {{ choice.text }}</p>
             </button>
         </div>
         <div id="host-area" *ngIf="context === 'hostView'">

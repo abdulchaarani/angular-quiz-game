@@ -5,7 +5,6 @@
 }
 
 #main-container {
-    background-color: rgb(230, 230, 230);
     width: 60vw;
     height: 90vh;
     left: 20vw;
@@ -48,6 +47,7 @@
     overflow: scroll;
     max-width: 30vw;
     max-height: 18vh;
+    font-size: 1rem;
 }
 
 #points {
@@ -69,9 +69,16 @@
 }
 
 .answer {
-    padding: 3rem 4rem;
-    overflow: scroll;
+    padding: 2rem;
+    width: 30vw;
+    height: 15vh;
     font-size: 1rem;
+}
+
+.answer p {
+    overflow-x: scroll;
+    max-width: 30vw;
+    max-height: 15vh;
 }
 
 button.answer.selected {
@@ -105,4 +112,47 @@ button.answer.selected {
     transform: translate(-50%, -50%);
     color: #000000;
     margin: 0;
+}
+
+#submit-button-container {
+    position: absolute;
+    top: 85vh;
+    align-self: center;
+}
+
+#submit-button {
+    padding: 1rem 2rem;
+}
+
+#score-feedback-area,
+#score-area {
+    position: absolute;
+    top: 35vh;
+    font-size: 0.8rem;
+    align-self: center;
+    text-align: center;
+}
+
+#right-answer {
+    color: #4caf50;
+}
+
+#wrong-answer {
+    color: #f44336;
+}
+
+#buttons-container {
+    position: fixed;
+    bottom: 5vh;
+    left: 40vw;
+    right: 40vw;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+#buttons-container button {
+    padding: 2rem;
 }

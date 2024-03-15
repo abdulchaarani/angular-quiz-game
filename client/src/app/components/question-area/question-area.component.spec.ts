@@ -24,7 +24,7 @@ class SocketHandlerServiceMock extends SocketHandlerService {
     override connect() {}
 }
 
-fdescribe('QuestionAreaComponent', () => {
+describe('QuestionAreaComponent', () => {
     let component: QuestionAreaComponent;
     let fixture: ComponentFixture<QuestionAreaComponent>;
     let matchSpy: spyObj<MatchService>;

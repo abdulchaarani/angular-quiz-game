@@ -226,6 +226,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
     private subscribeToGameEnd() {
         const endGameSubscription = this.answerService.endGame$.subscribe(() => {
             this.isLastQuestion = true;
+            this.matchRoomService.routeToResultsPage();
         });
         this.subscriptions.push(endGameSubscription);
     }
@@ -235,6 +236,8 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         this.timeService.handleStopTimer();
         this.answerService.feedback();
         this.answerService.bonusPoints();
+        this.answerService.gameOver();
+        this.matchRoomService.listenRouteToResultsPage();
     }
 
     private initialiseSubscriptions() {

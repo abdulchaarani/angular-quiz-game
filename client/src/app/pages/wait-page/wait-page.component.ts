@@ -85,7 +85,6 @@ export class WaitPageComponent implements OnInit, OnDestroy {
         this.matchRoomService.startMatch();
         this.timeService.timerFinished$.subscribe((finished) => {
             if (finished) {
-                // this.matchRoomService.letsStartQuiz();
                 this.ngOnDestroy();
             }
         });

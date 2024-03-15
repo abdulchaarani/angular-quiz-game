@@ -154,11 +154,8 @@ export class MatchRoomService {
 
     gameOver() {
         this.socketService.on('gameOver', (isTestRoom) => {
-            console.log('gameOver, isTestRoom:', isTestRoom);
             if (isTestRoom) {
                 this.router.navigateByUrl('/host');
-            } else {
-                console.log('gameOver');
             }
         });
     }
@@ -188,6 +185,16 @@ export class MatchRoomService {
         this.matchRoomCode = '';
         this.username = '';
         this.players = [];
+    }
+
+    routeToResultsPage() {
+        this.socketService.send('routeToResultsPage', this.matchRoomCode);
+    }
+
+    listenRouteToResultsPage() {
+        this.socketService.on('routeToResultsPage', () => {
+            this.router.navigateByUrl('/results');
+        });
     }
 
     private initialiseMatchSubjects() {

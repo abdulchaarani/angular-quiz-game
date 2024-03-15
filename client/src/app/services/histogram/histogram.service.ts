@@ -11,6 +11,8 @@ export class HistogramService {
     // TODO: change initial value to smth more meaningful
     private choiceTally = new Subject<Histogram>();
     choiceTally$ = this.choiceTally.asObservable();
+    private histogramHist = new Subject<Histogram[]>();
+    histogramHist$ = this.histogramHist.asObservable();
 
     currentHistogram() {
         this.socketService.on('currentHistogram', (data: Histogram) => {
@@ -20,7 +22,7 @@ export class HistogramService {
 
     histogramHistory() {
         this.socketService.on('histogramHistory', (data: Histogram[]) => {
-            console.log(data);
+            this.histogramHist.next(data);
         });
     }
 }

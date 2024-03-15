@@ -122,9 +122,11 @@ export class AnswerService {
             const feedback: Feedback = { score: player.score, correctAnswer };
             player.socket.emit('feedback', feedback);
         });
-        this.matchRoomService.getMatchRoomByCode(roomCode).hostSocket.emit('feedback');
-        if (this.matchRoomService.getMatchRoomByCode(roomCode).gameLength === this.matchRoomService.getMatchRoomByCode(roomCode).currentQuestionIndex)
-            this.matchRoomService.getMatchRoomByCode(roomCode).hostSocket.emit('endGame');
+
+        const matchRoom = this.getMatchRoomByCode(roomCode);
+        matchRoom.hostSocket.emit('feedback');
+        console.log('feedback sent', matchRoom.currentQuestionIndex, matchRoom.gameLength);
+        if (matchRoom.gameLength === 1 + matchRoom.currentQuestionIndex) matchRoom.hostSocket.emit('endGame');
     }
     private resetPlayersAnswer(roomCode: string) {
         this.histogramService.saveHistogram(roomCode);

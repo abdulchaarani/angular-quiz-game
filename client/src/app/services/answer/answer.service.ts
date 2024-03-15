@@ -56,7 +56,7 @@ export class AnswerService {
     }
 
     gameOver() {
-        this.socketService.on('gameOver', () => {
+        this.socketService.on('endGame', () => {
             this.endGameSubject.next();
         });
     }

@@ -1,6 +1,9 @@
 import { Component } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
 import { Game } from '@app/interfaces/game';
+import { HistogramService } from '@app/services/histogram/histogram.service';
+// import { MatchRoomService } from '@app/services/match-room/match-room.service';
+import { Histogram } from '@common/interfaces/histogram';
 
 const MIN_DURATION = 10;
 const PICK = 6;
@@ -17,6 +20,16 @@ export class ResultsPageComponent {
     pageEvent: PageEvent;
     // currentQuestionIndex: number;
     // picks: number[];
+    constructor(
+        // private matchRoomService: MatchRoomService,
+        private histogramService: HistogramService,
+    ) {}
+
+    ngOnInit(): void {
+        this.histogramService.histogramHist$.subscribe((histograms: Histogram[]) => {
+            console.log(histograms);
+        });
+    }
     currentQuestionIndex: number = 0;
     currentGame: Game = {
         id: '0b319d1c-76b2-49da-88c6-8d0e27e9bd4d',

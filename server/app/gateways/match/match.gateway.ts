@@ -71,6 +71,11 @@ export class MatchGateway implements OnGatewayDisconnect {
         return { code: newMatchRoom.code };
     }
 
+    @SubscribeMessage('routeToResultsPage')
+    routeToResultsPage(@ConnectedSocket() socket: Socket, @MessageBody() matchRoomCode: string) {
+        this.server.to(matchRoomCode).emit('routeToResultsPage');
+    }
+
     // TODO: Consider using HTTP instead ?
     @SubscribeMessage(MatchEvents.ToggleLock)
     toggleLock(@ConnectedSocket() socket: Socket, @MessageBody() matchRoomCode: string) {

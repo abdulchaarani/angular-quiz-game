@@ -1,9 +1,9 @@
 import { MOCK_MATCH_ROOM } from '@app/constants/match-mocks';
 import { Choice } from '@app/model/database/choice';
+import { HistogramService } from '@app/services/histogram/histogram.service';
+import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
-import { MatchRoomService } from '@app/services/match-room/match-room.service';
-import { HistogramService } from '@app/services/histogram/histogram.service';
 
 describe('HistogramService', () => {
     let histogramService: HistogramService;
@@ -99,7 +99,7 @@ describe('HistogramService', () => {
         const choiceTracker = mockMatchRoom.currentChoiceTracker;
         jest.spyOn(matchRoomService, 'getMatchRoomByCode').mockReturnValue(mockMatchRoom);
         jest.spyOn(mockMatchRoom.hostSocket, 'send');
-        histogramService['sendHistogram'](choiceTracker, roomCode);
+        histogramService['sendHistogram'](roomCode);
         expect(mockMatchRoom.hostSocket.send).toHaveBeenCalledWith('currentHistogram', choiceTracker.choices);
         expect(matchRoomService.getMatchRoomByCode).toHaveBeenCalledWith(roomCode);
         expect(matchRoomService.getMatchRoomByCode).toHaveBeenCalledTimes(1);

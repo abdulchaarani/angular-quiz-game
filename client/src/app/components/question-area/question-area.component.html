@@ -57,9 +57,8 @@
             </button>
         </div>
         <div id="host-area" *ngIf="context === 'hostView'">
-            <div class="histogram-container" *ngIf="!isCooldown">
+            <div id="histogram-container" *ngIf="!isCooldown">
                 <app-histogram></app-histogram>
-                <!-- TODO: a revoir quand l'histogramme est fait -->
             </div>
             <div id="buttons-container">
                 <button mat-raised-button>Présenter les résultats finaux</button>

@@ -72,30 +72,6 @@ export class MatchRoomService {
         return newRoom;
     }
 
-    // TODO see if can avoid duplication
-    addTestMatchRoom(selectedGame: Game, socket: Socket): MatchRoom {
-        const newRoom: MatchRoom = {
-            code: this.generateRoomCode(),
-            hostSocket: socket,
-            isLocked: true,
-            isPlaying: true,
-            game: selectedGame,
-            gameLength: selectedGame.questions.length,
-            currentQuestionIndex: 0,
-            currentQuestionAnswer: [],
-            currentChoiceTracker: new ChoiceTracker(),
-            matchHistograms: [],
-            bannedUsernames: [],
-            players: [],
-            activePlayers: 0,
-            submittedPlayers: 0,
-            messages: [],
-            isTestRoom: true,
-        };
-        this.matchRooms.push(newRoom);
-        return newRoom;
-    }
-
     getRoomCodeByHostSocket(socketId: string): string {
         let matchRoomCode: string;
         this.matchRooms.forEach((matchRoom: MatchRoom) => {

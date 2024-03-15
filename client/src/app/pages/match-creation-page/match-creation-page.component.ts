@@ -46,11 +46,33 @@ export class MatchCreationPageComponent implements OnInit {
         });
     }
 
+    reloadSelectedGame(): void {
+        this.gameService.getGameById(this.selectedGame.id).subscribe({
+            next: (data: Game) => {
+                this.selectedGame = data;
+                this.revalidateGame();
+            },
+            error: () => {
+                const snackBarRef = this.notificationService.displayErrorMessageAction("Le jeu sélectionné n'existe plus", 'Actualiser');
+                snackBarRef.onAction().subscribe(() => this.reloadAllGames());
+            },
+        });
+    }
+
     validateGame(selectedGame: Game): void {
         if (selectedGame.isVisible) {
             this.gameIsValid = true;
-            this.matchService.currentGame = selectedGame;
-            this.matchService.saveBackupGame(selectedGame.id).subscribe((response: HttpResponse<string>) => {
+        } else {
+            const snackBarRef = this.notificationService.displayErrorMessageAction("Le jeu sélectionné n'est plus visible", 'Actualiser');
+            snackBarRef.onAction().subscribe(() => this.reloadAllGames());
+        }
+    }
+
+    revalidateGame(): void {
+        if (this.selectedGame.isVisible) {
+            this.gameIsValid = true;
+            this.matchService.currentGame = this.selectedGame;
+            this.matchService.saveBackupGame(this.selectedGame.id).subscribe((response: HttpResponse<string>) => {
                 if (response.body) {
                     const backupGame = JSON.parse(response.body);
                     this.matchService.currentGame = backupGame;
@@ -63,10 +85,12 @@ export class MatchCreationPageComponent implements OnInit {
     }
 
     createMatch(): void {
+        this.reloadSelectedGame();
         this.matchService.createMatch();
     }
 
     createTestMatch(): void {
+        this.reloadSelectedGame();
         this.matchService.createMatch(true);
         this.questionContextService.setContext('testPage');
     }

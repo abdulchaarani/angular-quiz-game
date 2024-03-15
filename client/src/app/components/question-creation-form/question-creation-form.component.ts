@@ -59,9 +59,9 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
         for (let i = 0; i < choices.length; i++) {
             const isCorrect = choices.at(i).get('isCorrect')?.value;
 
-            if (isCorrect) {
+            if (isCorrect === true) {
                 hasCorrect = true;
-            } else if (!isCorrect) {
+            } else if (isCorrect === false) {
                 hasIncorrect = true;
             }
         }

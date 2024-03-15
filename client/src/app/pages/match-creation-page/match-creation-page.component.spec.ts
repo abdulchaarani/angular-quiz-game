@@ -13,10 +13,10 @@ import { NotificationService } from '@app/services/notification/notification.ser
 import { of, throwError } from 'rxjs';
 import { MatchCreationPageComponent } from './match-creation-page.component';
 import { getMockGame } from '@app/constants/game-mocks';
-import SpyObj = jasmine.SpyObj;
 import { SnackBarError } from '@app/constants/feedback-messages';
+import SpyObj = jasmine.SpyObj;
 
-fdescribe('MatchCreationPageComponent', () => {
+describe('MatchCreationPageComponent', () => {
     let component: MatchCreationPageComponent;
     let fixture: ComponentFixture<MatchCreationPageComponent>;
     let gameService: GameService;

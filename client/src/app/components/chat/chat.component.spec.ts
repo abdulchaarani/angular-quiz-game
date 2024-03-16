@@ -1,13 +1,17 @@
+import { ChatComponent } from './chat.component';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialogModule } from '@angular/material/dialog';
-import { ChatComponent } from './chat.component';
+
 import { ChatService } from '@app/services/chat/chat.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
+
+import { MOCK_MESSAGE, MOCK_ROOM_CODE, MOCK_DATE } from '@app/constants/chat-mocks';
 import SpyObj = jasmine.SpyObj;
 
 describe('ChatComponent', () => {
@@ -18,7 +22,10 @@ describe('ChatComponent', () => {
 
     beforeEach(() => {
         const matchRoomSpy = jasmine.createSpyObj('MatchRoomService', ['getUsername', 'getMatchRoomCode']);
-        const chatSpy = jasmine.createSpyObj('ChatService', ['displayOldMessages', 'sendMessage']);
+        const socketHandlerSpy = jasmine.createSpyObj('SocketHandlerService', ['send']);
+        const chatSpy = jasmine.createSpyObj('ChatService', ['displayOldMessages', 'sendMessage', 'handleReceivedMessages']);
+        socketHandlerSpy.socket = jasmine.createSpyObj('socket', ['removeListener']);
+        chatSpy.socketHandler = socketHandlerSpy;
 
         TestBed.configureTestingModule({
             declarations: [ChatComponent],
@@ -36,8 +43,6 @@ describe('ChatComponent', () => {
         fixture.detectChanges();
     });
 
-    const MOCK_DATE = new Date(2024, 1, 1);
-
     beforeAll(() => {
         jasmine.clock().install();
         jasmine.clock().mockDate(MOCK_DATE);
@@ -47,11 +52,8 @@ describe('ChatComponent', () => {
         jasmine.clock().uninstall();
     });
 
-    const mockMessage = {
-        text: 'Test Message',
-        author: 'User1',
-        date: MOCK_DATE,
-    };
+    const mockMessage = MOCK_MESSAGE;
+    const mockRoomCode = MOCK_ROOM_CODE;
 
     it('should create', () => {
         expect(true).toBeTruthy();
@@ -62,11 +64,16 @@ describe('ChatComponent', () => {
         expect(chatServiceSpy.displayOldMessages).toHaveBeenCalled();
     });
 
+    it('should call the even listener handleReceivedMessages() on init', () => {
+        component.ngOnInit();
+        expect(chatServiceSpy.handleReceivedMessages).toHaveBeenCalled();
+    });
+
     it('should send message', () => {
-        matchRoomServiceSpy.getUsername.and.returnValue('User1');
-        matchRoomServiceSpy.getMatchRoomCode.and.returnValue('1234');
+        matchRoomServiceSpy.getUsername.and.returnValue(mockMessage.author);
+        matchRoomServiceSpy.getMatchRoomCode.and.returnValue(mockRoomCode);
         component.sendMessage(mockMessage.text);
-        expect(chatServiceSpy.sendMessage).toHaveBeenCalledWith('1234', mockMessage);
+        expect(chatServiceSpy.sendMessage).toHaveBeenCalledWith(mockRoomCode, mockMessage);
     });
 
     it('should not send an empty message', () => {
@@ -74,5 +81,10 @@ describe('ChatComponent', () => {
         component.sendMessage(messageText);
         expect(chatServiceSpy.sendMessage).not.toHaveBeenCalled();
     });
-});
 
+    it('should destroy the handleReceivedMessages() and the fetchOldMessages() emits', () => {
+        component.ngOnDestroy();
+        expect(chatServiceSpy.socketHandler.socket.removeListener).toHaveBeenCalledWith('newMessage');
+        expect(chatServiceSpy.socketHandler.socket.removeListener).toHaveBeenCalledWith('fetchOldMessages');
+    });
+});

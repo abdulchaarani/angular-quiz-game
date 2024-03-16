@@ -3,7 +3,6 @@ import { ResultsPageComponent } from './results-page.component';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
-import { HistogramComponent } from '@app/components/histogram/histogram.component';
 import { AgChartsAngularModule } from 'ag-charts-angular';
 import { Component } from '@angular/core';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -40,6 +39,12 @@ class MockPlayersListComponent {}
 })
 class MockMatFormFieldComponent {}
 
+@Component({
+    selector: 'app-histogram',
+    template: '',
+})
+class MockAppHistogramComponent {}
+
 describe('ResultsPageComponent', () => {
     let component: ResultsPageComponent;
     let fixture: ComponentFixture<ResultsPageComponent>;
@@ -48,7 +53,7 @@ describe('ResultsPageComponent', () => {
         TestBed.configureTestingModule({
             declarations: [
                 ResultsPageComponent,
-                HistogramComponent,
+                MockAppHistogramComponent,
                 MockMatIconComponent,
                 MockMatLabelComponent,
                 MockMatFormFieldComponent,

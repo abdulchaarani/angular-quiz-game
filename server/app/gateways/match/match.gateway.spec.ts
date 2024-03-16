@@ -126,7 +126,7 @@ describe('MatchGateway', () => {
                 expect(event).toEqual('newMessage');
                 expect(messageInfo).toEqual(MOCK_MESSAGE_INFO);
             },
-        } as unknown as BroadcastOperator<DefaultEventsMap, any>);
+        } as unknown as BroadcastOperator<DefaultEventsMap, unknown>);
         gateway.sendMessageToClients(MOCK_MESSAGE_INFO);
         expect(toSpy).toHaveBeenCalledWith(MOCK_MESSAGE_INFO.roomCode);
     });

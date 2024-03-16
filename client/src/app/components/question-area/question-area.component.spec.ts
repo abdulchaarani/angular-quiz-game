@@ -34,7 +34,7 @@ class SocketHandlerServiceMock extends SocketHandlerService {
 })
 class MockChatComponent {}
 
-xdescribe('QuestionAreaComponent', () => {
+describe('QuestionAreaComponent', () => {
     let component: QuestionAreaComponent;
     let fixture: ComponentFixture<QuestionAreaComponent>;
     let matchSpy: spyObj<MatchService>;
@@ -62,8 +62,15 @@ xdescribe('QuestionAreaComponent', () => {
             duration: 60,
         };
         router = jasmine.createSpyObj('Router', ['navigateByUrl']);
-        answerSpy = jasmine.createSpyObj('AnswerService', ['selectChoice', 'deselectChoice', 'submitAnswer', 'feedback', 'bonusPoints']);
-        matchRoomSpy = jasmine.createSpyObj('MatchRoomService', ['nextQuestion', 'getUsername', 'getMatchRoomCode', 'disconnect', 'sendPlayersData']);
+        answerSpy = jasmine.createSpyObj('AnswerService', ['selectChoice', 'deselectChoice', 'submitAnswer', 'feedback', 'bonusPoints', 'gameOver']);
+        matchRoomSpy = jasmine.createSpyObj('MatchRoomService', [
+            'nextQuestion',
+            'getUsername',
+            'getMatchRoomCode',
+            'disconnect',
+            'sendPlayersData',
+            'listenRouteToResultsPage',
+        ]);
         socketHelper = new SocketTestHelper();
         socketSpy = new SocketHandlerServiceMock(router);
         socketSpy.socket = socketHelper as unknown as Socket;

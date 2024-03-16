@@ -42,7 +42,7 @@ const routes: Routes = [
     { path: 'match-room', canActivate: [matchLoginGuard], component: WaitPageComponent },
     { path: 'results', canActivate: [matchLoginGuard], component: ResultsPageComponent },
     { path: 'play-test', component: QuestionAreaComponent },
-    { path: 'play-match', canActivate: [matchLoginGuard], component: QuestionAreaComponent },
+    { path: 'play-match', canActivate: [matchLoginGuard], canDeactivate: [pendingChangesGuard], component: QuestionAreaComponent },
 ];
 
 @NgModule({

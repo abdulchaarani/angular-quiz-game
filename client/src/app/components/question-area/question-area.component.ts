@@ -1,14 +1,16 @@
 import { Component, HostListener, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { MatchStatus } from '@app/constants/feedback-messages';
+import { CanDeactivateType } from '@app/interfaces/can-component-deactivate';
 import { Choice } from '@app/interfaces/choice';
 import { Question } from '@app/interfaces/question';
 import { AnswerService } from '@app/services/answer/answer.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { MatchService } from '@app/services/match/match.service';
+import { NotificationService } from '@app/services/notification/notification.service';
 import { QuestionContextService } from '@app/services/question-context/question-context.service';
 import { TimeService } from '@app/services/time/time.service';
 import { MULTIPLICATION_FACTOR } from '@common/constants/match-constants';
-import { Subscription } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 @Component({
     selector: 'app-question-area',
     templateUrl: './question-area.component.html',
@@ -41,6 +43,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         private readonly matchRoomService: MatchRoomService,
         private readonly questionContextService: QuestionContextService,
         private readonly answerService: AnswerService,
+        private readonly notificationService: NotificationService,
     ) {}
 
     get time() {
@@ -73,6 +76,12 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
                 }
             }
         }
+    }
+
+    canDeactivate(): CanDeactivateType {
+        const deactivateSubject = new Subject<boolean>();
+        this.notificationService.openPendingChangesConfirmDialog().subscribe((confirm: boolean) => deactivateSubject.next(confirm));
+        return deactivateSubject;
     }
 
     ngOnInit(): void {

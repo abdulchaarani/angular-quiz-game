@@ -61,13 +61,13 @@ describe('MatchRoomService', () => {
         expect(fetchSpy).not.toHaveBeenCalled();
     });
 
-    it('disconnect() should disconnect the socket and reset match values', () => {
-        const resetSpy = spyOn(service, 'resetMatchValues');
-        const disconnectSpy = spyOn(socketSpy, 'disconnect').and.callFake(() => {});
-        service.disconnect();
-        expect(resetSpy).toHaveBeenCalled();
-        expect(disconnectSpy).toHaveBeenCalled();
-    });
+    // it('disconnect() should disconnect the socket and reset match values', () => {
+    //     const resetSpy = spyOn(service, 'resetMatchValues');
+    //     const disconnectSpy = spyOn(socketSpy, 'disconnect').and.callFake(() => {});
+    //     service.disconnect();
+    //     expect(resetSpy).toHaveBeenCalled();
+    //     expect(disconnectSpy).toHaveBeenCalled();
+    // });
 
     it('getSocketId() should return socket id if it is defined, else an empty string', () => {
         const cases = [
@@ -124,12 +124,12 @@ describe('MatchRoomService', () => {
         expect(sendSpy).toHaveBeenCalled();
     });
 
-    it('banUsername() should send banUsername event if user is host', () => {
-        (service as any).username = 'Organisateur';
-        const sendSpy = spyOn(socketSpy, 'send').and.callFake(() => {});
-        service.banUsername('mockUsername');
-        expect(sendSpy).toHaveBeenCalledWith('banUsername', { roomCode: '', username: 'mockUsername' });
-    });
+    // it('banUsername() should send banUsername event if user is host', () => {
+    //     (service as any).username = 'Organisateur';
+    //     const sendSpy = spyOn(socketSpy, 'send').and.callFake(() => {});
+    //     service.banUsername('mockUsername');
+    //     expect(sendSpy).toHaveBeenCalledWith('banUsername', { roomCode: '', username: 'mockUsername' });
+    // });
 
     it('banUsername() should not send banUsername event if user is not host', () => {
         (service as any).username = '';

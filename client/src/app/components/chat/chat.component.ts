@@ -1,4 +1,4 @@
-import { AfterViewChecked, Component, ElementRef, ViewChild } from '@angular/core';
+import { AfterViewChecked, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Message } from '@app/interfaces/message';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { ChatService } from '@app/services/chat/chat.service';
@@ -8,7 +8,7 @@ import { ChatService } from '@app/services/chat/chat.service';
     templateUrl: './chat.component.html',
     styleUrls: ['./chat.component.scss'],
 })
-export class ChatComponent implements AfterViewChecked {
+export class ChatComponent implements AfterViewChecked, OnInit, OnDestroy {
     @ViewChild('messagesContainer', { static: true }) messagesContainer: ElementRef;
 
     constructor(
@@ -18,11 +18,16 @@ export class ChatComponent implements AfterViewChecked {
 
     ngOnInit(): void {
         this.chatService.displayOldMessages();
-        // this.chatService.handleReceivedMessages();
+        this.chatService.handleReceivedMessages();
     }
 
     ngAfterViewChecked() {
         this.scrollToBottom();
+    }
+
+    ngOnDestroy() {
+        this.chatService.socketHandler.socket.removeListener('newMessage');
+        this.chatService.socketHandler.socket.removeListener('fetchOldMessages');
     }
 
     sendMessage(messageText: string): void {

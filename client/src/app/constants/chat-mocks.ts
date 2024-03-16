@@ -11,3 +11,4 @@ export const MOCK_MESSAGES: Message[] = [
 ];
 
 export const MOCK_ROOM_CODE = '1234';
+export const MOCK_DATE = new Date(2024, 1, 1);

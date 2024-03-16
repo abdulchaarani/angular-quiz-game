@@ -8,6 +8,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { ChatComponent } from './chat.component';
 import { ChatService } from '@app/services/chat/chat.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
+import { MOCK_MESSAGE, MOCK_DATE, MOCK_ROOM_CODE } from '@app/constants/chat-mocks';
 import SpyObj = jasmine.SpyObj;
 
 describe('ChatComponent', () => {
@@ -36,8 +37,6 @@ describe('ChatComponent', () => {
         fixture.detectChanges();
     });
 
-    const MOCK_DATE = new Date(2024, 1, 1);
-
     beforeAll(() => {
         jasmine.clock().install();
         jasmine.clock().mockDate(MOCK_DATE);
@@ -47,11 +46,8 @@ describe('ChatComponent', () => {
         jasmine.clock().uninstall();
     });
 
-    const mockMessage = {
-        text: 'Test Message',
-        author: 'User1',
-        date: MOCK_DATE,
-    };
+    const mockMessage = MOCK_MESSAGE;
+    const mockRoomCode = MOCK_ROOM_CODE;
 
     it('should create', () => {
         expect(true).toBeTruthy();
@@ -63,10 +59,10 @@ describe('ChatComponent', () => {
     });
 
     it('should send message', () => {
-        matchRoomServiceSpy.getUsername.and.returnValue('User1');
-        matchRoomServiceSpy.getMatchRoomCode.and.returnValue('1234');
+        matchRoomServiceSpy.getUsername.and.returnValue(mockMessage.author);
+        matchRoomServiceSpy.getMatchRoomCode.and.returnValue(mockRoomCode);
         component.sendMessage(mockMessage.text);
-        expect(chatServiceSpy.sendMessage).toHaveBeenCalledWith('1234', mockMessage);
+        expect(chatServiceSpy.sendMessage).toHaveBeenCalledWith(mockRoomCode, mockMessage);
     });
 
     it('should not send an empty message', () => {
@@ -75,4 +71,3 @@ describe('ChatComponent', () => {
         expect(chatServiceSpy.sendMessage).not.toHaveBeenCalled();
     });
 });
-

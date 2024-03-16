@@ -58,7 +58,10 @@ describe('AdminQuestionBankComponent', () => {
     class MockCreateQuestionComponent {
         @Input() modificationState: ManagementState;
         @Input() question: Question;
-        @Output() createQuestionEvent: EventEmitter<Question>;
+        @Output() createQuestionEvent: EventEmitter<Question> = new EventEmitter<Question>();
+        mockEmit() {
+            this.createQuestionEvent.emit(newQuestionMock);
+        }
     }
 
     beforeEach(() => {
@@ -138,13 +141,16 @@ describe('AdminQuestionBankComponent', () => {
     });
 
     it('openDialog() should open a dialog if dialogState is false', () => {
+        const spyHandleDialog = spyOn(component, 'handleDialog');
+
         component.dialogState = false;
         questionSpy.openCreateQuestionModal.and.returnValue(mockDialogRef);
         const mock = new MockCreateQuestionComponent();
         mockDialogRef.componentInstance = mock;
-        mock.createQuestionEvent = new EventEmitter<Question>();
         component.openDialog();
+        mock.mockEmit();
         expect(questionSpy.openCreateQuestionModal).toHaveBeenCalled();
+        expect(spyHandleDialog).toHaveBeenCalled();
     });
 
     it('handleDialog() should add question if applicable and close dialog', () => {

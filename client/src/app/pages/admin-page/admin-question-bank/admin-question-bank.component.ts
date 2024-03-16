@@ -28,7 +28,7 @@ export class AdminQuestionBankComponent implements OnInit {
 
     constructor(
         public dialog: MatDialog,
-        public readonly bankService: BankService,
+        public bankService: BankService,
         private readonly questionService: QuestionService,
     ) {}
 

@@ -19,13 +19,14 @@ export class HistogramService {
         const choiceTracker: ChoiceTracker = matchRoom.currentChoiceTracker;
         const histogram: Histogram = this.buildHistogram(choiceTracker);
         matchRoom.matchHistograms.push(histogram);
-        this.sendHistogramHistory(matchRoomCode);
     }
 
     sendHistogramHistory(matchRoomCode: string) {
         const matchRoom = this.matchRoomService.getMatchRoomByCode(matchRoomCode);
         const histograms: Histogram[] = matchRoom.matchHistograms;
+
         matchRoom.hostSocket.emit('histogramHistory', histograms);
+        return histograms;
     }
 
     resetChoiceTracker(matchRoomCode: string) {

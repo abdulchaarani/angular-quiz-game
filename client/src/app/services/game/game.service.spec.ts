@@ -91,7 +91,6 @@ describe('GameService', () => {
         const expectedLength = service.games.length + 1;
         service.uploadGame(NEW_MOCK_GAME);
         expect(service.games.length).toEqual(expectedLength);
-        console.log(service.games.length);
         expect(addSpy).toHaveBeenCalled();
         expect(notificationSpy.displaySuccessMessage).toHaveBeenCalled();
     });

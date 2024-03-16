@@ -125,7 +125,6 @@ export class AnswerService {
 
         const matchRoom = this.getMatchRoomByCode(roomCode);
         matchRoom.hostSocket.emit('feedback');
-        console.log('feedback sent', matchRoom.currentQuestionIndex, matchRoom.gameLength);
         if (matchRoom.gameLength === 1 + matchRoom.currentQuestionIndex) matchRoom.hostSocket.emit('endGame');
     }
     private resetPlayersAnswer(roomCode: string) {

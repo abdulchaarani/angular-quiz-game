@@ -6,7 +6,7 @@
             #paginator
             class="demo-paginator"
             (page)="handlePageEvent($event)"
-            [length]="2"
+            [length]="histogramsGame.length"
             [pageSize]="1"
             [disabled]="false"
             [showFirstLastButtons]="true"
@@ -19,6 +19,6 @@
         <app-histogram [isResultsPage]="true" [currentHistogram]="histogramsGame[currentQuestionIndex]"></app-histogram>
     </div>
 
-    <button mat-raised-button id="exit-button" routerLink="/home">Quitter</button>
+    <button mat-raised-button id="exit-button" (click)="handleDisconnect()" routerLink="/home">Quitter</button>
 </div>
 <app-players-list [players]="players"></app-players-list>

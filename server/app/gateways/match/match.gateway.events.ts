@@ -11,5 +11,7 @@ export enum MatchEvents {
     NewMessage = 'newMessage',
     StartMatch = 'startMatch',
     NextQuestion = 'nextQuestion',
-    SendMessagesHistory = 'sendMessagesHistory'
+    SendMessagesHistory = 'sendMessagesHistory',
+    RouteToResultsPage = 'routeToResultsPage',
+    HistogramHistory = 'histogramHistory',
 }

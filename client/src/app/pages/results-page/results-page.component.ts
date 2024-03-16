@@ -4,6 +4,7 @@ import { Player } from '@app/interfaces/player';
 import { HistogramService } from '@app/services/histogram/histogram.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { Histogram } from '@common/interfaces/histogram';
+import { Subscription } from 'rxjs/internal/Subscription';
 
 @Component({
     selector: 'app-results-page',
@@ -15,23 +16,34 @@ export class ResultsPageComponent {
     pageEvent: PageEvent;
     players: Player[] = [];
     currentQuestionIndex: number = 0;
+    private subscriptions: Subscription[] = [];
     constructor(
-        private matchRoomService: MatchRoomService,
-        private histogramService: HistogramService,
+        private readonly matchRoomService: MatchRoomService,
+        private readonly histogramService: HistogramService,
     ) {}
     histogramsGame: Histogram[] = [];
 
     ngOnInit(): void {
         this.players = this.matchRoomService.players;
         this.histogramService.histogramHistory();
-        this.histogramService.histogramHist$.subscribe((histograms: Histogram[]) => {
-            console.log(histograms);
-            this.histogramsGame = histograms;
-        });
+        this.subscriptions.push(
+            this.histogramService.histogramHist$.subscribe((histograms: Histogram[]) => {
+                this.histogramsGame = histograms;
+            }),
+        );
+    }
+
+    ngOnDestory(): void {
+        this.subscriptions.forEach((sub) => sub.unsubscribe());
+        this.subscriptions = [];
     }
 
     handlePageEvent(e: PageEvent) {
         this.pageEvent = e;
         this.currentQuestionIndex = e.pageIndex;
+    }
+
+    handleDisconnect() {
+        this.matchRoomService.disconnect();
     }
 }

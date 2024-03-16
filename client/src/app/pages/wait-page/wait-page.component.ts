@@ -40,6 +40,10 @@ export class WaitPageComponent implements OnInit, OnDestroy {
         return this.matchRoomService.getUsername() === 'Organisateur';
     }
 
+    get currentGame() {
+        return this.matchService.currentGame;
+    }
+
     ngOnInit(): void {
         this.timeService.handleTimer();
         this.timeService.handleStopTimer();
@@ -47,7 +51,7 @@ export class WaitPageComponent implements OnInit, OnDestroy {
         this.matchRoomService.connect();
 
         if (this.isHost) {
-            this.gameTitle = this.matchService.currentGame.title;
+            this.gameTitle = this.currentGame.title;
             this.questionContextService.setContext('hostView');
         } else {
             this.subscriptions.push(
@@ -80,12 +84,15 @@ export class WaitPageComponent implements OnInit, OnDestroy {
         this.matchRoomService.banUsername(username);
     }
 
-    startMatch() {
+    prepareStartOfMatch() {
         this.startTimerButton = true;
         this.matchRoomService.startMatch();
-        this.timeService.timerFinished$.subscribe((finished) => {
+        return this.timeService.timerFinished$;
+    }
+
+    startMatch() {
+        this.prepareStartOfMatch().subscribe((finished) => {
             if (finished) {
-                // this.matchRoomService.letsStartQuiz();
                 this.ngOnDestroy();
             }
         });

@@ -188,28 +188,15 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
 
     private handleFeedbackSubmission() {
         this.showFeedback = true;
+        this.isNextQuestionButton = true;
     }
 
     private subscribeToFeedback() {
         const feedbackSubscription = this.answerService.feedback$.subscribe((feedback) => {
-            if (feedback) {
-                this.correctAnswers = feedback.correctAnswer;
-                if (this.playerScore < feedback.score) {
-                    this.isRightAnswer = true;
-                }
-                this.playerScore = feedback.score;
-                this.matchRoomService.sendPlayersData(this.matchRoomCode);
-                this.showFeedback = true;
                 this.handleFeedback(feedback);
-
-                if (this.context === 'testPage') {
-                    this.nextQuestion();
-                }
-            }
         });
         const feedbackObservable = this.answerService.feedbackSub$.subscribe(() => {
             this.handleFeedbackSubmission();
-            this.isNextQuestionButton = true;
         });
 
         this.subscriptions.push(feedbackSubscription);

@@ -17,7 +17,7 @@ import SpyObj = jasmine.SpyObj;
 })
 class MockChatComponent {}
 
-fdescribe('WaitPageComponent', () => {
+describe('WaitPageComponent', () => {
     let component: WaitPageComponent;
     let fixture: ComponentFixture<WaitPageComponent>;
     let matchRoomSpy: SpyObj<MatchRoomService>;

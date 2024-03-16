@@ -115,6 +115,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
 
     submitAnswers(): void {
         this.answerService.submitAnswer({ username: this.username, roomCode: this.matchRoomCode });
+        this.isSelectionEnabled = false;
     }
 
     selectChoice(choice: Choice): void {
@@ -160,10 +161,13 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         this.matchRoomService.disconnect();
     }
 
+    routeToResultsPage() {
+        this.matchRoomService.routeToResultsPage();
+    }
+
     private subscribeToFeedback() {
         const feedbackSubscription = this.answerService.feedback$.subscribe((feedback) => {
             if (feedback) {
-                this.isSelectionEnabled = false;
                 this.correctAnswers = feedback.correctAnswer;
                 if (this.playerScore < feedback.score) {
                     this.isRightAnswer = true;
@@ -228,10 +232,6 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
             this.isLastQuestion = true;
         });
         this.subscriptions.push(endGameSubscription);
-    }
-
-    routeToResultsPage() {
-        this.matchRoomService.routeToResultsPage();
     }
 
     private listenToGameEvents() {

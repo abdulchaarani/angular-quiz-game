@@ -1,5 +1,7 @@
 import { AfterViewChecked, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+
 import { Message } from '@app/interfaces/message';
+
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { ChatService } from '@app/services/chat/chat.service';
 

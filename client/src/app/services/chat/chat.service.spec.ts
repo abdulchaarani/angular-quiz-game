@@ -1,10 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { TestBed } from '@angular/core/testing';
-import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
-import { Message } from '@app/interfaces/message';
+
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialogModule } from '@angular/material/dialog';
-import { MatchRoomService } from '@app/services/match-room/match-room.service';
+
 import { ChatService } from './chat.service';
+import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
+import { MatchRoomService } from '@app/services/match-room/match-room.service';
+
+import { MOCK_MESSAGE, MOCK_MESSAGES, MOCK_ROOM_CODE } from '@app/constants/chat-mocks';
 import SpyObj = jasmine.SpyObj;
 
 describe('ChatService', () => {
@@ -28,21 +33,11 @@ describe('ChatService', () => {
         matchRoomServiceSpy = TestBed.inject(MatchRoomService) as jasmine.SpyObj<MatchRoomService>;
     });
 
-    const mockMessage: Message = {
-        text: 'Test Text',
-        author: 'User1',
-        date: new Date(),
-    };
+    const mockMessage = MOCK_MESSAGE;
 
-    const mockMessages: Message[] = [
-        {
-            text: 'Test Text',
-            author: 'User1',
-            date: new Date(),
-        },
-    ];
+    const mockMessages = MOCK_MESSAGES;
 
-    const mockRoomCode = '1234';
+    const mockRoomCode = MOCK_ROOM_CODE;
 
     it('should be created', () => {
         expect(service).toBeTruthy();

@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ChatService } from './chat.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
-import { Message } from '@app/model/schema/message.schema';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { MOCK_MATCH_ROOM } from '@app/constants/match-mocks';
+import { MOCK_MESSAGE, MOCK_ROOM_CODE } from '@app/constants/chat-mocks';
 
 describe('ChatService', () => {
     let service: ChatService;
@@ -30,38 +30,36 @@ describe('ChatService', () => {
         matchRoomService = module.get<MatchRoomService>(MatchRoomService);
     });
 
-    // Add these to the constants file
-    const roomCode = MOCK_MATCH_ROOM.code;
-    const mockMessage: Message = { text: 'Test Text', author: 'User', date: new Date() };
+    const matchRoomCode = MOCK_MATCH_ROOM.code;
+    const mockMessage = MOCK_MESSAGE;
+    const mockRoomCode = MOCK_ROOM_CODE;
+    const INDEX_NOT_FOUND = -1;
 
     it('should be defined', () => {
         expect(service).toBeDefined();
     });
 
     it('should add and get messages', () => {
-        const roomCode = '1234';
-        const message: Message = { text: 'Test Text', author: 'User', date: new Date() };
-        const mockMatchRoom = [MOCK_MATCH_ROOM];
-
-        jest.spyOn(matchRoomService, 'getRoomIndexByCode').mockReturnValue(0);
-        service.addMessage(message, MOCK_MATCH_ROOM.code);
-        const messages = service.getMessages(roomCode);
-        expect(messages).toEqual([message]);
-        const returnedMessage = service.addMessage(message, roomCode);
-
-        expect(returnedMessage).toEqual(message);
+        const matchRoomIndex = 0;
+        jest.spyOn(matchRoomService, 'getRoomIndexByCode').mockReturnValue(matchRoomIndex);
+        service.addMessage(mockMessage, MOCK_MATCH_ROOM.code);
+        const messages = service.getMessages(mockRoomCode);
+        expect(messages).toEqual([mockMessage]);
+        const returnedMessage = service.addMessage(mockMessage, mockRoomCode);
+        expect(returnedMessage).toEqual(mockMessage);
     });
 
     it('should not add a message to a match room that does not exist', () => {
-        jest.spyOn(matchRoomService, 'getRoomIndexByCode').mockReturnValue(-1);
-        service.addMessage(mockMessage, roomCode);
-        const messages = service.getMessages(roomCode);
+        jest.spyOn(matchRoomService, 'getRoomIndexByCode').mockReturnValue(INDEX_NOT_FOUND);
+        service.addMessage(mockMessage, matchRoomCode);
+        const messages = service.getMessages(matchRoomCode);
         expect(messages).toEqual([]);
     });
 
     it('should return the added message', () => {
-        jest.spyOn(matchRoomService, 'getRoomIndexByCode').mockReturnValue(0);
-        const returnedMessage = service.addMessage(mockMessage, roomCode);
+        const matchRoomIndex = 0;
+        jest.spyOn(matchRoomService, 'getRoomIndexByCode').mockReturnValue(matchRoomIndex);
+        const returnedMessage = service.addMessage(mockMessage, matchRoomCode);
         expect(returnedMessage).toEqual(mockMessage);
     });
 });

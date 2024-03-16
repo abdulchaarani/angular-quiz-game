@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { HistogramComponent } from '@app/components/histogram/histogram.component';
 import { AgChartsAngularModule } from 'ag-charts-angular';
 import { ResultsPageComponent } from './results-page.component';
 
@@ -38,6 +38,12 @@ class MockPlayersListComponent {}
 })
 class MockMatFormFieldComponent {}
 
+@Component({
+    selector: 'app-histogram',
+    template: '',
+})
+class MockAppHistogramComponent {}
+
 xdescribe('ResultsPageComponent', () => {
     let component: ResultsPageComponent;
     let fixture: ComponentFixture<ResultsPageComponent>;
@@ -46,14 +52,14 @@ xdescribe('ResultsPageComponent', () => {
         TestBed.configureTestingModule({
             declarations: [
                 ResultsPageComponent,
-                // HistogramComponent,
+                HistogramComponent,
                 MockMatIconComponent,
                 MockMatLabelComponent,
                 MockMatFormFieldComponent,
                 MockChatComponent,
                 MockPlayersListComponent,
             ],
-            imports: [MatPaginatorModule, MatButtonModule, FormsModule, AgChartsAngularModule, MatSnackBarModule, MatDialogModule],
+            imports: [MatPaginatorModule, FormsModule, AgChartsAngularModule, MatSnackBarModule, MatDialogModule],
         }).compileComponents();
         fixture = TestBed.createComponent(ResultsPageComponent);
         component = fixture.componentInstance;

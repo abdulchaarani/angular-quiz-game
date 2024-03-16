@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
 import { Player } from '@app/interfaces/player';
 import { HistogramService } from '@app/services/histogram/histogram.service';
@@ -11,7 +11,7 @@ import { Subscription } from 'rxjs/internal/Subscription';
     templateUrl: './results-page.component.html',
     styleUrls: ['./results-page.component.scss'],
 })
-export class ResultsPageComponent {
+export class ResultsPageComponent implements OnInit, OnDestroy {
     isHost: boolean = true;
     pageEvent: PageEvent;
     players: Player[] = [];
@@ -21,6 +21,7 @@ export class ResultsPageComponent {
         private readonly matchRoomService: MatchRoomService,
         private readonly histogramService: HistogramService,
     ) {}
+
     histogramsGame: Histogram[] = [];
 
     ngOnInit(): void {
@@ -33,7 +34,7 @@ export class ResultsPageComponent {
         );
     }
 
-    ngOnDestory(): void {
+    ngOnDestroy(): void {
         this.subscriptions.forEach((sub) => sub.unsubscribe());
         this.subscriptions = [];
     }

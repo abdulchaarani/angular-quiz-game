@@ -70,6 +70,7 @@ describe('QuestionAreaComponent', () => {
             'disconnect',
             'sendPlayersData',
             'listenRouteToResultsPage',
+            'routeToResultsPage', 
         ]);
         socketHelper = new SocketTestHelper();
         socketSpy = new SocketHandlerServiceMock(router);
@@ -307,6 +308,13 @@ describe('QuestionAreaComponent', () => {
         component.handleQuit();
 
         expect(matchRoomSpy.disconnect).toHaveBeenCalled();
+    });
+
+    
+    it('should call matchRoomService.routeToResultsPage when routeToResultsPage is called', () => {
+        component.routeToResultsPage();
+
+        expect(matchRoomSpy.listenRouteToResultsPage).toHaveBeenCalled();
     });
 
     it('should call handleFeedback when feedback is received', () => {

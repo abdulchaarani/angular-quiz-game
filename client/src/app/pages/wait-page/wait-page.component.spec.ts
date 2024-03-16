@@ -1,7 +1,10 @@
+import { HttpClient } from '@angular/common/http';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { TimeService } from '@app/services/time/time.service';
+import { of } from 'rxjs'; // Add import for 'of' from 'rxjs' package
 import { WaitPageComponent } from './wait-page.component';
 import SpyObj = jasmine.SpyObj;
 
@@ -11,34 +14,36 @@ import SpyObj = jasmine.SpyObj;
 })
 class MockChatComponent {}
 
-xdescribe('WaitPageComponent', () => {
-    // let component: WaitPageComponent;
+fdescribe('WaitPageComponent', () => {
+    let component: WaitPageComponent;
     let fixture: ComponentFixture<WaitPageComponent>;
 
     let matchRoomSpy: SpyObj<MatchRoomService>;
     let timeSpy: SpyObj<TimeService>;
 
     beforeEach(() => {
-        matchRoomSpy = jasmine.createSpyObj('MatchRoomService', ['getUsername', 'banUsername', 'toggleLock', 'connect', 'startMatch']);
-        timeSpy = jasmine.createSpyObj('TimeService', ['handleTimer', 'handleStopTimer']); // TODO: Add methods
+        matchRoomSpy = jasmine.createSpyObj('MatchRoomService', ['getUsername', 'banUsername', 'toggleLock', 'connect', 'startMatch', 'getGameTitleObservable', 'getStartMatchObservable', 'matchStarted', 'beginQuiz']);
+        matchRoomSpy.getGameTitleObservable.and.returnValue(of(''));
+        matchRoomSpy.getStartMatchObservable.and.returnValue(of<void>(undefined)); 
+        timeSpy = jasmine.createSpyObj('TimeService', ['handleTimer', 'handleStopTimer']);
         TestBed.configureTestingModule({
             declarations: [WaitPageComponent, MockChatComponent],
+            imports: [HttpClientTestingModule],
             providers: [
+                HttpClient,
                 { provide: MatchRoomService, useValue: matchRoomSpy },
                 { provide: TimeService, useValue: timeSpy },
             ],
         });
+        
         fixture = TestBed.createComponent(WaitPageComponent);
-        // component = fixture.componentInstance;
+        component = fixture.componentInstance;
         fixture.detectChanges();
     });
-    it('should create', () => {
-        expect(true).toBeTruthy();
-    });
 
-    // it('should create', () => {
-    //     expect(component).toBeTruthy();
-    // });
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
 
     // it('time() should return the time of the timeService', () => {
     //     const time = 100;

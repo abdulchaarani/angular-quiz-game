@@ -38,11 +38,11 @@ class MockPlayersListComponent {}
 })
 class MockMatFormFieldComponent {}
 
-@Component({
-    selector: 'app-histogram',
-    template: '',
-})
-class MockAppHistogramComponent {}
+// @Component({
+//     selector: 'app-histogram',
+//     template: '',
+// })
+// class MockAppHistogramComponent {}
 
 xdescribe('ResultsPageComponent', () => {
     let component: ResultsPageComponent;

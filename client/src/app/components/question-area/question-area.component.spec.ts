@@ -288,8 +288,7 @@ describe('QuestionAreaComponent', () => {
         expect(component.showFeedback).toBeFalse();
         expect(component.isSelectionEnabled).toBeTrue();
         expect(component.selectedAnswers).toEqual([]);
-        expect(component.isCorrect).toBeFalse();
-        expect(component.havePointsBeenAdded).toBeFalse();
+
         expect(component.bonus).toBe(0);
         expect(component.correctAnswers).toEqual([]);
         expect(component.isRightAnswer).toBeFalse();

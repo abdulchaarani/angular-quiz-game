@@ -1,4 +1,4 @@
-import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
+import { ChoiceTracker } from '@app/model/choice-tracker/choice-tracker';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Player } from '@app/model/schema/player.schema';
 import { getMockGame } from './game-mocks';
@@ -22,7 +22,8 @@ const MOCK_MATCH_ROOM: MatchRoom = {
     gameLength: 1,
     currentQuestionIndex: 0,
     currentQuestionAnswer: [],
-    choiceTally: new ChoiceTally(),
+    currentChoiceTracker: new ChoiceTracker(),
+    matchHistograms: [],
     bannedUsernames: [],
     players: [],
     activePlayers: 0,
@@ -40,7 +41,8 @@ const MOCK_PLAYER_ROOM: MatchRoom = {
     gameLength: 1,
     currentQuestionIndex: 0,
     currentQuestionAnswer: [],
-    choiceTally: new ChoiceTally(),
+    currentChoiceTracker: new ChoiceTracker(),
+    matchHistograms: [],
     bannedUsernames: [],
     players: [MOCK_PLAYER],
     activePlayers: 1,

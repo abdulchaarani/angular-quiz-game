@@ -33,13 +33,7 @@ export class MatchRoomService {
         public socketService: SocketHandlerService,
         private router: Router,
         private notificationService: NotificationService,
-    ) {
-        this.matchRoomCode = '';
-        this.username = '';
-        this.players = [];
-        this.messages = [];
-        this.initialiseMatchSubjects();
-    }
+    ) {}
 
     get socketId() {
         return this.socketService.socket.id ? this.socketService.socket.id : '';
@@ -55,6 +49,8 @@ export class MatchRoomService {
 
     connect() {
         if (!this.socketService.isSocketAlive()) {
+            this.resetMatchValues();
+            this.initialiseMatchSubjects();
             this.socketService.connect();
             this.redirectAfterDisconnection();
             this.fetchPlayersData();
@@ -67,7 +63,6 @@ export class MatchRoomService {
 
     disconnect() {
         this.socketService.disconnect();
-        this.resetMatchValues();
     }
 
     createRoom(gameId: string, isTestRoom: boolean = false) {
@@ -147,6 +142,8 @@ export class MatchRoomService {
     }
 
     startCooldown() {
+        console.log('startCooldown');
+
         this.socketService.on('startCooldown', () => {
             this.displayCooldownSource.next(true);
         });
@@ -154,11 +151,8 @@ export class MatchRoomService {
 
     gameOver() {
         this.socketService.on('gameOver', (isTestRoom) => {
-            console.log('gameOver, isTestRoom:', isTestRoom);
             if (isTestRoom) {
                 this.router.navigateByUrl('/host');
-            } else {
-                console.log('gameOver');
             }
         });
     }
@@ -188,6 +182,17 @@ export class MatchRoomService {
         this.matchRoomCode = '';
         this.username = '';
         this.players = [];
+        this.messages = [];
+    }
+
+    routeToResultsPage() {
+        this.socketService.send('routeToResultsPage', this.matchRoomCode);
+    }
+
+    listenRouteToResultsPage() {
+        this.socketService.on('routeToResultsPage', () => {
+            this.router.navigateByUrl('/results');
+        });
     }
 
     private initialiseMatchSubjects() {

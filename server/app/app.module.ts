@@ -22,6 +22,7 @@ import { TimeService } from './services/time/time.service';
 import { ChatService } from './services/chat/chat.service';
 import { AnwserGateway } from './gateways/anwser/anwser.gateway';
 import { AnswerService } from './services/answer/answer.service';
+import { HistogramService } from './services/histogram/histogram.service';
 
 @Module({
     imports: [
@@ -53,6 +54,7 @@ import { AnswerService } from './services/answer/answer.service';
         ChatService,
         AnwserGateway,
         AnswerService,
+        HistogramService,
     ],
 })
 export class AppModule {}

@@ -11,6 +11,7 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { Server, Socket } from 'socket.io';
 import { MatchEvents } from './match.gateway.events';
 
+import { HistogramService } from '@app/services/histogram/histogram.service';
 import { ConnectedSocket, MessageBody, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 
 interface UserInfo {
@@ -24,20 +25,18 @@ interface MessageInfo {
 }
 
 // Future TODO: Open socket only if code and user are valid + Allow host to be able to disconnect banned players
-interface TimerInfo {
-    roomCode: string;
-    time: number;
-}
-
 @WebSocketGateway({ cors: true })
 @Injectable()
 export class MatchGateway implements OnGatewayDisconnect {
     @WebSocketServer() private server: Server;
 
+    // permit more params to decouple services
+    // eslint-disable-next-line max-params
     constructor(
         private matchRoomService: MatchRoomService,
         private playerRoomService: PlayerRoomService,
         private matchBackupService: MatchBackupService,
+        private histogramService: HistogramService,
         private chatService: ChatService,
     ) {}
 
@@ -56,6 +55,7 @@ export class MatchGateway implements OnGatewayDisconnect {
     createRoom(@ConnectedSocket() socket: Socket, @MessageBody() data: { gameId: string; isTestPage: boolean }) {
         const selectedGame: Game = this.matchBackupService.getBackupGame(data.gameId);
         const newMatchRoom: MatchRoom = this.matchRoomService.addMatchRoom(selectedGame, socket, data.isTestPage);
+        this.histogramService.resetChoiceTracker(newMatchRoom.code);
         if (data.isTestPage) {
             const playerInfo = { roomCode: newMatchRoom.code, username: 'Organisateur' };
             socket.join(newMatchRoom.code);
@@ -63,11 +63,19 @@ export class MatchGateway implements OnGatewayDisconnect {
             this.playerRoomService.addPlayer(socket, playerInfo.roomCode, playerInfo.username);
 
             this.matchRoomService.sendFirstQuestion(this.server, playerInfo.roomCode);
+
             return { code: newMatchRoom.code };
         }
 
         socket.join(newMatchRoom.code);
         return { code: newMatchRoom.code };
+    }
+
+    @SubscribeMessage(MatchEvents.RouteToResultsPage)
+    routeToResultsPage(@ConnectedSocket() socket: Socket, @MessageBody() matchRoomCode: string) {
+        this.server.to(matchRoomCode).emit(MatchEvents.RouteToResultsPage);
+        const histograms = this.histogramService.sendHistogramHistory(matchRoomCode);
+        this.server.to(matchRoomCode).emit(MatchEvents.HistogramHistory, histograms);
     }
 
     // TODO: Consider using HTTP instead ?
@@ -130,11 +138,14 @@ export class MatchGateway implements OnGatewayDisconnect {
     @OnEvent(TimerEvents.CountdownTimerExpired)
     onCountdownTimerExpired(matchRoomCode: string) {
         this.matchRoomService.sendFirstQuestion(this.server, matchRoomCode);
+        this.histogramService.sendHistogram(matchRoomCode);
     }
 
     @OnEvent(TimerEvents.CooldownTimerExpired)
     onCooldownTimerExpired(matchRoomCode: string) {
         this.matchRoomService.sendNextQuestion(this.server, matchRoomCode);
+        this.histogramService.resetChoiceTracker(matchRoomCode);
+        this.histogramService.sendHistogram(matchRoomCode);
     }
 
     handleDisconnect(@ConnectedSocket() socket: Socket) {
@@ -148,7 +159,7 @@ export class MatchGateway implements OnGatewayDisconnect {
             return;
         }
         const room = this.matchRoomService.getMatchRoomByCode(roomCode);
-        const allPlayersQuit = room.players.every((player) => player.isPlaying === false);
+        const allPlayersQuit = room.players.every((player) => !player.isPlaying);
         if (room.isPlaying && allPlayersQuit) {
             this.deleteMatchRoom(roomCode);
             return;

@@ -382,4 +382,10 @@ describe('QuestionAreaComponent', () => {
 
         expect(component.isCooldown).toBeTrue();
     });
+
+    it('should handle game end', () => {
+        component['handleGameEnd']();
+
+        expect(component.isLastQuestion).toBeTrue();
+    });
 });

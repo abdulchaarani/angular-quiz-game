@@ -113,6 +113,9 @@ describe('QuestionAreaComponent', () => {
                 component.isCooldown = true;
             }
         });
+        spyOn<any>(component, 'subscribeToGameEnd').and.callFake(() => {
+            component.isLastQuestion = true;
+        });
         fixture.detectChanges();
     });
 

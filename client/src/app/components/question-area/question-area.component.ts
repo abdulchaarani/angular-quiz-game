@@ -265,9 +265,13 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         this.subscriptions.push(displayCoolDownSubscription);
     }
 
+    private handleGameEnd() {
+        this.isLastQuestion = true;
+    }
+
     private subscribeToGameEnd() {
         const endGameSubscription = this.answerService.endGame$.subscribe(() => {
-            this.isLastQuestion = true;
+            this.handleGameEnd();
         });
         this.subscriptions.push(endGameSubscription);
     }

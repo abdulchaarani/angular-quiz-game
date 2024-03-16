@@ -1,9 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { TestBed } from '@angular/core/testing';
-import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
+
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialogModule } from '@angular/material/dialog';
-import { MatchRoomService } from '@app/services/match-room/match-room.service';
+
 import { ChatService } from './chat.service';
+import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
+import { MatchRoomService } from '@app/services/match-room/match-room.service';
+
 import { MOCK_MESSAGE, MOCK_MESSAGES, MOCK_ROOM_CODE } from '@app/constants/chat-mocks';
 import SpyObj = jasmine.SpyObj;
 

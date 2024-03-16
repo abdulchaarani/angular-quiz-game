@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
+
 import { Message } from '@app/interfaces/message';
 
 export const MOCK_DATE = new Date(2024, 1, 1);

@@ -5,6 +5,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
+import { MIN_CHOICES, MAX_CHOICES, SNACK_BAR_DISPLAY_TIME } from '@app/constants/question-creation';
 export interface DialogManagement {
     modificationState: ManagementState;
 }
@@ -25,9 +26,6 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
     questionForm: FormGroup;
     checked: boolean;
     disabled: boolean;
-    private readonly snackBarDisplayTime = 2000;
-    private readonly minChoices = 2;
-    private readonly maxChoices = 4;
 
     constructor(
         private snackBar: MatSnackBar,
@@ -75,10 +73,10 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
 
     addChoice() {
         const choices = this.questionForm.get('choices') as FormArray;
-        if (choices.length < this.maxChoices) {
+        if (choices.length < MAX_CHOICES) {
             this.choices.push(this.buildChoices());
         } else {
-            this.openSnackBar('4 choix est le maximum', this.snackBarDisplayTime);
+            this.openSnackBar('4 choix est le maximum', SNACK_BAR_DISPLAY_TIME);
             return;
         }
     }
@@ -109,10 +107,10 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
 
     removeChoice(index: number) {
         const choices = this.questionForm.get('choices') as FormArray;
-        if (choices.length > this.minChoices) {
+        if (choices.length > MIN_CHOICES) {
             this.choices?.removeAt(index);
         } else {
-            this.openSnackBar('2 choix est le minimum', this.snackBarDisplayTime);
+            this.openSnackBar('2 choix est le minimum', SNACK_BAR_DISPLAY_TIME);
             return;
         }
     }

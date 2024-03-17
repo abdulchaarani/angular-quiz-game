@@ -31,7 +31,7 @@ export class PlayerRoomService {
 
         const newPlayer: Player = {
             username: newUsername,
-            answer: { selectedChoices: new Map<string, boolean>(), isSubmited: false },
+            answer: { selectedChoices: new Map<string, boolean>(), isSubmitted: false },
             score: 0,
             bonusCount: 0,
             isPlaying: true,

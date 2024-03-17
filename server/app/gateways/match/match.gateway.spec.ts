@@ -1,20 +1,33 @@
+/* eslint-disable max-lines */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // import { getMockGame } from '@app/constants/game-mocks';
-import { MOCK_MATCH_ROOM, MOCK_MESSAGE_INFO, MOCK_PLAYER, MOCK_ROOM_CODE, MOCK_USER_INFO } from '@app/constants/match-mocks';
+import {
+    MOCK_MATCH_ROOM,
+    MOCK_MESSAGE_INFO,
+    MOCK_PLAYER,
+    MOCK_PLAYER_ROOM,
+    MOCK_ROOM_CODE,
+    MOCK_TEST_MATCH_ROOM,
+    MOCK_USER_INFO,
+} from '@app/constants/match-mocks';
 import { TimerEvents } from '@app/constants/timer-events';
 import { MatchGateway } from '@app/gateways/match/match.gateway';
 import { ChatService } from '@app/services/chat/chat.service';
+import { HistogramService } from '@app/services/histogram/histogram.service';
 import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
 import { TimeService } from '@app/services/time/time.service';
+import { Histogram } from '@common/interfaces/histogram';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance, stub } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 
-xdescribe('MatchGateway', () => {
+describe('MatchGateway', () => {
     let gateway: MatchGateway;
+    let histogramSpy: SinonStubbedInstance<HistogramService>;
     let matchRoomSpy: SinonStubbedInstance<MatchRoomService>;
     let matchBackupSpy: SinonStubbedInstance<MatchBackupService>;
     let timeSpy: SinonStubbedInstance<TimeService>;
@@ -25,6 +38,7 @@ xdescribe('MatchGateway', () => {
     let eventEmitter: EventEmitter2;
 
     beforeEach(async () => {
+        histogramSpy = createStubInstance(HistogramService);
         matchRoomSpy = createStubInstance(MatchRoomService);
         matchBackupSpy = createStubInstance(MatchBackupService);
         timeSpy = createStubInstance(TimeService);
@@ -36,6 +50,7 @@ xdescribe('MatchGateway', () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 MatchGateway,
+                { provide: HistogramService, useValue: histogramSpy },
                 { provide: MatchRoomService, useValue: matchRoomSpy },
                 { provide: MatchBackupService, useValue: matchBackupSpy },
                 { provide: TimeService, useValue: timeSpy },
@@ -79,12 +94,56 @@ xdescribe('MatchGateway', () => {
         expect(socket.join.calledOnce).toBeFalsy();
     });
 
-    // it('createRoom() should let the host create a match room and let the host join the new room', () => {
-    //     matchRoomSpy.addMatchRoom.returns(MOCK_MATCH_ROOM);
-    //     const result = gateway.createRoom(socket, JSON.stringify(MOCK_MATCH_ROOM.game));
-    //     expect(socket.join.calledOnce).toBeTruthy();
-    //     expect(result).toEqual({ code: MOCK_MATCH_ROOM.code });
-    // });
+    it('createRoom() should let the host create a match room and let the host join the new room', () => {
+        matchRoomSpy.addMatchRoom.returns(MOCK_MATCH_ROOM);
+        const result = gateway.createRoom(socket, { gameId: MOCK_MATCH_ROOM.game.id, isTestPage: MOCK_MATCH_ROOM.isTestRoom });
+        expect(socket.join.calledOnce).toBeTruthy();
+        expect(result).toEqual({ code: MOCK_MATCH_ROOM.code });
+    });
+
+    it('createRoom() should let host create a testing match room and let host join as the only player in the new room', () => {
+        matchRoomSpy.addMatchRoom.returns(MOCK_TEST_MATCH_ROOM);
+        const result = gateway.createRoom(socket, { gameId: MOCK_TEST_MATCH_ROOM.game.id, isTestPage: MOCK_TEST_MATCH_ROOM.isTestRoom });
+        expect(socket.join.calledOnce).toBeTruthy();
+        expect(result).toEqual({ code: MOCK_TEST_MATCH_ROOM.code });
+    });
+
+    it('routeToResultsPage() should emit a routing event to a room and call emitHistogramHistory', () => {
+        const spy = jest.spyOn<any, any>(gateway, 'emitHistogramHistory').mockReturnThis();
+        server.to.returns({
+            emit: (event: string) => {
+                expect(event).toBe('routeToResultsPage');
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        gateway.routeToResultsPage(socket, MOCK_ROOM_CODE);
+        expect(spy).toHaveBeenCalled();
+    });
+
+    it('emitHistogramHistory() should emit a list of histograms to a given room', () => {
+        const histograms = [] as Histogram[];
+        histogramSpy.sendHistogramHistory.returns(histograms);
+        server.to.returns({
+            emit: (event: string, res) => {
+                expect(event).toBe('histogramHistory');
+                expect(res).toBe(histograms);
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        gateway['emitHistogramHistory'](MOCK_ROOM_CODE);
+    });
+
+    it('isRoomEmpty() should return true if room is empty', () => {
+        const room = { ...MOCK_PLAYER_ROOM };
+        room.players[0].isPlaying = false;
+        const result = gateway['isRoomEmpty'](room);
+        expect(result).toBe(true);
+    });
+
+    it('isRoomEmpty() should return false if room is not empty', () => {
+        const room = { ...MOCK_PLAYER_ROOM };
+        room.players[0].isPlaying = true;
+        const result = gateway['isRoomEmpty'](room);
+        expect(result).toBe(false);
+    });
 
     it('toggleLock() should call toggleLockMatchRoom', () => {
         const toggleSpy = jest.spyOn(matchRoomSpy, 'toggleLockMatchRoom').mockReturnThis();
@@ -194,6 +253,12 @@ xdescribe('MatchGateway', () => {
         server.in.returns({
             disconnectSockets: () => {
                 return null;
+            },
+        } as BroadcastOperator<unknown, unknown>);
+
+        server.to.returns({
+            emit: (event: string) => {
+                expect(event).toEqual('hostQuitMatch');
             },
         } as BroadcastOperator<unknown, unknown>);
         gateway.deleteMatchRoom('');

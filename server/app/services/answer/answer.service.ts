@@ -34,15 +34,17 @@ export class AnswerService {
     // eslint-disable-next-line max-params
     updateChoice(choice: string, selection: boolean, username: string, roomCode: string) {
         const player: Player = this.playerService.getPlayerByUsername(roomCode, username);
-        if (!player.answer.isSubmited) player.answer.selectedChoices.set(choice, selection);
-        this.histogramService.updateHistogram(choice, selection, roomCode);
+        if (!player.answer.isSubmitted) {
+            player.answer.selectedChoices.set(choice, selection);
+            this.histogramService.updateHistogram(choice, selection, roomCode);
+        }
     }
 
     submitAnswer(username: string, roomCode: string) {
         const player: Player = this.playerService.getPlayerByUsername(roomCode, username);
         const matchRoom = this.getMatchRoomByCode(roomCode);
 
-        player.answer.isSubmited = true;
+        player.answer.isSubmitted = true;
         player.answer.timestamp = Date.now();
         matchRoom.submittedPlayers++;
 
@@ -78,8 +80,8 @@ export class AnswerService {
         const submitTime = Date.now();
         const players: Player[] = this.playerService.getPlayers(roomCode);
         players.forEach((player) => {
-            if (!player.answer.isSubmited) {
-                player.answer.isSubmited = true;
+            if (!player.answer.isSubmitted) {
+                player.answer.isSubmitted = true;
                 player.answer.timestamp = submitTime;
             }
         });
@@ -137,7 +139,7 @@ export class AnswerService {
         const players: Player[] = this.playerService.getPlayers(roomCode);
         players.forEach((player) => {
             player.answer.selectedChoices.clear();
-            player.answer.isSubmited = false;
+            player.answer.isSubmitted = false;
             player.answer.timestamp = undefined;
         });
     }

@@ -8,13 +8,4 @@ const FAKE_COUNTER = new Map<string, number>([
     ['2990', 0],
 ]);
 
-const FAKE_INTERVAL = new Map<string, NodeJS.Timeout>([
-    [
-        FAKE_ROOM_ID,
-        setInterval(() => {
-            /* do nothing */
-        }),
-    ],
-]);
-
-export { FAKE_ROOM_ID, TICK, TIMER_VALUE, TIMEOUT, FAKE_COUNTER, FAKE_INTERVAL };
+export { FAKE_COUNTER, FAKE_ROOM_ID, TICK, TIMEOUT, TIMER_VALUE };

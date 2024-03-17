@@ -78,6 +78,7 @@ export class MatchCreationPageComponent implements OnInit {
                 if (response.body) {
                     const backupGame = JSON.parse(response.body);
                     this.matchService.currentGame = backupGame;
+                    this.matchService.createMatch();
                 }
             });
         } else {
@@ -86,14 +87,8 @@ export class MatchCreationPageComponent implements OnInit {
         }
     }
 
-    createMatch(): void {
+    createMatch(testGame: boolean): void {
+        if (testGame) this.questionContextService.setContext('testPage');
         this.reloadSelectedGame();
-        this.matchService.createMatch();
-    }
-
-    createTestMatch(): void {
-        this.reloadSelectedGame();
-        this.matchService.createMatch(true);
-        this.questionContextService.setContext('testPage');
     }
 }

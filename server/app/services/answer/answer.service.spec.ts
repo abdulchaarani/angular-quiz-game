@@ -2,8 +2,8 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import { MOCK_MATCH_ROOM, MOCK_PLAYER, MOCK_ROOM_CODE } from '@app/constants/match-mocks';
 import { TimerEvents } from '@app/constants/timer-events';
-// import { ChoiceHistogram } from '@app/model/choice-histogram/choice-histogram';
 import { Feedback } from '@app/model/schema/answer.schema';
+import { HistogramService } from '@app/services/histogram/histogram.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
 import { TimeService } from '@app/services/time/time.service';
@@ -12,7 +12,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AnswerService } from './answer.service';
 
-xdescribe('AnswerService', () => {
+describe('AnswerService', () => {
     let service: AnswerService;
     let matchRoomServiceSpy;
     let mockHostSocket;
@@ -21,6 +21,7 @@ xdescribe('AnswerService', () => {
     let playerService;
     let matchRoomService;
     let timeService;
+    let histogramService;
     let currentDate: number;
     let oldDate: number;
     let eventEmitter: EventEmitter2;
@@ -31,24 +32,24 @@ xdescribe('AnswerService', () => {
 
     const player1 = { ...MOCK_PLAYER };
     const selectedChoices1 = new Map<string, boolean>();
-    selectedChoices1.set('choice 1', true);
-    selectedChoices1.set('choice 2', false);
-    player1.username = 'player 1';
-    player1.answer = { selectedChoices: selectedChoices1, isSubmited: true, timestamp: randomDate };
+    selectedChoices1.set('choice1', true);
+    selectedChoices1.set('choice2', false);
+    player1.username = 'player1';
+    player1.answer = { selectedChoices: selectedChoices1, isSubmitted: true, timestamp: randomDate };
     matchRoom.players[0] = player1;
 
     const player2 = { ...MOCK_PLAYER };
     const selectedChoices2 = new Map<string, boolean>();
-    selectedChoices2.set('choice 1', false);
-    selectedChoices2.set('choice 2', true);
-    player2.username = 'player 2';
-    player2.answer = { selectedChoices: selectedChoices2, isSubmited: false };
+    selectedChoices2.set('choice1', false);
+    selectedChoices2.set('choice2', true);
+    player2.username = 'player2';
+    player2.answer = { selectedChoices: selectedChoices2, isSubmitted: false };
     matchRoom.players[1] = player2;
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
-            providers: [AnswerService, MatchRoomService, TimeService, PlayerRoomService, EventEmitter2],
+            providers: [AnswerService, MatchRoomService, TimeService, PlayerRoomService, EventEmitter2, HistogramService],
         }).compile();
-
+        histogramService = module.get<HistogramService>(HistogramService);
         service = module.get<AnswerService>(AnswerService);
         matchRoomService = module.get<MatchRoomService>(MatchRoomService);
         playerService = module.get<PlayerRoomService>(PlayerRoomService);
@@ -85,7 +86,7 @@ xdescribe('AnswerService', () => {
         player2.score = 0;
         player2.bonusCount = 0;
         player2.answer.timestamp = undefined;
-        player2.answer = { selectedChoices: selectedChoices2, isSubmited: false };
+        player2.answer = { selectedChoices: selectedChoices2, isSubmitted: false };
         matchRoom.submittedPlayers = 0;
     });
 
@@ -98,52 +99,31 @@ xdescribe('AnswerService', () => {
         expect(matchRoomServiceSpy).toHaveBeenCalledWith(MOCK_ROOM_CODE);
     });
 
-    it('updateChoiceTally() should increment the choice tally when the player selects a choice', () => {
-        const choice = 'choice';
-        const selection = true;
-        service['updateChoiceTally'](choice, selection, MOCK_ROOM_CODE);
-        expect(matchRoomServiceSpy).toHaveBeenCalledWith(MOCK_ROOM_CODE);
-    });
-
-    it('updateChoiceTally() should decrement the choice tally when the player deselects a choice', () => {
-        const choice = 'choice';
-        const selection = false;
-        service['updateChoiceTally'](choice, selection, MOCK_ROOM_CODE);
-        expect(matchRoomServiceSpy).toHaveBeenCalledWith(MOCK_ROOM_CODE);
-    });
-
-    // it('updateHistogram() should send the current tally as an array', () => {
-    //     const mockChoiceTally = new ChoiceTally();
-    //     mockChoiceTally.set('choice 1', 1);
-    //     service['updateHistogram'](mockChoiceTally, MOCK_ROOM_CODE);
-    //     expect(mockHostSocket.send).toHaveBeenCalledWith('currentTally', [['choice 1', 1]]);
-    // });
-
     it('isCorrectPlayerAnswer() should return true if player has right answer', () => {
-        matchRoom.currentQuestionAnswer = ['choice 1'];
+        matchRoom.currentQuestionAnswer = ['choice1'];
         const isCorrect = service['isCorrectPlayerAnswer'](matchRoom.players[0], MOCK_ROOM_CODE);
         expect(isCorrect).toEqual(true);
     });
 
     it('isCorrectPlayerAnswer() should return false if player has wrong answer', () => {
         jest.spyOn<any, any>(service, 'getMatchRoomByCode').mockReturnValue(matchRoom);
-        matchRoom.currentQuestionAnswer = ['choice 2'];
+        matchRoom.currentQuestionAnswer = ['choice2'];
         const isCorrect = service['isCorrectPlayerAnswer'](matchRoom.players[0], MOCK_ROOM_CODE);
         expect(isCorrect).toEqual(false);
     });
 
     it("filterSelectedChoices() should convert the player's answer to an array of choices", () => {
         const choicesArray = service['filterSelectedChoices'](matchRoom.players[0].answer);
-        expect(choicesArray).toContain('choice 1');
-        expect(choicesArray).not.toContain('choice 2');
+        expect(choicesArray).toContain('choice1');
+        expect(choicesArray).not.toContain('choice2');
     });
 
     it("autoSubmitAnswers() should submit every player's answer if not already submitted", () => {
-        expect(matchRoom.players[1].answer.isSubmited).toBe(false);
+        expect(matchRoom.players[1].answer.isSubmitted).toBe(false);
         expect(matchRoom.players[0].answer.timestamp).toBe(currentDate);
         currentDate += 1000;
         service['autoSubmitAnswers'](MOCK_ROOM_CODE);
-        expect(matchRoom.players[1].answer.isSubmited).toBe(true);
+        expect(matchRoom.players[1].answer.isSubmitted).toBe(true);
         expect(matchRoom.players[0].answer.timestamp).toBe(oldDate);
         expect(matchRoom.players[1].answer.timestamp).toBe(currentDate);
     });
@@ -158,7 +138,7 @@ xdescribe('AnswerService', () => {
         jest.spyOn<any, any>(playerService, 'getPlayers').mockReturnValue(matchRoom.players);
         const bonusSpy = jest.spyOn<any, any>(service, 'computeFastestPlayerBonus');
         const oldScore = matchRoom.players[0].score;
-        matchRoom.currentQuestionAnswer = ['choice 1'];
+        matchRoom.currentQuestionAnswer = ['choice1'];
         service['calculateScore'](MOCK_ROOM_CODE);
         expect(bonusSpy).toHaveBeenCalled();
         expect(matchRoom.players[0].score).toEqual(oldScore + 36);
@@ -169,7 +149,7 @@ xdescribe('AnswerService', () => {
         jest.spyOn<any, any>(service, 'getCurrentQuestionValue').mockReturnValue(30);
         jest.spyOn<any, any>(playerService, 'getPlayers').mockReturnValue(matchRoom.players);
         const bonusMock = jest.spyOn<any, any>(service, 'computeFastestPlayerBonus');
-        matchRoom.currentQuestionAnswer = ['choice 1'];
+        matchRoom.currentQuestionAnswer = ['choice1'];
         matchRoom.players[1].answer = matchRoom.players[0].answer;
         service['calculateScore'](MOCK_ROOM_CODE);
         expect(bonusMock).toHaveBeenCalledWith(30, randomDate, matchRoom.players);
@@ -220,10 +200,10 @@ xdescribe('AnswerService', () => {
 
     it('submitAnswers() should set isSubmitted to true', () => {
         jest.spyOn<any, any>(playerService, 'getPlayerByUsername').mockReturnValue(player2);
-        expect(matchRoom.players[1].answer.isSubmited).toBe(false);
+        expect(matchRoom.players[1].answer.isSubmitted).toBe(false);
         expect(matchRoom.players[1].answer.timestamp).toBeUndefined();
         service.submitAnswer('player2', MOCK_ROOM_CODE);
-        expect(matchRoom.players[1].answer.isSubmited).toBe(true);
+        expect(matchRoom.players[1].answer.isSubmitted).toBe(true);
         expect(matchRoom.players[1].answer.timestamp).toBe(randomDate);
     });
 
@@ -235,18 +215,20 @@ xdescribe('AnswerService', () => {
     });
 
     it('updateChoice() should delegate choice tally according to selection', () => {
+        player2.answer.isSubmitted = false;
         jest.spyOn<any, any>(playerService, 'getPlayerByUsername').mockReturnValue(player2);
-        const updateSpy = jest.spyOn<any, any>(service, 'updateChoiceTally');
-        service.updateChoice('choice 1', true, 'player2', MOCK_ROOM_CODE);
-        expect(updateSpy).toHaveBeenCalledWith('choice 1', true, MOCK_ROOM_CODE);
-        service.updateChoice('choice 1', false, 'player2', MOCK_ROOM_CODE);
-        expect(updateSpy).toHaveBeenCalledWith('choice 1', false, MOCK_ROOM_CODE);
+        const updateSpy = jest.spyOn<any, any>(histogramService, 'updateHistogram');
+        service.updateChoice('choice1', true, 'player2', MOCK_ROOM_CODE);
+        expect(updateSpy).toHaveBeenCalledWith('choice1', true, MOCK_ROOM_CODE);
+        service.updateChoice('choice1', false, 'player2', MOCK_ROOM_CODE);
+        expect(updateSpy).toHaveBeenCalledWith('choice1', false, MOCK_ROOM_CODE);
     });
 
     it('updateChoice() should not count selection if answer was already submitted', () => {
-        player1.answer.isSubmited = true;
+        player1.answer.isSubmitted = true;
         jest.spyOn<any, any>(playerService, 'getPlayerByUsername').mockReturnValue(player1);
-        const updateSpy = jest.spyOn<any, any>(service, 'updateChoiceTally');
+        service.updateChoice('choice1', true, 'player1', MOCK_ROOM_CODE);
+        const updateSpy = jest.spyOn<any, any>(histogramService, 'updateHistogram');
         expect(updateSpy).not.toHaveBeenCalled();
     });
 
@@ -298,10 +280,10 @@ xdescribe('AnswerService', () => {
         expect(matchRoom.submittedPlayers).toEqual(0);
     });
 
-    it('resetPlayersAnswer() should set player answer to an ampty answer ', () => {
+    it('resetPlayersAnswer() should set player answer to an empty answer ', () => {
         jest.spyOn<any, any>(playerService, 'getPlayers').mockReturnValue([player2]);
         service['resetPlayersAnswer'](matchRoom.code);
-        expect(player2.answer.isSubmited).toBe(false);
+        expect(player2.answer.isSubmitted).toBe(false);
         expect(player2.answer.timestamp).toBeUndefined();
         expect(player2.answer.selectedChoices.size).toBe(0);
     });

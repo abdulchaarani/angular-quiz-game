@@ -36,8 +36,8 @@
         </cdk-virtual-scroll-viewport>
 
         <div id="buttons-container">
-            <button mat-raised-button color="primary" (click)="createTestMatch()" *ngIf="gameIsValid">Tester jeu</button>
-            <button mat-raised-button color="primary" (click)="createMatch()" *ngIf="gameIsValid">Jouer jeu</button>
+            <button mat-raised-button color="primary" (click)="createMatch(true)" *ngIf="gameIsValid">Tester jeu</button>
+            <button mat-raised-button color="primary" (click)="createMatch(false)" *ngIf="gameIsValid">Jouer jeu</button>
         </div>
     </div>
 </div>

@@ -12,7 +12,7 @@ class SocketHandlerServiceMock extends SocketHandlerService {
     override connect() {}
 }
 
-fdescribe('HistogramService', () => {
+describe('HistogramService', () => {
     let service: HistogramService;
     let socketSpy: SocketHandlerServiceMock;
     let socketHelper: SocketTestHelper;

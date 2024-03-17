@@ -20,18 +20,21 @@ export class HistogramComponent implements OnInit, OnChanges, OnDestroy {
     private subscriptions: Subscription[] = [];
 
     constructor(private readonly histogramService: HistogramService) {}
-
+    subscribeToChoiceTally() {
+        this.subscriptions.push(
+            this.histogramService.choiceTally$.subscribe((data) => {
+                this.currentQuestion = data.question;
+                this.choiceTally = data.choiceTallies;
+                const dataTally = this.setUpData();
+                this.setupChart(dataTally);
+            }),
+        );
+    }
+    
     ngOnInit(): void {
         if (!this.isResultsPage) {
             this.histogramService.currentHistogram();
-            this.subscriptions.push(
-                this.histogramService.choiceTally$.subscribe((data) => {
-                    this.currentQuestion = data.question;
-                    this.choiceTally = data.choiceTallies;
-                    const dataTally = this.setUpData();
-                    this.setupChart(dataTally);
-                }),
-            );
+            this.subscribeToChoiceTally();
         } else {
             this.choiceTally = this.currentHistogram.choiceTallies;
             const dataTally = this.setUpData();

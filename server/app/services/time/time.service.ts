@@ -3,8 +3,6 @@ import { TimerInfo } from '@common/interfaces/timer-info';
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Server } from 'socket.io';
-// Ref
-// https://stackoverflow.com/questions/42398795/countdown-timer-broadcast-with-socket-io-and-node-js
 
 @Injectable()
 export class TimeService {

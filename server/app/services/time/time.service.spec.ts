@@ -1,4 +1,4 @@
-import { FAKE_COUNTER, FAKE_INTERVAL, FAKE_ROOM_ID, TICK, TIMER_VALUE } from '@app/constants/time-mocks';
+import { FAKE_COUNTER, FAKE_ROOM_ID, TICK, TIMER_VALUE } from '@app/constants/time-mocks';
 import { TimerEvents } from '@app/constants/timer-events';
 import { MatchGateway } from '@app/gateways/match/match.gateway';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -6,6 +6,15 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { BroadcastOperator, Server } from 'socket.io';
 import { TimeService } from './time.service';
+
+const FAKE_INTERVAL = new Map<string, NodeJS.Timeout>([
+    [
+        FAKE_ROOM_ID,
+        setInterval(() => {
+            /* do nothing */
+        }),
+    ],
+]);
 
 describe('TimeService', () => {
     let service: TimeService;

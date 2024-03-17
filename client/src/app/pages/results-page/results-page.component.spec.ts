@@ -1,12 +1,16 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { Player } from '@app/interfaces/player';
 import { HistogramService } from '@app/services/histogram/histogram.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
+import { ChoiceTally } from '@common/interfaces/choice-tally';
+import { Histogram } from '@common/interfaces/histogram';
 import { AgChartsAngularModule } from 'ag-charts-angular';
+import { AgChartOptions } from 'ag-charts-community';
 import { ResultsPageComponent } from './results-page.component';
 
 @Component({
@@ -31,13 +35,28 @@ class MockChatComponent {}
     selector: 'app-players-list',
     template: '',
 })
-class MockPlayersListComponent {}
+class MockPlayersListComponent {
+    @Input() players: Player[];
+}
 
 @Component({
     selector: 'mat-form-field',
     template: '',
 })
 class MockMatFormFieldComponent {}
+
+@Component({
+    selector: 'app-histogram',
+    template: '',
+})
+class MockHistogramComponent {
+    @Input() isResultsPage: boolean = false;
+    @Input() currentHistogram: Histogram = {} as Histogram;
+    currentQuestion: string;
+    chartOptions: AgChartOptions = {};
+    choiceTally: ChoiceTally[] = [];
+    histogramsGame: Histogram[] = [];
+}
 
 describe('ResultsPageComponent', () => {
     let component: ResultsPageComponent;
@@ -56,6 +75,7 @@ describe('ResultsPageComponent', () => {
                 MockMatFormFieldComponent,
                 MockChatComponent,
                 MockPlayersListComponent,
+                MockHistogramComponent,
             ],
             providers: [
                 { provide: MatchRoomService, useValue: matchRoomServiceSpy },

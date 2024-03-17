@@ -11,7 +11,7 @@ import SpyObj = jasmine.SpyObj;
 
 class SocketHandlerServiceMock extends SocketHandlerService {
     // Override connect() is required to not actually connect the socket
-    // eslint-disable no-empty-function
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     override connect() {}
 }
 

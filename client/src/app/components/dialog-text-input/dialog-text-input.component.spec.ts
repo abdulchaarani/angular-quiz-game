@@ -38,7 +38,7 @@ describe('DialogTextInputComponent', () => {
 
     @Component({
         // Angular Material Mock: Provided selector does not start by app
-        // eslin-disable component-selector
+        /* eslint-disable @angular-eslint/component-selector */
         selector: 'mat-form-field',
         template: '',
     })
@@ -46,7 +46,7 @@ describe('DialogTextInputComponent', () => {
 
     @Component({
         // Angular Material Mock: Provided selector does not start by app
-        // eslin-disable component-selector
+        /* eslint-disable @angular-eslint/component-selector */
         selector: 'mat-label',
         template: '',
     })

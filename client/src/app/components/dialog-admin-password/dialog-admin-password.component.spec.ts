@@ -24,7 +24,7 @@ class MockAppHistogramComponent {}
 
 @Component({
     // Angular Material Mock: Provided selector does not start by app
-    // eslin-disable component-selector
+    /* eslint-disable @angular-eslint/component-selector */
     selector: 'mat-icon',
     template: '',
 })

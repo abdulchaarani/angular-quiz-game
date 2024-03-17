@@ -4,7 +4,7 @@ import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 
 @Component({
     // Angular Material Mock: Provided selector does not start by app
-    // eslin-disable component-selector
+    // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'mat-select',
     template: '',
 })

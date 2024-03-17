@@ -12,15 +12,15 @@ import { ResultsPageComponent } from './results-page.component';
 
 @Component({
     // Component is provided by Angular Material; therefore, its selector starts with mat
-    // eslint-disable component-selector
+    // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'mat-label',
     template: '',
 })
 class MockMatLabelComponent {}
 
 @Component({
-    // Component is provided by Angular Material; therefore, its selector starts with mat
-    // eslint-disable component-selector
+    // Angular Material Mock: Provided selector does not start by app
+    // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'mat-icon',
     template: '',
 })
@@ -39,8 +39,8 @@ class MockChatComponent {}
 class MockPlayersListComponent {}
 
 @Component({
-    // Component is provided by Angular Material; therefore, its selector starts with mat
-    // eslint-disable component-selector
+    // Angular Material Mock: Provided selector does not start by app
+    // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'mat-form-field',
     template: '',
 })

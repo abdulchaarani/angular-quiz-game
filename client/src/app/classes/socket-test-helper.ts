@@ -1,3 +1,10 @@
+// Provided class in course; used only in unit tests
+/* eslint-disable @typescript-eslint/ban-types */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable no-unused-vars */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable @typescript-eslint/member-ordering */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 type CallbackSignature = (params: unknown) => {};
 
 export class SocketTestHelper {

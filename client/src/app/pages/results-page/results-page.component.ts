@@ -24,14 +24,18 @@ export class ResultsPageComponent implements OnInit, OnDestroy {
         private readonly histogramService: HistogramService,
     ) {}
 
-    ngOnInit(): void {
-        this.players = this.matchRoomService.players;
-        this.histogramService.histogramHistory();
+    initializeHistograms() {
         this.subscriptions.push(
             this.histogramService.histogramHistory$.subscribe((histograms: Histogram[]) => {
                 this.histogramsGame = histograms;
             }),
         );
+    }
+
+    ngOnInit(): void {
+        this.players = this.matchRoomService.players;
+        this.histogramService.histogramHistory();
+        this.initializeHistograms();
     }
 
     ngOnDestroy(): void {

@@ -20,18 +20,21 @@ export class HistogramComponent implements OnInit, OnChanges, OnDestroy {
     private subscriptions: Subscription[] = [];
 
     constructor(private readonly histogramService: HistogramService) {}
+    subscribeToChoiceTally() {
+        this.subscriptions.push(
+            this.histogramService.currentHistogram$.subscribe((data: { question: string; choiceTallies: ChoiceTally[] }) => {
+                this.currentQuestion = data.question;
+                this.choiceTally = data.choiceTallies;
+                const dataTally = this.setUpData();
+                this.setupChart(dataTally);
+            }),
+        );
+    }
 
     ngOnInit(): void {
         if (!this.isResultsPage) {
             this.histogramService.currentHistogram();
-            this.subscriptions.push(
-                this.histogramService.currentHistogram$.subscribe((data) => {
-                    this.currentQuestion = data.question;
-                    this.choiceTally = data.choiceTallies;
-                    const dataTally = this.setUpData();
-                    this.setupChart(dataTally);
-                }),
-            );
+            this.subscribeToChoiceTally();
         } else {
             this.choiceTally = this.currentHistogram.choiceTallies;
             this.currentQuestion = this.currentHistogram.question;
@@ -66,6 +69,18 @@ export class HistogramComponent implements OnInit, OnChanges, OnDestroy {
 
     // AG Charts requires using any; using unknown will cause compilation errors
     /* eslint-disable @typescript-eslint/no-explicit-any */
+
+    renderChart(params: any) {
+        return {
+            content: `Choice: ${params.datum.text} <br/> Selections: ${params.datum.picks}`,
+        };
+    }
+
+    formatChart(params: any) {
+        const fill = params.datum[params.xKey].includes('✅') ? 'green' : 'red';
+        return { fill };
+    }
+
     private setupChart(data: any): void {
         this.chartOptions = {
             title: { text: this.currentQuestion },
@@ -91,16 +106,9 @@ export class HistogramComponent implements OnInit, OnChanges, OnDestroy {
                     yName: 'Nombre de choix',
                     tooltip: {
                         enabled: true,
-                        renderer: (params: any) => {
-                            return {
-                                content: `Choice: ${params.datum.text} <br/> Selections: ${params.datum.picks}`,
-                            };
-                        },
+                        renderer: this.renderChart.bind(this),
                     },
-                    formatter: (params: any) => {
-                        const fill = params.datum[params.xKey].includes('✅') ? 'green' : 'red';
-                        return { fill };
-                    },
+                    formatter: this.formatChart.bind(this),
                 },
             ],
         };

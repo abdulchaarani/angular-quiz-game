@@ -25,3 +25,10 @@ export enum GameStatus {
 export enum MatchStatus {
     PREPARE = 'Préparez vous pour la prochaine question! ⏳',
 }
+
+export enum WarningMessage {
+    PENDING = 'Vous avec des modifications non sauvegardés. Êtes-vous certain de vouloir quitter?',
+    QUIT = 'Vous avec sur le point de quitter la partie. Êtes-vous certain de vouloir quitter?',
+}
+
+export const NOTFICATION_DURATION = 5000;

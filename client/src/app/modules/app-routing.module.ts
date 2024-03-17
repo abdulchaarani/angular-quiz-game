@@ -4,7 +4,7 @@ import { QuestionAreaComponent } from '@app/components/question-area/question-ar
 import { ManagementState } from '@app/constants/states';
 import { adminLoginGuard } from '@app/guards/admin-login/admin-login.guard';
 import { matchLoginGuard } from '@app/guards/match-login/match-login.guard';
-import { pendingChangesGuard } from '@app/guards/pending-changes/pending-changes.guard';
+import { returnGuard } from '@app/guards/return-guard/return.guard';
 import { AdminPageComponent } from '@app/pages/admin-page/admin-main-page/admin-page.component';
 import { AdminQuestionBankComponent } from '@app/pages/admin-page/admin-question-bank/admin-question-bank.component';
 import { AdminQuestionsListComponent } from '@app/pages/admin-page/admin-questions-list/admin-questions-list.component';
@@ -27,13 +27,13 @@ const routes: Routes = [
                 path: 'games/new',
                 component: AdminQuestionsListComponent,
                 data: { state: ManagementState.GameCreate },
-                canDeactivate: [pendingChangesGuard],
+                canDeactivate: [returnGuard],
             },
             {
                 path: 'games/:id',
                 component: AdminQuestionsListComponent,
                 data: { state: ManagementState.GameModify },
-                canDeactivate: [pendingChangesGuard],
+                canDeactivate: [returnGuard],
             },
         ],
     },
@@ -41,8 +41,8 @@ const routes: Routes = [
     { path: 'player', canActivate: [matchLoginGuard], component: PlayerPageComponent },
     { path: 'match-room', canActivate: [matchLoginGuard], component: WaitPageComponent },
     { path: 'results', canActivate: [matchLoginGuard], component: ResultsPageComponent },
-    { path: 'play-test', component: QuestionAreaComponent },
-    { path: 'play-match', canActivate: [matchLoginGuard], canDeactivate: [pendingChangesGuard], component: QuestionAreaComponent },
+    { path: 'play-test', canDeactivate: [returnGuard], component: QuestionAreaComponent },
+    { path: 'play-match', canActivate: [matchLoginGuard], canDeactivate: [returnGuard], component: QuestionAreaComponent },
 ];
 
 @NgModule({

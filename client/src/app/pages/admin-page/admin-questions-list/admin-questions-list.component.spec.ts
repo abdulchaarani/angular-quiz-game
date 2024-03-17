@@ -6,7 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { Subject, of, throwError } from 'rxjs';
 
-import { BankStatus, QuestionStatus } from '@app/constants/feedback-messages';
+import { BankStatus, QuestionStatus, WarningMessage } from '@app/constants/feedback-messages';
 import { ManagementState } from '@app/constants/states';
 import { Game } from '@app/interfaces/game';
 import { Question } from '@app/interfaces/question';
@@ -125,7 +125,7 @@ describe('AdminQuestionsListComponent', () => {
             'openCreateQuestionModal',
         ]);
         notificationServiceSpy = jasmine.createSpyObj('NotificationService', [
-            'openPendingChangesConfirmDialog',
+            'openWarningDialog',
             'displayErrorMessage',
             'displaySuccessMessage',
             'confirmBankUpload',
@@ -225,17 +225,17 @@ describe('AdminQuestionsListComponent', () => {
     it('should return a subject when there are pending changes', () => {
         component.isPendingChanges = true;
         const confirmSubject = new Subject<boolean>();
-        notificationServiceSpy.openPendingChangesConfirmDialog.and.returnValue(confirmSubject);
+        notificationServiceSpy.openWarningDialog.and.returnValue(confirmSubject);
         const result = component.canDeactivate();
         expect(result instanceof Subject).toBeTrue();
     });
 
-    it('should call openPendingChangesConfirmDialog when there are pending changes', () => {
+    it('should call openWarningDialog when there are pending changes', () => {
         component.isPendingChanges = true;
         const confirmSubject = new Subject<boolean>();
-        notificationServiceSpy.openPendingChangesConfirmDialog.and.returnValue(confirmSubject);
+        notificationServiceSpy.openWarningDialog.and.returnValue(confirmSubject);
         component.canDeactivate();
-        expect(notificationServiceSpy.openPendingChangesConfirmDialog).toHaveBeenCalled();
+        expect(notificationServiceSpy.openWarningDialog).toHaveBeenCalledWith(WarningMessage.PENDING);
     });
 
     it('should set game and form values correctly', () => {

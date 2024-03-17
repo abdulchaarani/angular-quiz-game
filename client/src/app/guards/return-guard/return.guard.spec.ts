@@ -5,7 +5,7 @@ import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Route, Router, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
-import { pendingChangesGuard } from './pending-changes.guard';
+import { returnGuard } from './return.guard';
 
 @Component({ template: '' })
 class MockPendingChangesComponent {
@@ -21,7 +21,7 @@ describe('canDeactivateGuard', () => {
     beforeEach(() => {
         routes = [
             { path: 'home', component: MockHomeComponent },
-            { path: 'pending-changes', canDeactivate: [pendingChangesGuard], component: MockPendingChangesComponent },
+            { path: 'pending-changes', canDeactivate: [returnGuard], component: MockPendingChangesComponent },
         ];
         TestBed.configureTestingModule({
             imports: [HttpClientTestingModule],
@@ -29,7 +29,7 @@ describe('canDeactivateGuard', () => {
         });
     });
 
-    it('should not allow the component to deactivate if it a pending changes guard and the changes are not discarded', async () => {
+    it('should not allow the component to deactivate if it has a return guard and the user does not confirm the exit', async () => {
         const testRouter = TestBed.inject(Router);
         spyOn(MockPendingChangesComponent.prototype, 'canDeactivate').and.returnValue(false);
         await RouterTestingHarness.create('pending-changes');
@@ -37,7 +37,7 @@ describe('canDeactivateGuard', () => {
         expect(testRouter.url).toEqual('/pending-changes');
     });
 
-    it('should allow the component to deactivate if it had a pending changes guard and the changes are discarded', async () => {
+    it('should allow the component to deactivate if it had a return guard and the user confirms the exit', async () => {
         const testRouter = TestBed.inject(Router);
         spyOn(MockPendingChangesComponent.prototype, 'canDeactivate').and.returnValue(true);
         await RouterTestingHarness.create('pending-changes');
@@ -45,7 +45,7 @@ describe('canDeactivateGuard', () => {
         expect(testRouter.url).toEqual('/home');
     });
 
-    it('should allow the component to deactivate if it has no pending changes guard', async () => {
+    it('should allow the component to deactivate if it has no return guard', async () => {
         const testRouter = TestBed.inject(Router);
         await RouterTestingHarness.create('/home');
         await testRouter.navigateByUrl('pending-changes');

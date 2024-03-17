@@ -1,5 +1,5 @@
 import { Component, HostListener, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
-import { MatchStatus } from '@app/constants/feedback-messages';
+import { MatchStatus, WarningMessage } from '@app/constants/feedback-messages';
 import { CanDeactivateType } from '@app/interfaces/can-component-deactivate';
 import { Choice } from '@app/interfaces/choice';
 import { Question } from '@app/interfaces/question';
@@ -79,8 +79,14 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     canDeactivate(): CanDeactivateType {
+        if (this.matchRoomService.isRoomEmpty()) return true;
+        if (!this.matchRoomService.isHostPlaying) return true;
+
         const deactivateSubject = new Subject<boolean>();
-        this.notificationService.openPendingChangesConfirmDialog().subscribe((confirm: boolean) => deactivateSubject.next(confirm));
+        this.notificationService.openWarningDialog(WarningMessage.QUIT).subscribe((confirm: boolean) => {
+            deactivateSubject.next(confirm);
+            if (confirm) this.handleQuit();
+        });
         return deactivateSubject;
     }
 
@@ -164,6 +170,10 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         this.correctAnswers = [];
         this.isRightAnswer = false;
         this.isCooldown = false;
+    }
+
+    quitGame() {
+        this.matchRoomService.quitGame();
     }
 
     handleQuit() {

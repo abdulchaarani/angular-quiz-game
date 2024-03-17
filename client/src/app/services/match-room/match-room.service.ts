@@ -19,6 +19,7 @@ interface UserInfo {
 export class MatchRoomService {
     players: Player[];
     messages: Message[];
+    isHostPlaying: boolean;
 
     currentQuestion$: Observable<Question>;
     displayCooldown$: Observable<boolean>;
@@ -170,6 +171,12 @@ export class MatchRoomService {
         });
     }
 
+    onHostQuit() {
+        this.socketService.on('hostQuitMatch', () => {
+            this.isHostPlaying = false;
+        });
+    }
+
     redirectAfterDisconnection() {
         this.socketService.on('disconnect', () => {
             this.router.navigateByUrl('/home');
@@ -183,6 +190,7 @@ export class MatchRoomService {
         this.username = '';
         this.players = [];
         this.messages = [];
+        this.isHostPlaying = true;
     }
 
     routeToResultsPage() {
@@ -193,6 +201,14 @@ export class MatchRoomService {
         this.socketService.on('routeToResultsPage', () => {
             this.router.navigateByUrl('/results');
         });
+    }
+
+    quitGame() {
+        this.router.navigateByUrl('/home');
+    }
+
+    isRoomEmpty() {
+        return this.players.every((player) => !player.isPlaying);
     }
 
     private initialiseMatchSubjects() {

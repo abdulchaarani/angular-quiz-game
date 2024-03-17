@@ -1,5 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // import { getMockGame } from '@app/constants/game-mocks';
-import { MOCK_MATCH_ROOM, MOCK_MESSAGE_INFO, MOCK_PLAYER, MOCK_ROOM_CODE, MOCK_TEST_MATCH_ROOM, MOCK_USER_INFO } from '@app/constants/match-mocks';
+import {
+    MOCK_MATCH_ROOM,
+    MOCK_MESSAGE_INFO,
+    MOCK_PLAYER,
+    MOCK_PLAYER_ROOM,
+    MOCK_ROOM_CODE,
+    MOCK_TEST_MATCH_ROOM,
+    MOCK_USER_INFO,
+} from '@app/constants/match-mocks';
 import { TimerEvents } from '@app/constants/timer-events';
 import { MatchGateway } from '@app/gateways/match/match.gateway';
 import { ChatService } from '@app/services/chat/chat.service';
@@ -8,6 +17,7 @@ import { MatchBackupService } from '@app/services/match-backup/match-backup.serv
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
 import { TimeService } from '@app/services/time/time.service';
+import { Histogram } from '@common/interfaces/histogram';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance, stub } from 'sinon';
@@ -97,21 +107,41 @@ describe('MatchGateway', () => {
         expect(result).toEqual({ code: MOCK_TEST_MATCH_ROOM.code });
     });
 
-    /* @SubscribeMessage(MatchEvents.RouteToResultsPage)
-    routeToResultsPage(@ConnectedSocket() socket: Socket, @MessageBody() matchRoomCode: string) {
-        this.server.to(matchRoomCode).emit(MatchEvents.RouteToResultsPage);
-        const histograms = this.histogramService.sendHistogramHistory(matchRoomCode);
-        this.server.to(matchRoomCode).emit(MatchEvents.HistogramHistory, histograms);
-        gateway.joinRoom(socket, MOCK_USER_INFO);
-    } */
-
-    it('routeToResultsPage() should emit a routing event to a room, save the current histogram history and emit it to the room', () => {
-        gateway.routeToResultsPage(socket, MOCK_ROOM_CODE);
+    it('routeToResultsPage() should emit a routing event to a room and call emitHistogramHistory', () => {
+        const spy = jest.spyOn<any, any>(gateway, 'emitHistogramHistory').mockReturnThis();
         server.to.returns({
             emit: (event: string) => {
                 expect(event).toBe('routeToResultsPage');
             },
         } as BroadcastOperator<unknown, unknown>);
+        gateway.routeToResultsPage(socket, MOCK_ROOM_CODE);
+        expect(spy).toHaveBeenCalled();
+    });
+
+    it('emitHistogramHistory() should emit a list of histograms to a given room', () => {
+        const histograms = [] as Histogram[];
+        histogramSpy.sendHistogramHistory.returns(histograms);
+        server.to.returns({
+            emit: (event: string, res) => {
+                expect(event).toBe('histogramHistory');
+                expect(res).toBe(histograms);
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        gateway['emitHistogramHistory'](MOCK_ROOM_CODE);
+    });
+
+    it('isRoomEmpty() should return true if room is empty', () => {
+        const room = { ...MOCK_PLAYER_ROOM };
+        room.players[0].isPlaying = false;
+        const result = gateway['isRoomEmpty'](room);
+        expect(result).toBe(true);
+    });
+
+    it('isRoomEmpty() should return false if room is not empty', () => {
+        const room = { ...MOCK_PLAYER_ROOM };
+        room.players[0].isPlaying = true;
+        const result = gateway['isRoomEmpty'](room);
+        expect(result).toBe(false);
     });
 
     it('toggleLock() should call toggleLockMatchRoom', () => {

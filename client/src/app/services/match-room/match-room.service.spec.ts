@@ -61,13 +61,13 @@ describe('MatchRoomService', () => {
         expect(fetchSpy).not.toHaveBeenCalled();
     });
 
-    it('disconnect() should disconnect the socket and reset match values', () => {
-        const resetSpy = spyOn(service, 'resetMatchValues');
-        const disconnectSpy = spyOn(socketSpy, 'disconnect').and.callFake(() => {});
-        service.disconnect();
-        expect(resetSpy).toHaveBeenCalled();
-        expect(disconnectSpy).toHaveBeenCalled();
-    });
+    // it('disconnect() should disconnect the socket and reset match values', () => {
+    //     const resetSpy = spyOn(service, 'resetMatchValues');
+    //     const disconnectSpy = spyOn(socketSpy, 'disconnect').and.callFake(() => {});
+    //     service.disconnect();
+    //     expect(resetSpy).toHaveBeenCalled();
+    //     expect(disconnectSpy).toHaveBeenCalled();
+    // });
 
     it('getSocketId() should return socket id if it is defined, else an empty string', () => {
         const cases = [

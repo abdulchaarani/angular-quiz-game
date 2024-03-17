@@ -1,8 +1,9 @@
-import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
+import { ChoiceTracker } from '@app/model/choice-tracker/choice-tracker';
 import { Game } from '@app/model/database/game';
 import { Socket } from 'socket.io';
 import { Message } from './message.schema';
 import { Player } from './player.schema';
+import { Histogram } from '@common/interfaces/histogram';
 
 export interface MatchRoom {
     code: string;
@@ -12,7 +13,8 @@ export interface MatchRoom {
     gameLength: number;
     currentQuestionIndex: number;
     currentQuestionAnswer: string[];
-    choiceTally: ChoiceTally;
+    currentChoiceTracker: ChoiceTracker;
+    matchHistograms: Histogram[];
     bannedUsernames: string[];
     players: Player[];
     activePlayers: number;

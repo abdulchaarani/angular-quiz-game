@@ -1,5 +1,5 @@
 import { TimerEvents } from '@app/constants/timer-events';
-import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
+import { ChoiceTracker } from '@app/model/choice-tracker/choice-tracker';
 import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
 import { Question } from '@app/model/database/question';
@@ -58,7 +58,8 @@ export class MatchRoomService {
             gameLength: selectedGame.questions.length,
             currentQuestionIndex: 0,
             currentQuestionAnswer: [],
-            choiceTally: new ChoiceTally(),
+            currentChoiceTracker: new ChoiceTracker(),
+            matchHistograms: [],
             bannedUsernames: [],
             players: [],
             activePlayers: 0,
@@ -67,28 +68,6 @@ export class MatchRoomService {
             isTestRoom: isTestPage,
         };
 
-        this.matchRooms.push(newRoom);
-        return newRoom;
-    }
-
-    addTestMatchRoom(selectedGame: Game, socket: Socket): MatchRoom {
-        const newRoom: MatchRoom = {
-            code: this.generateRoomCode(),
-            hostSocket: socket,
-            isLocked: true,
-            isPlaying: true,
-            game: selectedGame,
-            gameLength: selectedGame.questions.length,
-            currentQuestionIndex: 0,
-            currentQuestionAnswer: [],
-            choiceTally: new ChoiceTally(),
-            bannedUsernames: [],
-            players: [],
-            activePlayers: 0,
-            submittedPlayers: 0,
-            messages: [],
-            isTestRoom: true,
-        };
         this.matchRooms.push(newRoom);
         return newRoom;
     }
@@ -159,12 +138,7 @@ export class MatchRoomService {
 
     sendNextQuestion(server: Server, matchRoomCode: string): void {
         const matchRoom: MatchRoom = this.getMatchRoomByCode(matchRoomCode);
-        if (matchRoom.currentQuestionIndex === matchRoom.gameLength) {
-            server.in(matchRoomCode).emit('gameOver', this.getMatchRoomByCode(matchRoomCode).isTestRoom);
-            return;
-        }
 
-        this.resetChoiceTally(matchRoomCode);
         const nextQuestion = matchRoom.game.questions[matchRoom.currentQuestionIndex];
         matchRoom.currentQuestionAnswer = this.filterCorrectChoices(nextQuestion);
         this.removeIsCorrectField(nextQuestion);
@@ -192,13 +166,6 @@ export class MatchRoomService {
     getGameDuration(matchRoomCode: string) {
         return this.getMatchRoomByCode(matchRoomCode).game.duration;
     }
-
-    private resetChoiceTally(matchRoomCode: string) {
-        const matchRoom = this.getMatchRoomByCode(matchRoomCode);
-        const possibleChoices: Choice[] = matchRoom.game.questions[matchRoom.currentQuestionIndex].choices;
-        matchRoom.choiceTally.resetChoiceTally(possibleChoices);
-    }
-
     private filterCorrectChoices(question: Question) {
         const correctChoices = [];
         question.choices.forEach((choice) => {

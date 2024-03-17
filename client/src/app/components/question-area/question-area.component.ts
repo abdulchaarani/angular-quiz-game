@@ -1,4 +1,4 @@
-import { Component, HostListener, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, HostListener, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { MatchStatus } from '@app/constants/feedback-messages';
 import { Choice } from '@app/interfaces/choice';
 import { Question } from '@app/interfaces/question';
@@ -16,22 +16,21 @@ import { Subscription } from 'rxjs';
     styleUrls: ['./question-area.component.scss'],
 })
 export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
-    @Input() currentQuestion: Question;
-    @Input() gameDuration: number;
-
+    currentQuestion: Question;
+    gameDuration: number;
     answers: Choice[];
     selectedAnswers: Choice[];
     isSelectionEnabled: boolean;
     showFeedback: boolean;
-    isCorrect: boolean;
     playerScore: number = 0;
-    havePointsBeenAdded: boolean;
     bonus: number;
     context: 'testPage' | 'hostView' | 'playerView';
     correctAnswers: string[];
     isFirstQuestion: boolean = true;
     isCooldown: boolean = false;
     isRightAnswer: boolean = false;
+    isNextQuestionButton: boolean = false;
+    isLastQuestion: boolean = false;
 
     private subscriptions: Subscription[];
 
@@ -121,6 +120,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
 
     submitAnswers(): void {
         this.answerService.submitAnswer({ username: this.username, roomCode: this.matchRoomCode });
+        this.isSelectionEnabled = false;
     }
 
     selectChoice(choice: Choice): void {
@@ -149,14 +149,13 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
 
     nextQuestion() {
         this.matchRoomService.nextQuestion();
+        this.isNextQuestionButton = false;
     }
 
     resetStateForNewQuestion(): void {
         this.showFeedback = false;
         this.isSelectionEnabled = true;
         this.selectedAnswers = [];
-        this.isCorrect = false;
-        this.havePointsBeenAdded = false;
         this.bonus = 0;
         this.correctAnswers = [];
         this.isRightAnswer = false;
@@ -165,6 +164,10 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
 
     handleQuit() {
         this.matchRoomService.disconnect();
+    }
+
+    routeToResultsPage() {
+        this.matchRoomService.routeToResultsPage();
     }
 
     private handleFeedback(feedback: Feedback) {
@@ -185,11 +188,12 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
 
     private handleFeedbackSubmission() {
         this.showFeedback = true;
+        this.isNextQuestionButton = true;
     }
 
     private subscribeToFeedback() {
         const feedbackSubscription = this.answerService.feedback$.subscribe((feedback) => {
-            this.handleFeedback(feedback);
+                this.handleFeedback(feedback);
         });
         const feedbackObservable = this.answerService.feedbackSub$.subscribe(() => {
             this.handleFeedbackSubmission();
@@ -248,11 +252,24 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         this.subscriptions.push(displayCoolDownSubscription);
     }
 
+    private handleGameEnd() {
+        this.isLastQuestion = true;
+    }
+
+    private subscribeToGameEnd() {
+        const endGameSubscription = this.answerService.endGame$.subscribe(() => {
+            this.handleGameEnd();
+        });
+        this.subscriptions.push(endGameSubscription);
+    }
+
     private listenToGameEvents() {
         this.timeService.handleTimer();
         this.timeService.handleStopTimer();
         this.answerService.feedback();
         this.answerService.bonusPoints();
+        this.answerService.gameOver();
+        this.matchRoomService.listenRouteToResultsPage();
     }
 
     private initialiseSubscriptions() {
@@ -260,5 +277,6 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         this.subscribeToCurrentQuestion();
         this.subscribeToBonus();
         this.subscribeToCooldown();
+        this.subscribeToGameEnd();
     }
 }

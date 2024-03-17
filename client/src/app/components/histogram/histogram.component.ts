@@ -1,77 +1,105 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-// import { Choice } from '@app/interfaces/choice';
-import { Question } from '@app/interfaces/question';
-// import { AgChartsAngular } from 'ag-charts-angular';
+import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { HistogramService } from '@app/services/histogram/histogram.service';
+import { ChoiceTally } from '@common/interfaces/choice-tally';
+import { Histogram } from '@common/interfaces/histogram';
 import { AgChartOptions } from 'ag-charts-community';
+import { Subscription } from 'rxjs/internal/Subscription';
 
 @Component({
     selector: 'app-histogram',
     templateUrl: './histogram.component.html',
     styleUrls: ['./histogram.component.scss'],
 })
-export class HistogramComponent implements OnInit, OnChanges {
-    // TODO : Fix later
-    @Input() currentQuestion: Question;
-    // @Input() choices: Choice[] | undefined;
-    // @Input() questionTitle: string;
-    // @Input() picks: number[];
-    chartOptions: AgChartOptions;
+export class HistogramComponent implements OnInit, OnChanges, OnDestroy {
+    @Input() isResultsPage: boolean = false;
+    @Input() currentHistogram: Histogram = {} as Histogram;
+    currentQuestion: string;
+    chartOptions: AgChartOptions = {};
+    choiceTally: ChoiceTally[] = [];
+    histogramsGame: Histogram[] = [];
+    private subscriptions: Subscription[] = [];
+
+    constructor(private readonly histogramService: HistogramService) {}
+
     ngOnInit(): void {
-        if (this.currentQuestion.choices) {
-            this.chartOptions = {
-                title: { text: this.currentQuestion.text },
-                axes: [
-                    {
-                        type: 'category',
-                        position: 'bottom',
-                        title: { text: 'Choix de réponse' },
-                    },
-                    {
-                        type: 'number',
-                        position: 'left',
-                        title: { text: 'Nombre de sélections' },
-                    },
-                ],
-                // Data: Data to be displayed in the chart,
-                data: [
-                    { text: this.currentQuestion.choices[0].text, picks: 10 },
-                    { text: this.currentQuestion.choices[1].text, picks: 3 },
-                    // { text: this.choices[2].text, picks: 1 },
-                ],
-                series: [{ type: 'bar', xKey: 'text', xName: 'Choix de réponse', yKey: 'picks', yName: 'Nombre de choix' }],
-            };
+        if (!this.isResultsPage) {
+            this.histogramService.currentHistogram();
+            this.subscriptions.push(
+                this.histogramService.choiceTally$.subscribe((data) => {
+                    this.currentQuestion = data.question;
+                    this.choiceTally = data.choiceTallies;
+                    const dataTally = this.setUpData();
+                    this.setupChart(dataTally);
+                }),
+            );
+        } else {
+            this.choiceTally = this.currentHistogram.choiceTallies;
+            const dataTally = this.setUpData();
+            this.setupChart(dataTally);
         }
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes.currentQuestion) {
-            const newQuestion = changes.currentQuestion.currentValue;
-            this.currentQuestion = newQuestion;
-
-            if (this.currentQuestion.choices) {
-                this.chartOptions = {
-                    title: { text: this.currentQuestion.text },
-                    axes: [
-                        {
-                            type: 'category',
-                            position: 'bottom',
-                            title: { text: 'Choix de réponse' },
-                        },
-                        {
-                            type: 'number',
-                            position: 'left',
-                            title: { text: 'Nombre de sélections' },
-                        },
-                    ],
-                    // Data: Data to be displayed in the chart,
-                    data: [
-                        { text: this.currentQuestion.choices[0].text, picks: 10 },
-                        { text: this.currentQuestion.choices[1].text, picks: 3 },
-                        // { text: this.choices[2].text, picks: 1 },
-                    ],
-                    series: [{ type: 'bar', xKey: 'text', xName: 'Choix de réponse', yKey: 'picks', yName: 'Nombre de choix' }],
-                };
-            }
+        if (changes.currentQuestion || changes.currentHistogram) {
+            this.resetChart();
+            this.ngOnInit();
         }
+    }
+
+    ngOnDestroy(): void {
+        this.subscriptions.forEach((sub) => sub.unsubscribe());
+    }
+
+    resetChart(): void {
+        this.chartOptions = {};
+        this.choiceTally = [];
+    }
+
+    setUpData() {
+        return this.choiceTally.map((element, index) => ({
+            label: `C${index + 1} ${element.isCorrect ? '✅' : '❌'}`,
+            text: element.text,
+            picks: element.tally,
+        }));
+    }
+
+    private setupChart(data: any): void {
+        this.chartOptions = {
+            title: { text: this.currentQuestion },
+            axes: [
+                {
+                    type: 'category',
+                    position: 'bottom',
+                    title: { text: 'Choix de réponse' },
+                },
+                {
+                    type: 'number',
+                    position: 'left',
+                    title: { text: 'Nombre de sélections' },
+                },
+            ],
+            data,
+            series: [
+                {
+                    type: 'bar',
+                    xKey: 'label',
+                    xName: 'Choix de réponse',
+                    yKey: 'picks',
+                    yName: 'Nombre de choix',
+                    tooltip: {
+                        enabled: true,
+                        renderer: (params: any) => {
+                            return {
+                                content: `Choice: ${params.datum.text} <br/> Selections: ${params.datum.picks}`,
+                            };
+                        },
+                    },
+                    formatter: (params: any) => {
+                        const fill = params.datum[params.xKey].includes('✅') ? 'green' : 'red';
+                        return { fill };
+                    },
+                },
+            ],
+        };
     }
 }

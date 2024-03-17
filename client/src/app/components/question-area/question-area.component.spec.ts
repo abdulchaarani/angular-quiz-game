@@ -62,8 +62,16 @@ describe('QuestionAreaComponent', () => {
             duration: 60,
         };
         router = jasmine.createSpyObj('Router', ['navigateByUrl']);
-        answerSpy = jasmine.createSpyObj('AnswerService', ['selectChoice', 'deselectChoice', 'submitAnswer', 'feedback', 'bonusPoints']);
-        matchRoomSpy = jasmine.createSpyObj('MatchRoomService', ['nextQuestion', 'getUsername', 'getMatchRoomCode', 'disconnect', 'sendPlayersData']);
+        answerSpy = jasmine.createSpyObj('AnswerService', ['selectChoice', 'deselectChoice', 'submitAnswer', 'feedback', 'bonusPoints', 'gameOver']);
+        matchRoomSpy = jasmine.createSpyObj('MatchRoomService', [
+            'nextQuestion',
+            'getUsername',
+            'getMatchRoomCode',
+            'disconnect',
+            'sendPlayersData',
+            'listenRouteToResultsPage',
+            'routeToResultsPage', 
+        ]);
         socketHelper = new SocketTestHelper();
         socketSpy = new SocketHandlerServiceMock(router);
         socketSpy.socket = socketHelper as unknown as Socket;
@@ -105,6 +113,9 @@ describe('QuestionAreaComponent', () => {
             if (component.currentQuestion) {
                 component.isCooldown = true;
             }
+        });
+        spyOn<any>(component, 'subscribeToGameEnd').and.callFake(() => {
+            component.isLastQuestion = true;
         });
         fixture.detectChanges();
     });
@@ -276,8 +287,6 @@ describe('QuestionAreaComponent', () => {
         component.showFeedback = true;
         component.isSelectionEnabled = false;
         component.selectedAnswers = [{ text: 'London', isCorrect: false }];
-        component.isCorrect = true;
-        component.havePointsBeenAdded = true;
         component.bonus = 5;
         component.correctAnswers = ['Paris'];
         component.isRightAnswer = true;
@@ -288,8 +297,7 @@ describe('QuestionAreaComponent', () => {
         expect(component.showFeedback).toBeFalse();
         expect(component.isSelectionEnabled).toBeTrue();
         expect(component.selectedAnswers).toEqual([]);
-        expect(component.isCorrect).toBeFalse();
-        expect(component.havePointsBeenAdded).toBeFalse();
+
         expect(component.bonus).toBe(0);
         expect(component.correctAnswers).toEqual([]);
         expect(component.isRightAnswer).toBeFalse();
@@ -300,6 +308,13 @@ describe('QuestionAreaComponent', () => {
         component.handleQuit();
 
         expect(matchRoomSpy.disconnect).toHaveBeenCalled();
+    });
+
+    
+    it('should call matchRoomService.routeToResultsPage when routeToResultsPage is called', () => {
+        component.routeToResultsPage();
+
+        expect(matchRoomSpy.listenRouteToResultsPage).toHaveBeenCalled();
     });
 
     it('should call handleFeedback when feedback is received', () => {
@@ -366,5 +381,11 @@ describe('QuestionAreaComponent', () => {
         component['handleCooldown'](true);
 
         expect(component.isCooldown).toBeTrue();
+    });
+
+    it('should handle game end', () => {
+        component['handleGameEnd']();
+
+        expect(component.isLastQuestion).toBeTrue();
     });
 });

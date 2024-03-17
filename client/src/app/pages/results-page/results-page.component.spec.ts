@@ -1,5 +1,5 @@
 // Mock classes are required to avoid errors during tests
-// eslint-disable max-classes-per-file
+/* eslint-disable max-classes-per-file */
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';

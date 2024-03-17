@@ -2,12 +2,12 @@
 
 import { TestBed } from '@angular/core/testing';
 
-import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
-import { ChatService } from './chat.service';
-import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
+import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
+import { ChatService } from './chat.service';
 
 import { MOCK_MESSAGE, MOCK_MESSAGES, MOCK_ROOM_CODE } from '@app/constants/chat-mocks';
 import SpyObj = jasmine.SpyObj;
@@ -62,6 +62,7 @@ describe('ChatService', () => {
     });
 
     it('should fetch old messages', () => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         socketHandlerSpy.on.and.callFake((event, cb) => cb(mockMessages as any));
         service.fetchOldMessages();
         expect(matchRoomServiceSpy.messages).toEqual(mockMessages);

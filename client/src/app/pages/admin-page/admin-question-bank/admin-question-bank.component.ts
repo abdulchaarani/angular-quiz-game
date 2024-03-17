@@ -57,7 +57,7 @@ export class AdminQuestionBankComponent implements OnInit {
         }
     }
 
-    handleDialog(newQuestion: Question, dialogRef: MatDialogRef<QuestionCreationFormComponent, any>) {
+    handleDialog(newQuestion: Question, dialogRef: MatDialogRef<QuestionCreationFormComponent, unknown>) {
         if (newQuestion) {
             this.addQuestion(newQuestion);
             dialogRef.close();

@@ -86,7 +86,7 @@ describe('AnswerService', () => {
     });
 
     it('should receive bonus points', () => {
-        const bonusPoints: number = 100;
+        const bonusPoints = 100;
 
         const bonusPointsSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
             cb(bonusPoints);
@@ -96,5 +96,14 @@ describe('AnswerService', () => {
         socketHelper.peerSideEmit('bonus', bonusPoints);
 
         expect(bonusPointsSpy).toHaveBeenCalled();
+    });
+
+    it('should receive gameOver event', () => {
+        const gameOverSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
+            cb();
+        });
+        service.gameOver();
+        socketHelper.peerSideEmit('endGame');
+        expect(gameOverSpy).toHaveBeenCalled();
     });
 });

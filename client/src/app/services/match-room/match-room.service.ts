@@ -70,7 +70,6 @@ export class MatchRoomService {
             this.matchRoomCode = res.code;
             this.username = 'Organisateur';
             if (isTestRoom) {
-                // this.beginQuiz();
                 this.players = [{ username: this.username, score: 0, bonusCount: 0, isPlaying: true }];
                 this.router.navigateByUrl('/play-test');
             } else this.router.navigateByUrl('/match-room');
@@ -205,7 +204,7 @@ export class MatchRoomService {
         this.router.navigateByUrl('/home');
     }
 
-    isRoomEmpty() {
+    isRoomEmpty(): boolean {
         return this.players.every((player) => !player.isPlaying);
     }
 

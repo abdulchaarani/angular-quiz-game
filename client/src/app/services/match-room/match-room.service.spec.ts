@@ -102,7 +102,7 @@ describe('MatchRoomService', () => {
             cb({ code: 'mock' });
         });
         const mockStringifiedGame = 'mockGame';
-        service.createRoom(mockStringifiedGame, false);
+        service.createRoom(mockStringifiedGame);
         expect((service as any).matchRoomCode).toEqual('mock');
         expect((service as any).username).toEqual('Organisateur');
         expect(router.navigateByUrl).toHaveBeenCalledWith('/match-room');
@@ -310,5 +310,36 @@ describe('MatchRoomService', () => {
         socketHelper.peerSideEmit('routeToResultsPage');
         expect(onSpy).toHaveBeenCalled();
         expect(router.navigateByUrl).toHaveBeenCalledWith('/results');
+    });
+
+    it('onHostQuit() should set isHostPlaying to false', () => {
+        service.isHostPlaying = true;
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
+            cb();
+        });
+        service.onHostQuit();
+        socketHelper.peerSideEmit('hostQuitMatch');
+        expect(onSpy).toHaveBeenCalled();
+    });
+
+    it('quitGame() should navigate to /home', () => {
+        service.quitGame();
+        expect(router.navigateByUrl).toHaveBeenCalledWith('/home');
+    });
+
+    it('isRoomEmpty() should return true if there are no more playing players in the room', () => {
+        const player1 = { isPlaying: false } as Player;
+        const player2 = { isPlaying: false } as Player;
+        service.players = [player1, player2];
+        const isRoomEmpty = service.isRoomEmpty();
+        expect(isRoomEmpty).toBe(true);
+    });
+
+    it('isRoomEmpty() should return false if there are still playing players in the room', () => {
+        const player1 = { isPlaying: true } as Player;
+        const player2 = { isPlaying: false } as Player;
+        service.players = [player1, player2];
+        const isRoomEmpty = service.isRoomEmpty();
+        expect(isRoomEmpty).toBe(false);
     });
 });

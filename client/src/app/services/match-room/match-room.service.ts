@@ -201,6 +201,7 @@ export class MatchRoomService {
     }
 
     quitGame() {
+        this.disconnect();
         this.router.navigateByUrl('/home');
     }
 

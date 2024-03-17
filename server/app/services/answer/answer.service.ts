@@ -16,10 +16,10 @@ export class AnswerService {
     // Allow more constructor parameters to decouple services
     // eslint-disable-next-line max-params
     constructor(
-        private matchRoomService: MatchRoomService,
-        private playerService: PlayerRoomService,
-        private timeService: TimeService,
-        private histogramService: HistogramService,
+        private readonly matchRoomService: MatchRoomService,
+        private readonly playerService: PlayerRoomService,
+        private readonly timeService: TimeService,
+        private readonly histogramService: HistogramService,
     ) {}
 
     @OnEvent(TimerEvents.QuestionTimerExpired)

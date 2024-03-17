@@ -11,7 +11,7 @@ export class AdminLoginService {
     private isAuthenticated: boolean;
     constructor(
         private readonly http: HttpClient,
-        private router: Router,
+        private readonly router: Router,
         private readonly notificationService: NotificationService,
     ) {
         this.isAuthenticated = false;

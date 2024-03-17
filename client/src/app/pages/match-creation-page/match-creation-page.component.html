@@ -2,7 +2,7 @@
 <div id="match-creation-page">
     <div id="game-list-container">
         <h2>Liste des jeux</h2>
-        <cdk-virtual-scroll-viewport itemSize="50" style="height: 100vh">
+        <cdk-virtual-scroll-viewport class="virtual-scroll" itemSize="50">
             <app-game-list-item
                 *cdkVirtualFor="let game of games"
                 [game]="game"
@@ -14,7 +14,7 @@
 
     <div id="game-details-container">
         <h2>Détails du jeu</h2>
-        <cdk-virtual-scroll-viewport itemSize="50" style="height: 100vh">
+        <cdk-virtual-scroll-viewport class="virtual-scroll" itemSize="50">
             <div id="game-details" *ngIf="gameIsValid; else elseBlock">
                 <div class="list">
                     <strong>Description du jeu :</strong>

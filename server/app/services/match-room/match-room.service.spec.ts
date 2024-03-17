@@ -3,9 +3,7 @@
 import { MOCK_CHOICES, getMockGame } from '@app/constants/game-mocks';
 import { MOCK_MATCH_ROOM, MOCK_PLAYER, MOCK_PLAYER_ROOM, MOCK_ROOM_CODE } from '@app/constants/match-mocks';
 import { getMockQuestion } from '@app/constants/question-mocks';
-// import { getRandomString } from '@app/constants/test-utils';
 import { TimerEvents } from '@app/constants/timer-events';
-// import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
 import { ChoiceTracker } from '@app/model/choice-tracker/choice-tracker';
 import { PlayerInfo } from '@app/model/schema/answer.schema';
 import { MatchRoom } from '@app/model/schema/match-room.schema';

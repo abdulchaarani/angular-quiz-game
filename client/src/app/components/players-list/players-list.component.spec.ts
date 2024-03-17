@@ -7,7 +7,6 @@ xdescribe('PlayersListComponent', () => {
     let component: PlayersListComponent;
     let fixture: ComponentFixture<PlayersListComponent>;
     let matchRoomSpy: jasmine.SpyObj<MatchRoomService>;
-    // let pipe: SortByScorePipe; // TODO: Mock
 
     beforeEach(() => {
         matchRoomSpy = jasmine.createSpyObj(MatchRoomService, ['']);

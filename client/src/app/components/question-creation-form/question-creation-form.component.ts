@@ -28,8 +28,8 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
     disabled: boolean;
 
     constructor(
-        private snackBar: MatSnackBar,
-        private formBuilder: FormBuilder,
+        private readonly snackBar: MatSnackBar,
+        private readonly formBuilder: FormBuilder,
         @Optional() @Inject(MAT_DIALOG_DATA) public dialogData: DialogManagement,
     ) {
         this.initializeForm();
@@ -59,7 +59,7 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
 
             if (isCorrect) {
                 hasCorrect = true;
-            } else if (isCorrect === false) {
+            } else if (!isCorrect) {
                 hasIncorrect = true;
             }
         }
@@ -81,7 +81,7 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
         }
     }
 
-    drop(event: CdkDragDrop<this>) {
+    dropChoice(event: CdkDragDrop<this>) {
         if (this.questionForm) {
             moveItemInArray(this.choices.controls, event.previousIndex, event.currentIndex);
             this.choices.controls.forEach((control, index) => {

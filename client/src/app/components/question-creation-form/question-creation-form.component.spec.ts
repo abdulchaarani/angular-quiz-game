@@ -281,7 +281,7 @@ describe('QuestionCreationFormComponent', () => {
         } as unknown as CdkDragDrop<QuestionCreationFormComponent>;
 
         fixture.detectChanges();
-        component.drop(mockEvent);
+        component.dropChoice(mockEvent);
 
         expect(component.questionForm.value.choices[0].text).toEqual('Choice 2');
         expect(component.questionForm.value.choices[1].text).toEqual('Choice 1');

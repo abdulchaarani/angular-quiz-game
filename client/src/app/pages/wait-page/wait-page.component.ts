@@ -18,7 +18,7 @@ export class WaitPageComponent implements OnInit, OnDestroy {
     isLocked: boolean;
     startTimerButton: boolean;
     gameTitle: string;
-    private subscriptions: Subscription[] = [];
+    private eventSubscriptions: Subscription[] = [];
 
     // permit more class parameters to decouple services
     // eslint-disable-next-line max-params
@@ -54,7 +54,7 @@ export class WaitPageComponent implements OnInit, OnDestroy {
             this.gameTitle = this.currentGame.title;
             this.questionContextService.setContext('hostView');
         } else {
-            this.subscriptions.push(
+            this.eventSubscriptions.push(
                 this.matchRoomService.getGameTitleObservable().subscribe((title) => {
                     this.gameTitle = title;
                 }),
@@ -64,7 +64,7 @@ export class WaitPageComponent implements OnInit, OnDestroy {
 
         this.matchRoomService.matchStarted();
         this.matchRoomService.beginQuiz();
-        this.subscriptions.push(
+        this.eventSubscriptions.push(
             this.matchRoomService.getStartMatchObservable().subscribe(() => {
                 this.startTimerButton = true;
             }),
@@ -72,8 +72,8 @@ export class WaitPageComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
-        this.subscriptions.forEach((subscription) => subscription.unsubscribe());
-        this.subscriptions = [];
+        this.eventSubscriptions.forEach((subscription) => subscription.unsubscribe());
+        this.eventSubscriptions = [];
     }
 
     toggleLock() {

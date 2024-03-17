@@ -19,10 +19,10 @@ export class MatchCreationPageComponent implements OnInit {
     // Services are required to decouple logic
     // eslint-disable-next-line max-params
     constructor(
-        private gameService: GameService,
-        private notificationService: NotificationService,
-        private matchService: MatchService,
-        private questionContextService: QuestionContextService,
+        private readonly gameService: GameService,
+        private readonly notificationService: NotificationService,
+        private readonly matchService: MatchService,
+        private readonly questionContextService: QuestionContextService,
     ) {
         this.gameIsValid = false;
     }

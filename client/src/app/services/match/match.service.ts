@@ -1,7 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Game } from '@app/interfaces/game';
-import { ChoiceValidationService } from '@app/services/choice-validation/choice-validation.service';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { Subject } from 'rxjs';
@@ -17,11 +16,8 @@ export class MatchService extends CommunicationService<Game> {
     private questionAdvanceSubject = new Subject<void>();
     private selectedGame: Game;
 
-    // permit more constructor parameters to decoulpe services
-    // eslint-disable-next-line max-params
     constructor(
         http: HttpClient,
-        private readonly choiceValidationService: ChoiceValidationService,
         private readonly matchRoomService: MatchRoomService,
         private readonly questionContextService: QuestionContextService,
     ) {
@@ -71,12 +67,5 @@ export class MatchService extends CommunicationService<Game> {
         const isTestPage = this.questionContextService.getContext() === 'testPage';
         this.matchRoomService.connect();
         this.matchRoomService.createRoom(this.selectedGame.id, isTestPage);
-    }
-
-    validateChoices(choices: string[]) {
-        const testChoice = {
-            selected: choices,
-        };
-        return this.choiceValidationService.validateChoices(testChoice, this.currentGame.id, this.questionId);
     }
 }

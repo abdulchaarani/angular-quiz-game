@@ -9,7 +9,7 @@ const HOST_USERNAME = 'ORGANISATEUR';
 
 @Injectable()
 export class PlayerRoomService {
-    constructor(private matchRoomService: MatchRoomService) {}
+    constructor(private readonly matchRoomService: MatchRoomService) {}
 
     getPlayers(code: string): Player[] {
         return this.matchRoomService.getMatchRoomByCode(code).players;

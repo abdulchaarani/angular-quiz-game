@@ -40,7 +40,6 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
     currentQuestion: Question;
     currentBankMessage = '';
     addToBank: boolean;
-    // addToBankToggleButtonState: boolean = false;
 
     gameForm = new FormGroup({
         title: new FormControl('', Validators.required),
@@ -57,8 +56,8 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
         private readonly gamesService: GameService,
         private readonly notificationService: NotificationService,
         private readonly questionService: QuestionService,
-        private route: ActivatedRoute,
-        private router: Router,
+        private readonly route: ActivatedRoute,
+        private readonly router: Router,
     ) {}
 
     canDeactivate(): CanDeactivateType {

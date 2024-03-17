@@ -14,7 +14,7 @@ export class GameListItemComponent {
     @Output() deleteGameFromList: EventEmitter<string> = new EventEmitter<string>();
 
     constructor(
-        private gamesService: GameService,
+        private readonly gamesService: GameService,
         private readonly downloadGameService: DownloadGameService,
     ) {}
 

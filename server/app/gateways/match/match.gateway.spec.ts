@@ -1,6 +1,5 @@
 /* eslint-disable max-lines */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// import { getMockGame } from '@app/constants/game-mocks';
 import {
     MOCK_MATCH_ROOM,
     MOCK_MESSAGE_INFO,

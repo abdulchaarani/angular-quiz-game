@@ -9,7 +9,7 @@ import { environment } from 'src/environments/environment';
 export class SocketHandlerService {
     socket: Socket;
 
-    constructor(private router: Router) {}
+    constructor(private readonly router: Router) {}
 
     isSocketAlive() {
         return this.socket && this.socket.connected;

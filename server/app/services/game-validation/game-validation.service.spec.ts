@@ -59,7 +59,6 @@ describe('GameValidationService', () => {
         const inferiorTestNumber = -10;
         const superiorTestNumber = 10;
 
-        // Without Step:
         expect(service.isValidRange(validTestNumber, minimum, maximum)).toBeTruthy();
         expect(service.isValidRange(invalidStepNumber, minimum, maximum)).toBeTruthy();
         expect(service.isValidRange(inferiorTestNumber, minimum, maximum)).toBeFalsy();

@@ -31,7 +31,7 @@ import { HistogramService } from './services/histogram/histogram.service';
             imports: [ConfigModule],
             inject: [ConfigService],
             useFactory: async (config: ConfigService) => ({
-                uri: config.get<string>('DATABASE_CONNECTION_STRING'), // Loaded from .env
+                uri: config.get<string>('DATABASE_CONNECTION_STRING'),
             }),
         }),
         MongooseModule.forFeature([{ name: Game.name, schema: gameSchema }]),

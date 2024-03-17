@@ -1,12 +1,6 @@
 import { Component, HostListener, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-
-// TODO: Tests (inspiration --> admin)
-export interface DialogData {
-    input: string;
-    title: string;
-    placeholder: string;
-}
+import { TextDialogData } from '@app/interfaces/dialog-data/text-dialog-data';
 
 @Component({
     selector: 'app-dialog-text-input',
@@ -16,7 +10,7 @@ export interface DialogData {
 export class DialogTextInputComponent {
     constructor(
         private dialogRef: MatDialogRef<unknown>,
-        @Inject(MAT_DIALOG_DATA) public data: DialogData,
+        @Inject(MAT_DIALOG_DATA) public data: TextDialogData,
     ) {}
 
     @HostListener('window:keyup.Enter', ['$event'])

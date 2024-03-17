@@ -34,7 +34,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
     isNextQuestionButton: boolean = false;
     isLastQuestion: boolean = false;
 
-    private subscriptions: Subscription[];
+    private eventSubscriptions: Subscription[];
 
     // Allow more constructor parameters to decouple services
     // eslint-disable-next-line max-params
@@ -102,7 +102,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     ngOnInit(): void {
-        this.subscriptions = [];
+        this.eventSubscriptions = [];
         this.resetStateForNewQuestion();
 
         this.context = this.questionContextService.getContext();
@@ -118,10 +118,9 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     ngOnDestroy() {
-        this.subscriptions.forEach((subscription) => subscription.unsubscribe());
+        this.eventSubscriptions.forEach((subscription) => subscription.unsubscribe());
     }
 
-    // TODO: verify if still needed
     ngOnChanges(changes: SimpleChanges): void {
         if (changes.currentQuestion) {
             const newQuestion = changes.currentQuestion.currentValue;
@@ -225,8 +224,8 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
             this.handleFeedbackSubmission();
         });
 
-        this.subscriptions.push(feedbackSubscription);
-        this.subscriptions.push(feedbackObservable);
+        this.eventSubscriptions.push(feedbackSubscription);
+        this.eventSubscriptions.push(feedbackObservable);
     }
 
     private handleQuestionChange(question: Question) {
@@ -247,7 +246,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         const currentQuestionSubscription = this.matchRoomService.currentQuestion$.subscribe((question) => {
             this.handleQuestionChange(question);
         });
-        this.subscriptions.push(currentQuestionSubscription);
+        this.eventSubscriptions.push(currentQuestionSubscription);
     }
 
     private handleBonusPoints(bonus: number) {
@@ -260,7 +259,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         const bonusPointsSubscription = this.answerService.bonusPoints$.subscribe((bonus) => {
             this.handleBonusPoints(bonus);
         });
-        this.subscriptions.push(bonusPointsSubscription);
+        this.eventSubscriptions.push(bonusPointsSubscription);
     }
 
     private handleCooldown(coolDown: boolean) {
@@ -275,7 +274,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
             this.handleCooldown(isCooldown);
         });
 
-        this.subscriptions.push(displayCoolDownSubscription);
+        this.eventSubscriptions.push(displayCoolDownSubscription);
     }
 
     private handleGameEnd() {
@@ -286,7 +285,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         const endGameSubscription = this.answerService.endGame$.subscribe(() => {
             this.handleGameEnd();
         });
-        this.subscriptions.push(endGameSubscription);
+        this.eventSubscriptions.push(endGameSubscription);
     }
 
     private listenToGameEvents() {

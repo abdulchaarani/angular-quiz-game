@@ -108,17 +108,6 @@ describe('MatchService', () => {
         expect(spy).toHaveBeenCalledOnceWith(`backups/${fakeGame.id}`);
     });
 
-    it('should validate choices from a list of choices', () => {
-        interface SelectedChoices {
-            selected: string[];
-        }
-        service.currentGame = getMockGame();
-        service.questionId = '0';
-        const choices: SelectedChoices = { selected: [''] };
-        service.validateChoices(choices.selected);
-        expect(choiceValidationSpy.validateChoices).toHaveBeenCalled();
-    });
-
     it('createMatch() should connect and create room', () => {
         service['selectedGame'] = getMockGame();
         service.createMatch();

@@ -31,8 +31,8 @@ export class MatchRoomService {
 
     constructor(
         public socketService: SocketHandlerService,
-        private router: Router,
-        private notificationService: NotificationService,
+        private readonly router: Router,
+        private readonly notificationService: NotificationService,
     ) {}
 
     get socketId() {
@@ -87,7 +87,7 @@ export class MatchRoomService {
     }
 
     sendPlayersData(roomCode: string) {
-        this.socketService.send('sendPlayersData', roomCode); // Updates the list for everyone with new player
+        this.socketService.send('sendPlayersData', roomCode);
     }
 
     toggleLock() {

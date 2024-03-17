@@ -87,7 +87,7 @@
         <mat-drawer #drawer class="sidenav" mode="side" position="end" id="test">
             <h3 class="bank-message">{{ currentBankMessage }}</h3>
             <h3 class="bank-message">Déposez une question ci-bas pour l'ajouter à la banque</h3>
-            <cdk-virtual-scroll-viewport class="bank-sidenav" itemSize="50" style="height: 100vh">
+            <cdk-virtual-scroll-viewport class="virtual-scroll" itemSize="50">
                 <div
                     id="bank-questions"
                     cdkDropList

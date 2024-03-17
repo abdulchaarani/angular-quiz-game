@@ -23,7 +23,7 @@ describe('SocketHandlerService', () => {
     });
 
     it('should connect', () => {
-        service.connect(); // TODO: Check if this works on GitLab pipeline
+        service.connect();
         expect(service.socket).toBeTruthy();
     });
 

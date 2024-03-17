@@ -20,7 +20,6 @@ export class UpdateGameDto {
     duration: number;
 
     @ApiProperty()
-    // @IsDate()
     lastModification: Date;
 
     @ApiProperty()

@@ -10,14 +10,13 @@ import { environment } from 'src/environments/environment';
 export class JoinMatchService {
     matchRoomCode: string;
     constructor(
-        private matchRoomService: MatchRoomService,
-        private http: HttpClient,
-        private notificationService: NotificationService,
+        private readonly matchRoomService: MatchRoomService,
+        private readonly http: HttpClient,
+        private readonly notificationService: NotificationService,
     ) {
         this.matchRoomCode = '';
     }
 
-    // Validation must be with HTTP
     validateMatchRoomCode(matchRoomCode: string) {
         return this.http.post(
             `${environment.serverUrl}/match/validate-code`,
@@ -50,7 +49,7 @@ export class JoinMatchService {
         this.postUsername(username).subscribe({
             next: () => {
                 const matchRoomCode = this.matchRoomCode;
-                this.matchRoomCode = ''; // To avoid bugs where the match room would no longer be available
+                this.matchRoomCode = '';
                 this.addPlayerToMatchRoom(matchRoomCode, username);
             },
             error: () => {

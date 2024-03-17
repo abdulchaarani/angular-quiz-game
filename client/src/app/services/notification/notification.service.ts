@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarConfig, MatSnackBarRef, TextOnlySnackBar } from '@angular/material/snack-bar';
-import { DialogConfirmComponent, DialogData } from '@app/components/dialog-confirm/dialog-confirm.component';
+import { DialogConfirmComponent } from '@app/components/dialog-confirm/dialog-confirm.component';
 import { NOTFICATION_DURATION } from '@app/constants/feedback-messages';
+import { ConfirmDialogData } from '@app/interfaces/dialog-data/confirm-dialog-data';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -33,7 +34,7 @@ export class NotificationService {
     }
 
     openWarningDialog(warningText: string): Observable<boolean> {
-        const warningConfig: MatDialogConfig<DialogData> = {
+        const warningConfig: MatDialogConfig<ConfirmDialogData> = {
             data: {
                 icon: 'warning',
                 title: 'Attention',
@@ -44,7 +45,7 @@ export class NotificationService {
     }
 
     confirmBankUpload(questionTitle: string) {
-        const bankUploadConfig: MatDialogConfig<DialogData> = {
+        const bankUploadConfig: MatDialogConfig<ConfirmDialogData> = {
             data: {
                 icon: 'info_outline',
                 title: 'Êtes-vous certain de vouloir ajouter cette question à la banque de questions?',
@@ -58,7 +59,7 @@ export class NotificationService {
         return this.snackBar.open(message, action, options);
     }
 
-    private openConfirmDialog(config: MatDialogConfig<DialogData>): Observable<boolean> {
+    private openConfirmDialog(config: MatDialogConfig<ConfirmDialogData>): Observable<boolean> {
         const dialogRef = this.dialog.open(DialogConfirmComponent, config);
         return dialogRef.afterClosed().pipe((confirm) => confirm);
     }

@@ -1,7 +1,6 @@
 import { TimerEvents } from '@app/constants/timer-events';
 import { Game } from '@app/model/database/game';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
-import { Message } from '@app/model/schema/message.schema';
 import { ChatService } from '@app/services/chat/chat.service';
 import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
@@ -11,14 +10,9 @@ import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Server, Socket } from 'socket.io';
 import { MatchEvents } from './match.gateway.events';
-
+import { MessageInfo } from '@common/interfaces/message-info';
 import { HistogramService } from '@app/services/histogram/histogram.service';
 import { ConnectedSocket, MessageBody, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
-
-interface MessageInfo {
-    roomCode: string;
-    message: Message;
-}
 
 @WebSocketGateway({ cors: true })
 @Injectable()
@@ -28,11 +22,11 @@ export class MatchGateway implements OnGatewayDisconnect {
     // permit more params to decouple services
     // eslint-disable-next-line max-params
     constructor(
-        private matchRoomService: MatchRoomService,
-        private playerRoomService: PlayerRoomService,
-        private matchBackupService: MatchBackupService,
-        private histogramService: HistogramService,
-        private chatService: ChatService,
+        private readonly matchRoomService: MatchRoomService,
+        private readonly playerRoomService: PlayerRoomService,
+        private readonly matchBackupService: MatchBackupService,
+        private readonly histogramService: HistogramService,
+        private readonly chatService: ChatService,
     ) {}
 
     @SubscribeMessage(MatchEvents.JoinRoom)

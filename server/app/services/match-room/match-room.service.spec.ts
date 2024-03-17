@@ -6,6 +6,7 @@ import { getMockQuestion } from '@app/constants/question-mocks';
 // import { getRandomString } from '@app/constants/test-utils';
 import { TimerEvents } from '@app/constants/timer-events';
 // import { ChoiceTally } from '@app/model/choice-tally/choice-tally';
+import { ChoiceTracker } from '@app/model/choice-tracker/choice-tracker';
 import { PlayerInfo } from '@app/model/schema/answer.schema';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { TimeService } from '@app/services/time/time.service';
@@ -93,31 +94,34 @@ describe('MatchRoomService', () => {
         expect(result).toEqual(0);
     });
 
-    // it('addMatchRoom() should generate a room code add the new MatchRoom in the rooms list', () => {
-    //     service.matchRooms = [];
-    //     const generateSpy = jest.spyOn(service, 'generateRoomCode').mockReturnValue(MOCK_ROOM_CODE);
-    //     const mockGame = getMockGame();
-    //     const expectedResult: MatchRoom = {
-    //         code: MOCK_ROOM_CODE,
-    //         hostSocket: socket,
-    //         isLocked: false,
-    //         isPlaying: false,
-    //         game: mockGame,
-    //         gameLength: 1,
-    //         currentQuestionIndex: 0,
-    //         currentQuestionAnswer: [],
-    //         choiceTally: new ChoiceTally(),
-    //         bannedUsernames: [],
-    //         players: [],
-    //         activePlayers: 0,
-    //         submittedPlayers: 0,
-    //         messages: [],
-    //     };
-    //     const result = service.addMatchRoom(mockGame, socket);
-    //     expect(generateSpy).toHaveBeenCalled();
-    //     expect(result).toEqual(expectedResult);
-    //     expect(service.matchRooms.length).toEqual(1);
-    // });
+    it('addMatchRoom() should generate a room code add the new MatchRoom in the rooms list', () => {
+        service.matchRooms = [];
+        const generateSpy = jest.spyOn(service, 'generateRoomCode').mockReturnValue(MOCK_ROOM_CODE);
+        const mockGame = getMockGame();
+        const expectedResult: MatchRoom = {
+            code: MOCK_ROOM_CODE,
+            hostSocket: socket,
+            isLocked: false,
+            isPlaying: false,
+            game: mockGame,
+            gameLength: 1,
+            currentQuestionIndex: 0,
+            currentQuestionAnswer: [],
+            currentChoiceTracker: new ChoiceTracker(),
+            matchHistograms: [],
+            bannedUsernames: [],
+            players: [],
+            activePlayers: 0,
+            submittedPlayers: 0,
+            messages: [],
+            isTestRoom: false,
+        };
+
+        const result = service.addMatchRoom(mockGame, socket);
+        expect(generateSpy).toHaveBeenCalled();
+        expect(result).toEqual(expectedResult);
+        expect(service.matchRooms.length).toEqual(1);
+    });
 
     it('getRoomCodeByHostSocket() should return code of the room where the host belongs', () => {
         const searchedMatchRoom = MOCK_MATCH_ROOM;
@@ -232,34 +236,39 @@ describe('MatchRoomService', () => {
         expect(startTimerMock).not.toHaveBeenCalled();
     });
 
-    // it('startNextQuestionCooldown() should start timer with a 3 seconds countdown', () => {
-    //     service.startNextQuestionCooldown(mockServer, MOCK_ROOM_CODE);
-    //     expect(emitMock).toHaveBeenCalledWith('startCooldown');
-    //     expect(startTimerMock).toHaveBeenCalledWith(mockServer, MOCK_ROOM_CODE, 3, TimerEvents.CooldownTimerExpired);
-    // });
+    it('startNextQuestionCooldown() should start timer with a 3 seconds countdown', () => {
+        service.startNextQuestionCooldown(mockServer, MOCK_ROOM_CODE);
+        expect(emitMock).toHaveBeenCalledWith('startCooldown', MOCK_ROOM_CODE);
+        expect(startTimerMock).toHaveBeenCalledWith(mockServer, MOCK_ROOM_CODE, 3, TimerEvents.CooldownTimerExpired);
+    });
 
-    // it('sendFirstQuestion() should emit the first question along with the game duration', () => {
-    //     const matchRoom = MOCK_PLAYER_ROOM;
-    //     matchRoom.code = MOCK_ROOM_CODE;
-    //     service.matchRooms = [matchRoom];
-    //     matchRoom.hostSocket = mockHostSocket;
-    //     const currentQuestion = matchRoom.game.questions[0];
-    //     const currentAnswers = currentQuestion.choices[0].text;
-    //     service.sendFirstQuestion(mockServer, MOCK_ROOM_CODE);
-    //     expect(emitMock).toHaveBeenCalledWith('beginQuiz', { firstQuestion: currentQuestion, gameDuration: matchRoom.game.duration });
-    //     expect(mockHostSocket.send).toHaveBeenCalledWith('currentAnswers', [currentAnswers]);
-    //     expect(startTimerMock).toHaveBeenCalledWith(mockServer, MOCK_ROOM_CODE, matchRoom.game.duration, TimerEvents.QuestionTimerExpired);
-    // });
+    it('sendFirstQuestion() should emit the first question along with the game duration', () => {
+        const matchRoom = MOCK_PLAYER_ROOM;
+        matchRoom.code = MOCK_ROOM_CODE;
+        service.matchRooms = [matchRoom];
+        matchRoom.hostSocket = mockHostSocket;
+        const currentQuestion = matchRoom.game.questions[0];
+        const currentAnswers = currentQuestion.choices[0].text;
+        service.sendFirstQuestion(mockServer, MOCK_ROOM_CODE);
+        expect(emitMock).toHaveBeenCalledWith('beginQuiz', {
+            firstQuestion: currentQuestion,
+            gameDuration: matchRoom.game.duration,
+            isTestRoom: false,
+        });
+        expect(mockHostSocket.send).toHaveBeenCalledWith('currentAnswers', [currentAnswers]);
+        expect(startTimerMock).toHaveBeenCalledWith(mockServer, MOCK_ROOM_CODE, matchRoom.game.duration, TimerEvents.QuestionTimerExpired);
+    });
 
-    // it('sendNextQuestion() should emit a gameOver event if there are no more questions', () => {
-    //     const matchRoom = MOCK_PLAYER_ROOM;
-    //     matchRoom.code = MOCK_ROOM_CODE;
-    //     service.matchRooms = [matchRoom];
-    //     matchRoom.currentQuestionIndex = 1;
-    //     service.sendNextQuestion(mockServer, MOCK_ROOM_CODE);
-    //     expect(emitMock).toHaveBeenCalledWith('gameOver');
-    //     expect(emitMock).not.toHaveBeenCalledWith('nextQuestion');
-    // });
+    // TODO : Add check to see if we at last question
+    it('sendNextQuestion() should emit a gameOver event if there are no more questions', () => {
+        const matchRoom = MOCK_PLAYER_ROOM;
+        matchRoom.code = MOCK_ROOM_CODE;
+        service.matchRooms = [matchRoom];
+        matchRoom.currentQuestionIndex = 1;
+        service.sendNextQuestion(mockServer, MOCK_ROOM_CODE);
+        expect(emitMock).toHaveBeenCalledWith('gameOver');
+        expect(emitMock).not.toHaveBeenCalledWith('nextQuestion');
+    });
 
     it('sendNextQuestion() should emit the next question if there are any and start a timer with the game duration as its value', () => {
         const matchRoom = MOCK_PLAYER_ROOM;

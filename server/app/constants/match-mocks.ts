@@ -8,7 +8,7 @@ const MOCK_MESSAGE = { text: 'Text', author: '', date: new Date() };
 const MOCK_MESSAGE_INFO = { roomCode: '', message: MOCK_MESSAGE };
 const MOCK_PLAYER: Player = {
     username: '',
-    answer: { selectedChoices: new Map<string, boolean>(), isSubmited: false },
+    answer: { selectedChoices: new Map<string, boolean>(), isSubmitted: false },
     score: 0,
     bonusCount: 0,
     isPlaying: true,

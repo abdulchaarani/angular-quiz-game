@@ -1,4 +1,4 @@
-import { MOCK_MATCH_ROOM, MOCK_PLAYER, MOCK_PLAYER_ROOM, MOCK_USERNAME } from '@app/constants/match-mocks';
+import { MOCK_MATCH_ROOM, MOCK_PLAYER, MOCK_PLAYER_ROOM, MOCK_ROOM_CODE, MOCK_USERNAME } from '@app/constants/match-mocks';
 import { Player } from '@app/model/schema/player.schema';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -33,7 +33,7 @@ describe('PlayerRoomService', () => {
 
     it('getPlayersStringified() should return the list of stringified players without socket attribute', () => {
         jest.spyOn(service, 'getPlayers').mockReturnValue([MOCK_PLAYER]);
-        const expectedResult = '[{"username":"","answer":{"selectedChoices":{},"isSubmited":false},"score":0,"bonusCount":0,"isPlaying":true}]';
+        const expectedResult = '[{"username":"","answer":{"selectedChoices":{},"isSubmitted":false},"score":0,"bonusCount":0,"isPlaying":true}]';
         const result = service.getPlayersStringified('');
         expect(result).toEqual(expectedResult);
     });
@@ -51,7 +51,7 @@ describe('PlayerRoomService', () => {
         const mockUsername = 'mock';
         const expectedResult: Player = {
             username: mockUsername,
-            answer: { selectedChoices: new Map<string, boolean>(), isSubmited: false },
+            answer: { selectedChoices: new Map<string, boolean>(), isSubmitted: false },
             score: 0,
             bonusCount: 0,
             isPlaying: true,
@@ -194,5 +194,11 @@ describe('PlayerRoomService', () => {
             expect(usedSpy).toHaveBeenCalled();
             expect(result).toEqual(expectedResult);
         }
+    });
+
+    it('isValidUsername() should always return true if used in testPage', () => {
+        matchRoomSpy.getMatchRoomByCode(MOCK_ROOM_CODE).isTestRoom = true;
+        const result = service.isValidUsername(MOCK_ROOM_CODE, 'caca');
+        expect(result).toBe(true);
     });
 });

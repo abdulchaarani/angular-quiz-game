@@ -1,13 +1,18 @@
 // Mock classes are required to avoid errors during tests
 /* eslint-disable max-classes-per-file */
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { HistogramComponent } from '@app/components/histogram/histogram.component';
+import { Player } from '@app/interfaces/player';
+import { HistogramService } from '@app/services/histogram/histogram.service';
+import { MatchRoomService } from '@app/services/match-room/match-room.service';
+import { ChoiceTally } from '@common/interfaces/choice-tally';
+import { Histogram } from '@common/interfaces/histogram';
 import { AgChartsAngularModule } from 'ag-charts-angular';
+import { AgChartOptions } from 'ag-charts-community';
 import { ResultsPageComponent } from './results-page.component';
 
 @Component({
@@ -36,7 +41,9 @@ class MockChatComponent {}
     selector: 'app-players-list',
     template: '',
 })
-class MockPlayersListComponent {}
+class MockPlayersListComponent {
+    @Input() players: Player[];
+}
 
 @Component({
     // Angular Material Mock: Provided selector does not start by app
@@ -46,35 +53,77 @@ class MockPlayersListComponent {}
 })
 class MockMatFormFieldComponent {}
 
-// @Component({
-//     selector: 'app-histogram',
-//     template: '',
-// })
-// class MockAppHistogramComponent {}
+@Component({
+    selector: 'app-histogram',
+    template: '',
+})
+class MockHistogramComponent {
+    @Input() isResultsPage: boolean = false;
+    @Input() currentHistogram: Histogram = {} as Histogram;
+    currentQuestion: string;
+    chartOptions: AgChartOptions = {};
+    choiceTally: ChoiceTally[] = [];
+    histogramsGame: Histogram[] = [];
+}
 
-xdescribe('ResultsPageComponent', () => {
+describe('ResultsPageComponent', () => {
     let component: ResultsPageComponent;
     let fixture: ComponentFixture<ResultsPageComponent>;
+    let matchRoomServiceSpy: jasmine.SpyObj<MatchRoomService>;
+    let histogramServiceSpy: jasmine.SpyObj<HistogramService>;
 
     beforeEach(() => {
+        matchRoomServiceSpy = jasmine.createSpyObj('MatchRoomService', ['disconnect']);
+        histogramServiceSpy = jasmine.createSpyObj('HistogramService', ['histogramHistory']);
         TestBed.configureTestingModule({
             declarations: [
                 ResultsPageComponent,
-                HistogramComponent,
                 MockMatIconComponent,
                 MockMatLabelComponent,
                 MockMatFormFieldComponent,
                 MockChatComponent,
                 MockPlayersListComponent,
+                MockHistogramComponent,
+            ],
+            providers: [
+                { provide: MatchRoomService, useValue: matchRoomServiceSpy },
+                { provide: HistogramService, useValue: histogramServiceSpy },
             ],
             imports: [MatPaginatorModule, FormsModule, AgChartsAngularModule, MatSnackBarModule, MatDialogModule],
         }).compileComponents();
         fixture = TestBed.createComponent(ResultsPageComponent);
         component = fixture.componentInstance;
+        spyOn(component, 'initializeHistograms').and.callFake(() => {
+            component.histogramsGame = [];
+        });
         fixture.detectChanges();
     });
 
     it('should create', () => {
         expect(component).toBeTruthy();
+    });
+
+    it('should unsubscribe from subscriptions on ngOnDestroy', () => {
+        const unsubscribeSpy = jasmine.createSpyObj('unsubscribe', ['unsubscribe']);
+        const subscriptions = [unsubscribeSpy, unsubscribeSpy, unsubscribeSpy];
+        component['subscriptions'] = subscriptions;
+
+        component.ngOnDestroy();
+
+        expect(unsubscribeSpy.unsubscribe).toHaveBeenCalledTimes(subscriptions.length);
+        expect(component['subscriptions']).toEqual([]);
+    });
+
+    it('should handle page event', () => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const pageEvent = { pageIndex: 1 } as any;
+        component.handlePageEvent(pageEvent);
+        expect(component.pageEvent).toEqual(pageEvent);
+        expect(component.currentQuestionIndex).toEqual(pageEvent.pageIndex);
+    });
+
+    it('should call matchRoomService.disconnect on handleDisconnect', () => {
+        component.handleDisconnect();
+        expect(matchRoomServiceSpy.disconnect).toHaveBeenCalled();
     });
 });

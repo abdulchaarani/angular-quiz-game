@@ -2,10 +2,11 @@ import { TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { DialogConfirmComponent, DialogData } from '@app/components/dialog-confirm/dialog-confirm.component';
+import { DialogConfirmComponent } from '@app/components/dialog-confirm/dialog-confirm.component';
 import { MatDialogMock } from '@app/constants/mat-dialog-mock';
 import { NotificationService } from './notification.service';
 import { WarningMessage } from '@app/constants/feedback-messages';
+import { ConfirmDialogData } from '@app/interfaces/dialog-data/confirm-dialog-data';
 
 describe('NotificationService', () => {
     let service: NotificationService;
@@ -64,7 +65,7 @@ describe('NotificationService', () => {
     });
 
     it('should open a confirmation dialog with provided config and return confirmation result', () => {
-        const config: MatDialogConfig = {
+        const config: MatDialogConfig<ConfirmDialogData> = {
             data: {
                 icon: 'warning',
                 title: 'warning',
@@ -82,7 +83,7 @@ describe('NotificationService', () => {
         expect(afterOpenSpy).toHaveBeenCalled();
     });
     it('should open a pending changes confirmation dialog', () => {
-        const pendingChangesConfig: MatDialogConfig<DialogData> = {
+        const pendingChangesConfig: MatDialogConfig<ConfirmDialogData> = {
             data: {
                 icon: 'warning',
                 title: 'Attention',
@@ -101,7 +102,7 @@ describe('NotificationService', () => {
     });
 
     it('should open a bank upload confirmation dialog', () => {
-        const bankUploadConfig: MatDialogConfig<DialogData> = {
+        const bankUploadConfig: MatDialogConfig<ConfirmDialogData> = {
             data: {
                 icon: 'info_outline',
                 title: 'Êtes-vous certain de vouloir ajouter cette question à la banque de questions?',

@@ -1,7 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Game } from '@app/interfaces/game';
-import { ChoiceValidationService } from '@app/services/choice-validation/choice-validation.service';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { Subject } from 'rxjs';
@@ -17,8 +16,7 @@ export class MatchService extends CommunicationService<Game> {
     private selectedGame: Game;
     constructor(
         http: HttpClient,
-        private readonly choiceValidationService: ChoiceValidationService,
-        private matchRoomService: MatchRoomService,
+        private readonly matchRoomService: MatchRoomService,
     ) {
         super(http, 'match');
     }
@@ -65,12 +63,5 @@ export class MatchService extends CommunicationService<Game> {
     createMatch(isTestPage: boolean = false) {
         this.matchRoomService.connect();
         this.matchRoomService.createRoom(this.selectedGame.id, isTestPage);
-    }
-
-    validateChoices(choices: string[]) {
-        const testChoice = {
-            selected: choices,
-        };
-        return this.choiceValidationService.validateChoices(testChoice, this.currentGame.id, this.questionId);
     }
 }

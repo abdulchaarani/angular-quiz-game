@@ -2,13 +2,15 @@ import { TestBed } from '@angular/core/testing';
 
 import { Router } from '@angular/router';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
+import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 import { Histogram } from '@common/interfaces/histogram';
 import { Socket } from 'socket.io-client';
-import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 import { HistogramService } from './histogram.service';
 import SpyObj = jasmine.SpyObj;
 
 class SocketHandlerServiceMock extends SocketHandlerService {
+    // Override is required to not actually connect the socket
+    // eslint-disable-next-line no-empty-function
     override connect() {}
 }
 

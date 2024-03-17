@@ -2,8 +2,8 @@ import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BankStatus } from '@app/constants/feedback-messages';
 import { Question } from '@app/interfaces/question';
-import { NotificationService } from '../notification/notification.service';
-import { QuestionService } from '../question/question.service';
+import { NotificationService } from '@app/services/notification/notification.service';
+import { QuestionService } from '@app/services/question/question.service';
 
 @Injectable({
     providedIn: 'root',

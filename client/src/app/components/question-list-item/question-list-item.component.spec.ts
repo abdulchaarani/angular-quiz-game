@@ -1,13 +1,15 @@
+// To let the tests run without errors, mock classes are needed
+/* eslint-disable max-classes-per-file */
+import { Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Question } from '@app/interfaces/question';
-import { QuestionListItemComponent } from './question-list-item.component';
-import { ManagementState } from '@app/constants/states';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { Component, Input } from '@angular/core';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { ManagementState } from '@app/constants/states';
+import { Question } from '@app/interfaces/question';
+import { QuestionListItemComponent } from './question-list-item.component';
 
 describe('QuestionListItemComponent', () => {
     let component: QuestionListItemComponent;
@@ -21,27 +23,29 @@ describe('QuestionListItemComponent', () => {
     };
 
     @Component({
+        // Angular Material Mock: Provided selector does not start by app
+        // eslin-disable-next-line component-selector
         selector: 'mat-label',
         template: '',
     })
     class MockMatLabelComponent {}
     @Component({
         selector: 'app-question-creation-form',
-      })
-      class MockQuestionCreationFormComponent {
+    })
+    class MockQuestionCreationFormComponent {
         @Input() modificationState: ManagementState;
         @Input() question: Question;
-      }
-      
+    }
+
     beforeEach(() => {
         TestBed.configureTestingModule({
-            declarations: [MockQuestionCreationFormComponent, QuestionListItemComponent,  MockMatLabelComponent],
-            imports: [ MatSnackBarModule, MatExpansionModule, MatIconModule, NoopAnimationsModule, MatSelectModule],
+            declarations: [MockQuestionCreationFormComponent, QuestionListItemComponent, MockMatLabelComponent],
+            imports: [MatSnackBarModule, MatExpansionModule, MatIconModule, NoopAnimationsModule, MatSelectModule],
         }).compileComponents();
         fixture = TestBed.createComponent(QuestionListItemComponent);
         component = fixture.componentInstance;
         component.question = mockQuestion;
-        component.isBankQuestion = true; 
+        component.isBankQuestion = true;
         component.index = 0;
     });
 

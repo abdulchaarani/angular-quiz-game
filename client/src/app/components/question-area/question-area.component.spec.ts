@@ -1,3 +1,4 @@
+// To let the tests run smoothly
 /* eslint-disable max-classes-per-file */
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable prettier/prettier */
@@ -70,7 +71,7 @@ describe('QuestionAreaComponent', () => {
             'disconnect',
             'sendPlayersData',
             'listenRouteToResultsPage',
-            'routeToResultsPage', 
+            'routeToResultsPage',
         ]);
         socketHelper = new SocketTestHelper();
         socketSpy = new SocketHandlerServiceMock(router);
@@ -310,7 +311,6 @@ describe('QuestionAreaComponent', () => {
         expect(matchRoomSpy.disconnect).toHaveBeenCalled();
     });
 
-    
     it('should call matchRoomService.routeToResultsPage when routeToResultsPage is called', () => {
         component.routeToResultsPage();
 

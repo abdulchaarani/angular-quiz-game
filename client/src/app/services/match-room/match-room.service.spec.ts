@@ -10,6 +10,8 @@ import { MatchRoomService } from './match-room.service';
 import SpyObj = jasmine.SpyObj;
 
 class SocketHandlerServiceMock extends SocketHandlerService {
+    // Override connect() is required to not actually connect the socket
+    // eslint-disable-next-line no-empty-function
     override connect() {}
 }
 
@@ -68,6 +70,7 @@ describe('MatchRoomService', () => {
             { socketId: undefined, expectedResult: '' },
         ];
         for (const { socketId, expectedResult } of cases) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (service.socketService.socket as any).id = socketId;
             expect(service.socketId).toEqual(expectedResult);
         }
@@ -75,13 +78,13 @@ describe('MatchRoomService', () => {
 
     it('getMatchRoomCode() should return match room code', () => {
         const mockCode = 'mockCode';
-        (service as any).matchRoomCode = mockCode;
+        service['matchRoomCode'] = mockCode;
         expect(service.getMatchRoomCode()).toEqual(mockCode);
     });
 
     it('getUsername() should return the username', () => {
         const mockUsername = 'mockUsername';
-        (service as any).username = mockUsername;
+        service['username'] = mockUsername;
         expect(service.getUsername()).toEqual(mockUsername);
     });
 
@@ -91,8 +94,8 @@ describe('MatchRoomService', () => {
         });
         const mockStringifiedGame = 'mockGame';
         service.createRoom(mockStringifiedGame, true);
-        expect((service as any).matchRoomCode).toEqual('mock');
-        expect((service as any).username).toEqual('Organisateur');
+        expect(service['matchRoomCode']).toEqual('mock');
+        expect(service['username']).toEqual('Organisateur');
         expect(router.navigateByUrl).toHaveBeenCalledWith('/play-test');
         expect(spy).toHaveBeenCalledWith('createRoom', { gameId: 'mockGame', isTestPage: true }, jasmine.any(Function));
     });
@@ -103,8 +106,8 @@ describe('MatchRoomService', () => {
         });
         const mockStringifiedGame = 'mockGame';
         service.createRoom(mockStringifiedGame);
-        expect((service as any).matchRoomCode).toEqual('mock');
-        expect((service as any).username).toEqual('Organisateur');
+        expect(service['matchRoomCode']).toEqual('mock');
+        expect(service['username']).toEqual('Organisateur');
         expect(router.navigateByUrl).toHaveBeenCalledWith('/match-room');
         expect(spy).toHaveBeenCalledWith('createRoom', { gameId: 'mockGame', isTestPage: false }, jasmine.any(Function));
     });
@@ -115,8 +118,8 @@ describe('MatchRoomService', () => {
         });
         const sendPlayersSpy = spyOn(service, 'sendPlayersData');
         service.joinRoom('mockSentCode', 'mockSentUsername');
-        expect((service as any).matchRoomCode).toEqual('mockReturnedCode');
-        expect((service as any).username).toEqual('mockReturnedUsername');
+        expect(service['matchRoomCode']).toEqual('mockReturnedCode');
+        expect(service['username']).toEqual('mockReturnedUsername');
         expect(router.navigateByUrl).toHaveBeenCalledWith('/match-room');
         expect(sendSpy).toHaveBeenCalledWith('joinRoom', { roomCode: 'mockSentCode', username: 'mockSentUsername' }, jasmine.any(Function));
         expect(sendPlayersSpy).toHaveBeenCalled();
@@ -130,22 +133,22 @@ describe('MatchRoomService', () => {
     });
 
     it('toggleLock() should send toggleLock event if username is Organisateur', () => {
-        (service as any).username = 'Organisateur';
+        service['username'] = 'Organisateur';
         const spy = spyOn(socketSpy, 'send');
         service.toggleLock();
         expect(spy).toHaveBeenCalled();
     });
 
     it('toggleLock() should not send toggleLock event if username is not Organisateur', () => {
-        (service as any).username = '';
+        service['username'] = '';
         const spy = spyOn(socketSpy, 'send');
         service.toggleLock();
         expect(spy).not.toHaveBeenCalled();
     });
 
     it('banUsername() should send banUsername event if user is host', () => {
-        (service as any).username = 'Organisateur';
-        (service as any).matchRoomCode = '';
+        service['username'] = 'Organisateur';
+        service['matchRoomCode'] = '';
         const sendSpy = spyOn(socketSpy, 'send');
         service.banUsername('mockUsername');
         expect(sendSpy).toHaveBeenCalledWith('banUsername', { roomCode: '', username: 'mockUsername' });
@@ -159,7 +162,7 @@ describe('MatchRoomService', () => {
 
     it('startMatch() should send startMatch event', () => {
         const sendSpy = spyOn(socketSpy, 'send');
-        (service as any).matchRoomCode = '';
+        service['matchRoomCode'] = '';
         service.startMatch();
         expect(sendSpy).toHaveBeenCalledWith('startMatch', '');
     });
@@ -207,7 +210,7 @@ describe('MatchRoomService', () => {
 
     it('nextQuestion() should send nextQuestion event', () => {
         const sendSpy = spyOn(socketSpy, 'send');
-        (service as any).matchRoomCode = '';
+        service['matchRoomCode'] = '';
         service.nextQuestion();
         expect(sendSpy).toHaveBeenCalledWith('nextQuestion', '');
     });
@@ -280,24 +283,24 @@ describe('MatchRoomService', () => {
     });
 
     it('resetMatchValues() should reset matchRoomCode, username, and players', () => {
-        (service as any).matchRoomCode = 'mock';
-        (service as any).username = 'mock';
+        service['matchRoomCode'] = 'mock';
+        service['username'] = 'mock';
         const mockPlayer: Player = {
             username: '',
             score: 0,
             bonusCount: 0,
             isPlaying: true,
         };
-        (service as any).players = [mockPlayer];
+        service['players'] = [mockPlayer];
         service.resetMatchValues();
-        expect((service as any).matchRoomCode).toEqual('');
-        expect((service as any).username).toEqual('');
-        expect((service as any).players).toEqual([]);
+        expect(service['matchRoomCode']).toEqual('');
+        expect(service['username']).toEqual('');
+        expect(service['players']).toEqual([]);
     });
 
     it('routeToResultsPage() should send routeToResultsPage event', () => {
         const sendSpy = spyOn(socketSpy, 'send');
-        (service as any).matchRoomCode = '';
+        service['matchRoomCode'] = '';
         service.routeToResultsPage();
         expect(sendSpy).toHaveBeenCalledWith('routeToResultsPage', '');
     });

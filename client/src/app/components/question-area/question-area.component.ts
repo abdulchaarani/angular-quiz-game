@@ -10,8 +10,8 @@ import { NotificationService } from '@app/services/notification/notification.ser
 import { QuestionContextService } from '@app/services/question-context/question-context.service';
 import { TimeService } from '@app/services/time/time.service';
 import { MULTIPLICATION_FACTOR } from '@common/constants/match-constants';
-import { Subject, Subscription } from 'rxjs';
 import { Feedback } from '@common/interfaces/feedback';
+import { Subject, Subscription } from 'rxjs';
 @Component({
     selector: 'app-question-area',
     templateUrl: './question-area.component.html',
@@ -36,7 +36,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
 
     private subscriptions: Subscription[];
 
-    // permit more constructor parameters to decouple services
+    // Allow more constructor parameters to decouple services
     // eslint-disable-next-line max-params
     constructor(
         private readonly timeService: TimeService,

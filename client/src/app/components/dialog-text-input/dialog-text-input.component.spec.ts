@@ -1,5 +1,7 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+// To let the tests run without errors, mock classes are needed
+/* eslint-disable max-classes-per-file */
 import { Component } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { DialogTextInputComponent } from './dialog-text-input.component';
@@ -35,12 +37,16 @@ describe('DialogTextInputComponent', () => {
     class MockDialogTextInputComponent {}
 
     @Component({
+        // Angular Material Mock: Provided selector does not start by app
+        // eslin-disable-next-line component-selector
         selector: 'mat-form-field',
         template: '',
     })
     class MockMatFormFieldComponent {}
 
     @Component({
+        // Angular Material Mock: Provided selector does not start by app
+        // eslin-disable-next-line component-selector
         selector: 'mat-label',
         template: '',
     })

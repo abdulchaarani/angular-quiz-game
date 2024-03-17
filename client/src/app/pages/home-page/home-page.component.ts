@@ -14,6 +14,8 @@ import { NotificationService } from '@app/services/notification/notification.ser
 export class HomePageComponent {
     password: string;
     input: string;
+    // Services are required to decouple logic
+    // eslint-disable-next-line max-params
     constructor(
         private dialog: MatDialog,
         private readonly adminLoginService: AdminLoginService,

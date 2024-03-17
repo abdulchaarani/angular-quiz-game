@@ -20,7 +20,7 @@ describe('MatchRoomService', () => {
     let notificationService: SpyObj<NotificationService>;
 
     beforeEach(async () => {
-        router = jasmine.createSpyObj('Router', ['navigateByUrl']);
+        router = jasmine.createSpyObj('Router', ['navigateByUrl', 'navigate']);
         notificationService = jasmine.createSpyObj('NotificationService', ['displayErrorMessage']);
 
         socketHelper = new SocketTestHelper();
@@ -61,14 +61,6 @@ describe('MatchRoomService', () => {
         expect(fetchSpy).not.toHaveBeenCalled();
     });
 
-    // it('disconnect() should disconnect the socket and reset match values', () => {
-    //     const resetSpy = spyOn(service, 'resetMatchValues');
-    //     const disconnectSpy = spyOn(socketSpy, 'disconnect').and.callFake(() => {});
-    //     service.disconnect();
-    //     expect(resetSpy).toHaveBeenCalled();
-    //     expect(disconnectSpy).toHaveBeenCalled();
-    // });
-
     it('getSocketId() should return socket id if it is defined, else an empty string', () => {
         const cases = [
             { socketId: 'mock', expectedResult: 'mock' },
@@ -92,17 +84,29 @@ describe('MatchRoomService', () => {
         expect(service.getUsername()).toEqual(mockUsername);
     });
 
-    // it('createRoom should send event, update values for matchRoomCode and username, then redirect to match-room', () => {
-    //     const spy = spyOn(socketSpy, 'send').and.callFake((event, data, cb: Function) => {
-    //         cb({ code: 'mock' });
-    //     });
-    //     const mockStringifiedGame = 'mockGame';
-    //     service.createRoom(mockStringifiedGame);
-    //     expect((service as any).matchRoomCode).toEqual('mock');
-    //     expect((service as any).username).toEqual('Organisateur');
-    //     expect(router.navigateByUrl).toHaveBeenCalledWith('/match-room');
-    //     expect(spy).toHaveBeenCalledWith('createRoom', mockStringifiedGame, jasmine.any(Function));
-    // });
+    it('createRoom should send event, update values for matchRoomCode and username, then redirect to match-room if test room', () => {
+        const spy = spyOn(socketSpy, 'send').and.callFake((event, data, cb: Function) => {
+            cb({ code: 'mock' });
+        });
+        const mockStringifiedGame = 'mockGame';
+        service.createRoom(mockStringifiedGame, true);
+        expect((service as any).matchRoomCode).toEqual('mock');
+        expect((service as any).username).toEqual('Organisateur');
+        expect(router.navigateByUrl).toHaveBeenCalledWith('/play-test');
+        expect(spy).toHaveBeenCalledWith('createRoom', { gameId: 'mockGame', isTestPage: true }, jasmine.any(Function));
+    });
+
+    it('createRoom should send event, update values for matchRoomCode and username, then redirect to match-room if not test room', () => {
+        const spy = spyOn(socketSpy, 'send').and.callFake((event, data, cb: Function) => {
+            cb({ code: 'mock' });
+        });
+        const mockStringifiedGame = 'mockGame';
+        service.createRoom(mockStringifiedGame, false);
+        expect((service as any).matchRoomCode).toEqual('mock');
+        expect((service as any).username).toEqual('Organisateur');
+        expect(router.navigateByUrl).toHaveBeenCalledWith('/match-room');
+        expect(spy).toHaveBeenCalledWith('createRoom', { gameId: 'mockGame', isTestPage: false }, jasmine.any(Function));
+    });
 
     it('joinRoom() should send a joinRoom event, update values, and then a sendPlayersData event', () => {
         const sendSpy = spyOn(socketSpy, 'send').and.callFake((event, data, cb: Function) => {
@@ -124,19 +128,6 @@ describe('MatchRoomService', () => {
         expect(sendSpy).toHaveBeenCalled();
     });
 
-    // it('banUsername() should send banUsername event if user is host', () => {
-    //     (service as any).username = 'Organisateur';
-    //     const sendSpy = spyOn(socketSpy, 'send').and.callFake(() => {});
-    //     service.banUsername('mockUsername');
-    //     expect(sendSpy).toHaveBeenCalledWith('banUsername', { roomCode: '', username: 'mockUsername' });
-    // });
-
-    it('banUsername() should not send banUsername event if user is not host', () => {
-        (service as any).username = '';
-        const sendSpy = spyOn(socketSpy, 'send');
-        service.banUsername('mockUsername');
-        expect(sendSpy).not.toHaveBeenCalled();
-    });
 
     it('toggleLock() should send toggleLock event if username is Organisateur', () => {
         (service as any).username = 'Organisateur';
@@ -150,6 +141,113 @@ describe('MatchRoomService', () => {
         const spy = spyOn(socketSpy, 'send');
         service.toggleLock();
         expect(spy).not.toHaveBeenCalled();
+    });
+
+    it('banUsername() should send banUsername event if user is host', () => {
+        (service as any).username = 'Organisateur';
+        (service as any).matchRoomCode = '';
+        const sendSpy = spyOn(socketSpy, 'send');
+        service.banUsername('mockUsername');
+        expect(sendSpy).toHaveBeenCalledWith('banUsername', { roomCode: '', username: 'mockUsername' });
+    });
+
+    it('should call disconnect of socketService', () => {
+        const disconnectSpy = spyOn(socketSpy, 'disconnect');
+        service.disconnect();
+        expect(disconnectSpy).toHaveBeenCalled();
+    });
+
+    it('startMatch() should send startMatch event', () => {
+        const sendSpy = spyOn(socketSpy, 'send');
+        (service as any).matchRoomCode = '';
+        service.startMatch();
+        expect(sendSpy).toHaveBeenCalledWith('startMatch', '');
+    });
+
+    it('matchStarted() should send matchStarting event and update gameTitle', () => {
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
+            cb({ start: true, gameTitle: 'mockTitle' });
+        });
+        const spy = spyOn(service['startMatchSubject'], 'next');
+        service.matchStarted();
+        socketHelper.peerSideEmit('matchStarting', { start: true, gameTitle: 'mockTitle' });
+        expect(onSpy).toHaveBeenCalled();
+        expect(spy).toHaveBeenCalled();
+    });
+
+    it('beginQuiz() should send beginQuiz event and navigate to /play-test in test room', () => {
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
+            cb({ firstQuestion: 'mockQuestion', gameDuration: 0, isTestRoom: true });
+        });
+        service.beginQuiz();
+        socketHelper.peerSideEmit('beginQuiz', { firstQuestion: 'mockQuestion', gameDuration: 0, isTestRoom: true });
+        expect(onSpy).toHaveBeenCalled();
+        expect(router.navigate).toHaveBeenCalledWith(['/play-test'], { state: { question: 'mockQuestion', duration: 0 } });
+    });
+
+    it('beginQuiz() should send beginQuiz event and navigate to /play-match when not in test room', () => {
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
+            cb({ firstQuestion: 'mockQuestion', gameDuration: 0, isTestRoom: false });
+        });
+        service.beginQuiz();
+        socketHelper.peerSideEmit('beginQuiz', { firstQuestion: 'mockQuestion', gameDuration: 0, isTestRoom: true });
+        expect(onSpy).toHaveBeenCalled();
+        expect(router.navigate).toHaveBeenCalledWith(['/play-match'], { state: { question: 'mockQuestion', duration: 0 } });
+    });
+
+    it('getStartMatchObservable() should return startMatchSubject as observable', () => {
+        const mockSubject = service['startMatchSubject'];
+        expect(service.getStartMatchObservable()).toEqual(mockSubject.asObservable());
+    });
+
+    it('getGameTitleObservable() should return gameTitle as observable', () => {
+        const mockSubject = service['gameTitle'];
+        expect(service.getGameTitleObservable()).toEqual(mockSubject.asObservable());
+    });
+
+    it('nextQuestion() should send nextQuestion event', () => {
+        const sendSpy = spyOn(socketSpy, 'send');
+        (service as any).matchRoomCode = '';
+        service.nextQuestion();
+        expect(sendSpy).toHaveBeenCalledWith('nextQuestion', '');
+    });
+
+    it ('startCooldown() should send startCooldown event', () => {
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
+            cb();
+        });
+        service.startCooldown();
+        socketHelper.peerSideEmit('startCooldown');
+        expect(onSpy).toHaveBeenCalled();
+    });
+
+    it('gameOver() should navigate to /host in test room', () => {
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
+            cb(true);
+        });
+        service.gameOver();
+        socketHelper.peerSideEmit('gameOver', true);
+        expect(onSpy).toHaveBeenCalled();
+        expect(router.navigateByUrl).toHaveBeenCalledWith('/host');
+    });
+
+    it('gameOver() should not navigate to /host when not in test room', () => {
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
+            cb(false);
+        });
+        service.gameOver();
+        socketHelper.peerSideEmit('gameOver', false);
+        expect(onSpy).toHaveBeenCalled();
+        expect(router.navigateByUrl).not.toHaveBeenCalled();
+    });
+
+    it('moveToNextQuestion() should send nextQuestion event', () => {
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
+            cb('mockQuestion');
+        });
+        service.moveToNextQuestion();
+        socketHelper.peerSideEmit('nextQuestion', 'mockQuestion');
+        expect(onSpy).toHaveBeenCalled();
     });
 
     it('fetchPlayersData() should update players when receiving event', () => {
@@ -195,5 +293,22 @@ describe('MatchRoomService', () => {
         expect((service as any).matchRoomCode).toEqual('');
         expect((service as any).username).toEqual('');
         expect((service as any).players).toEqual([]);
+    });
+
+    it('routeToResultsPage() should send routeToResultsPage event', () => {
+        const sendSpy = spyOn(socketSpy, 'send');
+        (service as any).matchRoomCode = '';
+        service.routeToResultsPage();
+        expect(sendSpy).toHaveBeenCalledWith('routeToResultsPage', '');
+    });
+
+    it('listenRouteToResultsPage() should receive the route and navigate to /results', () => {
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
+            cb();
+        });
+        service.listenRouteToResultsPage();
+        socketHelper.peerSideEmit('routeToResultsPage');
+        expect(onSpy).toHaveBeenCalled();
+        expect(router.navigateByUrl).toHaveBeenCalledWith('/results');
     });
 });

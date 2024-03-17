@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Game } from '@app/interfaces/game';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { MatchService } from '@app/services/match/match.service';
@@ -34,7 +35,7 @@ describe('WaitPageComponent', () => {
         timeSpy = jasmine.createSpyObj('TimeService', ['handleTimer', 'handleStopTimer']);
         TestBed.configureTestingModule({
             declarations: [WaitPageComponent, MockChatComponent],
-            imports: [HttpClientTestingModule],
+            imports: [HttpClientTestingModule, MatProgressSpinnerModule],
             providers: [
                 HttpClient,
                 { provide: MatchRoomService, useValue: matchRoomSpy },

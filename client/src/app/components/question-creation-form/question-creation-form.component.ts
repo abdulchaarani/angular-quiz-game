@@ -59,7 +59,7 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
 
             if (isCorrect) {
                 hasCorrect = true;
-            } else if (isCorrect === false) {
+            } else if (!isCorrect) {
                 hasIncorrect = true;
             }
         }

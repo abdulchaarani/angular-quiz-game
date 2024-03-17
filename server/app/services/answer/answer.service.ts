@@ -34,8 +34,10 @@ export class AnswerService {
     // eslint-disable-next-line max-params
     updateChoice(choice: string, selection: boolean, username: string, roomCode: string) {
         const player: Player = this.playerService.getPlayerByUsername(roomCode, username);
-        if (!player.answer.isSubmited) player.answer.selectedChoices.set(choice, selection);
-        this.histogramService.updateHistogram(choice, selection, roomCode);
+        if (!player.answer.isSubmited) {
+            player.answer.selectedChoices.set(choice, selection);
+            this.histogramService.updateHistogram(choice, selection, roomCode);
+        }
     }
 
     submitAnswer(username: string, roomCode: string) {

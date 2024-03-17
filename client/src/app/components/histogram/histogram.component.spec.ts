@@ -18,7 +18,10 @@ describe('HistogramComponent', () => {
 
         fixture = TestBed.createComponent(HistogramComponent);
         component = fixture.componentInstance;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         spyOn<any>(component, 'subscribeToChoiceTally').and.callFake(() => {
+            component.currentQuestion = '';
+            component.choiceTally = [];
         });
         fixture.detectChanges();
     });
@@ -31,50 +34,50 @@ describe('HistogramComponent', () => {
         component.isResultsPage = true;
         component.currentHistogram = {
             question: 'question',
-            choiceTallies: []
+            choiceTallies: [],
         };
         component.ngOnInit();
         expect(component.choiceTally).toEqual(component.currentHistogram.choiceTallies);
     });
 
-    it ('should reset chart and initialize on changes if currentQuestion changes', () => {
+    it('should reset chart and initialize on changes if currentQuestion changes', () => {
         const changes = {
             currentQuestion: {
                 currentValue: 'new question',
                 previousValue: 'old question',
                 firstChange: true,
-                isFirstChange: () => true
+                isFirstChange: () => true,
             },
         };
         spyOn(component, 'resetChart');
         spyOn(component, 'ngOnInit');
-    
+
         component.ngOnChanges(changes);
-    
+
         expect(component.resetChart).toHaveBeenCalled();
         expect(component.ngOnInit).toHaveBeenCalled();
     });
 
-    it ('should reset chart and initialize on changes if currentHistogram changes', () => {
+    it('should reset chart and initialize on changes if currentHistogram changes', () => {
         const changes = {
             currentHistogram: {
                 currentValue: {
                     question: 'new question',
-                    choiceTallies: []
+                    choiceTallies: [],
                 },
                 previousValue: {
                     question: 'old question',
-                    choiceTallies: []
+                    choiceTallies: [],
                 },
                 firstChange: true,
-                isFirstChange: () => true
-            }
+                isFirstChange: () => true,
+            },
         };
         spyOn(component, 'resetChart');
         spyOn(component, 'ngOnInit');
-    
+
         component.ngOnChanges(changes);
-    
+
         expect(component.resetChart).toHaveBeenCalled();
         expect(component.ngOnInit).toHaveBeenCalled();
     });
@@ -83,9 +86,9 @@ describe('HistogramComponent', () => {
         const unsubscribeSpy = jasmine.createSpyObj('unsubscribe', ['unsubscribe']);
         const subscriptions = [unsubscribeSpy, unsubscribeSpy, unsubscribeSpy];
         component['subscriptions'] = subscriptions;
-    
+
         component.ngOnDestroy();
-    
+
         expect(unsubscribeSpy.unsubscribe).toHaveBeenCalledTimes(subscriptions.length);
     });
 
@@ -100,26 +103,26 @@ describe('HistogramComponent', () => {
             {
                 text: 'text',
                 isCorrect: true,
-                tally: 1
+                tally: 1,
             },
             {
                 text: 'text',
                 isCorrect: false,
-                tally: 1
-            }
+                tally: 1,
+            },
         ];
         const data = component.setUpData();
         expect(data).toEqual([
             {
                 label: 'C1 ✅',
                 text: 'text',
-                picks: 1
+                picks: 1,
             },
             {
                 label: 'C2 ❌',
                 text: 'text',
-                picks: 1
-            }
+                picks: 1,
+            },
         ]);
     });
 
@@ -127,51 +130,49 @@ describe('HistogramComponent', () => {
         const params = {
             datum: {
                 text: 'text',
-                picks: 1
-            }
+                picks: 1,
+            },
         };
         const content = component.renderChart(params);
         expect(content).toEqual({
-            content: `Choice: text <br/> Selections: 1`
+            content: 'Choice: text <br/> Selections: 1',
         });
     });
 
-    it ('should format chart', () => {
+    it('should format chart', () => {
         const params = {
             datum: {
-                label: 'C1 ✅'
+                label: 'C1 ✅',
             },
-            xKey: 'label'
+            xKey: 'label',
         };
         const fill = component.formatChart(params);
         expect(fill).toEqual({ fill: 'green' });
     });
 
-    it ('should format chart', () => {
+    it('should format chart', () => {
         const params = {
             datum: {
-                label: 'C2 ❌'
+                label: 'C2 ❌',
             },
-            xKey: 'label'
+            xKey: 'label',
         };
         const fill = component.formatChart(params);
         expect(fill).toEqual({ fill: 'red' });
     });
-
-
 
     it('should set up chart options correctly', () => {
         const data = [
             {
                 label: 'C1 ✅',
                 text: 'text',
-                picks: 1
+                picks: 1,
             },
             {
                 label: 'C2 ❌',
                 text: 'text',
-                picks: 1
-            }
+                picks: 1,
+            },
         ];
         component.currentQuestion = 'Question';
         component['setupChart'](data);
@@ -200,12 +201,11 @@ describe('HistogramComponent', () => {
                     yName: 'Nombre de choix',
                     tooltip: {
                         enabled: true,
-                        renderer :jasmine.any(Function),
+                        renderer: jasmine.any(Function),
                     },
                     formatter: jasmine.any(Function),
                 },
             ],
         });
     });
-
 });

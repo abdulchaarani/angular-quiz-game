@@ -93,7 +93,9 @@ describe('ResultsPageComponent', () => {
         }).compileComponents();
         fixture = TestBed.createComponent(ResultsPageComponent);
         component = fixture.componentInstance;
-        spyOn(component, 'initializeHistograms').and.callFake(() => {});
+        spyOn(component, 'initializeHistograms').and.callFake(() => {
+            component.histogramsGame = [];
+        });
         fixture.detectChanges();
     });
 
@@ -105,14 +107,15 @@ describe('ResultsPageComponent', () => {
         const unsubscribeSpy = jasmine.createSpyObj('unsubscribe', ['unsubscribe']);
         const subscriptions = [unsubscribeSpy, unsubscribeSpy, unsubscribeSpy];
         component['subscriptions'] = subscriptions;
-    
+
         component.ngOnDestroy();
-    
+
         expect(unsubscribeSpy.unsubscribe).toHaveBeenCalledTimes(subscriptions.length);
         expect(component['subscriptions']).toEqual([]);
     });
 
     it('should handle page event', () => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const pageEvent = { pageIndex: 1 } as any;
         component.handlePageEvent(pageEvent);
         expect(component.pageEvent).toEqual(pageEvent);
@@ -123,5 +126,4 @@ describe('ResultsPageComponent', () => {
         component.handleDisconnect();
         expect(matchRoomServiceSpy.disconnect).toHaveBeenCalled();
     });
-
 });

@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import { MOCK_MATCH_ROOM, MOCK_PLAYER, MOCK_ROOM_CODE } from '@app/constants/match-mocks';
 import { TimerEvents } from '@app/constants/timer-events';
-// import { ChoiceHistogram } from '@app/model/choice-histogram/choice-histogram';
 import { Feedback } from '@app/model/schema/answer.schema';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';

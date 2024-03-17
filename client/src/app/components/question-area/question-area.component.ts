@@ -121,7 +121,6 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         this.subscriptions.forEach((subscription) => subscription.unsubscribe());
     }
 
-    // TODO: verify if still needed
     ngOnChanges(changes: SimpleChanges): void {
         if (changes.currentQuestion) {
             const newQuestion = changes.currentQuestion.currentValue;

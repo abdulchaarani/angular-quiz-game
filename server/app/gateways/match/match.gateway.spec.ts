@@ -1,4 +1,3 @@
-// import { getMockGame } from '@app/constants/game-mocks';
 import { MOCK_MATCH_ROOM, MOCK_MESSAGE_INFO, MOCK_PLAYER, MOCK_ROOM_CODE, MOCK_USER_INFO } from '@app/constants/match-mocks';
 import { TimerEvents } from '@app/constants/timer-events';
 import { MatchGateway } from '@app/gateways/match/match.gateway';

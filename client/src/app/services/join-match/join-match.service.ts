@@ -10,9 +10,9 @@ import { environment } from 'src/environments/environment';
 export class JoinMatchService {
     matchRoomCode: string;
     constructor(
-        private matchRoomService: MatchRoomService,
-        private http: HttpClient,
-        private notificationService: NotificationService,
+        private readonly matchRoomService: MatchRoomService,
+        private readonly http: HttpClient,
+        private readonly notificationService: NotificationService,
     ) {
         this.matchRoomCode = '';
     }

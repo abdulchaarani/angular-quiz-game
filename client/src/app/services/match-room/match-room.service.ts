@@ -31,8 +31,8 @@ export class MatchRoomService {
 
     constructor(
         public socketService: SocketHandlerService,
-        private router: Router,
-        private notificationService: NotificationService,
+        private readonly router: Router,
+        private readonly notificationService: NotificationService,
     ) {}
 
     get socketId() {

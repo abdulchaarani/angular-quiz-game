@@ -5,7 +5,7 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class HistogramService {
-    constructor(private matchRoomService: MatchRoomService) {}
+    constructor(private readonly matchRoomService: MatchRoomService) {}
 
     updateHistogram(choice: string, selection: boolean, roomCode: string) {
         const choiceTracker = this.matchRoomService.getMatchRoomByCode(roomCode).currentChoiceTracker;

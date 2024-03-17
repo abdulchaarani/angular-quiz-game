@@ -5,10 +5,10 @@ import { BehaviorSubject } from 'rxjs';
     providedIn: 'root',
 })
 export class TimeService {
-    private timerFinished: BehaviorSubject<boolean>;
-    private interval: number | undefined;
-    private tick;
-    private counter;
+    private readonly timerFinished: BehaviorSubject<boolean>;
+    private readonly interval: number | undefined;
+    private readonly tick;
+    private readonly counter;
 
     constructor() {
         this.timerFinished = new BehaviorSubject<boolean>(false);

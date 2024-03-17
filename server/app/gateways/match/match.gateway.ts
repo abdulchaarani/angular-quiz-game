@@ -23,11 +23,11 @@ export class MatchGateway implements OnGatewayDisconnect {
     // permit more params to decouple services
     // eslint-disable-next-line max-params
     constructor(
-        private matchRoomService: MatchRoomService,
-        private playerRoomService: PlayerRoomService,
-        private matchBackupService: MatchBackupService,
-        private histogramService: HistogramService,
-        private chatService: ChatService,
+        private readonly matchRoomService: MatchRoomService,
+        private readonly playerRoomService: PlayerRoomService,
+        private readonly matchBackupService: MatchBackupService,
+        private readonly histogramService: HistogramService,
+        private readonly chatService: ChatService,
     ) {}
 
     @SubscribeMessage(MatchEvents.JoinRoom)

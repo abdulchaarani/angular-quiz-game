@@ -8,7 +8,7 @@ import { UserInfo } from '@common/interfaces/user-info';
 export class AnwserGateway {
     @WebSocketServer() private server: Server;
 
-    constructor(private answerService: AnswerService) {}
+    constructor(private readonly answerService: AnswerService) {}
 
     @SubscribeMessage(AnswerEvents.SelectChoice)
     selectChoice(@ConnectedSocket() socket: Socket, @MessageBody() choice: ChoiceInfo) {

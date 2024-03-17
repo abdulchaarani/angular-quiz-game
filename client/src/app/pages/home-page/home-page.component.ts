@@ -17,10 +17,10 @@ export class HomePageComponent {
     // Services are required to decouple logic
     // eslint-disable-next-line max-params
     constructor(
-        private dialog: MatDialog,
+        private readonly dialog: MatDialog,
         private readonly adminLoginService: AdminLoginService,
-        private joinMatchService: JoinMatchService,
-        private notificationService: NotificationService,
+        private readonly joinMatchService: JoinMatchService,
+        private readonly notificationService: NotificationService,
     ) {}
     openAdminDialog(): void {
         const dialogRef = this.dialog.open(DialogAdminPasswordComponent, {

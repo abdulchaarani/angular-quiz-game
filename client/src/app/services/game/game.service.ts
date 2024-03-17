@@ -19,7 +19,7 @@ export class GameService extends CommunicationService<Game> {
     constructor(
         http: HttpClient,
         private readonly notificationService: NotificationService,
-        private dialog: MatDialog,
+        private readonly dialog: MatDialog,
     ) {
         super(http, 'admin/games');
         this.games = [];

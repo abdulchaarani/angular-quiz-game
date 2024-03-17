@@ -11,7 +11,7 @@ export class TimeService {
     private initialValue: number;
     private timerFinished: BehaviorSubject<boolean>;
 
-    constructor(private socketService: SocketHandlerService) {
+    constructor(private readonly socketService: SocketHandlerService) {
         this.counter = 0;
         this.initialValue = 0;
         this.timerFinished = new BehaviorSubject<boolean>(false);

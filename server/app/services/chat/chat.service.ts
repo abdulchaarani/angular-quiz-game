@@ -6,7 +6,7 @@ const INDEX_NOT_FOUND = -1;
 
 @Injectable()
 export class ChatService {
-    constructor(private matchRoomService: MatchRoomService) {}
+    constructor(private readonly matchRoomService: MatchRoomService) {}
 
     addMessage(message: Message, roomCode: string) {
         const matchRoomIndex = this.matchRoomService.getRoomIndexByCode(roomCode);

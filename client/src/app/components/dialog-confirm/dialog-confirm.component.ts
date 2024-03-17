@@ -10,7 +10,7 @@ import { AdminQuestionsListComponent } from '@app/pages/admin-page/admin-questio
 })
 export class DialogConfirmComponent {
     constructor(
-        public dialogRef: MatDialogRef<AdminQuestionsListComponent>,
+        private readonly dialogRef: MatDialogRef<AdminQuestionsListComponent>,
         @Inject(MAT_DIALOG_DATA) public data: ConfirmDialogData,
     ) {
         dialogRef.disableClose = true;

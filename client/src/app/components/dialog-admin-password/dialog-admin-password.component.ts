@@ -11,7 +11,7 @@ import { HomePageComponent } from '@app/pages/home-page/home-page.component';
 export class DialogAdminPasswordComponent {
     isHiddenPassword: boolean;
     constructor(
-        private dialogRef: MatDialogRef<HomePageComponent>,
+        private readonly dialogRef: MatDialogRef<HomePageComponent>,
         @Inject(MAT_DIALOG_DATA) public data: PasswordDialogData,
     ) {
         this.isHiddenPassword = true;

@@ -57,8 +57,8 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
         private readonly gamesService: GameService,
         private readonly notificationService: NotificationService,
         private readonly questionService: QuestionService,
-        private route: ActivatedRoute,
-        private router: Router,
+        private readonly route: ActivatedRoute,
+        private readonly router: Router,
     ) {}
 
     canDeactivate(): CanDeactivateType {

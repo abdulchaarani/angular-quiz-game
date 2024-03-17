@@ -28,8 +28,8 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
     disabled: boolean;
 
     constructor(
-        private snackBar: MatSnackBar,
-        private formBuilder: FormBuilder,
+        private readonly snackBar: MatSnackBar,
+        private readonly formBuilder: FormBuilder,
         @Optional() @Inject(MAT_DIALOG_DATA) public dialogData: DialogManagement,
     ) {
         this.initializeForm();

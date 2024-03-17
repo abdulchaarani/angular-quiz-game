@@ -8,11 +8,11 @@ import { Server } from 'socket.io';
 
 @Injectable()
 export class TimeService {
-    private readonly tick;
+    private tick: number;
     private intervals: Map<string, NodeJS.Timeout>;
     private counters: Map<string, number>;
 
-    constructor(private eventEmitter: EventEmitter2) {
+    constructor(private readonly eventEmitter: EventEmitter2) {
         this.counters = new Map();
         this.intervals = new Map();
         this.tick = 1000;

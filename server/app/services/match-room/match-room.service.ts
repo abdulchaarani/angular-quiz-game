@@ -15,7 +15,7 @@ export class MatchRoomService {
     matchRooms: MatchRoom[];
     backgroundHostSocket: Socket;
 
-    constructor(private timeService: TimeService) {
+    constructor(private readonly timeService: TimeService) {
         this.matchRooms = [];
         // this.backgroundHostSocket = this.initializeBackgroundHostSocket();
     }

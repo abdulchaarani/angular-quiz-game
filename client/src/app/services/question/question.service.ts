@@ -10,11 +10,6 @@ import { Observable } from 'rxjs';
     providedIn: 'root',
 })
 export class QuestionService extends CommunicationService<Question> {
-    bankMessages = {
-        unavailable: "👀 Aucune autre question valide de la banque n'est disponible! 👀",
-        available: '🖐 Glissez et déposez une question de la banque dans le jeu! 🖐',
-    };
-
     constructor(
         public dialog: MatDialog,
         http: HttpClient,

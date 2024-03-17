@@ -3,9 +3,9 @@ import { Component, EventEmitter, Inject, Input, OnChanges, OnInit, Optional, Ou
 import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MAX_CHOICES, MIN_CHOICES, SNACK_BAR_DISPLAY_TIME } from '@app/constants/question-creation';
 import { ManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
-import { MIN_CHOICES, MAX_CHOICES, SNACK_BAR_DISPLAY_TIME } from '@app/constants/question-creation';
 export interface DialogManagement {
     modificationState: ManagementState;
 }
@@ -57,7 +57,7 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
         for (let i = 0; i < choices.length; i++) {
             const isCorrect = choices.at(i).get('isCorrect')?.value;
 
-            if (isCorrect === true) {
+            if (isCorrect) {
                 hasCorrect = true;
             } else if (isCorrect === false) {
                 hasIncorrect = true;
@@ -76,7 +76,7 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
         if (choices.length < MAX_CHOICES) {
             this.choices.push(this.buildChoices());
         } else {
-            this.openSnackBar('4 choix est le maximum', SNACK_BAR_DISPLAY_TIME);
+            this.openSnackBar('Il ne peut pas y avoir plus de 4 choix.', SNACK_BAR_DISPLAY_TIME);
             return;
         }
     }
@@ -110,7 +110,7 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
         if (choices.length > MIN_CHOICES) {
             this.choices?.removeAt(index);
         } else {
-            this.openSnackBar('2 choix est le minimum', SNACK_BAR_DISPLAY_TIME);
+            this.openSnackBar('Il ne peut pas y avoir moins de 2 choix', SNACK_BAR_DISPLAY_TIME);
             return;
         }
     }

@@ -14,12 +14,10 @@ export class ChoiceTracker {
     }
 
     incrementCount(key: string): void {
-        if (!this.choices[key]) return;
-        this.choices[key].tally++;
+        if (this.choices[key]) this.choices[key].tally++;
     }
 
     decrementCount(key: string): void {
-        if (!this.choices[key]) return;
-        if (this.choices[key].tally > 0) this.choices[key].tally--;
+        if (this.choices[key] && this.choices[key].tally > 0) this.choices[key].tally--;
     }
 }

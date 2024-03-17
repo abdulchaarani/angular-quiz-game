@@ -28,7 +28,9 @@ export class SocketHandlerService {
         this.socket.on(event, action);
     }
 
-    send<T>(event: string, data?: T, callback?: Function): void {
+    // Any is required to simulate Function type in tests
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    send<T>(event: string, data?: T, callback?: (param: any) => any): void {
         this.socket.emit(event, ...[data, callback].filter((x) => x));
     }
 }

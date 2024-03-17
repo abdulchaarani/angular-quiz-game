@@ -16,17 +16,17 @@ export class ResultsPageComponent implements OnInit, OnDestroy {
     pageEvent: PageEvent;
     players: Player[] = [];
     currentQuestionIndex: number = 0;
+    histogramsGame: Histogram[] = [];
     private subscriptions: Subscription[] = [];
+
     constructor(
         private readonly matchRoomService: MatchRoomService,
         private readonly histogramService: HistogramService,
     ) {}
 
-    histogramsGame: Histogram[] = [];
-
     initializeHistograms() {
         this.subscriptions.push(
-            this.histogramService.histogramHist$.subscribe((histograms: Histogram[]) => {
+            this.histogramService.histogramHistory$.subscribe((histograms: Histogram[]) => {
                 this.histogramsGame = histograms;
             }),
         );

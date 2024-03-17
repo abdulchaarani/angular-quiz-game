@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { HttpResponse } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
@@ -119,7 +120,7 @@ describe('MatchService', () => {
     });
 
     it('createMatch() should connect and create room', () => {
-        (service as any).selectedGame = getMockGame();
+        service['selectedGame'] = getMockGame();
         service.createMatch();
         expect(matchRoomSpy.connect).toHaveBeenCalled();
         expect(matchRoomSpy.createRoom).toHaveBeenCalled();

@@ -5,20 +5,19 @@ import { Player } from '@app/interfaces/player';
 import { Question } from '@app/interfaces/question';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
+import { UserInfo } from '@common/interfaces/user-info';
 import { BehaviorSubject } from 'rxjs';
 import { Observable } from 'rxjs/internal/Observable';
 import { Subject } from 'rxjs/internal/Subject';
 
-interface UserInfo {
-    roomCode: string;
-    username: string;
-}
 @Injectable({
     providedIn: 'root',
 })
 export class MatchRoomService {
     players: Player[];
     messages: Message[];
+    isHostPlaying: boolean;
+    isResults: boolean;
 
     currentQuestion$: Observable<Question>;
     displayCooldown$: Observable<boolean>;
@@ -26,6 +25,7 @@ export class MatchRoomService {
     private gameTitle = new Subject<string>();
     private currentQuestionSource = new Subject<Question>();
     private displayCooldownSource = new BehaviorSubject<boolean>(false);
+
     private matchRoomCode: string;
     private username: string;
 
@@ -70,7 +70,6 @@ export class MatchRoomService {
             this.matchRoomCode = res.code;
             this.username = 'Organisateur';
             if (isTestRoom) {
-                // this.beginQuiz();
                 this.players = [{ username: this.username, score: 0, bonusCount: 0, isPlaying: true }];
                 this.router.navigateByUrl('/play-test');
             } else this.router.navigateByUrl('/match-room');
@@ -142,8 +141,6 @@ export class MatchRoomService {
     }
 
     startCooldown() {
-        console.log('startCooldown');
-
         this.socketService.on('startCooldown', () => {
             this.displayCooldownSource.next(true);
         });
@@ -170,6 +167,12 @@ export class MatchRoomService {
         });
     }
 
+    onHostQuit() {
+        this.socketService.on('hostQuitMatch', () => {
+            this.isHostPlaying = false;
+        });
+    }
+
     redirectAfterDisconnection() {
         this.socketService.on('disconnect', () => {
             this.router.navigateByUrl('/home');
@@ -183,6 +186,7 @@ export class MatchRoomService {
         this.username = '';
         this.players = [];
         this.messages = [];
+        this.isHostPlaying = true;
     }
 
     routeToResultsPage() {
@@ -191,8 +195,18 @@ export class MatchRoomService {
 
     listenRouteToResultsPage() {
         this.socketService.on('routeToResultsPage', () => {
+            this.isResults = true;
             this.router.navigateByUrl('/results');
         });
+    }
+
+    quitGame() {
+        this.disconnect();
+        this.router.navigateByUrl('/home');
+    }
+
+    isRoomEmpty(): boolean {
+        return this.players.every((player) => !player.isPlaying);
     }
 
     private initialiseMatchSubjects() {

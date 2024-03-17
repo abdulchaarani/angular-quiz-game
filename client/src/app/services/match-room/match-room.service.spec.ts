@@ -1,3 +1,5 @@
+// Lines were added to explain why ESlint was disabled at specific lines
+/* eslint-disable max-lines */
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
@@ -9,6 +11,8 @@ import { MatchRoomService } from './match-room.service';
 import SpyObj = jasmine.SpyObj;
 
 class SocketHandlerServiceMock extends SocketHandlerService {
+    // Override connect() is required to not actually connect the socket
+    // eslint-disable-next-line  @typescript-eslint/no-empty-function
     override connect() {}
 }
 
@@ -67,6 +71,7 @@ describe('MatchRoomService', () => {
             { socketId: undefined, expectedResult: '' },
         ];
         for (const { socketId, expectedResult } of cases) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (service.socketService.socket as any).id = socketId;
             expect(service.socketId).toEqual(expectedResult);
         }
@@ -74,48 +79,54 @@ describe('MatchRoomService', () => {
 
     it('getMatchRoomCode() should return match room code', () => {
         const mockCode = 'mockCode';
-        (service as any).matchRoomCode = mockCode;
+        service['matchRoomCode'] = mockCode;
         expect(service.getMatchRoomCode()).toEqual(mockCode);
     });
 
     it('getUsername() should return the username', () => {
         const mockUsername = 'mockUsername';
-        (service as any).username = mockUsername;
+        service['username'] = mockUsername;
         expect(service.getUsername()).toEqual(mockUsername);
     });
 
     it('createRoom should send event, update values for matchRoomCode and username, then redirect to match-room if test room', () => {
-        const spy = spyOn(socketSpy, 'send').and.callFake((event, data, cb: Function) => {
+        // Any is required to simulate Function type in tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const spy = spyOn(socketSpy, 'send').and.callFake((event, data, cb: (param: any) => any) => {
             cb({ code: 'mock' });
         });
         const mockStringifiedGame = 'mockGame';
         service.createRoom(mockStringifiedGame, true);
-        expect((service as any).matchRoomCode).toEqual('mock');
-        expect((service as any).username).toEqual('Organisateur');
+        expect(service['matchRoomCode']).toEqual('mock');
+        expect(service['username']).toEqual('Organisateur');
         expect(router.navigateByUrl).toHaveBeenCalledWith('/play-test');
         expect(spy).toHaveBeenCalledWith('createRoom', { gameId: 'mockGame', isTestPage: true }, jasmine.any(Function));
     });
 
     it('createRoom should send event, update values for matchRoomCode and username, then redirect to match-room if not test room', () => {
-        const spy = spyOn(socketSpy, 'send').and.callFake((event, data, cb: Function) => {
+        // Any is required to simulate Function type in tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const spy = spyOn(socketSpy, 'send').and.callFake((event, data, cb: (param: any) => any) => {
             cb({ code: 'mock' });
         });
         const mockStringifiedGame = 'mockGame';
-        service.createRoom(mockStringifiedGame, false);
-        expect((service as any).matchRoomCode).toEqual('mock');
-        expect((service as any).username).toEqual('Organisateur');
+        service.createRoom(mockStringifiedGame);
+        expect(service['matchRoomCode']).toEqual('mock');
+        expect(service['username']).toEqual('Organisateur');
         expect(router.navigateByUrl).toHaveBeenCalledWith('/match-room');
         expect(spy).toHaveBeenCalledWith('createRoom', { gameId: 'mockGame', isTestPage: false }, jasmine.any(Function));
     });
 
     it('joinRoom() should send a joinRoom event, update values, and then a sendPlayersData event', () => {
-        const sendSpy = spyOn(socketSpy, 'send').and.callFake((event, data, cb: Function) => {
+        // Any is required to simulate Function type in tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const sendSpy = spyOn(socketSpy, 'send').and.callFake((event, data, cb: (param: any) => any) => {
             cb({ code: 'mockReturnedCode', username: 'mockReturnedUsername' });
         });
         const sendPlayersSpy = spyOn(service, 'sendPlayersData');
         service.joinRoom('mockSentCode', 'mockSentUsername');
-        expect((service as any).matchRoomCode).toEqual('mockReturnedCode');
-        expect((service as any).username).toEqual('mockReturnedUsername');
+        expect(service['matchRoomCode']).toEqual('mockReturnedCode');
+        expect(service['username']).toEqual('mockReturnedUsername');
         expect(router.navigateByUrl).toHaveBeenCalledWith('/match-room');
         expect(sendSpy).toHaveBeenCalledWith('joinRoom', { roomCode: 'mockSentCode', username: 'mockSentUsername' }, jasmine.any(Function));
         expect(sendPlayersSpy).toHaveBeenCalled();
@@ -128,24 +139,23 @@ describe('MatchRoomService', () => {
         expect(sendSpy).toHaveBeenCalled();
     });
 
-
     it('toggleLock() should send toggleLock event if username is Organisateur', () => {
-        (service as any).username = 'Organisateur';
+        service['username'] = 'Organisateur';
         const spy = spyOn(socketSpy, 'send');
         service.toggleLock();
         expect(spy).toHaveBeenCalled();
     });
 
     it('toggleLock() should not send toggleLock event if username is not Organisateur', () => {
-        (service as any).username = '';
+        service['username'] = '';
         const spy = spyOn(socketSpy, 'send');
         service.toggleLock();
         expect(spy).not.toHaveBeenCalled();
     });
 
     it('banUsername() should send banUsername event if user is host', () => {
-        (service as any).username = 'Organisateur';
-        (service as any).matchRoomCode = '';
+        service['username'] = 'Organisateur';
+        service['matchRoomCode'] = '';
         const sendSpy = spyOn(socketSpy, 'send');
         service.banUsername('mockUsername');
         expect(sendSpy).toHaveBeenCalledWith('banUsername', { roomCode: '', username: 'mockUsername' });
@@ -159,13 +169,15 @@ describe('MatchRoomService', () => {
 
     it('startMatch() should send startMatch event', () => {
         const sendSpy = spyOn(socketSpy, 'send');
-        (service as any).matchRoomCode = '';
+        service['matchRoomCode'] = '';
         service.startMatch();
         expect(sendSpy).toHaveBeenCalledWith('startMatch', '');
     });
 
     it('matchStarted() should send matchStarting event and update gameTitle', () => {
-        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
+        // Any is required to simulate Function type in tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb({ start: true, gameTitle: 'mockTitle' });
         });
         const spy = spyOn(service['startMatchSubject'], 'next');
@@ -176,7 +188,9 @@ describe('MatchRoomService', () => {
     });
 
     it('beginQuiz() should send beginQuiz event and navigate to /play-test in test room', () => {
-        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
+        // Any is required to simulate Function type in tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb({ firstQuestion: 'mockQuestion', gameDuration: 0, isTestRoom: true });
         });
         service.beginQuiz();
@@ -186,7 +200,9 @@ describe('MatchRoomService', () => {
     });
 
     it('beginQuiz() should send beginQuiz event and navigate to /play-match when not in test room', () => {
-        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
+        // Any is required to simulate Function type in tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb({ firstQuestion: 'mockQuestion', gameDuration: 0, isTestRoom: false });
         });
         service.beginQuiz();
@@ -207,14 +223,16 @@ describe('MatchRoomService', () => {
 
     it('nextQuestion() should send nextQuestion event', () => {
         const sendSpy = spyOn(socketSpy, 'send');
-        (service as any).matchRoomCode = '';
+        service['matchRoomCode'] = '';
         service.nextQuestion();
         expect(sendSpy).toHaveBeenCalledWith('nextQuestion', '');
     });
 
-    it ('startCooldown() should send startCooldown event', () => {
-        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
-            cb();
+    it('startCooldown() should send startCooldown event', () => {
+        // Any is required to simulate Function type in tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
+            cb('');
         });
         service.startCooldown();
         socketHelper.peerSideEmit('startCooldown');
@@ -222,7 +240,9 @@ describe('MatchRoomService', () => {
     });
 
     it('gameOver() should navigate to /host in test room', () => {
-        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
+        // Any is required to simulate Function type in tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb(true);
         });
         service.gameOver();
@@ -232,7 +252,9 @@ describe('MatchRoomService', () => {
     });
 
     it('gameOver() should not navigate to /host when not in test room', () => {
-        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
+        // Any is required to simulate Function type in tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb(false);
         });
         service.gameOver();
@@ -242,7 +264,9 @@ describe('MatchRoomService', () => {
     });
 
     it('moveToNextQuestion() should send nextQuestion event', () => {
-        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
+        // Any is required to simulate Function type in tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb('mockQuestion');
         });
         service.moveToNextQuestion();
@@ -259,7 +283,9 @@ describe('MatchRoomService', () => {
             isPlaying: false,
         };
         const mockStringifiedPlayer = JSON.stringify([mockPlayer]);
-        const onSpy = spyOn(socketHelper, 'on').and.callFake((event: string, cb: Function) => {
+        // Any is required to simulate Function type in tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const onSpy = spyOn(socketHelper, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb({ res: mockStringifiedPlayer });
         });
         const parseSpy = spyOn(JSON, 'parse').and.returnValue([mockPlayer]);
@@ -280,35 +306,72 @@ describe('MatchRoomService', () => {
     });
 
     it('resetMatchValues() should reset matchRoomCode, username, and players', () => {
-        (service as any).matchRoomCode = 'mock';
-        (service as any).username = 'mock';
+        service['matchRoomCode'] = 'mock';
+        service['username'] = 'mock';
         const mockPlayer: Player = {
             username: '',
             score: 0,
             bonusCount: 0,
             isPlaying: true,
         };
-        (service as any).players = [mockPlayer];
+        service['players'] = [mockPlayer];
         service.resetMatchValues();
-        expect((service as any).matchRoomCode).toEqual('');
-        expect((service as any).username).toEqual('');
-        expect((service as any).players).toEqual([]);
+        expect(service['matchRoomCode']).toEqual('');
+        expect(service['username']).toEqual('');
+        expect(service['players']).toEqual([]);
     });
 
     it('routeToResultsPage() should send routeToResultsPage event', () => {
         const sendSpy = spyOn(socketSpy, 'send');
-        (service as any).matchRoomCode = '';
+        service['matchRoomCode'] = '';
         service.routeToResultsPage();
         expect(sendSpy).toHaveBeenCalledWith('routeToResultsPage', '');
     });
 
     it('listenRouteToResultsPage() should receive the route and navigate to /results', () => {
-        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
-            cb();
+        // Any is required to simulate Function type in tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
+            cb('');
         });
         service.listenRouteToResultsPage();
         socketHelper.peerSideEmit('routeToResultsPage');
         expect(onSpy).toHaveBeenCalled();
         expect(router.navigateByUrl).toHaveBeenCalledWith('/results');
+    });
+
+    it('onHostQuit() should set isHostPlaying to false', () => {
+        service.isHostPlaying = true;
+        // Any is required to simulate Function type in tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
+            cb('');
+        });
+        service.onHostQuit();
+        socketHelper.peerSideEmit('hostQuitMatch');
+        expect(onSpy).toHaveBeenCalled();
+    });
+
+    it('quitGame() should navigate to /home and disconnect the socket', () => {
+        const disconnectSpy = spyOn(service, 'disconnect');
+        service.quitGame();
+        expect(disconnectSpy).toHaveBeenCalled();
+        expect(router.navigateByUrl).toHaveBeenCalledWith('/home');
+    });
+
+    it('isRoomEmpty() should return true if there are no more playing players in the room', () => {
+        const player1 = { isPlaying: false } as Player;
+        const player2 = { isPlaying: false } as Player;
+        service.players = [player1, player2];
+        const isRoomEmpty = service.isRoomEmpty();
+        expect(isRoomEmpty).toBe(true);
+    });
+
+    it('isRoomEmpty() should return false if there are still playing players in the room', () => {
+        const player1 = { isPlaying: true } as Player;
+        const player2 = { isPlaying: false } as Player;
+        service.players = [player1, player2];
+        const isRoomEmpty = service.isRoomEmpty();
+        expect(isRoomEmpty).toBe(false);
     });
 });

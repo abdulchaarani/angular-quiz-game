@@ -3,6 +3,6 @@
 import { CanDeactivateFn } from '@angular/router';
 import { CanComponentDeactivate } from '@app/interfaces/can-component-deactivate';
 
-export const pendingChangesGuard: CanDeactivateFn<CanComponentDeactivate> = (component: CanComponentDeactivate) => {
+export const returnGuard: CanDeactivateFn<CanComponentDeactivate> = (component: CanComponentDeactivate) => {
     return component.canDeactivate();
 };

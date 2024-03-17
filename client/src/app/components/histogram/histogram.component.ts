@@ -22,7 +22,7 @@ export class HistogramComponent implements OnInit, OnChanges, OnDestroy {
     constructor(private readonly histogramService: HistogramService) {}
     subscribeToChoiceTally() {
         this.subscriptions.push(
-            this.histogramService.choiceTally$.subscribe((data) => {
+            this.histogramService.currentHistogram$.subscribe((data: { question: string; choiceTallies: ChoiceTally[]; }) => {
                 this.currentQuestion = data.question;
                 this.choiceTally = data.choiceTallies;
                 const dataTally = this.setUpData();
@@ -37,6 +37,7 @@ export class HistogramComponent implements OnInit, OnChanges, OnDestroy {
             this.subscribeToChoiceTally();
         } else {
             this.choiceTally = this.currentHistogram.choiceTallies;
+            this.currentQuestion = this.currentHistogram.question;
             const dataTally = this.setUpData();
             this.setupChart(dataTally);
         }
@@ -77,6 +78,8 @@ export class HistogramComponent implements OnInit, OnChanges, OnDestroy {
         return { fill };
     }
 
+    // AG Charts requires using any; using unknown will cause compilation errors
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     private setupChart(data: any): void {
         this.chartOptions = {
             title: { text: this.currentQuestion },

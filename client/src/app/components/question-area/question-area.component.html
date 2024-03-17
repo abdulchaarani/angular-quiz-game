@@ -9,12 +9,10 @@
                 *ngIf="(showFeedback && context === 'playerView' && !isCooldown) || (showFeedback && context === 'testPage'); else elseBlock"
             >
                 <h1 id="score">SCORE : {{ playerScore }}</h1>
-                <h1 class="points" id="right-answer" *ngIf="bonus > 0 && isRightAnswer">
-                    ✨Bonne Réponse! Vous avez obtenu {{ currentQuestion.points }} points et un bonus de {{ bonus }} points!✨
-                </h1>
-                <h1 class="points" id="right-answer" *ngIf="bonus === 0 && isRightAnswer">
-                    ✨Bonne Réponse! Vous avez obtenu {{ currentQuestion.points }} points et un bonus de {{ bonus }} points!✨
-                </h1>
+                <div *ngIf="isRightAnswer">
+                    <h1 class="points" id="right-answer">👏 Bonne Réponse! Vous avez obtenu {{ currentQuestion.points }} points 👏</h1>
+                    <h1 class="points" id="right-answer" *ngIf="bonus > 0">✨ Vous avec obtenu un bonus de {{ bonus }} points!✨</h1>
+                </div>
                 <h1 class="points" id="wrong-answer" *ngIf="!isRightAnswer">😔Mauvaise Réponse😔</h1>
             </div>
 

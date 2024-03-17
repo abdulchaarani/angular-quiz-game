@@ -1,14 +1,17 @@
+import { MOCK_ROOM_CODE } from '@app/constants/chat-mocks';
 import { MOCK_MATCH_ROOM } from '@app/constants/match-mocks';
 import { Choice } from '@app/model/database/choice';
 import { HistogramService } from '@app/services/histogram/histogram.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
+import { Histogram } from '@common/interfaces/histogram';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 
-xdescribe('HistogramService', () => {
+describe('HistogramService', () => {
     let histogramService: HistogramService;
     let matchRoomService: SinonStubbedInstance<MatchRoomService>;
-    let mockHostSocket;
+    let emitMock;
+    let mockSocket;
 
     const mockMatchRoom = MOCK_MATCH_ROOM;
 
@@ -18,10 +21,14 @@ xdescribe('HistogramService', () => {
             providers: [HistogramService, { provide: MatchRoomService, useValue: matchRoomService }],
         }).compile();
 
-        mockHostSocket = {
-            send: jest.fn(),
+        emitMock = jest.fn();
+
+        mockSocket = {
+            to: jest.fn().mockReturnValueOnce({ emit: emitMock }),
+            send: jest.fn().mockReturnValueOnce({ emit: emitMock }),
+            emit: emitMock,
         };
-        mockMatchRoom.hostSocket = mockHostSocket;
+
         matchRoomService.getMatchRoomByCode.returns(mockMatchRoom);
         histogramService = module.get<HistogramService>(HistogramService);
     });
@@ -33,75 +40,63 @@ xdescribe('HistogramService', () => {
     it('should update histogram and increment if true', () => {
         const choice = 'choice';
         const selection = true;
-        const roomCode = '0001';
-        matchRoomService.getMatchRoomByCode.returns(mockMatchRoom);
         const choiceTracker = mockMatchRoom.currentChoiceTracker;
-        jest.spyOn(choiceTracker, 'incrementCount');
+        const sendHistogramSpy = jest.spyOn(histogramService, 'sendHistogram').mockReturnThis();
+        const incrementCountSpy = jest.spyOn(choiceTracker, 'incrementCount');
+
+        mockMatchRoom.hostSocket = mockSocket;
+        matchRoomService.getMatchRoomByCode.returns(mockMatchRoom);
+
         jest.spyOn(matchRoomService, 'getMatchRoomByCode').mockReturnValue(mockMatchRoom);
-        histogramService.updateHistogram(choice, selection, roomCode);
-        expect(choiceTracker.incrementCount).toHaveBeenCalledWith(choice);
-        expect(matchRoomService.getMatchRoomByCode).toHaveBeenCalledWith(roomCode);
-        expect(matchRoomService.getMatchRoomByCode).toHaveBeenCalledTimes(2);
-        expect(matchRoomService.getMatchRoomByCode(roomCode).currentChoiceTracker.incrementCount).toHaveBeenCalledWith(choice);
-        expect(matchRoomService.getMatchRoomByCode(roomCode).hostSocket.send).toHaveBeenCalledWith('currentHistogram', choiceTracker.choices);
+        histogramService.updateHistogram(choice, selection, MOCK_ROOM_CODE);
+        expect(incrementCountSpy).toHaveBeenCalledWith(choice);
+        expect(matchRoomService.getMatchRoomByCode).toHaveBeenCalledWith(MOCK_ROOM_CODE);
+        expect(matchRoomService.getMatchRoomByCode(MOCK_ROOM_CODE).currentChoiceTracker.incrementCount).toHaveBeenCalledWith(choice);
+        expect(sendHistogramSpy).toHaveBeenCalledWith(MOCK_ROOM_CODE);
     });
 
     it('should update histogram and decrement if false', () => {
         const choice = 'choice';
         const selection = false;
-        const roomCode = '0001';
+        const sendHistogramSpy = jest.spyOn(histogramService, 'sendHistogram').mockReturnThis();
         const choiceTracker = mockMatchRoom.currentChoiceTracker;
-        jest.spyOn(choiceTracker, 'decrementCount');
+        const decrementSpy = jest.spyOn(choiceTracker, 'decrementCount');
         jest.spyOn(matchRoomService, 'getMatchRoomByCode').mockReturnValue(mockMatchRoom);
-        histogramService.updateHistogram(choice, selection, roomCode);
-        expect(choiceTracker.decrementCount).toHaveBeenCalledWith(choice);
-        expect(matchRoomService.getMatchRoomByCode).toHaveBeenCalledWith(roomCode);
-        expect(matchRoomService.getMatchRoomByCode).toHaveBeenCalledTimes(2);
-        expect(matchRoomService.getMatchRoomByCode(roomCode).currentChoiceTracker.decrementCount).toHaveBeenCalledWith(choice);
-        expect(matchRoomService.getMatchRoomByCode(roomCode).hostSocket.send).toHaveBeenCalledWith('currentHistogram', choiceTracker.choices);
+        histogramService.updateHistogram(choice, selection, MOCK_ROOM_CODE);
+        expect(decrementSpy).toHaveBeenCalledWith(choice);
+        expect(matchRoomService.getMatchRoomByCode).toHaveBeenCalledWith(MOCK_ROOM_CODE);
+        expect(matchRoomService.getMatchRoomByCode(MOCK_ROOM_CODE).currentChoiceTracker.decrementCount).toHaveBeenCalledWith(choice);
+        expect(sendHistogramSpy).toHaveBeenCalledWith(MOCK_ROOM_CODE);
     });
 
     it('should save histogram', () => {
-        const matchRoomCode = '0001';
-        jest.spyOn(mockMatchRoom.matchHistograms, 'push');
-        jest.spyOn(matchRoomService, 'getMatchRoomByCode').mockReturnValue(mockMatchRoom);
-        histogramService.saveHistogram(matchRoomCode);
-        expect(matchRoomService.getMatchRoomByCode).toHaveBeenCalledWith(matchRoomCode);
-        expect(matchRoomService.getMatchRoomByCode).toHaveBeenCalledTimes(2);
-        expect(mockMatchRoom.matchHistograms.push).toHaveBeenCalledWith(mockMatchRoom.currentChoiceTracker);
+        const pushSpy = jest.spyOn(mockMatchRoom.matchHistograms, 'push');
+        const histogram = histogramService['buildHistogram'](mockMatchRoom.currentChoiceTracker);
+        histogramService.saveHistogram(MOCK_ROOM_CODE);
+        expect(pushSpy).toHaveBeenCalledWith(histogram);
     });
 
-    // it('should send histogram history', () => {
-    //     const matchRoomCode = '0001';
-    //     mockMatchRoom.hostSocket = mockHostSocket;
-    //     const histograms = mockMatchRoom.matchHistograms.map((choiceTracker) => choiceTracker.choices);
-    //     jest.spyOn(matchRoomService, 'getMatchRoomByCode').mockReturnValue(mockMatchRoom);
-    //     histogramService.sendHistogramHistory(matchRoomCode);
-    //     expect(mockMatchRoom.hostSocket.send).toHaveBeenCalledWith('histogramHistory', histograms);
-    //     expect(matchRoomService.getMatchRoomByCode).toHaveBeenCalledWith(matchRoomCode);
-    //     expect(matchRoomService.getMatchRoomByCode).toHaveBeenCalledTimes(1);
-    // });
+    it('should send histogram history', () => {
+        mockMatchRoom.hostSocket = mockSocket;
+        const histograms = (mockMatchRoom.matchHistograms = [] as Histogram[]);
+        histogramService.sendHistogramHistory(MOCK_ROOM_CODE);
+        expect(emitMock).toHaveBeenCalledWith('histogramHistory', histograms);
+    });
 
     it('should reset choice histogram', () => {
-        const matchRoomCode = '0001';
-        const possibleChoices: Choice[] = mockMatchRoom.game.questions[mockMatchRoom.currentQuestionIndex].choices;
+        const possibleChoices: Choice[] = mockMatchRoom.game.questions[0].choices;
         jest.spyOn(mockMatchRoom.currentChoiceTracker, 'resetChoiceTracker');
         jest.spyOn(matchRoomService, 'getMatchRoomByCode').mockReturnValue(mockMatchRoom);
-        histogramService['resetChoiceTracker'](matchRoomCode);
+        histogramService['resetChoiceTracker'](MOCK_ROOM_CODE);
         expect(mockMatchRoom.game.questions[mockMatchRoom.currentQuestionIndex].choices).toEqual(possibleChoices);
-        expect(mockMatchRoom.currentChoiceTracker.resetChoiceTracker).toHaveBeenCalledWith(possibleChoices);
-        expect(matchRoomService.getMatchRoomByCode).toHaveBeenCalledWith(matchRoomCode);
-        expect(matchRoomService.getMatchRoomByCode).toHaveBeenCalledTimes(1);
+        expect(mockMatchRoom.currentChoiceTracker.resetChoiceTracker).toHaveBeenCalledWith(mockMatchRoom.game.questions[0].text, possibleChoices);
+        expect(matchRoomService.getMatchRoomByCode).toHaveBeenCalledWith(MOCK_ROOM_CODE);
     });
 
     it('should send histogram', () => {
-        const roomCode = '0001';
-        const choiceTracker = mockMatchRoom.currentChoiceTracker;
-        jest.spyOn(matchRoomService, 'getMatchRoomByCode').mockReturnValue(mockMatchRoom);
-        jest.spyOn(mockMatchRoom.hostSocket, 'send');
-        histogramService['sendHistogram'](roomCode);
-        expect(mockMatchRoom.hostSocket.send).toHaveBeenCalledWith('currentHistogram', choiceTracker.choices);
-        expect(matchRoomService.getMatchRoomByCode).toHaveBeenCalledWith(roomCode);
-        expect(matchRoomService.getMatchRoomByCode).toHaveBeenCalledTimes(1);
+        mockMatchRoom.hostSocket = mockSocket;
+        histogramService['sendHistogram'](MOCK_ROOM_CODE);
+        const histogram = histogramService['buildHistogram'](mockMatchRoom.currentChoiceTracker);
+        expect(emitMock).toHaveBeenCalledWith('currentHistogram', histogram);
     });
 });

@@ -1,4 +1,4 @@
-import { FAKE_COUNTER, FAKE_INTERVAL, FAKE_ROOM_ID, TICK, TIMER_VALUE } from '@app/constants/time-mocks';
+import { FAKE_COUNTER, FAKE_ROOM_ID, TICK, TIMER_VALUE } from '@app/constants/time-mocks';
 import { TimerEvents } from '@app/constants/timer-events';
 import { MatchGateway } from '@app/gateways/match/match.gateway';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -6,6 +6,15 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { BroadcastOperator, Server } from 'socket.io';
 import { TimeService } from './time.service';
+
+const FAKE_INTERVAL = new Map<string, NodeJS.Timeout>([
+    [
+        FAKE_ROOM_ID,
+        setInterval(() => {
+            /* do nothing */
+        }),
+    ],
+]);
 
 describe('TimeService', () => {
     let service: TimeService;
@@ -60,16 +69,24 @@ describe('TimeService', () => {
         expect(service['intervals'].get(FAKE_ROOM_ID)).toBeDefined();
     });
 
-    // it('should emit stopTimer event when time has run out', () => {
-    //     service['counters'] = FAKE_COUNTER;
-    //     const spy = jest.spyOn(service, 'expireTimer');
-    //     server.to.returns({
-    //         emit: (event: string) => {
-    //             expect(event).toEqual('stopTimer');
-    //         },
-    //     } as BroadcastOperator<unknown, unknown>);
-    //     service.startTimer(server, '2990', 0, TimerEvents.CountdownTimerExpired);
-    //     jest.advanceTimersByTime(TICK);
-    //     expect(spy).toHaveBeenCalled();
-    // });
+    it('should call expire timer and reset timer with terminate timer when time runs out', () => {
+        service['counters'] = FAKE_COUNTER;
+        const terminateSpy = jest.spyOn(service, 'terminateTimer');
+        const expireSpy = jest.spyOn(service, 'expireTimer');
+        server.in.returns({
+            emit: (event: string) => {
+                expect(event).toEqual('timer');
+            },
+        } as BroadcastOperator<unknown, unknown>);
+
+        server.to.returns({
+            emit: (event: string) => {
+                expect(event).toEqual('stopTimer');
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        service.startTimer(server, '2990', 0, TimerEvents.CountdownTimerExpired);
+        jest.advanceTimersByTime(TICK);
+        expect(terminateSpy).toHaveBeenCalled();
+        expect(expireSpy).toHaveBeenCalled();
+    });
 });

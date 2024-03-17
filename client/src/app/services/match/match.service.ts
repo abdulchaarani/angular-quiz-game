@@ -4,6 +4,7 @@ import { Game } from '@app/interfaces/game';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { Subject } from 'rxjs';
+import { QuestionContextService } from '@app/services/question-context/question-context.service';
 
 @Injectable({
     providedIn: 'root',
@@ -14,9 +15,11 @@ export class MatchService extends CommunicationService<Game> {
 
     private questionAdvanceSubject = new Subject<void>();
     private selectedGame: Game;
+
     constructor(
         http: HttpClient,
         private readonly matchRoomService: MatchRoomService,
+        private readonly questionContextService: QuestionContextService,
     ) {
         super(http, 'match');
     }
@@ -60,7 +63,8 @@ export class MatchService extends CommunicationService<Game> {
         return this.delete(`backups/${id}`);
     }
 
-    createMatch(isTestPage: boolean = false) {
+    createMatch() {
+        const isTestPage = this.questionContextService.getContext() === 'testPage';
         this.matchRoomService.connect();
         this.matchRoomService.createRoom(this.selectedGame.id, isTestPage);
     }

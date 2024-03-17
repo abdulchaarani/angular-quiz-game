@@ -21,10 +21,6 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    &::-webkit-scrollbar {
-        width: 0;
-        background: transparent; 
-    }
 }
 
 @keyframes slideUp {

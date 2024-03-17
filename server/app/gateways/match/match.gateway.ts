@@ -14,7 +14,6 @@ import { MessageInfo } from '@common/interfaces/message-info';
 import { HistogramService } from '@app/services/histogram/histogram.service';
 import { ConnectedSocket, MessageBody, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 
-// Future TODO: Open socket only if code and user are valid + Allow host to be able to disconnect banned players
 @WebSocketGateway({ cors: true })
 @Injectable()
 export class MatchGateway implements OnGatewayDisconnect {
@@ -64,11 +63,9 @@ export class MatchGateway implements OnGatewayDisconnect {
     @SubscribeMessage(MatchEvents.RouteToResultsPage)
     routeToResultsPage(@ConnectedSocket() socket: Socket, @MessageBody() matchRoomCode: string) {
         this.server.to(matchRoomCode).emit(MatchEvents.RouteToResultsPage);
-        const histograms = this.histogramService.sendHistogramHistory(matchRoomCode);
-        this.server.to(matchRoomCode).emit(MatchEvents.HistogramHistory, histograms);
+        this.emitHistogramHistory(matchRoomCode);
     }
 
-    // TODO: Consider using HTTP instead ?
     @SubscribeMessage(MatchEvents.ToggleLock)
     toggleLock(@ConnectedSocket() socket: Socket, @MessageBody() matchRoomCode: string) {
         this.matchRoomService.toggleLockMatchRoom(matchRoomCode);
@@ -98,10 +95,6 @@ export class MatchGateway implements OnGatewayDisconnect {
         this.sendMessageToClients(data);
     }
 
-    // @SubscribeMessage(MatchEvents.StartTimer)
-    // startTimer(@ConnectedSocket() socket: Socket, @MessageBody() data: TimerInfo) {
-    //     this.timeService.startTimer(data.roomCode, data.time, this.server);
-    // }
     @SubscribeMessage(MatchEvents.SendMessagesHistory)
     sendMessagesHistory(@ConnectedSocket() socket: Socket, @MessageBody() matchRoomCode: string) {
         if (socket.rooms.has(matchRoomCode)) {
@@ -109,11 +102,6 @@ export class MatchGateway implements OnGatewayDisconnect {
         }
     }
 
-    // @SubscribeMessage(MatchEvents.StopTimer)
-    // stopTimer(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
-    //     this.timeService.stopTimer(roomCode, this.server);
-    // }
-    // TODO: Start match: Do not forget to make isPlaying = true in MatchRoom object!!
     @SubscribeMessage(MatchEvents.StartMatch)
     startMatch(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
         this.matchRoomService.markGameAsPlaying(roomCode);
@@ -149,7 +137,7 @@ export class MatchGateway implements OnGatewayDisconnect {
             return;
         }
         const room = this.matchRoomService.getMatchRoomByCode(roomCode);
-        const isRoomEmpty = room.players.every((player) => !player.isPlaying);
+        const isRoomEmpty = this.isRoomEmpty(room);
         if (room.isPlaying && isRoomEmpty) {
             this.deleteMatchRoom(roomCode);
             return;
@@ -174,5 +162,14 @@ export class MatchGateway implements OnGatewayDisconnect {
 
     handleSentMessagesHistory(matchRoomCode: string) {
         this.server.to(matchRoomCode).emit('fetchOldMessages', this.chatService.getMessages(matchRoomCode));
+    }
+
+    private emitHistogramHistory(matchRoomCode) {
+        const histograms = this.histogramService.sendHistogramHistory(matchRoomCode);
+        this.server.to(matchRoomCode).emit(MatchEvents.HistogramHistory, histograms);
+    }
+
+    private isRoomEmpty(room: MatchRoom) {
+        return room.players.every((player) => !player.isPlaying);
     }
 }

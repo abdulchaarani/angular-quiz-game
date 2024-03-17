@@ -44,7 +44,9 @@ describe('HistogramService', () => {
             question: 'question',
             choiceTallies: [],
         };
-        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
+        // Any is required to simulate Function type in tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb({ histogram });
         });
 
@@ -55,7 +57,9 @@ describe('HistogramService', () => {
 
     it('should call histogramHistory', () => {
         const histogram: Histogram[] = [];
-        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
+        // Any is required to simulate Function type in tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb({ histogram });
         });
 

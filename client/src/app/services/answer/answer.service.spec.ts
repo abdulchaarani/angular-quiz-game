@@ -77,7 +77,9 @@ describe('AnswerService', () => {
     it('should receive feedback', () => {
         const feedback: Feedback = { correctAnswer: ['A'], score: 100 };
 
-        const feedbackSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
+        // Any is required to simulate Function type in tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const feedbackSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb(feedback);
         });
 
@@ -90,7 +92,9 @@ describe('AnswerService', () => {
     it('should receive bonus points', () => {
         const bonusPoints = 100;
 
-        const bonusPointsSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
+        // Any is required to simulate Function type in tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const bonusPointsSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb(bonusPoints);
         });
 
@@ -101,8 +105,10 @@ describe('AnswerService', () => {
     });
 
     it('should receive gameOver event', () => {
-        const gameOverSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
-            cb();
+        // Any is required to simulate Function type in tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const gameOverSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => void) => {
+            cb('');
         });
         service.gameOver();
         socketHelper.peerSideEmit('endGame');

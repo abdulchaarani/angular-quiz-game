@@ -13,6 +13,8 @@ import { OnEvent } from '@nestjs/event-emitter';
 
 @Injectable()
 export class AnswerService {
+    // Allow more constructor parameters to decouple services
+    // eslint-disable-next-line max-params
     constructor(
         private matchRoomService: MatchRoomService,
         private playerService: PlayerRoomService,

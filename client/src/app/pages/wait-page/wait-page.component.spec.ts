@@ -90,7 +90,7 @@ describe('WaitPageComponent', () => {
 
     it('time() should return the time of the timeService', () => {
         const time = 100;
-        (component.timeService as any).time = time;
+        component.timeService['time'] = time;
         expect(component.time).toEqual(time);
     });
 

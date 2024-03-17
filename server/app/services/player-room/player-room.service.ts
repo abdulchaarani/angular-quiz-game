@@ -5,6 +5,7 @@ import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
 
 const INDEX_NOT_FOUND = -1;
+const HOST_USERNAME = 'ORGANISATEUR';
 
 @Injectable()
 export class PlayerRoomService {
@@ -106,7 +107,7 @@ export class PlayerRoomService {
 
     isValidUsername(matchRoomCode: string, username: string) {
         if (this.matchRoomService.getMatchRoomByCode(matchRoomCode).isTestRoom) return true;
-        const hasHostConflict = username.toUpperCase() === 'ORGANISATEUR';
+        const hasHostConflict = username.toUpperCase() === HOST_USERNAME;
         const isBannedUsername = this.isBannedUsername(matchRoomCode, username);
         const isUsedUsername = this.getPlayerByUsername(matchRoomCode, username) ? true : false;
         return !hasHostConflict && !isBannedUsername && !isUsedUsername;

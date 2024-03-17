@@ -51,7 +51,7 @@ describe('QuestionCreationFormComponent', () => {
                 MatFormFieldModule,
                 MatInputModule,
                 NoopAnimationsModule,
-               // BrowserAnimationsModule,
+                // BrowserAnimationsModule,
                 MatIconModule,
             ],
             providers: [{ provide: MatSnackBar, useValue: snackBarSpyObj }, FormBuilder, { provide: MAT_DIALOG_DATA, useValue: dialogData }],

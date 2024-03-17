@@ -1,21 +1,20 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { DialogAdminPasswordComponent } from './dialog-admin-password.component';
-import { FormsModule } from '@angular/forms';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatExpansionModule } from '@angular/material/expansion';
+// To let the tests run without errors, mock classes are needed
+/* eslint-disable max-classes-per-file */
 import { Component } from '@angular/core';
-
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { DialogAdminPasswordComponent } from './dialog-admin-password.component';
 
 @Component({
     selector: 'app-chat',
     template: '',
 })
 class MockChatComponent {}
-
 
 @Component({
     selector: 'app-histogram',
@@ -24,6 +23,8 @@ class MockChatComponent {}
 class MockAppHistogramComponent {}
 
 @Component({
+    // Angular Material Mock: Provided selector does not start by app
+    /* eslint-disable @angular-eslint/component-selector */
     selector: 'mat-icon',
     template: '',
 })
@@ -44,11 +45,11 @@ describe('DialogAdminPasswordComponent', () => {
         TestBed.configureTestingModule({
             imports: [MatDialogModule, FormsModule, MatFormFieldModule, MatInputModule, BrowserAnimationsModule, MatExpansionModule],
             declarations: [
-                DialogAdminPasswordComponent, 
-                MockChatComponent, 
+                DialogAdminPasswordComponent,
+                MockChatComponent,
                 MockAppHistogramComponent,
                 MockAppPlayersListComponent,
-                MockMatIconComponent
+                MockMatIconComponent,
             ],
             providers: [
                 {

@@ -185,6 +185,7 @@ describe('BankService', () => {
         const newQuestion = getMockQuestion();
         newQuestion.text = question.text;
         newQuestion.id = '';
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const duplicateResult = (service as any).isDuplicateQuestion(newQuestion, [question]);
         expect(duplicateResult).toBeTruthy();
     });

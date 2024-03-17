@@ -1,3 +1,5 @@
+// Mock classes are required to avoid errors during tests
+/* eslint-disable max-classes-per-file */
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
@@ -9,12 +11,16 @@ import { AgChartsAngularModule } from 'ag-charts-angular';
 import { ResultsPageComponent } from './results-page.component';
 
 @Component({
+    // Component is provided by Angular Material; therefore, its selector starts with mat
+    // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'mat-label',
     template: '',
 })
 class MockMatLabelComponent {}
 
 @Component({
+    // Angular Material Mock: Provided selector does not start by app
+    // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'mat-icon',
     template: '',
 })
@@ -33,6 +39,8 @@ class MockChatComponent {}
 class MockPlayersListComponent {}
 
 @Component({
+    // Angular Material Mock: Provided selector does not start by app
+    // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'mat-form-field',
     template: '',
 })

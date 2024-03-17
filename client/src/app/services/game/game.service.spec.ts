@@ -176,6 +176,7 @@ describe('GameService', () => {
         // Reference: https://stackoverflow.com/questions/64642547/how-can-i-test-the-filereader-onload-callback-function-in-angular-jasmine
         const addStringifiedGameSpy = spyOn(service, 'addStringifiedGame');
         const mockFile = new File([JSON.stringify(NEW_MOCK_GAME)], 'file.json', { type: 'application/json' });
+        expect(true).toBeTruthy();
         await service.readFile(mockFile).then(() => {
             expect(addStringifiedGameSpy).toHaveBeenCalled();
         });

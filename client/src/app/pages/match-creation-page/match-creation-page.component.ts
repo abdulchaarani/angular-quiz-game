@@ -16,6 +16,8 @@ export class MatchCreationPageComponent implements OnInit {
     selectedGame: Game;
     gameIsValid: boolean;
 
+    // Services are required to decouple logic
+    // eslint-disable-next-line max-params
     constructor(
         private gameService: GameService,
         private notificationService: NotificationService,

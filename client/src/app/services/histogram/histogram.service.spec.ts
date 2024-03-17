@@ -2,13 +2,15 @@ import { TestBed } from '@angular/core/testing';
 
 import { Router } from '@angular/router';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
+import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 import { Histogram } from '@common/interfaces/histogram';
 import { Socket } from 'socket.io-client';
-import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 import { HistogramService } from './histogram.service';
 import SpyObj = jasmine.SpyObj;
 
 class SocketHandlerServiceMock extends SocketHandlerService {
+    // Override is required to not actually connect the socket
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     override connect() {}
 }
 
@@ -42,7 +44,9 @@ describe('HistogramService', () => {
             question: 'question',
             choiceTallies: [],
         };
-        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
+        // Any is required to simulate Function type in tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb({ histogram });
         });
 
@@ -53,7 +57,9 @@ describe('HistogramService', () => {
 
     it('should call histogramHistory', () => {
         const histogram: Histogram[] = [];
-        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
+        // Any is required to simulate Function type in tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb({ histogram });
         });
 

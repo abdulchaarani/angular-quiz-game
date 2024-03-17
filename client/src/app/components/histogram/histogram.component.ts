@@ -64,6 +64,8 @@ export class HistogramComponent implements OnInit, OnChanges, OnDestroy {
         }));
     }
 
+    // AG Charts requires using any; using unknown will cause compilation errors
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     private setupChart(data: any): void {
         this.chartOptions = {
             title: { text: this.currentQuestion },

@@ -8,7 +8,7 @@ import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { MatchService } from '@app/services/match/match.service';
 import { QuestionContextService } from '@app/services/question-context/question-context.service';
 import { TimeService } from '@app/services/time/time.service';
-import { of } from 'rxjs'; // Add import for 'of' from 'rxjs' package
+import { of } from 'rxjs';
 import { WaitPageComponent } from './wait-page.component';
 import SpyObj = jasmine.SpyObj;
 

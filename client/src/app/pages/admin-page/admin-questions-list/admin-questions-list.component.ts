@@ -40,7 +40,6 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
     currentQuestion: Question;
     currentBankMessage = '';
     addToBank: boolean;
-    // addToBankToggleButtonState: boolean = false;
 
     gameForm = new FormGroup({
         title: new FormControl('', Validators.required),

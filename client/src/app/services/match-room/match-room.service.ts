@@ -87,7 +87,7 @@ export class MatchRoomService {
     }
 
     sendPlayersData(roomCode: string) {
-        this.socketService.send('sendPlayersData', roomCode); // Updates the list for everyone with new player
+        this.socketService.send('sendPlayersData', roomCode);
     }
 
     toggleLock() {

@@ -3,17 +3,8 @@ import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
 import { Body, Controller, Get, HttpStatus, Param, Post, Res } from '@nestjs/common';
 import { Response } from 'express';
-
-// TODO: Consider migrating interfaces in separate file
-
-interface MatchRoomCodeInfo {
-    matchRoomCode: string;
-}
-
-interface MatchUsernameInfo {
-    matchRoomCode: string;
-    username: string;
-}
+import { MatchRoomCodeInfo } from '@common/interfaces/match-room-code-info';
+import { MatchUsernameInfo } from '@common/interfaces/match-username-info';
 
 @Controller('match')
 export class MatchController {

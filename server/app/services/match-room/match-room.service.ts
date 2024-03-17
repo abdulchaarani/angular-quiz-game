@@ -17,13 +17,7 @@ export class MatchRoomService {
 
     constructor(private readonly timeService: TimeService) {
         this.matchRooms = [];
-        // this.backgroundHostSocket = this.initializeBackgroundHostSocket();
     }
-
-    // initializeBackgroundHostSocket(): Socket {
-    //     const mockSocket = new Socket(); // Placeholder, use your actual method to create or reference a socket
-    //     return mockSocket;
-    // }
 
     generateRoomCode(): string {
         let generatedCode: string;

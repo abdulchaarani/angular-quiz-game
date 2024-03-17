@@ -1,15 +1,9 @@
 import { Injectable } from '@angular/core';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
+import { ChoiceInfo } from '@common/interfaces/choice-info';
 import { Feedback } from '@common/interfaces/feedback';
+import { UserInfo } from '@common/interfaces/user-info';
 import { Observable, Subject } from 'rxjs';
-interface UserInfo {
-    roomCode: string;
-    username: string;
-}
-interface ChoiceInfo {
-    userInfo: UserInfo;
-    choice: string;
-}
 @Injectable({
     providedIn: 'root',
 })

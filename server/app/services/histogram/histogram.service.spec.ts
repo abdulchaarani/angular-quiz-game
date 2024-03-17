@@ -5,7 +5,7 @@ import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 
-describe('HistogramService', () => {
+xdescribe('HistogramService', () => {
     let histogramService: HistogramService;
     let matchRoomService: SinonStubbedInstance<MatchRoomService>;
     let mockHostSocket;

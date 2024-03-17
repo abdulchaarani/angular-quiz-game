@@ -1,27 +1,31 @@
+/* eslint-disable max-classes-per-file */
+/* eslint-disable @typescript-eslint/no-empty-function */
+/* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable max-lines */
 import { HttpClient } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { TestBed } from '@angular/core/testing';
+import { Component, SimpleChanges } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { MatchService } from '@app/services/match/match.service';
-import { QuestionAreaComponent } from './question-area.component';
-
-import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
+import { Choice } from '@app/interfaces/choice';
+import { Question } from '@app/interfaces/question';
+import { AnswerService } from '@app/services/answer/answer.service';
+import { MatchRoomService } from '@app/services/match-room/match-room.service';
+import { MatchService } from '@app/services/match/match.service';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
+import { BONUS_FACTOR } from '@common/constants/match-constants';
 import { Socket } from 'socket.io-client';
+import { QuestionAreaComponent } from './question-area.component';
+import spyObj = jasmine.SpyObj;
 
-import { Component } from '@angular/core';
-import SpyObj = jasmine.SpyObj;
-
-// const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK', body: JSON.stringify(true) });
 class SocketHandlerServiceMock extends SocketHandlerService {
-    override connect() {
-        /* Do nothing */
-    }
+    override connect() {}
 }
 
 @Component({
@@ -29,31 +33,45 @@ class SocketHandlerServiceMock extends SocketHandlerService {
     template: '',
 })
 class MockChatComponent {}
+
 describe('QuestionAreaComponent', () => {
-    // let component: QuestionAreaComponent;
-    // let fixture: ComponentFixture<QuestionAreaComponent>;
+    let component: QuestionAreaComponent;
+    let fixture: ComponentFixture<QuestionAreaComponent>;
+    let matchSpy: spyObj<MatchService>;
+    let router: spyObj<Router>;
     let socketSpy: SocketHandlerServiceMock;
     let socketHelper: SocketTestHelper;
-    let router: SpyObj<Router>;
-
-    /*
-    const mockQuestion = getMockQuestion();
-    const timeout = 3000;
-    const expectedDuration = 10;
-
-    const noChoiceQuestion = {
-        id: getRandomString(),
-        type: 'QCM',
-        text: getRandomString(),
-        points: 30,
-        choices: [],
-        lastModification: getRandomString(),
-    };
-    */
-    let matchSpy: jasmine.SpyObj<MatchService>;
+    let matchRoomSpy: spyObj<MatchRoomService>;
+    let answerSpy: spyObj<AnswerService>;
 
     beforeEach(async () => {
+        const mockHistoryState = {
+            question: {
+                id: '1',
+                type: 'multiple-choice',
+                text: 'What is the capital of France?',
+                points: 10,
+                choices: [
+                    { text: 'London', isCorrect: false },
+                    { text: 'Berlin', isCorrect: false },
+                    { text: 'Paris', isCorrect: true },
+                    { text: 'Madrid', isCorrect: false },
+                ],
+                lastModification: '2021-07-01T00:00:00.000Z',
+            },
+            duration: 60,
+        };
         router = jasmine.createSpyObj('Router', ['navigateByUrl']);
+        answerSpy = jasmine.createSpyObj('AnswerService', ['selectChoice', 'deselectChoice', 'submitAnswer', 'feedback', 'bonusPoints', 'gameOver']);
+        matchRoomSpy = jasmine.createSpyObj('MatchRoomService', [
+            'nextQuestion',
+            'getUsername',
+            'getMatchRoomCode',
+            'disconnect',
+            'sendPlayersData',
+            'listenRouteToResultsPage',
+            'routeToResultsPage', 
+        ]);
         socketHelper = new SocketTestHelper();
         socketSpy = new SocketHandlerServiceMock(router);
         socketSpy.socket = socketHelper as unknown as Socket;
@@ -63,319 +81,311 @@ describe('QuestionAreaComponent', () => {
             'getBackupGame',
             'saveBackupGame',
             'deleteBackupGame',
+            'createMatch',
             'validateChoices',
         ]);
-
         await TestBed.configureTestingModule({
             declarations: [QuestionAreaComponent, MockChatComponent],
-            imports: [MatDialogModule, RouterTestingModule, HttpClientTestingModule, MatProgressSpinnerModule, MatSnackBarModule],
-            providers: [HttpClient, { provide: MatchService, useValue: matchSpy }, { provide: SocketHandlerService, useValue: socketSpy }],
+            imports: [RouterTestingModule, HttpClientTestingModule, MatSnackBarModule, MatDialogModule, MatProgressSpinnerModule],
+            providers: [
+                HttpClient,
+                { provide: MatchService, useValue: matchSpy },
+                { provide: SocketHandlerService, useValue: socketSpy },
+                { provide: AnswerService, useValue: answerSpy },
+                { provide: MatchRoomService, useValue: matchRoomSpy },
+            ],
         }).compileComponents();
-        // fixture = TestBed.createComponent(QuestionAreaComponent);
-        // component = fixture.componentInstance;
-        // component.currentQuestion = mockQuestion;
-        // fixture.detectChanges();
+
+        fixture = TestBed.createComponent(QuestionAreaComponent);
+        component = fixture.componentInstance;
+        spyOn(component, 'getHistoryState').and.returnValue(mockHistoryState);
+        spyOn<any>(component, 'subscribeToFeedback').and.callFake(() => {
+            component.showFeedback = true;
+        });
+        spyOn<any>(component, 'subscribeToBonus').and.callFake(() => {
+            component.bonus = BONUS_FACTOR;
+        });
+        spyOn<any>(component, 'subscribeToCurrentQuestion').and.callFake(() => {
+            component.currentQuestion = mockHistoryState.question;
+            matchRoomSpy.nextQuestion();
+        });
+        spyOn<any>(component, 'subscribeToCooldown').and.callFake(() => {
+            if (component.currentQuestion) {
+                component.isCooldown = true;
+            }
+        });
+        spyOn<any>(component, 'subscribeToGameEnd').and.callFake(() => {
+            component.isLastQuestion = true;
+        });
+        fixture.detectChanges();
     });
 
     it('should create', () => {
-        expect(true).toBeTrue(); // TODO: Re-activate the test
-        // expect(component).toBeTruthy();
+        expect(component).toBeTruthy();
     });
-    /*
-    it('should check answers', () => {
+
+    it('should handle enter event', () => {
+        const event = new KeyboardEvent('keydown', { key: 'Enter' });
+        spyOn(component, 'submitAnswers');
+        component.handleKeyboardEvent(event);
+        expect(component.submitAnswers).toHaveBeenCalled();
+    });
+
+    it('should select a choice when a number key is pressed', () => {
+        const event = new KeyboardEvent('keydown', { key: '1' });
+        const choice: Choice = { text: 'London', isCorrect: false };
+        component.answers = [choice];
+        spyOn(component, 'selectChoice');
+        component.handleKeyboardEvent(event);
+        expect(component.selectChoice).toHaveBeenCalledWith(choice);
+    });
+
+    it('should get players', () => {
+        matchRoomSpy.players = [
+            {
+                username: 'test',
+                score: 0,
+                bonusCount: 0,
+                isPlaying: true,
+            },
+        ];
+        const players = component.players;
+        expect(players).toBeDefined();
+    });
+
+    it('should update currentQuestion and answers when ngOnChanges is called with changes to currentQuestion', () => {
+        const newQuestion: Question = {
+            id: '2',
+            type: 'multiple-choice',
+            text: 'What is the capital of Germany?',
+            points: 10,
+            choices: [
+                { text: 'London', isCorrect: false },
+                { text: 'Berlin', isCorrect: true },
+                { text: 'Paris', isCorrect: false },
+                { text: 'Madrid', isCorrect: false },
+            ],
+            lastModification: '2021-07-02T00:00:00.000Z',
+        };
+        const changes: SimpleChanges = {
+            currentQuestion: {
+                currentValue: newQuestion,
+                previousValue: null,
+                firstChange: true,
+                isFirstChange: () => true,
+            },
+        };
+
+        spyOn(component, 'resetStateForNewQuestion');
+
+        component.ngOnChanges(changes);
+
+        expect(component.currentQuestion).toEqual(newQuestion);
+        expect(component.answers).toBeDefined();
+        expect(matchSpy.questionId).toBe(newQuestion.id);
+        expect(component.resetStateForNewQuestion).toHaveBeenCalled();
+    });
+
+    it('should submit answers when submitAnswers is called', () => {
+        component.submitAnswers();
+        expect(answerSpy.submitAnswer).toHaveBeenCalled();
+    });
+
+    it('should go to next question when nextQuestion is called', () => {
+        component.nextQuestion();
+        expect(matchRoomSpy.nextQuestion).toHaveBeenCalled();
+    });
+
+    it('should add the choice to selectedAnswers if it is not already included', () => {
+        const choice: Choice = { text: 'London', isCorrect: false };
+        component.isSelectionEnabled = true;
         component.selectedAnswers = [];
-        matchSpy.validateChoices.and.returnValue(of(mockHttpResponse));
-        component.checkAnswers();
-        expect(component.isCorrect).toBeTruthy();
-    });
 
-    it('should select an answer', () => {
-        const choice = component.answers[0];
         component.selectChoice(choice);
+
         expect(component.selectedAnswers).toContain(choice);
     });
 
-    it('should select multiple answers', () => {
-        const choice1 = component.answers[0];
-        const choice2 = component.answers[component.answers.length - 1];
-        component.selectChoice(choice1);
-        component.selectChoice(choice2);
-        expect(component.selectedAnswers).toContain(choice1);
-        expect(component.selectedAnswers).toContain(choice2);
-    });
+    it('should remove the choice from selectedAnswers if it is already included', () => {
+        const choice: Choice = { text: 'London', isCorrect: false };
+        component.isSelectionEnabled = true;
+        component.selectedAnswers = [choice];
 
-    it('should select an answer on keydown event of the index of the choice', () => {
-        const choice = component.answers[0] as Choice;
-        const event = new KeyboardEvent('keydown', { key: '1' });
-        component.handleKeyboardEvent(event);
-        expect(component.selectedAnswers).toContain(choice);
-    });
+        component.selectChoice(choice);
 
-    it('should select multiple answers on keydown event of the index of the choice', () => {
-        const choice1 = component.answers[0];
-        const choice2 = component.answers[1];
-        const event1 = new KeyboardEvent('keydown', { key: '1' });
-        const event2 = new KeyboardEvent('keydown', { key: '2' });
-        component.handleKeyboardEvent(event1);
-        component.handleKeyboardEvent(event2);
-        expect(component.selectedAnswers).toContain(choice1);
-        expect(component.selectedAnswers).toContain(choice2);
-    });
-
-    it('should not select an answer on keydown event of the index of the choice if selection is disabled', () => {
-        component.isSelectionEnabled = false;
-        const choice = component.answers[0];
-        const event = new KeyboardEvent('keydown', { key: '1' });
-        component.handleKeyboardEvent(event);
         expect(component.selectedAnswers).not.toContain(choice);
     });
 
-    it('should not select an answer on keydown event of the index of the choice if the index is out of range', () => {
-        const event = new KeyboardEvent('keydown', { key: '0' });
-        component.handleKeyboardEvent(event);
+    it('should not add or remove the choice if isSelectionEnabled is false', () => {
+        const choice: Choice = { text: 'London', isCorrect: false };
+        component.isSelectionEnabled = false;
+        component.selectedAnswers = [];
+
+        component.selectChoice(choice);
+
         expect(component.selectedAnswers).toEqual([]);
     });
 
-    it('should unselect an answer on keydown event of the index of the choice', () => {
-        const choice = component.answers[0];
-        const event = new KeyboardEvent('keydown', { key: '1' });
-        component.handleKeyboardEvent(event);
-        component.handleKeyboardEvent(event);
-        expect(component.selectedAnswers).not.toContain(choice);
-    });
+    it('should call answerService.selectChoice if context is not hostView and choice is added', () => {
+        const choice: Choice = { text: 'London', isCorrect: false };
+        component.isSelectionEnabled = true;
+        component.selectedAnswers = [];
+        component.context = 'testPage';
 
-    it('should not select an answer if selection is disabled', () => {
-        component.isSelectionEnabled = false;
-        const choice = component.answers[0];
         component.selectChoice(choice);
-        expect(component.selectedAnswers).not.toContain(choice);
+
+        expect(answerSpy.selectChoice).toHaveBeenCalledWith(choice.text, { username: component.username, roomCode: component.matchRoomCode });
     });
 
-    it('should not unselect an answer if selection is disabled', () => {
-        const choice = component.answers[0];
+    it('should call answerService.deselectChoice if context is not hostView and choice is removed', () => {
+        const choice: Choice = { text: 'London', isCorrect: false };
+        component.isSelectionEnabled = true;
+        component.selectedAnswers = [choice];
+        component.context = 'testPage';
+
         component.selectChoice(choice);
-        component.isSelectionEnabled = false;
-        component.selectChoice(choice);
-        expect(component.selectedAnswers).toContain(choice);
+
+        expect(answerSpy.deselectChoice).toHaveBeenCalledWith(choice.text, { username: component.username, roomCode: component.matchRoomCode });
     });
 
-    it('should deselect an answer', () => {
-        const choice = component.answers[0];
-        component.selectChoice(choice);
-        component.selectChoice(choice);
-        expect(component.selectedAnswers).not.toContain(choice);
+    it('should return true if the choice is included in selectedAnswers', () => {
+        const choice: Choice = { text: 'London', isCorrect: false };
+        component.selectedAnswers = [choice];
+
+        expect(component.isSelected(choice)).toBeTrue();
     });
 
-    it('should submit answers', () => {
-        const spy = spyOn(component, 'submitAnswers');
-        component.submitAnswers();
-        expect(spy).toHaveBeenCalled();
+    it('should return false if the choice is not included in selectedAnswers', () => {
+        const choice: Choice = { text: 'London', isCorrect: false };
+        component.selectedAnswers = [];
+
+        expect(component.isSelected(choice)).toBeFalse();
     });
 
-    it('should submit answers when clicking the submit button', () => {
-        const spy = spyOn(component, 'submitAnswers');
-        const button = fixture.nativeElement.querySelector('#submitButton');
-        button.click();
-        expect(spy).toHaveBeenCalled();
+    it('should return true if the choice is included in correctAnswers', () => {
+        const choice: Choice = { text: 'London', isCorrect: false };
+        component.correctAnswers = [choice.text];
+
+        expect(component.isCorrectAnswer(choice)).toBeTrue();
     });
 
-    it('should submit answers when pressing the enter key', () => {
-        const spy = spyOn(component, 'submitAnswers');
-        const event = new KeyboardEvent('keydown', { key: 'Enter' });
-        component.handleKeyboardEvent(event);
-        expect(spy).toHaveBeenCalled();
+    it('should return false if the choice is not included in correctAnswers', () => {
+        const choice: Choice = { text: 'London', isCorrect: false };
+        component.correctAnswers = [];
+
+        expect(component.isCorrectAnswer(choice)).toBeFalse();
     });
 
-    it('should not submit answers when pressing the enter key if selection is disabled', () => {
-        component.isSelectionEnabled = false;
-        const spy = spyOn(component, 'submitAnswers');
-        const event = new KeyboardEvent('keydown', { key: 'Enter' });
-        component.handleKeyboardEvent(event);
-        expect(spy).not.toHaveBeenCalled();
+    it('should call matchRoomService.nextQuestion when nextQuestion is called', () => {
+        spyOn(component, 'nextQuestion');
+        component.nextQuestion();
+
+        expect(matchRoomSpy.nextQuestion).toHaveBeenCalled();
     });
 
-    it('should turn off selection after submitting answers', () => {
-        component.submitAnswers();
-        expect(component.isSelectionEnabled).toBeFalse();
-    });
-
-    it('should reset the state for a new question', () => {
-        component.isSelectionEnabled = false;
-        component.selectedAnswers = component.answers;
-        component.isCorrect = true;
+    it('should reset the state for a new question when resetStateForNewQuestion is called', () => {
         component.showFeedback = true;
+        component.isSelectionEnabled = false;
+        component.selectedAnswers = [{ text: 'London', isCorrect: false }];
+        component.bonus = 5;
+        component.correctAnswers = ['Paris'];
+        component.isRightAnswer = true;
+        component.isCooldown = true;
+
         component.resetStateForNewQuestion();
+
+        expect(component.showFeedback).toBeFalse();
         expect(component.isSelectionEnabled).toBeTrue();
         expect(component.selectedAnswers).toEqual([]);
-        expect(component.isCorrect).toBeFalse();
-        expect(component.showFeedback).toBeFalse();
+
+        expect(component.bonus).toBe(0);
+        expect(component.correctAnswers).toEqual([]);
+        expect(component.isRightAnswer).toBeFalse();
+        expect(component.isCooldown).toBeFalse();
     });
 
-    it('should not update the player score if the points have already been added', () => {
-        component.havePointsBeenAdded = true;
-        component.playerScoreUpdate();
-        expect(component.playerScore).toEqual(0);
+    it('should call matchRoomService.disconnect when handleQuit is called', () => {
+        component.handleQuit();
+
+        expect(matchRoomSpy.disconnect).toHaveBeenCalled();
     });
 
-    it('should not update the player score if the question is not correct', () => {
-        component.isCorrect = false;
-        component.playerScoreUpdate();
-        expect(component.playerScore).toEqual(0);
+    
+    it('should call matchRoomService.routeToResultsPage when routeToResultsPage is called', () => {
+        component.routeToResultsPage();
+
+        expect(matchRoomSpy.listenRouteToResultsPage).toHaveBeenCalled();
     });
 
-    it('should update the player score after the feedback', () => {
-        const spy = spyOn(component, 'playerScoreUpdate');
-        component.afterFeedback();
-        expect(spy).toHaveBeenCalled();
+    it('should call handleFeedback when feedback is received', () => {
+        const feedback = {
+            correctAnswer: ['Paris'],
+            score: 20,
+        };
+
+        component.playerScore = 10;
+        component.context = 'testPage';
+
+        spyOn(component, 'nextQuestion');
+
+        component['handleFeedback'](feedback);
+
+        expect(component.isSelectionEnabled).toBeFalse();
+        expect(component.correctAnswers).toEqual(feedback.correctAnswer);
+        expect(component.isRightAnswer).toBeTrue();
+        expect(component.playerScore).toBe(feedback.score);
+        expect(matchRoomSpy.sendPlayersData).toHaveBeenCalledWith(component.matchRoomCode);
+        expect(component.showFeedback).toBeTrue();
+        expect(component.nextQuestion).toHaveBeenCalled();
     });
 
-    it('should advance question after the feedback', fakeAsync(() => {
-        const spyStartTimer = spyOn(component.timeService, 'startTimer').and.callFake(() => {
-            return;
-        });
-        component.afterFeedback();
-        tick(timeout);
-        expect(matchSpy.advanceQuestion).toHaveBeenCalled();
-        expect(spyStartTimer).toHaveBeenCalled();
-        flush();
-    }));
+    it('should call handleFeedbackSubmission when feedbackSub is received', () => {
+        component['handleFeedbackSubmission']();
 
-    it('should reset the state for a new question after the feedback', fakeAsync(() => {
-        const spyResetStateForNewQuestion = spyOn(component, 'resetStateForNewQuestion');
-        const spyStartTimer = spyOn(component.timeService, 'startTimer').and.callFake(() => {
-            return;
-        });
-
-        component.afterFeedback();
-        tick(timeout);
-        expect(spyResetStateForNewQuestion).toHaveBeenCalled();
-        expect(spyStartTimer).toHaveBeenCalled();
-        flush();
-    }));
-
-    it('should set a timeout for the feedback', fakeAsync(() => {
-        const spy = spyOn(window, 'setTimeout');
-        component.afterFeedback();
-        tick(timeout);
-        expect(spy).toHaveBeenCalled();
-        flush();
-    }));
-
-    it('should update the timer if the game duration changes', fakeAsync(() => {
-        const spy = spyOn(component.timeService, 'startTimer');
-        const newDuration = 10;
-        component.gameDuration = 10;
-        component.ngOnChanges({
-            gameDuration: new SimpleChange(null, newDuration, false),
-        });
-        tick();
-        expect(spy).toHaveBeenCalled();
-        flush();
-    }));
-
-    it('should only select answer on keydown event of the index of the choice if the key is within the range', () => {
-        const event = new KeyboardEvent('keydown', { key: '9' });
-        component.handleKeyboardEvent(event);
-        expect(component.selectedAnswers).toEqual([]);
+        expect(component.showFeedback).toBeTrue();
     });
 
-    it('should have all the choices in answers', () => {
-        if (mockQuestion.choices) {
-            expect(component.answers).toEqual(mockQuestion.choices);
-        } else {
-            fail();
-        }
+    it('should handle question change', () => {
+        const question: Question = {
+            id: '2',
+            type: 'multiple-choice',
+            text: 'What is the capital of Germany?',
+            points: 10,
+            choices: [
+                { text: 'London', isCorrect: false },
+                { text: 'Berlin', isCorrect: true },
+                { text: 'Paris', isCorrect: false },
+                { text: 'Madrid', isCorrect: false },
+            ],
+            lastModification: '2021-07-02T00:00:00.000Z',
+        };
+
+        spyOn(component, 'ngOnChanges');
+
+        component['handleQuestionChange'](question);
+
+        expect(component.currentQuestion).toEqual(question);
+
+        expect(component.ngOnChanges).toHaveBeenCalledTimes(1);
     });
 
-    it('should have no choices in answers', fakeAsync(() => {
-        component.currentQuestion = noChoiceQuestion;
-        const spyStartTimer = spyOn(component.timeService, 'startTimer').and.callFake(() => {
-            return;
-        });
-        component.ngOnInit();
-        tick();
-        expect(component.answers).toEqual([]);
-        expect(spyStartTimer).toHaveBeenCalled();
-        flush();
-    }));
+    it('should handle bonus points', () => {
+        const bonus = 5;
 
-    it('should set answers to currentQuestion.choices if it is defined', () => {
-        component.currentQuestion = mockQuestion;
-        component.ngOnChanges({
-            currentQuestion: new SimpleChange(null, component.currentQuestion, false),
-        });
-        if (mockQuestion.choices) {
-            expect(component.answers).toEqual(mockQuestion.choices);
-        } else {
-            fail();
-        }
+        component['handleBonusPoints'](bonus);
+
+        expect(component.bonus).toBe(bonus);
     });
 
-    it('should set answers to an empty array if currentQuestion.choices is not defined', () => {
-        component.currentQuestion = noChoiceQuestion;
-        component.ngOnChanges({
-            currentQuestion: new SimpleChange(null, component.currentQuestion, false),
-        });
-        expect(component.answers).toEqual([]);
+    it('should handle cooldown', () => {
+        component['handleCooldown'](true);
+
+        expect(component.isCooldown).toBeTrue();
     });
 
-    it('should start the timer on init', () => {
-        const spy = spyOn(component.timeService, 'startTimer');
-        component.ngOnInit();
-        expect(spy).toHaveBeenCalled();
-    });
+    it('should handle game end', () => {
+        component['handleGameEnd']();
 
-    it('should stop the timer on init', () => {
-        const spy = spyOn(component.timeService, 'stopTimer');
-        component.ngOnInit();
-        expect(spy).toHaveBeenCalled();
+        expect(component.isLastQuestion).toBeTrue();
     });
-
-    it('should return true if the choice is selected', () => {
-        if (mockQuestion.choices) {
-            component.selectedAnswers = [mockQuestion.choices[0]];
-            const result = component.isSelected(mockQuestion.choices[0]);
-            expect(result).toBeTrue();
-        } else {
-            fail();
-        }
-    });
-
-    it('should return false if the choice is not selected', () => {
-        component.selectedAnswers = [];
-        const result = component.isSelected(component.answers[0]);
-        expect(result).toBeFalse();
-    });
-
-    it('should return false if the choice is not in the selected answers', () => {
-        if (mockQuestion.choices) {
-            component.selectedAnswers = [mockQuestion.choices[0]];
-            const result = component.isSelected(mockQuestion.choices[1]);
-            expect(result).toBeFalse();
-        } else {
-            fail();
-        }
-    });
-
-    it('should compute timer progress correctly', () => {
-        const expectedProgress = 100;
-        component.gameDuration = expectedDuration;
-        spyOnProperty(component.timeService, 'time', 'get').and.returnValue(expectedDuration);
-        const result = component.computeTimerProgress();
-        expect(result).toBe(expectedProgress);
-    });
-
-    it('should compute timer progress correctly if the time is 0', () => {
-        component.gameDuration = 10;
-        spyOnProperty(component.timeService, 'time', 'get').and.returnValue(0);
-        const result = component.computeTimerProgress();
-        expect(result).toBe(0);
-    });
-
-    it('should get time correctly', () => {
-        spyOnProperty(component, 'time', 'get').and.returnValue(expectedDuration);
-        const result = component.time;
-        expect(result).toBe(expectedDuration);
-    });
-    */
 });

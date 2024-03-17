@@ -35,7 +35,6 @@ export class HistogramComponent implements OnInit, OnChanges, OnDestroy {
         } else {
             this.choiceTally = this.currentHistogram.choiceTallies;
             const dataTally = this.setUpData();
-            console.log(dataTally);
             this.setupChart(dataTally);
         }
     }

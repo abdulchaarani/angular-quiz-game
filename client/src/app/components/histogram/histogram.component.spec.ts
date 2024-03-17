@@ -123,4 +123,89 @@ describe('HistogramComponent', () => {
         ]);
     });
 
+    it('should render chart', () => {
+        const params = {
+            datum: {
+                text: 'text',
+                picks: 1
+            }
+        };
+        const content = component.renderChart(params);
+        expect(content).toEqual({
+            content: `Choice: text <br/> Selections: 1`
+        });
+    });
+
+    it ('should format chart', () => {
+        const params = {
+            datum: {
+                label: 'C1 ✅'
+            },
+            xKey: 'label'
+        };
+        const fill = component.formatChart(params);
+        expect(fill).toEqual({ fill: 'green' });
+    });
+
+    it ('should format chart', () => {
+        const params = {
+            datum: {
+                label: 'C2 ❌'
+            },
+            xKey: 'label'
+        };
+        const fill = component.formatChart(params);
+        expect(fill).toEqual({ fill: 'red' });
+    });
+
+
+
+    it('should set up chart options correctly', () => {
+        const data = [
+            {
+                label: 'C1 ✅',
+                text: 'text',
+                picks: 1
+            },
+            {
+                label: 'C2 ❌',
+                text: 'text',
+                picks: 1
+            }
+        ];
+        component.currentQuestion = 'Question';
+        component['setupChart'](data);
+
+        expect(component.chartOptions).toEqual({
+            title: { text: 'Question' },
+            axes: [
+                {
+                    type: 'category',
+                    position: 'bottom',
+                    title: { text: 'Choix de réponse' },
+                },
+                {
+                    type: 'number',
+                    position: 'left',
+                    title: { text: 'Nombre de sélections' },
+                },
+            ],
+            data,
+            series: [
+                {
+                    type: 'bar',
+                    xKey: 'label',
+                    xName: 'Choix de réponse',
+                    yKey: 'picks',
+                    yName: 'Nombre de choix',
+                    tooltip: {
+                        enabled: true,
+                        renderer :jasmine.any(Function),
+                    },
+                    formatter: jasmine.any(Function),
+                },
+            ],
+        });
+    });
+
 });

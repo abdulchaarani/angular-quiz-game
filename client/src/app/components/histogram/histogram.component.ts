@@ -66,6 +66,17 @@ export class HistogramComponent implements OnInit, OnChanges, OnDestroy {
         }));
     }
 
+    renderChart(params: any) {
+        return {
+            content: `Choice: ${params.datum.text} <br/> Selections: ${params.datum.picks}`,
+        };
+    }
+
+    formatChart(params: any) {
+        const fill = params.datum[params.xKey].includes('✅') ? 'green' : 'red';
+        return { fill };
+    }
+
     private setupChart(data: any): void {
         this.chartOptions = {
             title: { text: this.currentQuestion },
@@ -91,16 +102,9 @@ export class HistogramComponent implements OnInit, OnChanges, OnDestroy {
                     yName: 'Nombre de choix',
                     tooltip: {
                         enabled: true,
-                        renderer: (params: any) => {
-                            return {
-                                content: `Choice: ${params.datum.text} <br/> Selections: ${params.datum.picks}`,
-                            };
-                        },
+                        renderer: (params: any) => this.renderChart(params),
                     },
-                    formatter: (params: any) => {
-                        const fill = params.datum[params.xKey].includes('✅') ? 'green' : 'red';
-                        return { fill };
-                    },
+                    formatter: (params: any) => this.formatChart(params),
                 },
             ],
         };

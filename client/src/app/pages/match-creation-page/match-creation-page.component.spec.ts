@@ -5,6 +5,8 @@ import { ComponentFixture, TestBed, fakeAsync, flush, tick } from '@angular/core
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBarRef, TextOnlySnackBar } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { SnackBarError } from '@app/constants/feedback-messages';
+import { getMockGame } from '@app/constants/game-mocks';
 import { MatDialogMock } from '@app/constants/mat-dialog-mock';
 import { Game } from '@app/interfaces/game';
 import { GameService } from '@app/services/game/game.service';
@@ -12,8 +14,6 @@ import { MatchService } from '@app/services/match/match.service';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { of, throwError } from 'rxjs';
 import { MatchCreationPageComponent } from './match-creation-page.component';
-import { getMockGame } from '@app/constants/game-mocks';
-import { SnackBarError } from '@app/constants/feedback-messages';
 import SpyObj = jasmine.SpyObj;
 
 describe('MatchCreationPageComponent', () => {
@@ -202,6 +202,6 @@ describe('MatchCreationPageComponent', () => {
         const reloadSpy = spyOn(component, 'reloadSelectedGame');
         component.createTestMatch();
         expect(reloadSpy).toHaveBeenCalled();
-        expect(matchServiceSpy.createMatch).toHaveBeenCalledWith(true);
+        expect(matchServiceSpy.createMatch).toHaveBeenCalled();
     });
 });

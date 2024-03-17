@@ -3,6 +3,7 @@ import { MOCK_MATCH_ROOM, MOCK_MESSAGE_INFO, MOCK_PLAYER, MOCK_ROOM_CODE, MOCK_U
 import { TimerEvents } from '@app/constants/timer-events';
 import { MatchGateway } from '@app/gateways/match/match.gateway';
 import { ChatService } from '@app/services/chat/chat.service';
+import { HistogramService } from '@app/services/histogram/histogram.service';
 import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
@@ -13,8 +14,9 @@ import { SinonStubbedInstance, createStubInstance, stub } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 
-xdescribe('MatchGateway', () => {
+describe('MatchGateway', () => {
     let gateway: MatchGateway;
+    let histogramSpy: SinonStubbedInstance<HistogramService>;
     let matchRoomSpy: SinonStubbedInstance<MatchRoomService>;
     let matchBackupSpy: SinonStubbedInstance<MatchBackupService>;
     let timeSpy: SinonStubbedInstance<TimeService>;
@@ -25,6 +27,7 @@ xdescribe('MatchGateway', () => {
     let eventEmitter: EventEmitter2;
 
     beforeEach(async () => {
+        histogramSpy = createStubInstance(HistogramService);
         matchRoomSpy = createStubInstance(MatchRoomService);
         matchBackupSpy = createStubInstance(MatchBackupService);
         timeSpy = createStubInstance(TimeService);
@@ -36,6 +39,7 @@ xdescribe('MatchGateway', () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 MatchGateway,
+                { provide: HistogramService, useValue: histogramSpy },
                 { provide: MatchRoomService, useValue: matchRoomSpy },
                 { provide: MatchBackupService, useValue: matchBackupSpy },
                 { provide: TimeService, useValue: timeSpy },
@@ -194,6 +198,12 @@ xdescribe('MatchGateway', () => {
         server.in.returns({
             disconnectSockets: () => {
                 return null;
+            },
+        } as BroadcastOperator<unknown, unknown>);
+
+        server.to.returns({
+            emit: (event: string) => {
+                expect(event).toEqual('hostQuitMatch');
             },
         } as BroadcastOperator<unknown, unknown>);
         gateway.deleteMatchRoom('');

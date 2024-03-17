@@ -102,9 +102,9 @@ export class HistogramComponent implements OnInit, OnChanges, OnDestroy {
                     yName: 'Nombre de choix',
                     tooltip: {
                         enabled: true,
-                        renderer: (params: any) => this.renderChart(params),
+                        renderer: this.renderChart.bind(this),
                     },
-                    formatter: (params: any) => this.formatChart(params),
+                    formatter: this.formatChart.bind(this),
                 },
             ],
         };

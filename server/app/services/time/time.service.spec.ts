@@ -60,16 +60,24 @@ describe('TimeService', () => {
         expect(service['intervals'].get(FAKE_ROOM_ID)).toBeDefined();
     });
 
-    // it('should emit stopTimer event when time has run out', () => {
-    //     service['counters'] = FAKE_COUNTER;
-    //     const spy = jest.spyOn(service, 'expireTimer');
-    //     server.to.returns({
-    //         emit: (event: string) => {
-    //             expect(event).toEqual('stopTimer');
-    //         },
-    //     } as BroadcastOperator<unknown, unknown>);
-    //     service.startTimer(server, '2990', 0, TimerEvents.CountdownTimerExpired);
-    //     jest.advanceTimersByTime(TICK);
-    //     expect(spy).toHaveBeenCalled();
-    // });
+    it('should call expire timer and reset timer with terminate timer when time runs out', () => {
+        service['counters'] = FAKE_COUNTER;
+        const terminateSpy = jest.spyOn(service, 'terminateTimer');
+        const expireSpy = jest.spyOn(service, 'expireTimer');
+        server.in.returns({
+            emit: (event: string) => {
+                expect(event).toEqual('timer');
+            },
+        } as BroadcastOperator<unknown, unknown>);
+
+        server.to.returns({
+            emit: (event: string) => {
+                expect(event).toEqual('stopTimer');
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        service.startTimer(server, '2990', 0, TimerEvents.CountdownTimerExpired);
+        jest.advanceTimersByTime(TICK);
+        expect(terminateSpy).toHaveBeenCalled();
+        expect(expireSpy).toHaveBeenCalled();
+    });
 });

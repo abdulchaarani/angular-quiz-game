@@ -22,7 +22,7 @@ export class TimeService {
         return this.counters.get(roomId);
     }
 
-    // passing event permits decoupling of timer service
+    // passing event allows decoupling of timer service
     // eslint-disable-next-line max-params
     startTimer(server: Server, roomId: string, startValue: number, onTimerExpiredEvent: TimerEvents) {
         if (this.intervals.has(roomId)) return;
@@ -48,7 +48,7 @@ export class TimeService {
 
     expireTimer(roomId: string, server: Server, onTimerExpiredEvent: TimerEvents) {
         this.terminateTimer(roomId);
-        server.to(roomId).emit('stopTimer'); // TODO: verify if still needed
+        server.to(roomId).emit('stopTimer');
         this.eventEmitter.emit(onTimerExpiredEvent, roomId);
     }
 

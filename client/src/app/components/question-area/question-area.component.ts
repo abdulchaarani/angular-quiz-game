@@ -36,7 +36,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
 
     private subscriptions: Subscription[];
 
-    // permit more class parameters to decouple services
+    // permit more constructor parameters to decouple services
     // eslint-disable-next-line max-params
     constructor(
         private readonly timeService: TimeService,
@@ -65,21 +65,27 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
 
     @HostListener('document:keydown', ['$event'])
     handleKeyboardEvent(event: KeyboardEvent) {
+        if (document?.activeElement?.id === 'chat-box') return;
+
         if (event.key === 'Enter' && this.isSelectionEnabled) {
             this.submitAnswers();
-        } else {
-            const numKey = parseInt(event.key, 5);
-            if (numKey >= 1 && numKey <= this.answers.length) {
-                const choiceIndex = numKey - 1;
-                const choice = this.answers?.[choiceIndex];
-                if (choice) {
-                    this.selectChoice(choice);
-                }
+            return;
+        }
+
+        const numKey = parseInt(event.key, 5);
+        if (!numKey) return;
+
+        if (numKey >= 1 && numKey <= this.answers.length) {
+            const choiceIndex = numKey - 1;
+            const choice = this.answers?.[choiceIndex];
+            if (choice) {
+                this.selectChoice(choice);
             }
         }
     }
 
     canDeactivate(): CanDeactivateType {
+        if (this.matchRoomService.isResults) return true;
         if (this.matchRoomService.isRoomEmpty()) return true;
         if (!this.matchRoomService.isHostPlaying) return true;
 
@@ -115,6 +121,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         this.subscriptions.forEach((subscription) => subscription.unsubscribe());
     }
 
+    // TODO: verify if still needed
     ngOnChanges(changes: SimpleChanges): void {
         if (changes.currentQuestion) {
             const newQuestion = changes.currentQuestion.currentValue;

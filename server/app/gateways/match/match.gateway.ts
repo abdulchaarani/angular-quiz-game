@@ -181,6 +181,4 @@ export class MatchGateway implements OnGatewayDisconnect {
     handleSentMessagesHistory(matchRoomCode: string) {
         this.server.to(matchRoomCode).emit('fetchOldMessages', this.chatService.getMessages(matchRoomCode));
     }
-
-    // TODO: Start match: Do not forget to make isPlaying = true in MatchRoom object!!
 }

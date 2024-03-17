@@ -17,6 +17,7 @@ export class MatchRoomService {
     players: Player[];
     messages: Message[];
     isHostPlaying: boolean;
+    isResults: boolean;
 
     currentQuestion$: Observable<Question>;
     displayCooldown$: Observable<boolean>;
@@ -24,6 +25,7 @@ export class MatchRoomService {
     private gameTitle = new Subject<string>();
     private currentQuestionSource = new Subject<Question>();
     private displayCooldownSource = new BehaviorSubject<boolean>(false);
+
     private matchRoomCode: string;
     private username: string;
 
@@ -140,8 +142,6 @@ export class MatchRoomService {
     }
 
     startCooldown() {
-        console.log('startCooldown');
-
         this.socketService.on('startCooldown', () => {
             this.displayCooldownSource.next(true);
         });
@@ -196,6 +196,7 @@ export class MatchRoomService {
 
     listenRouteToResultsPage() {
         this.socketService.on('routeToResultsPage', () => {
+            this.isResults = true;
             this.router.navigateByUrl('/results');
         });
     }

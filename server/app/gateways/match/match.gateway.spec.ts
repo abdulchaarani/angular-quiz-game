@@ -1,5 +1,5 @@
 // import { getMockGame } from '@app/constants/game-mocks';
-import { MOCK_MATCH_ROOM, MOCK_MESSAGE_INFO, MOCK_PLAYER, MOCK_ROOM_CODE, MOCK_USER_INFO } from '@app/constants/match-mocks';
+import { MOCK_MATCH_ROOM, MOCK_MESSAGE_INFO, MOCK_PLAYER, MOCK_ROOM_CODE, MOCK_TEST_MATCH_ROOM, MOCK_USER_INFO } from '@app/constants/match-mocks';
 import { TimerEvents } from '@app/constants/timer-events';
 import { MatchGateway } from '@app/gateways/match/match.gateway';
 import { ChatService } from '@app/services/chat/chat.service';
@@ -83,12 +83,36 @@ describe('MatchGateway', () => {
         expect(socket.join.calledOnce).toBeFalsy();
     });
 
-    // it('createRoom() should let the host create a match room and let the host join the new room', () => {
-    //     matchRoomSpy.addMatchRoom.returns(MOCK_MATCH_ROOM);
-    //     const result = gateway.createRoom(socket, JSON.stringify(MOCK_MATCH_ROOM.game));
-    //     expect(socket.join.calledOnce).toBeTruthy();
-    //     expect(result).toEqual({ code: MOCK_MATCH_ROOM.code });
-    // });
+    it('createRoom() should let the host create a match room and let the host join the new room', () => {
+        matchRoomSpy.addMatchRoom.returns(MOCK_MATCH_ROOM);
+        const result = gateway.createRoom(socket, { gameId: MOCK_MATCH_ROOM.game.id, isTestPage: MOCK_MATCH_ROOM.isTestRoom });
+        expect(socket.join.calledOnce).toBeTruthy();
+        expect(result).toEqual({ code: MOCK_MATCH_ROOM.code });
+    });
+
+    it('createRoom() should let host create a testing match room and let host join as the only player in the new room', () => {
+        matchRoomSpy.addMatchRoom.returns(MOCK_TEST_MATCH_ROOM);
+        const result = gateway.createRoom(socket, { gameId: MOCK_TEST_MATCH_ROOM.game.id, isTestPage: MOCK_TEST_MATCH_ROOM.isTestRoom });
+        expect(socket.join.calledOnce).toBeTruthy();
+        expect(result).toEqual({ code: MOCK_TEST_MATCH_ROOM.code });
+    });
+
+    /* @SubscribeMessage(MatchEvents.RouteToResultsPage)
+    routeToResultsPage(@ConnectedSocket() socket: Socket, @MessageBody() matchRoomCode: string) {
+        this.server.to(matchRoomCode).emit(MatchEvents.RouteToResultsPage);
+        const histograms = this.histogramService.sendHistogramHistory(matchRoomCode);
+        this.server.to(matchRoomCode).emit(MatchEvents.HistogramHistory, histograms);
+        gateway.joinRoom(socket, MOCK_USER_INFO);
+    } */
+
+    it('routeToResultsPage() should emit a routing event to a room, save the current histogram history and emit it to the room', () => {
+        gateway.routeToResultsPage(socket, MOCK_ROOM_CODE);
+        server.to.returns({
+            emit: (event: string) => {
+                expect(event).toBe('routeToResultsPage');
+            },
+        } as BroadcastOperator<unknown, unknown>);
+    });
 
     it('toggleLock() should call toggleLockMatchRoom', () => {
         const toggleSpy = jest.spyOn(matchRoomSpy, 'toggleLockMatchRoom').mockReturnThis();

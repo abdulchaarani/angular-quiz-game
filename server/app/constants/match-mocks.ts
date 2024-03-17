@@ -33,6 +33,25 @@ const MOCK_MATCH_ROOM: MatchRoom = {
     isTestRoom: false,
 };
 
+const MOCK_TEST_MATCH_ROOM: MatchRoom = {
+    code: '',
+    isLocked: false,
+    isPlaying: false,
+    game: getMockGame(),
+    gameLength: 1,
+    currentQuestionIndex: 0,
+    currentQuestionAnswer: [],
+    currentChoiceTracker: new ChoiceTracker(),
+    matchHistograms: [],
+    bannedUsernames: [],
+    players: [],
+    activePlayers: 0,
+    submittedPlayers: 0,
+    messages: [],
+    hostSocket: undefined,
+    isTestRoom: true,
+};
+
 const MOCK_PLAYER_ROOM: MatchRoom = {
     code: '',
     isLocked: false,
@@ -53,4 +72,15 @@ const MOCK_PLAYER_ROOM: MatchRoom = {
 };
 const MOCK_ROOM_CODE = 'mockCode';
 const MOCK_USERNAME = 'mockUsername';
-export { MOCK_MATCH_ROOM, MOCK_MESSAGE, MOCK_MESSAGE_INFO, MOCK_PLAYER, MOCK_PLAYER_ROOM, MOCK_ROOM_CODE, MOCK_USERNAME, MOCK_USER_INFO };
+
+export {
+    MOCK_MATCH_ROOM,
+    MOCK_MESSAGE,
+    MOCK_MESSAGE_INFO,
+    MOCK_PLAYER,
+    MOCK_PLAYER_ROOM,
+    MOCK_ROOM_CODE,
+    MOCK_TEST_MATCH_ROOM,
+    MOCK_USERNAME,
+    MOCK_USER_INFO,
+};

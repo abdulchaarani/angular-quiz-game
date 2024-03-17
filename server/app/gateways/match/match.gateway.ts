@@ -20,7 +20,6 @@ interface MessageInfo {
     message: Message;
 }
 
-// Future TODO: Open socket only if code and user are valid + Allow host to be able to disconnect banned players
 @WebSocketGateway({ cors: true })
 @Injectable()
 export class MatchGateway implements OnGatewayDisconnect {
@@ -74,7 +73,6 @@ export class MatchGateway implements OnGatewayDisconnect {
         this.server.to(matchRoomCode).emit(MatchEvents.HistogramHistory, histograms);
     }
 
-    // TODO: Consider using HTTP instead ?
     @SubscribeMessage(MatchEvents.ToggleLock)
     toggleLock(@ConnectedSocket() socket: Socket, @MessageBody() matchRoomCode: string) {
         this.matchRoomService.toggleLockMatchRoom(matchRoomCode);
@@ -104,10 +102,6 @@ export class MatchGateway implements OnGatewayDisconnect {
         this.sendMessageToClients(data);
     }
 
-    // @SubscribeMessage(MatchEvents.StartTimer)
-    // startTimer(@ConnectedSocket() socket: Socket, @MessageBody() data: TimerInfo) {
-    //     this.timeService.startTimer(data.roomCode, data.time, this.server);
-    // }
     @SubscribeMessage(MatchEvents.SendMessagesHistory)
     sendMessagesHistory(@ConnectedSocket() socket: Socket, @MessageBody() matchRoomCode: string) {
         if (socket.rooms.has(matchRoomCode)) {
@@ -115,11 +109,6 @@ export class MatchGateway implements OnGatewayDisconnect {
         }
     }
 
-    // @SubscribeMessage(MatchEvents.StopTimer)
-    // stopTimer(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
-    //     this.timeService.stopTimer(roomCode, this.server);
-    // }
-    // TODO: Start match: Do not forget to make isPlaying = true in MatchRoom object!!
     @SubscribeMessage(MatchEvents.StartMatch)
     startMatch(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
         this.matchRoomService.markGameAsPlaying(roomCode);

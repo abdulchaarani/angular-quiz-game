@@ -87,12 +87,8 @@ export class MatchCreationPageComponent implements OnInit {
         }
     }
 
-    createMatch(): void {
-        this.reloadSelectedGame();
-    }
-
-    createTestMatch(): void {
-        this.questionContextService.setContext('testPage');
+    createMatch(testGame: boolean): void {
+        if (testGame) this.questionContextService.setContext('testPage');
         this.reloadSelectedGame();
     }
 }

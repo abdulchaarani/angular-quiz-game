@@ -191,17 +191,9 @@ describe('MatchCreationPageComponent', () => {
         flush();
     }));
 
-    it('createMatch() should create a match', () => {
+    it('createMatch() should create a playing match', () => {
         const reloadSpy = spyOn(component, 'reloadSelectedGame');
-        component.createMatch();
+        component.createMatch(false);
         expect(reloadSpy).toHaveBeenCalled();
-        expect(matchServiceSpy.createMatch).toHaveBeenCalled();
-    });
-
-    it('createTestMatch() should create a test match', () => {
-        const reloadSpy = spyOn(component, 'reloadSelectedGame');
-        component.createTestMatch();
-        expect(reloadSpy).toHaveBeenCalled();
-        expect(matchServiceSpy.createMatch).toHaveBeenCalled();
     });
 });

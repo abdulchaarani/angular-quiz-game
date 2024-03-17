@@ -16,11 +16,14 @@ export class MatchService extends CommunicationService<Game> {
 
     private questionAdvanceSubject = new Subject<void>();
     private selectedGame: Game;
+
+    // permit more constructor parameters to decoulpe services
+    // eslint-disable-next-line max-params
     constructor(
         http: HttpClient,
         private readonly choiceValidationService: ChoiceValidationService,
-        private matchRoomService: MatchRoomService,
-        private questionContextService: QuestionContextService,
+        private readonly matchRoomService: MatchRoomService,
+        private readonly questionContextService: QuestionContextService,
     ) {
         super(http, 'match');
     }

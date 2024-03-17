@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
@@ -5,6 +6,7 @@ import { SocketHandlerService } from '@app/services/socket-handler/socket-handle
 import { Socket } from 'socket.io-client';
 import { TimeService } from './time.service';
 import SpyObj = jasmine.SpyObj;
+import { TimerInfo } from '@common/interfaces/timer-info';
 
 class SocketHandlerServiceMock extends SocketHandlerService {
     override connect() {
@@ -53,24 +55,24 @@ describe('TimeService', () => {
     });
 
     it('should detect timer event and update its time attribute', () => {
-        // Rend le test plus facile a lire et sauve du temps
-        // eslint-disable-next-line @typescript-eslint/ban-types
-        const spy = spyOn(socketSpy, 'on').and.callFake((event: string, callback: Function) => {
-            callback(1);
+        const timerInfo: TimerInfo = { currentTime: 1, duration: 10 };
+        const spy = spyOn(socketSpy, 'on').and.callFake((event: string, callback: (params: any) => any) => {
+            callback(timerInfo);
         });
         service.handleTimer();
+        socketHelper.peerSideEmit('timer', timerInfo);
         expect(service.time).toEqual(1);
         expect(spy).toHaveBeenCalledWith('timer', jasmine.any(Function));
     });
 
     it('should detect stopTimer event and notify observers of timerFinished', () => {
-        // Rend le test plus facile a lire et sauve du temps
-        // eslint-disable-next-line @typescript-eslint/ban-types
-        const spy = spyOn(socketSpy, 'on').and.callFake((event: string, callback: Function) => {
+        const spy = spyOn(socketSpy, 'on').and.callFake((event: string, callback: (params: any) => any) => {
             callback(true);
         });
+        service['timerFinished'].next(false);
         service.handleStopTimer();
-        expect(service.timerFinished$).toBeTruthy();
+        socketHelper.peerSideEmit('stopTimer');
+        expect(service['timerFinished'].value).toBe(true);
         expect(spy).toHaveBeenCalledWith('stopTimer', jasmine.any(Function));
     });
 });

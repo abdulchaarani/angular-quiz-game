@@ -16,13 +16,13 @@ export class ResultsPageComponent implements OnInit, OnDestroy {
     pageEvent: PageEvent;
     players: Player[] = [];
     currentQuestionIndex: number = 0;
+    histogramsGame: Histogram[] = [];
     private subscriptions: Subscription[] = [];
+
     constructor(
         private readonly matchRoomService: MatchRoomService,
         private readonly histogramService: HistogramService,
     ) {}
-
-    histogramsGame: Histogram[] = [];
 
     ngOnInit(): void {
         this.players = this.matchRoomService.players;

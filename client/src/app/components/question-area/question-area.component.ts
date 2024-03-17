@@ -65,7 +65,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
 
     @HostListener('document:keydown', ['$event'])
     handleKeyboardEvent(event: KeyboardEvent) {
-        if (document?.activeElement?.id === 'chat-box') return;
+        if (document?.activeElement?.id === 'chat-input') return;
 
         if (event.key === 'Enter' && this.isSelectionEnabled) {
             this.submitAnswers();

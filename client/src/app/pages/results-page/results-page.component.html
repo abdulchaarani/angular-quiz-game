@@ -16,7 +16,11 @@
             aria-label="Select page"
         >
         </mat-paginator>
-        <app-histogram [isResultsPage]="true" [currentHistogram]="histogramsGame[currentQuestionIndex]"></app-histogram>
+        <app-histogram
+            *ngIf="this.histogramsGame.length !== 0"
+            [isResultsPage]="true"
+            [currentHistogram]="histogramsGame[currentQuestionIndex]"
+        ></app-histogram>
     </div>
 
     <button mat-raised-button id="exit-button" (click)="handleDisconnect()" routerLink="/home">Quitter</button>

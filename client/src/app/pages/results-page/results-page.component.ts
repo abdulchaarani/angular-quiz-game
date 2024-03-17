@@ -17,7 +17,7 @@ export class ResultsPageComponent implements OnInit, OnDestroy {
     players: Player[] = [];
     currentQuestionIndex: number = 0;
     histogramsGame: Histogram[] = [];
-    private subscriptions: Subscription[] = [];
+    private eventSubscriptions: Subscription[] = [];
 
     constructor(
         private readonly matchRoomService: MatchRoomService,
@@ -27,7 +27,7 @@ export class ResultsPageComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.players = this.matchRoomService.players;
         this.histogramService.histogramHistory();
-        this.subscriptions.push(
+        this.eventSubscriptions.push(
             this.histogramService.histogramHistory$.subscribe((histograms: Histogram[]) => {
                 this.histogramsGame = histograms;
             }),
@@ -35,8 +35,8 @@ export class ResultsPageComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
-        this.subscriptions.forEach((sub) => sub.unsubscribe());
-        this.subscriptions = [];
+        this.eventSubscriptions.forEach((sub) => sub.unsubscribe());
+        this.eventSubscriptions = [];
     }
 
     handlePageEvent(e: PageEvent) {

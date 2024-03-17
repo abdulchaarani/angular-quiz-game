@@ -5,7 +5,7 @@
             <input class="question-input" matInput formControlName="text" placeholder="Texte de la question" />
         </mat-form-field>
         <div class="question-properties">
-            <div cdkDropList (cdkDropListDropped)="drop($event)">
+            <div cdkDropList (cdkDropListDropped)="dropChoice($event)">
                 <div formArrayName="choices" class="choices-container" *ngFor="let text of choices.controls; let i = index">
                     <div class="choice-container" cdkDrag>
                         <div class="choice-container" [formGroupName]="i">

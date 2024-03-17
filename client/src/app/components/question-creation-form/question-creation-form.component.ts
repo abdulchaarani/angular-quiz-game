@@ -81,7 +81,7 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
         }
     }
 
-    drop(event: CdkDragDrop<this>) {
+    dropChoice(event: CdkDragDrop<this>) {
         if (this.questionForm) {
             moveItemInArray(this.choices.controls, event.previousIndex, event.currentIndex);
             this.choices.controls.forEach((control, index) => {

@@ -73,11 +73,11 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         }
 
         const numKey = parseInt(event.key, 5);
-        if (!numKey) return;
+        if (!numKey || !this.currentQuestion.choices) return;
 
-        if (numKey >= 1 && numKey <= this.answers.length) {
+        if (numKey >= 1 && numKey <= this.currentQuestion.choices.length) {
             const choiceIndex = numKey - 1;
-            const choice = this.answers?.[choiceIndex];
+            const choice = this.currentQuestion.choices[choiceIndex];
             if (choice) {
                 this.selectChoice(choice);
             }

@@ -5,6 +5,7 @@ import { ChoiceValidationService } from '@app/services/choice-validation/choice-
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { Subject } from 'rxjs';
+import { QuestionContextService } from '@app/services/question-context/question-context.service';
 
 @Injectable({
     providedIn: 'root',
@@ -19,6 +20,7 @@ export class MatchService extends CommunicationService<Game> {
         http: HttpClient,
         private readonly choiceValidationService: ChoiceValidationService,
         private matchRoomService: MatchRoomService,
+        private questionContextService: QuestionContextService,
     ) {
         super(http, 'match');
     }
@@ -62,7 +64,8 @@ export class MatchService extends CommunicationService<Game> {
         return this.delete(`backups/${id}`);
     }
 
-    createMatch(isTestPage: boolean = false) {
+    createMatch() {
+        const isTestPage = this.questionContextService.getContext() === 'testPage';
         this.matchRoomService.connect();
         this.matchRoomService.createRoom(this.selectedGame.id, isTestPage);
     }

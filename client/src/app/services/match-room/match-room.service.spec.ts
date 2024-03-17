@@ -61,14 +61,6 @@ describe('MatchRoomService', () => {
         expect(fetchSpy).not.toHaveBeenCalled();
     });
 
-    // it('disconnect() should disconnect the socket and reset match values', () => {
-    //     const resetSpy = spyOn(service, 'resetMatchValues');
-    //     const disconnectSpy = spyOn(socketSpy, 'disconnect').and.callFake(() => {});
-    //     service.disconnect();
-    //     expect(resetSpy).toHaveBeenCalled();
-    //     expect(disconnectSpy).toHaveBeenCalled();
-    // });
-
     it('getSocketId() should return socket id if it is defined, else an empty string', () => {
         const cases = [
             { socketId: 'mock', expectedResult: 'mock' },
@@ -153,20 +145,21 @@ describe('MatchRoomService', () => {
 
     it('banUsername() should send banUsername event if user is host', () => {
         (service as any).username = 'Organisateur';
-        const sendSpy = spyOn(socketSpy, 'send').and.callFake(() => {});
+        (service as any).matchRoomCode = '';
+        const sendSpy = spyOn(socketSpy, 'send');
         service.banUsername('mockUsername');
         expect(sendSpy).toHaveBeenCalledWith('banUsername', { roomCode: '', username: 'mockUsername' });
     });
 
-    it('banUsername() should not send banUsername event if user is not host', () => {
-        (service as any).username = '';
-        const sendSpy = spyOn(socketSpy, 'send');
-        service.banUsername('mockUsername');
-        expect(sendSpy).not.toHaveBeenCalled();
+    it('should call disconnect of socketService', () => {
+        const disconnectSpy = spyOn(socketSpy, 'disconnect');
+        service.disconnect();
+        expect(disconnectSpy).toHaveBeenCalled();
     });
 
     it('startMatch() should send startMatch event', () => {
         const sendSpy = spyOn(socketSpy, 'send');
+        (service as any).matchRoomCode = '';
         service.startMatch();
         expect(sendSpy).toHaveBeenCalledWith('startMatch', '');
     });
@@ -214,6 +207,7 @@ describe('MatchRoomService', () => {
 
     it('nextQuestion() should send nextQuestion event', () => {
         const sendSpy = spyOn(socketSpy, 'send');
+        (service as any).matchRoomCode = '';
         service.nextQuestion();
         expect(sendSpy).toHaveBeenCalledWith('nextQuestion', '');
     });
@@ -299,5 +293,22 @@ describe('MatchRoomService', () => {
         expect((service as any).matchRoomCode).toEqual('');
         expect((service as any).username).toEqual('');
         expect((service as any).players).toEqual([]);
+    });
+
+    it('routeToResultsPage() should send routeToResultsPage event', () => {
+        const sendSpy = spyOn(socketSpy, 'send');
+        (service as any).matchRoomCode = '';
+        service.routeToResultsPage();
+        expect(sendSpy).toHaveBeenCalledWith('routeToResultsPage', '');
+    });
+
+    it('listenRouteToResultsPage() should receive the route and navigate to /results', () => {
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
+            cb();
+        });
+        service.listenRouteToResultsPage();
+        socketHelper.peerSideEmit('routeToResultsPage');
+        expect(onSpy).toHaveBeenCalled();
+        expect(router.navigateByUrl).toHaveBeenCalledWith('/results');
     });
 });

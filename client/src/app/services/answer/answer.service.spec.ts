@@ -13,7 +13,7 @@ class SocketHandlerServiceMock extends SocketHandlerService {
   override connect() {}
 }
 
-fdescribe('AnswerService', () => {
+describe('AnswerService', () => {
   let service: AnswerService;
   let socketSpy: SocketHandlerServiceMock;
   let socketHelper: SocketTestHelper;

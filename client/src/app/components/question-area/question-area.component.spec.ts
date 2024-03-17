@@ -128,13 +128,12 @@ describe('QuestionAreaComponent', () => {
     it('should unsubscribe from subscriptions on ngOnDestroy', () => {
         const unsubscribeSpy = jasmine.createSpyObj('unsubscribe', ['unsubscribe']);
         const subscriptions = [unsubscribeSpy, unsubscribeSpy, unsubscribeSpy];
-        component['subscriptions'] = subscriptions;
-    
+        component['eventSubscriptions'] = subscriptions;
+
         component.ngOnDestroy();
-    
+
         expect(unsubscribeSpy.unsubscribe).toHaveBeenCalledTimes(subscriptions.length);
     });
-
 
     it('should handle enter event', () => {
         const event = new KeyboardEvent('keydown', { key: 'Enter' });

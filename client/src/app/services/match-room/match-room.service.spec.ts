@@ -1,4 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+// Lines were added to explain why ESlint was disabled at specific lines
+/* eslint-disable max-lines */
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
@@ -89,7 +90,9 @@ describe('MatchRoomService', () => {
     });
 
     it('createRoom should send event, update values for matchRoomCode and username, then redirect to match-room if test room', () => {
-        const spy = spyOn(socketSpy, 'send').and.callFake((event, data, cb: Function) => {
+        // Any is required to simulate Function type in tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const spy = spyOn(socketSpy, 'send').and.callFake((event, data, cb: (param: any) => any) => {
             cb({ code: 'mock' });
         });
         const mockStringifiedGame = 'mockGame';
@@ -101,7 +104,9 @@ describe('MatchRoomService', () => {
     });
 
     it('createRoom should send event, update values for matchRoomCode and username, then redirect to match-room if not test room', () => {
-        const spy = spyOn(socketSpy, 'send').and.callFake((event, data, cb: Function) => {
+        // Any is required to simulate Function type in tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const spy = spyOn(socketSpy, 'send').and.callFake((event, data, cb: (param: any) => any) => {
             cb({ code: 'mock' });
         });
         const mockStringifiedGame = 'mockGame';
@@ -113,7 +118,9 @@ describe('MatchRoomService', () => {
     });
 
     it('joinRoom() should send a joinRoom event, update values, and then a sendPlayersData event', () => {
-        const sendSpy = spyOn(socketSpy, 'send').and.callFake((event, data, cb: Function) => {
+        // Any is required to simulate Function type in tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const sendSpy = spyOn(socketSpy, 'send').and.callFake((event, data, cb: (param: any) => any) => {
             cb({ code: 'mockReturnedCode', username: 'mockReturnedUsername' });
         });
         const sendPlayersSpy = spyOn(service, 'sendPlayersData');
@@ -168,7 +175,9 @@ describe('MatchRoomService', () => {
     });
 
     it('matchStarted() should send matchStarting event and update gameTitle', () => {
-        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
+        // Any is required to simulate Function type in tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb({ start: true, gameTitle: 'mockTitle' });
         });
         const spy = spyOn(service['startMatchSubject'], 'next');
@@ -179,7 +188,9 @@ describe('MatchRoomService', () => {
     });
 
     it('beginQuiz() should send beginQuiz event and navigate to /play-test in test room', () => {
-        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
+        // Any is required to simulate Function type in tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb({ firstQuestion: 'mockQuestion', gameDuration: 0, isTestRoom: true });
         });
         service.beginQuiz();
@@ -189,7 +200,9 @@ describe('MatchRoomService', () => {
     });
 
     it('beginQuiz() should send beginQuiz event and navigate to /play-match when not in test room', () => {
-        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
+        // Any is required to simulate Function type in tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb({ firstQuestion: 'mockQuestion', gameDuration: 0, isTestRoom: false });
         });
         service.beginQuiz();
@@ -216,8 +229,10 @@ describe('MatchRoomService', () => {
     });
 
     it('startCooldown() should send startCooldown event', () => {
-        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
-            cb();
+        // Any is required to simulate Function type in tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
+            cb('');
         });
         service.startCooldown();
         socketHelper.peerSideEmit('startCooldown');
@@ -225,7 +240,9 @@ describe('MatchRoomService', () => {
     });
 
     it('gameOver() should navigate to /host in test room', () => {
-        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
+        // Any is required to simulate Function type in tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb(true);
         });
         service.gameOver();
@@ -235,7 +252,9 @@ describe('MatchRoomService', () => {
     });
 
     it('gameOver() should not navigate to /host when not in test room', () => {
-        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
+        // Any is required to simulate Function type in tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb(false);
         });
         service.gameOver();
@@ -245,7 +264,9 @@ describe('MatchRoomService', () => {
     });
 
     it('moveToNextQuestion() should send nextQuestion event', () => {
-        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
+        // Any is required to simulate Function type in tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb('mockQuestion');
         });
         service.moveToNextQuestion();
@@ -262,7 +283,9 @@ describe('MatchRoomService', () => {
             isPlaying: false,
         };
         const mockStringifiedPlayer = JSON.stringify([mockPlayer]);
-        const onSpy = spyOn(socketHelper, 'on').and.callFake((event: string, cb: Function) => {
+        // Any is required to simulate Function type in tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const onSpy = spyOn(socketHelper, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb({ res: mockStringifiedPlayer });
         });
         const parseSpy = spyOn(JSON, 'parse').and.returnValue([mockPlayer]);
@@ -306,8 +329,10 @@ describe('MatchRoomService', () => {
     });
 
     it('listenRouteToResultsPage() should receive the route and navigate to /results', () => {
-        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
-            cb();
+        // Any is required to simulate Function type in tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
+            cb('');
         });
         service.listenRouteToResultsPage();
         socketHelper.peerSideEmit('routeToResultsPage');
@@ -317,8 +342,10 @@ describe('MatchRoomService', () => {
 
     it('onHostQuit() should set isHostPlaying to false', () => {
         service.isHostPlaying = true;
-        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
-            cb();
+        // Any is required to simulate Function type in tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
+            cb('');
         });
         service.onHostQuit();
         socketHelper.peerSideEmit('hostQuitMatch');

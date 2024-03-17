@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
@@ -128,7 +129,6 @@ describe('MatchRoomService', () => {
         expect(sendSpy).toHaveBeenCalled();
     });
 
-
     it('toggleLock() should send toggleLock event if username is Organisateur', () => {
         (service as any).username = 'Organisateur';
         const spy = spyOn(socketSpy, 'send');
@@ -212,7 +212,7 @@ describe('MatchRoomService', () => {
         expect(sendSpy).toHaveBeenCalledWith('nextQuestion', '');
     });
 
-    it ('startCooldown() should send startCooldown event', () => {
+    it('startCooldown() should send startCooldown event', () => {
         const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
             cb();
         });

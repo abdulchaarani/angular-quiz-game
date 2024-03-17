@@ -54,7 +54,9 @@ describe('SocketHandlerService', () => {
 
     it('should call socket.on with an event', () => {
         const event = 'helloWorld';
-        const action = () => {};
+        const action = () => {
+            return null;
+        };
         const spy = spyOn(service.socket, 'on');
         service.on(event, action);
         expect(spy).toHaveBeenCalled();

@@ -27,9 +27,20 @@ describe('WaitPageComponent', () => {
     let questionContextSpy: SpyObj<QuestionContextService>;
 
     beforeEach(() => {
-        matchRoomSpy = jasmine.createSpyObj('MatchRoomService', ['getUsername', 'banUsername', 'toggleLock', 'connect', 'startMatch', 'getGameTitleObservable', 'getStartMatchObservable', 'matchStarted', 'beginQuiz', 'nextQuestion' ]);
+        matchRoomSpy = jasmine.createSpyObj('MatchRoomService', [
+            'getUsername',
+            'banUsername',
+            'toggleLock',
+            'connect',
+            'startMatch',
+            'getGameTitleObservable',
+            'getStartMatchObservable',
+            'matchStarted',
+            'beginQuiz',
+            'nextQuestion',
+        ]);
         matchRoomSpy.getGameTitleObservable.and.returnValue(of(''));
-        matchRoomSpy.getStartMatchObservable.and.returnValue(of<void>(undefined)); 
+        matchRoomSpy.getStartMatchObservable.and.returnValue(of<void>(undefined));
         matchSpy = jasmine.createSpyObj('MatchService', ['']);
         questionContextSpy = jasmine.createSpyObj('QuestionContextService', ['setContext']);
         timeSpy = jasmine.createSpyObj('TimeService', ['handleTimer', 'handleStopTimer']);
@@ -53,7 +64,7 @@ describe('WaitPageComponent', () => {
     it('should create', () => {
         expect(component).toBeTruthy();
     });
-    
+
     it('should initalize correctly for the host', () => {
         const mockGame: Game = {
             id: '1',
@@ -66,9 +77,9 @@ describe('WaitPageComponent', () => {
         };
         spyOnProperty(component, 'isHost').and.returnValue(true);
         spyOnProperty(component, 'currentGame').and.returnValue(mockGame);
-    
+
         component.ngOnInit();
-    
+
         expect(component.gameTitle).toEqual(mockGame.title);
         expect(questionContextSpy.setContext).toHaveBeenCalledWith('hostView');
     });
@@ -103,7 +114,7 @@ describe('WaitPageComponent', () => {
         spyOn(component, 'prepareStartOfMatch').and.callFake(() => {
             component.startTimerButton = true;
             component.matchRoomService.startMatch();
-            return of(true); 
+            return of(true);
         });
         component.startMatch();
         expect(component.startTimerButton).toBe(true);
@@ -114,5 +125,4 @@ describe('WaitPageComponent', () => {
         component.nextQuestion();
         expect(matchRoomSpy.beginQuiz).toHaveBeenCalled();
     });
-
 });

@@ -25,7 +25,7 @@ export class HistogramComponent implements OnInit, OnChanges, OnDestroy {
         if (!this.isResultsPage) {
             this.histogramService.currentHistogram();
             this.subscriptions.push(
-                this.histogramService.choiceTally$.subscribe((data) => {
+                this.histogramService.currentHistogram$.subscribe((data) => {
                     this.currentQuestion = data.question;
                     this.choiceTally = data.choiceTallies;
                     const dataTally = this.setUpData();

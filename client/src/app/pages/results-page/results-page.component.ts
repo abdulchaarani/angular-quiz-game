@@ -28,7 +28,7 @@ export class ResultsPageComponent implements OnInit, OnDestroy {
         this.players = this.matchRoomService.players;
         this.histogramService.histogramHistory();
         this.subscriptions.push(
-            this.histogramService.histogramHist$.subscribe((histograms: Histogram[]) => {
+            this.histogramService.histogramHistory$.subscribe((histograms: Histogram[]) => {
                 this.histogramsGame = histograms;
             }),
         );

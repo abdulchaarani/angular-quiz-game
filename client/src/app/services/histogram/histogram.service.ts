@@ -1,27 +1,30 @@
 import { Injectable } from '@angular/core';
-// import { ChoiceTally } from '@common/interfaces/choice-tally';
 import { Histogram } from '@common/interfaces/histogram';
-import { Subject } from 'rxjs';
-import { SocketHandlerService } from '../socket-handler/socket-handler.service';
+import { Observable, Subject } from 'rxjs';
+import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 @Injectable({
     providedIn: 'root',
 })
 export class HistogramService {
-    constructor(public socketService: SocketHandlerService) {}
-    private choiceTally = new Subject<Histogram>();
-    choiceTally$ = this.choiceTally.asObservable();
-    private histogramHist = new Subject<Histogram[]>();
-    histogramHist$ = this.histogramHist.asObservable();
+    currentHistogram$: Observable<Histogram>;
+    histogramHistory$: Observable<Histogram[]>;
+    private currentHistogramSource = new Subject<Histogram>();
+    private histogramHistorySource = new Subject<Histogram[]>();
+
+    constructor(public socketService: SocketHandlerService) {
+        this.currentHistogram$ = this.currentHistogramSource.asObservable();
+        this.histogramHistory$ = this.histogramHistorySource.asObservable();
+    }
 
     currentHistogram() {
         this.socketService.on('currentHistogram', (data: Histogram) => {
-            this.choiceTally.next(data);
+            this.currentHistogramSource.next(data);
         });
     }
 
     histogramHistory() {
         this.socketService.on('histogramHistory', (data: Histogram[]) => {
-            this.histogramHist.next(data);
+            this.histogramHistorySource.next(data);
         });
     }
 }

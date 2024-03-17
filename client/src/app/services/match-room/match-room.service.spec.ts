@@ -322,8 +322,10 @@ describe('MatchRoomService', () => {
         expect(onSpy).toHaveBeenCalled();
     });
 
-    it('quitGame() should navigate to /home', () => {
+    it('quitGame() should navigate to /home and disconnect the socket', () => {
+        const disconnectSpy = spyOn(service, 'disconnect');
         service.quitGame();
+        expect(disconnectSpy).toHaveBeenCalled();
         expect(router.navigateByUrl).toHaveBeenCalledWith('/home');
     });
 

@@ -19,7 +19,6 @@ fdescribe('HistogramComponent', () => {
         fixture = TestBed.createComponent(HistogramComponent);
         component = fixture.componentInstance;
         spyOn<any>(component, 'subscribeToChoiceTally').and.callFake(() => {
-            
         });
         fixture.detectChanges();
     });
@@ -78,6 +77,16 @@ fdescribe('HistogramComponent', () => {
     
         expect(component.resetChart).toHaveBeenCalled();
         expect(component.ngOnInit).toHaveBeenCalled();
+    });
+
+    it('should unsubscribe from subscriptions on ngOnDestroy', () => {
+        const unsubscribeSpy = jasmine.createSpyObj('unsubscribe', ['unsubscribe']);
+        const subscriptions = [unsubscribeSpy, unsubscribeSpy, unsubscribeSpy];
+        component['subscriptions'] = subscriptions;
+    
+        component.ngOnDestroy();
+    
+        expect(unsubscribeSpy.unsubscribe).toHaveBeenCalledTimes(subscriptions.length);
     });
 
     it('should reset chart', () => {

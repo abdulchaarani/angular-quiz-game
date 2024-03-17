@@ -124,6 +124,17 @@ describe('QuestionAreaComponent', () => {
         expect(component).toBeTruthy();
     });
 
+    it('should unsubscribe from subscriptions on ngOnDestroy', () => {
+        const unsubscribeSpy = jasmine.createSpyObj('unsubscribe', ['unsubscribe']);
+        const subscriptions = [unsubscribeSpy, unsubscribeSpy, unsubscribeSpy];
+        component['subscriptions'] = subscriptions;
+    
+        component.ngOnDestroy();
+    
+        expect(unsubscribeSpy.unsubscribe).toHaveBeenCalledTimes(subscriptions.length);
+    });
+
+
     it('should handle enter event', () => {
         const event = new KeyboardEvent('keydown', { key: 'Enter' });
         spyOn(component, 'submitAnswers');

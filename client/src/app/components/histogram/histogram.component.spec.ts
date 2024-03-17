@@ -3,7 +3,7 @@ import { HistogramService } from '@app/services/histogram/histogram.service';
 import { AgChartsAngularModule } from 'ag-charts-angular';
 import { HistogramComponent } from './histogram.component';
 
-fdescribe('HistogramComponent', () => {
+describe('HistogramComponent', () => {
     let component: HistogramComponent;
     let fixture: ComponentFixture<HistogramComponent>;
     let histogramServiceSpy: jasmine.SpyObj<HistogramService>;

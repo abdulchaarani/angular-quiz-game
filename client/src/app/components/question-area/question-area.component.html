@@ -1,7 +1,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-<app-chat *ngIf="context != 'testPage'"></app-chat>
+<app-chat *ngIf="context !== 'testPage'"></app-chat>
 <div id="main-container">
-    <button mat-raised-button id="exit-button" routerLink="/home" (click)="handleQuit()">QUITTER</button>
+    <button mat-raised-button id="exit-button" routerLink="/home" (click)="quitGame()">QUITTER</button>
     <div id="question-area">
         <div id="question-timer-area">
             <div
@@ -9,13 +9,11 @@
                 *ngIf="(showFeedback && context === 'playerView' && !isCooldown) || (showFeedback && context === 'testPage'); else elseBlock"
             >
                 <h1 id="score">SCORE : {{ playerScore }}</h1>
-                <h1 class="points" id="right-answer" *ngIf="bonus > 0 && isRightAnswer">
-                    ✨Bonne Réponse! Vous avez obtenu {{ currentQuestion.points }} points et un bonus de {{ bonus }} points!✨
-                </h1>
-                <h1 class="points" id="right-answer" *ngIf="bonus == 0 && isRightAnswer">
-                    ✨Bonne Réponse! Vous avez obtenu {{ currentQuestion.points }} points et un bonus de {{ bonus }} points!✨
-                </h1>
-                <h1 class="points" id="wrong-answer" *ngIf="!isRightAnswer">😔Mauvaise Réponse😔</h1>
+                <div *ngIf="isRightAnswer">
+                    <h1 class="points" id="right-answer">👏 Bonne Réponse! Vous avez obtenu {{ currentQuestion.points }} points 👏</h1>
+                    <h1 class="points" id="right-answer" *ngIf="bonus > 0">✨ Vous avec obtenu un bonus de {{ bonus }} points!✨</h1>
+                </div>
+                <h1 class="points" id="wrong-answer" *ngIf="!isRightAnswer">😔 Mauvaise Réponse 😔</h1>
             </div>
 
             <ng-template #elseBlock>
@@ -32,7 +30,7 @@
                 <div id="question-text-container">
                     <h1>{{ this.currentQuestion!.text }}</h1>
                 </div>
-                <h1 id="points">{{ currentQuestion.points }} points</h1>
+                <h1 id="points" *ngIf="!this.isCooldown">{{ currentQuestion.points }} points</h1>
             </div>
 
             <div id="timer-area">

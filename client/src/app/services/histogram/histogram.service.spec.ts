@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { Histogram } from '@common/interfaces/histogram';
 import { Socket } from 'socket.io-client';
-import { SocketHandlerService } from '../socket-handler/socket-handler.service';
+import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 import { HistogramService } from './histogram.service';
 import SpyObj = jasmine.SpyObj;
 
@@ -12,7 +12,7 @@ class SocketHandlerServiceMock extends SocketHandlerService {
     override connect() {}
 }
 
-fdescribe('HistogramService', () => {
+describe('HistogramService', () => {
     let service: HistogramService;
     let socketSpy: SocketHandlerServiceMock;
     let socketHelper: SocketTestHelper;
@@ -38,9 +38,9 @@ fdescribe('HistogramService', () => {
     });
 
     it('should call currentHistogram', () => {
-        const histogram:Histogram = {
+        const histogram: Histogram = {
             question: 'question',
-            choiceTallies: []
+            choiceTallies: [],
         };
         const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
             cb({ histogram });
@@ -52,7 +52,7 @@ fdescribe('HistogramService', () => {
     });
 
     it('should call histogramHistory', () => {
-        const histogram:Histogram[] = [];
+        const histogram: Histogram[] = [];
         const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: Function) => {
             cb({ histogram });
         });

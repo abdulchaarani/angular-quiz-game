@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarConfig, MatSnackBarRef, TextOnlySnackBar } from '@angular/material/snack-bar';
 import { DialogConfirmComponent, DialogData } from '@app/components/dialog-confirm/dialog-confirm.component';
+import { NOTFICATION_DURATION } from '@app/constants/feedback-messages';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -15,14 +16,14 @@ export class NotificationService {
 
     displayErrorMessage(errorMessage: string): MatSnackBarRef<TextOnlySnackBar> {
         return this.openSnackBar(errorMessage, '✖', {
-            duration: 5000,
+            duration: NOTFICATION_DURATION,
             panelClass: ['error-snackbar'],
         });
     }
 
     displaySuccessMessage(successMessage: string): MatSnackBarRef<TextOnlySnackBar> {
         return this.openSnackBar(successMessage, '✔', {
-            duration: 5000,
+            duration: NOTFICATION_DURATION,
             panelClass: ['success-snackbar'],
         });
     }
@@ -31,15 +32,15 @@ export class NotificationService {
         return this.openSnackBar(errorMessage, action);
     }
 
-    openPendingChangesConfirmDialog(): Observable<boolean> {
-        const pendingChangesConfig: MatDialogConfig<DialogData> = {
+    openWarningDialog(warningText: string): Observable<boolean> {
+        const warningConfig: MatDialogConfig<DialogData> = {
             data: {
                 icon: 'warning',
                 title: 'Attention',
-                text: 'Vous avec des modifications non sauvegardés. Êtes-vous certain de vouloir quitter?',
+                text: warningText,
             },
         };
-        return this.openConfirmDialog(pendingChangesConfig);
+        return this.openConfirmDialog(warningConfig);
     }
 
     confirmBankUpload(questionTitle: string) {

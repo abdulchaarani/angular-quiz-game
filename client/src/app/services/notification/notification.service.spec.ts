@@ -5,6 +5,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { DialogConfirmComponent, DialogData } from '@app/components/dialog-confirm/dialog-confirm.component';
 import { MatDialogMock } from '@app/constants/mat-dialog-mock';
 import { NotificationService } from './notification.service';
+import { WarningMessage } from '@app/constants/feedback-messages';
 
 describe('NotificationService', () => {
     let service: NotificationService;
@@ -85,13 +86,13 @@ describe('NotificationService', () => {
             data: {
                 icon: 'warning',
                 title: 'Attention',
-                text: 'Vous avec des modifications non sauvegardés. Êtes-vous certain de vouloir quitter?',
+                text: WarningMessage.PENDING,
             },
         };
 
         const afterOpenSpy = spyOn(dialog, 'open').and.callThrough();
 
-        service.openPendingChangesConfirmDialog().subscribe((confirmResult) => {
+        service.openWarningDialog(WarningMessage.PENDING).subscribe((confirmResult: boolean) => {
             expect(confirmResult).toBe(true);
             expect(dialog.open).toHaveBeenCalledWith(DialogConfirmComponent, pendingChangesConfig);
         });

@@ -155,8 +155,8 @@ export class MatchGateway implements OnGatewayDisconnect {
             return;
         }
         const room = this.matchRoomService.getMatchRoomByCode(roomCode);
-        const allPlayersQuit = room.players.every((player) => !player.isPlaying);
-        if (room.isPlaying && allPlayersQuit) {
+        const isRoomEmpty = room.players.every((player) => !player.isPlaying);
+        if (room.isPlaying && isRoomEmpty) {
             this.deleteMatchRoom(roomCode);
             return;
         }
@@ -165,6 +165,7 @@ export class MatchGateway implements OnGatewayDisconnect {
     }
 
     deleteMatchRoom(matchRoomCode: string) {
+        this.server.to(matchRoomCode).emit('hostQuitMatch');
         this.server.in(matchRoomCode).disconnectSockets();
         this.matchRoomService.deleteMatchRoom(matchRoomCode);
     }
@@ -180,6 +181,4 @@ export class MatchGateway implements OnGatewayDisconnect {
     handleSentMessagesHistory(matchRoomCode: string) {
         this.server.to(matchRoomCode).emit('fetchOldMessages', this.chatService.getMessages(matchRoomCode));
     }
-
-    // TODO: Start match: Do not forget to make isPlaying = true in MatchRoom object!!
 }

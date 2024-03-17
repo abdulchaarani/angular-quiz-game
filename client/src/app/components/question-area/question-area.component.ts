@@ -1,15 +1,17 @@
 import { Component, HostListener, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
-import { MatchStatus } from '@app/constants/feedback-messages';
+import { MatchStatus, WarningMessage } from '@app/constants/feedback-messages';
+import { CanDeactivateType } from '@app/interfaces/can-component-deactivate';
 import { Choice } from '@app/interfaces/choice';
 import { Question } from '@app/interfaces/question';
 import { AnswerService } from '@app/services/answer/answer.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { MatchService } from '@app/services/match/match.service';
+import { NotificationService } from '@app/services/notification/notification.service';
 import { QuestionContextService } from '@app/services/question-context/question-context.service';
 import { TimeService } from '@app/services/time/time.service';
 import { MULTIPLICATION_FACTOR } from '@common/constants/match-constants';
+import { Subject, Subscription } from 'rxjs';
 import { Feedback } from '@common/interfaces/feedback';
-import { Subscription } from 'rxjs';
 @Component({
     selector: 'app-question-area',
     templateUrl: './question-area.component.html',
@@ -34,7 +36,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
 
     private subscriptions: Subscription[];
 
-    // permit more class parameters to decouple services
+    // permit more constructor parameters to decouple services
     // eslint-disable-next-line max-params
     constructor(
         private readonly timeService: TimeService,
@@ -42,6 +44,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         private readonly matchRoomService: MatchRoomService,
         private readonly questionContextService: QuestionContextService,
         private readonly answerService: AnswerService,
+        private readonly notificationService: NotificationService,
     ) {}
 
     get time() {
@@ -62,18 +65,36 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
 
     @HostListener('document:keydown', ['$event'])
     handleKeyboardEvent(event: KeyboardEvent) {
+        if (document?.activeElement?.id === 'chat-input') return;
+
         if (event.key === 'Enter' && this.isSelectionEnabled) {
             this.submitAnswers();
-        } else {
-            const numKey = parseInt(event.key, 5);
-            if (numKey >= 1 && numKey <= this.answers.length) {
-                const choiceIndex = numKey - 1;
-                const choice = this.answers?.[choiceIndex];
-                if (choice) {
-                    this.selectChoice(choice);
-                }
+            return;
+        }
+
+        const numKey = parseInt(event.key, 5);
+        if (!numKey) return;
+
+        if (numKey >= 1 && numKey <= this.answers.length) {
+            const choiceIndex = numKey - 1;
+            const choice = this.answers?.[choiceIndex];
+            if (choice) {
+                this.selectChoice(choice);
             }
         }
+    }
+
+    canDeactivate(): CanDeactivateType {
+        if (this.matchRoomService.isResults) return true;
+        if (this.matchRoomService.isRoomEmpty()) return true;
+        if (!this.matchRoomService.isHostPlaying) return true;
+
+        const deactivateSubject = new Subject<boolean>();
+        this.notificationService.openWarningDialog(WarningMessage.QUIT).subscribe((confirm: boolean) => {
+            deactivateSubject.next(confirm);
+            if (confirm) this.handleQuit();
+        });
+        return deactivateSubject;
     }
 
     getHistoryState() {
@@ -100,6 +121,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         this.subscriptions.forEach((subscription) => subscription.unsubscribe());
     }
 
+    // TODO: verify if still needed
     ngOnChanges(changes: SimpleChanges): void {
         if (changes.currentQuestion) {
             const newQuestion = changes.currentQuestion.currentValue;
@@ -162,6 +184,10 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         this.isCooldown = false;
     }
 
+    quitGame() {
+        this.matchRoomService.quitGame();
+    }
+
     handleQuit() {
         this.matchRoomService.disconnect();
     }
@@ -193,7 +219,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
 
     private subscribeToFeedback() {
         const feedbackSubscription = this.answerService.feedback$.subscribe((feedback) => {
-                this.handleFeedback(feedback);
+            this.handleFeedback(feedback);
         });
         const feedbackObservable = this.answerService.feedbackSub$.subscribe(() => {
             this.handleFeedbackSubmission();

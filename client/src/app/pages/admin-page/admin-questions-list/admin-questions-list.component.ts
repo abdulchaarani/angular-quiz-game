@@ -3,7 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { AfterViewInit, Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BankStatus, GameStatus, QuestionStatus } from '@app/constants/feedback-messages';
+import { BankStatus, GameStatus, QuestionStatus, WarningMessage } from '@app/constants/feedback-messages';
 import { ManagementState } from '@app/constants/states';
 import { CanComponentDeactivate, CanDeactivateType } from '@app/interfaces/can-component-deactivate';
 import { Game } from '@app/interfaces/game';
@@ -64,7 +64,7 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
     canDeactivate(): CanDeactivateType {
         if (this.isPendingChanges) {
             const deactivateSubject = new Subject<boolean>();
-            this.notificationService.openPendingChangesConfirmDialog().subscribe((confirm: boolean) => deactivateSubject.next(confirm));
+            this.notificationService.openWarningDialog(WarningMessage.PENDING).subscribe((confirm: boolean) => deactivateSubject.next(confirm));
             return deactivateSubject;
         }
         return true;

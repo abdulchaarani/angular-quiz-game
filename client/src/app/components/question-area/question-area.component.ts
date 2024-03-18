@@ -27,11 +27,13 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
     bonus: number;
     context: 'testPage' | 'hostView' | 'playerView';
     correctAnswers: string[];
+    isHostPlaying: boolean = true;
     isFirstQuestion: boolean = true;
     isCooldown: boolean = false;
     isRightAnswer: boolean = false;
     isNextQuestionButton: boolean = false;
     isLastQuestion: boolean = false;
+    isQuitting: boolean = false;
 
     private eventSubscriptions: Subscription[];
 
@@ -84,14 +86,14 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     canDeactivate(): CanDeactivateType {
+        if (this.isQuitting) return true;
         if (this.matchRoomService.isResults) return true;
-        if (this.matchRoomService.isRoomEmpty()) return true;
-        if (!this.matchRoomService.isHostPlaying) return true;
+        if (!this.isHostPlaying) return true;
 
         const deactivateSubject = new Subject<boolean>();
         this.notificationService.openWarningDialog(WarningMessage.QUIT).subscribe((confirm: boolean) => {
             deactivateSubject.next(confirm);
-            if (confirm) this.handleQuit();
+            if (confirm) this.matchRoomService.disconnect();
         });
         return deactivateSubject;
     }
@@ -169,6 +171,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     resetStateForNewQuestion(): void {
+        this.isHostPlaying = true;
         this.showFeedback = false;
         this.isSelectionEnabled = true;
         this.selectedAnswers = [];
@@ -176,14 +179,16 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         this.correctAnswers = [];
         this.isRightAnswer = false;
         this.isCooldown = false;
-    }
-
-    handleQuit() {
-        this.matchRoomService.disconnect();
+        this.isQuitting = false;
     }
 
     routeToResultsPage() {
         this.matchRoomService.routeToResultsPage();
+    }
+
+    quitGame() {
+        this.isQuitting = true;
+        this.matchRoomService.disconnect();
     }
 
     private handleFeedback(feedback: Feedback) {
@@ -279,6 +284,13 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         this.eventSubscriptions.push(endGameSubscription);
     }
 
+    private subscribeToHostPlaying() {
+        const hostPlayingSubscription = this.matchRoomService.isHostPlaying$.subscribe((isHostPlaying) => {
+            this.isHostPlaying = isHostPlaying;
+        });
+        this.eventSubscriptions.push(hostPlayingSubscription);
+    }
+
     private listenToGameEvents() {
         this.timeService.handleTimer();
         this.timeService.handleStopTimer();
@@ -289,6 +301,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     private initialiseSubscriptions() {
+        this.subscribeToHostPlaying();
         this.subscribeToFeedback();
         this.subscribeToCurrentQuestion();
         this.subscribeToBonus();

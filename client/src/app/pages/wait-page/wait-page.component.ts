@@ -16,8 +16,9 @@ import { Subscription } from 'rxjs/internal/Subscription';
     styleUrls: ['./wait-page.component.scss'],
 })
 export class WaitPageComponent implements OnInit, OnDestroy {
+    isHostPlaying: boolean;
     isLocked: boolean;
-    isWaitOver: boolean;
+    isQuitting: boolean;
     startTimerButton: boolean;
     gameTitle: string;
     private eventSubscriptions: Subscription[] = [];
@@ -45,12 +46,9 @@ export class WaitPageComponent implements OnInit, OnDestroy {
     }
 
     canDeactivate(): CanDeactivateType {
-        if (this.isWaitOver) return true;
-
-        if (!this.matchRoomService.isHostPlaying) {
-            this.matchRoomService.disconnect();
-            return true;
-        }
+        if (this.isQuitting) return true;
+        if (this.matchRoomService.isWaitOver) return true;
+        if (!this.isHostPlaying) return true;
 
         const deactivateSubject = new Subject<boolean>();
         this.notificationService.openWarningDialog(WarningMessage.QUIT).subscribe((confirm: boolean) => {
@@ -65,7 +63,8 @@ export class WaitPageComponent implements OnInit, OnDestroy {
         this.timeService.handleTimer();
         this.timeService.handleStopTimer();
 
-        this.matchRoomService.connect();
+        this.subscribeToHostPlaying();
+        this.subscribeToStartMatch();
 
         if (this.isHost) {
             this.gameTitle = this.currentGame.title;
@@ -78,12 +77,6 @@ export class WaitPageComponent implements OnInit, OnDestroy {
             );
             this.questionContextService.setContext('playerView');
         }
-
-        this.matchRoomService.matchStarted();
-        this.matchRoomService.beginQuiz();
-
-        this.subscribeToStartMatch();
-        this.subscribeToWaitOver();
     }
 
     ngOnDestroy(): void {
@@ -117,10 +110,23 @@ export class WaitPageComponent implements OnInit, OnDestroy {
         this.matchRoomService.nextQuestion();
     }
 
+    quitGame() {
+        this.isQuitting = true;
+        this.matchRoomService.disconnect();
+    }
+
     private resetWaitPage() {
+        this.isHostPlaying = true;
         this.isLocked = false;
+        this.isQuitting = false;
         this.startTimerButton = false;
-        this.isWaitOver = false;
+    }
+
+    private subscribeToHostPlaying() {
+        const hostPlayingSubscription = this.matchRoomService.isHostPlaying$.subscribe((isHostPlaying) => {
+            this.isHostPlaying = isHostPlaying;
+        });
+        this.eventSubscriptions.push(hostPlayingSubscription);
     }
 
     private subscribeToStartMatch() {
@@ -128,13 +134,5 @@ export class WaitPageComponent implements OnInit, OnDestroy {
             this.startTimerButton = true;
         });
         this.eventSubscriptions.push(startMatchSubscription);
-    }
-
-    // TODO: rename
-    private subscribeToWaitOver() {
-        const beginQuizSubscription = this.matchRoomService.isWaitOver$.subscribe(() => {
-            this.isWaitOver = true;
-        });
-        this.eventSubscriptions.push(beginQuizSubscription);
     }
 }

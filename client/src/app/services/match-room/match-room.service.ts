@@ -16,17 +16,17 @@ import { Subject } from 'rxjs/internal/Subject';
 export class MatchRoomService {
     players: Player[];
     messages: Message[];
-    isHostPlaying: boolean;
     isResults: boolean;
+    isWaitOver: boolean;
 
+    isHostPlaying$: Observable<boolean>;
     currentQuestion$: Observable<Question>;
     displayCooldown$: Observable<boolean>;
-    isWaitOver$: Observable<boolean>;
     private startMatchSubject = new Subject<void>();
     private gameTitle = new Subject<string>();
     private currentQuestionSource = new Subject<Question>();
+    private hostPlayingSource = new BehaviorSubject<boolean>(false);
     private displayCooldownSource = new BehaviorSubject<boolean>(false);
-    private waitOverSource = new BehaviorSubject<boolean>(false);
 
     private matchRoomCode: string;
     private username: string;
@@ -56,10 +56,12 @@ export class MatchRoomService {
             this.socketService.connect();
             this.redirectAfterDisconnection();
             this.fetchPlayersData();
+            this.matchStarted();
             this.beginQuiz();
             this.moveToNextQuestion();
             this.gameOver();
             this.startCooldown();
+            this.onHostQuit();
         }
     }
 
@@ -123,7 +125,7 @@ export class MatchRoomService {
 
     beginQuiz() {
         this.socketService.on('beginQuiz', (data: { firstQuestion: Question; gameDuration: number; isTestRoom: boolean }) => {
-            this.waitOverSource.next(true);
+            this.isWaitOver = true;
             const { firstQuestion, gameDuration, isTestRoom } = data;
             if (isTestRoom) {
                 this.router.navigate(['/play-test'], { state: { question: firstQuestion, duration: gameDuration } });
@@ -172,7 +174,7 @@ export class MatchRoomService {
 
     onHostQuit() {
         this.socketService.on('hostQuitMatch', () => {
-            this.isHostPlaying = false;
+            this.hostPlayingSource.next(false);
         });
     }
 
@@ -189,7 +191,8 @@ export class MatchRoomService {
         this.username = '';
         this.players = [];
         this.messages = [];
-        this.isHostPlaying = true;
+        this.isResults = false;
+        this.isWaitOver = false;
     }
 
     routeToResultsPage() {
@@ -203,23 +206,14 @@ export class MatchRoomService {
         });
     }
 
-    quitGame() {
-        this.disconnect();
-        this.router.navigateByUrl('/home');
-    }
-
-    isRoomEmpty(): boolean {
-        return this.players.every((player) => !player.isPlaying);
-    }
-
     private initialiseMatchSubjects() {
         this.startMatchSubject = new Subject<void>();
         this.gameTitle = new Subject<string>();
         this.currentQuestionSource = new Subject<Question>();
+        this.hostPlayingSource = new BehaviorSubject<boolean>(true);
         this.displayCooldownSource = new BehaviorSubject<boolean>(false);
-        this.waitOverSource = new BehaviorSubject<boolean>(false);
+        this.isHostPlaying$ = this.hostPlayingSource.asObservable();
         this.currentQuestion$ = this.currentQuestionSource.asObservable();
         this.displayCooldown$ = this.displayCooldownSource.asObservable();
-        this.isWaitOver$ = this.waitOverSource.asObservable();
     }
 }

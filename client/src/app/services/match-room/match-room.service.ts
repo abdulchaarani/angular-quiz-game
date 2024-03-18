@@ -146,7 +146,9 @@ export class MatchRoomService {
 
     gameOver() {
         this.socketService.on('gameOver', (isTestRoom) => {
+            console.log('Game over');
             if (isTestRoom) {
+                console.log('Test room game over');
                 this.router.navigateByUrl('/host');
             }
         });

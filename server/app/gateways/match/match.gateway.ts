@@ -1,18 +1,19 @@
+import { BAN_PLAYER, NO_MORE_HOST, NO_MORE_PLAYERS } from '@app/constants/match-errors';
 import { TimerEvents } from '@app/constants/timer-events';
 import { Game } from '@app/model/database/game';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { ChatService } from '@app/services/chat/chat.service';
+import { HistogramService } from '@app/services/histogram/histogram.service';
 import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
+import { MessageInfo } from '@common/interfaces/message-info';
 import { UserInfo } from '@common/interfaces/user-info';
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
+import { ConnectedSocket, MessageBody, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { MatchEvents } from './match.gateway.events';
-import { MessageInfo } from '@common/interfaces/message-info';
-import { HistogramService } from '@app/services/histogram/histogram.service';
-import { ConnectedSocket, MessageBody, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 
 @WebSocketGateway({ cors: true })
 @Injectable()
@@ -31,7 +32,11 @@ export class MatchGateway implements OnGatewayDisconnect {
 
     @SubscribeMessage(MatchEvents.JoinRoom)
     joinRoom(@ConnectedSocket() socket: Socket, @MessageBody() data: UserInfo) {
-        if (!this.matchRoomService.isValidMatchRoomCode(data.roomCode) || !this.playerRoomService.isValidUsername(data.roomCode, data.username)) {
+        const codeErrors = this.matchRoomService.getRoomCodeErrors(data.roomCode);
+        const usernameErrors = this.playerRoomService.getUsernameErrors(data.roomCode, data.username);
+        const errorMessage = codeErrors + usernameErrors;
+        if (errorMessage) {
+            this.sendError(socket.id, errorMessage);
             this.server.in(socket.id).disconnectSockets();
         } else {
             socket.join(data.roomCode);
@@ -43,7 +48,7 @@ export class MatchGateway implements OnGatewayDisconnect {
     @SubscribeMessage(MatchEvents.CreateRoom)
     createRoom(@ConnectedSocket() socket: Socket, @MessageBody() data: { gameId: string; isTestPage: boolean }) {
         const selectedGame: Game = this.matchBackupService.getBackupGame(data.gameId);
-        const newMatchRoom: MatchRoom = this.matchRoomService.addMatchRoom(selectedGame, socket, data.isTestPage);
+        const newMatchRoom: MatchRoom = this.matchRoomService.addRoom(selectedGame, socket, data.isTestPage);
         this.histogramService.resetChoiceTracker(newMatchRoom.code);
         if (data.isTestPage) {
             const playerInfo = { roomCode: newMatchRoom.code, username: 'Organisateur' };
@@ -68,7 +73,7 @@ export class MatchGateway implements OnGatewayDisconnect {
 
     @SubscribeMessage(MatchEvents.ToggleLock)
     toggleLock(@ConnectedSocket() socket: Socket, @MessageBody() matchRoomCode: string) {
-        this.matchRoomService.toggleLockMatchRoom(matchRoomCode);
+        this.matchRoomService.toggleLock(matchRoomCode);
     }
 
     @SubscribeMessage(MatchEvents.BanUsername)
@@ -77,6 +82,7 @@ export class MatchGateway implements OnGatewayDisconnect {
         const playerToBan = this.playerRoomService.getPlayerByUsername(data.roomCode, data.username);
         if (playerToBan) {
             this.playerRoomService.deletePlayer(data.roomCode, data.username);
+            this.sendError(playerToBan.socket.id, BAN_PLAYER);
             this.server.in(playerToBan.socket.id).disconnectSockets();
         }
         this.sendPlayersData(socket, data.roomCode);
@@ -129,27 +135,29 @@ export class MatchGateway implements OnGatewayDisconnect {
     handleDisconnect(@ConnectedSocket() socket: Socket) {
         const hostRoomCode = this.matchRoomService.getRoomCodeByHostSocket(socket.id);
         if (hostRoomCode) {
-            this.deleteMatchRoom(hostRoomCode);
+            this.sendError(hostRoomCode, NO_MORE_HOST);
+            this.deleteRoom(hostRoomCode);
             return;
         }
         const roomCode = this.playerRoomService.deletePlayerBySocket(socket.id);
         if (!roomCode) {
             return;
         }
-        const room = this.matchRoomService.getMatchRoomByCode(roomCode);
+        const room = this.matchRoomService.getRoom(roomCode);
         const isRoomEmpty = this.isRoomEmpty(room);
         if (room.isPlaying && isRoomEmpty) {
-            this.deleteMatchRoom(roomCode);
+            this.sendError(roomCode, NO_MORE_PLAYERS);
+            this.deleteRoom(roomCode);
             return;
         }
 
         this.handleSendPlayersData(roomCode);
     }
 
-    deleteMatchRoom(matchRoomCode: string) {
+    deleteRoom(matchRoomCode: string) {
         this.server.to(matchRoomCode).emit('hostQuitMatch');
         this.server.in(matchRoomCode).disconnectSockets();
-        this.matchRoomService.deleteMatchRoom(matchRoomCode);
+        this.matchRoomService.deleteRoom(matchRoomCode);
     }
 
     sendMessageToClients(data: MessageInfo) {
@@ -164,7 +172,11 @@ export class MatchGateway implements OnGatewayDisconnect {
         this.server.to(matchRoomCode).emit('fetchOldMessages', this.chatService.getMessages(matchRoomCode));
     }
 
-    private emitHistogramHistory(matchRoomCode) {
+    sendError(socketId: string, error: string) {
+        this.server.to(socketId).emit('error', error);
+    }
+
+    private emitHistogramHistory(matchRoomCode: string) {
         const histograms = this.histogramService.sendHistogramHistory(matchRoomCode);
         this.server.to(matchRoomCode).emit(MatchEvents.HistogramHistory, histograms);
     }

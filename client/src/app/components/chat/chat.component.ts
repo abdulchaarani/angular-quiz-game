@@ -2,8 +2,8 @@ import { AfterViewChecked, Component, ElementRef, OnDestroy, OnInit, ViewChild }
 
 import { Message } from '@app/interfaces/message';
 
-import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { ChatService } from '@app/services/chat/chat.service';
+import { MatchRoomService } from '@app/services/match-room/match-room.service';
 
 @Component({
     selector: 'app-chat',
@@ -39,7 +39,7 @@ export class ChatComponent implements AfterViewChecked, OnInit, OnDestroy {
                 author: this.matchRoomService.getUsername(),
                 date: new Date(),
             };
-            this.chatService.sendMessage(this.matchRoomService.getMatchRoomCode(), newMessage);
+            this.chatService.sendMessage(this.matchRoomService.getRoomCode(), newMessage);
         }
     }
 

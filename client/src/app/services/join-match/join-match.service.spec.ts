@@ -69,7 +69,12 @@ describe('JoinMatchService', () => {
     });
 
     it('validateUsername() should display error notification and not add player to match room if response is invalid', () => {
-        const postSpy = spyOn(service, 'postUsername').and.returnValue(throwError(() => new HttpErrorResponse({ error: 403 })));
+        const httpError = new HttpErrorResponse({
+            status: 409,
+            error: { code: '409', message: 'mock' },
+        });
+        spyOn(JSON, 'parse').and.returnValue(httpError.error);
+        const postSpy = spyOn(service, 'postUsername').and.returnValue(throwError(() => httpError));
         const addSpy = spyOn(service, 'addPlayerToMatchRoom').and.returnValue();
         service.validateUsername('');
         expect(postSpy).toHaveBeenCalled();

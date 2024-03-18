@@ -42,7 +42,7 @@ export class AnswerService {
 
     submitAnswer(username: string, roomCode: string) {
         const player: Player = this.playerService.getPlayerByUsername(roomCode, username);
-        const matchRoom = this.getMatchRoomByCode(roomCode);
+        const matchRoom = this.getRoom(roomCode);
 
         player.answer.isSubmitted = true;
         player.answer.timestamp = Date.now();
@@ -51,12 +51,12 @@ export class AnswerService {
         this.handleFinalAnswerSubmitted(matchRoom);
     }
 
-    private getMatchRoomByCode(roomCode: string) {
-        return this.matchRoomService.getMatchRoomByCode(roomCode);
+    private getRoom(roomCode: string) {
+        return this.matchRoomService.getRoom(roomCode);
     }
 
     private isCorrectPlayerAnswer(player: Player, roomCode: string) {
-        const correctAnswer: string[] = this.getMatchRoomByCode(roomCode).currentQuestionAnswer;
+        const correctAnswer: string[] = this.getRoom(roomCode).currentQuestionAnswer;
         const playerChoices = this.filterSelectedChoices(player.answer);
         return playerChoices.sort().toString() === correctAnswer.sort().toString();
     }
@@ -87,7 +87,7 @@ export class AnswerService {
     }
 
     private getCurrentQuestionValue(roomCode: string): number {
-        const matchRoom = this.getMatchRoomByCode(roomCode);
+        const matchRoom = this.getRoom(roomCode);
         const currentQuestionIndex = matchRoom.currentQuestionIndex;
         return matchRoom.game.questions[currentQuestionIndex].points;
     }
@@ -120,21 +120,21 @@ export class AnswerService {
         fastestPlayer.socket.emit('bonus', bonus);
     }
     private sendFeedback(roomCode: string) {
-        const correctAnswer: string[] = this.getMatchRoomByCode(roomCode).currentQuestionAnswer;
+        const correctAnswer: string[] = this.getRoom(roomCode).currentQuestionAnswer;
         const players: Player[] = this.playerService.getPlayers(roomCode);
         players.forEach((player: Player) => {
             const feedback: Feedback = { score: player.score, correctAnswer };
             player.socket.emit('feedback', feedback);
         });
 
-        const matchRoom = this.getMatchRoomByCode(roomCode);
+        const matchRoom = this.getRoom(roomCode);
         matchRoom.hostSocket.emit('feedback');
         if (matchRoom.gameLength === 1 + matchRoom.currentQuestionIndex) matchRoom.hostSocket.emit('endGame');
     }
     private resetPlayersAnswer(roomCode: string) {
         this.histogramService.saveHistogram(roomCode);
 
-        this.getMatchRoomByCode(roomCode).submittedPlayers = 0;
+        this.getRoom(roomCode).submittedPlayers = 0;
 
         const players: Player[] = this.playerService.getPlayers(roomCode);
         players.forEach((player) => {

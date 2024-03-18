@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { MOCK_CHOICES, getMockGame } from '@app/constants/game-mocks';
+import { INVALID_CODE, LOCKED_ROOM } from '@app/constants/match-login-errors';
 import { MOCK_MATCH_ROOM, MOCK_PLAYER, MOCK_PLAYER_ROOM, MOCK_ROOM_CODE } from '@app/constants/match-mocks';
 import { getMockQuestion } from '@app/constants/question-mocks';
 import { TimerEvents } from '@app/constants/timer-events';
@@ -56,27 +57,27 @@ describe('MatchRoomService', () => {
     });
 
     it('generateRoomCode() should generate a random 4 number room code', () => {
-        jest.spyOn(service, 'getMatchRoomByCode').mockReturnValue(undefined);
+        jest.spyOn(service, 'getRoom').mockReturnValue(undefined);
         jest.spyOn(Math, 'random').mockReturnValue(0);
         const result = service.generateRoomCode();
         expect(result.length).toEqual(MAXIMUM_CODE_LENGTH);
         expect(isNaN(Number(result))).toBeFalsy();
     });
 
-    it('getMatchRoomByCode() should return the MatchRoom with the corresponding code', () => {
+    it('getRoom() should return the MatchRoom with the corresponding code', () => {
         const searchedMatchRoom = MOCK_MATCH_ROOM;
         searchedMatchRoom.code = MOCK_ROOM_CODE;
         service.matchRooms = [MOCK_MATCH_ROOM, searchedMatchRoom];
-        const foundRoom = service.getMatchRoomByCode(MOCK_ROOM_CODE);
+        const foundRoom = service.getRoom(MOCK_ROOM_CODE);
         expect(foundRoom).toEqual(searchedMatchRoom);
     });
 
-    it('getMatchRoomByCode() should return undefined if no match room with the corresponding code is found', () => {
-        const foundRoom = service.getMatchRoomByCode(MOCK_ROOM_CODE);
+    it('getRoom() should return undefined if no match room with the corresponding code is found', () => {
+        const foundRoom = service.getRoom(MOCK_ROOM_CODE);
         expect(foundRoom).toEqual(undefined);
     });
 
-    it('getMatchRoomByCode() should return the index of the corresponding room', () => {
+    it('getRoom() should return the index of the corresponding room', () => {
         const searchedRoom: MatchRoom = {
             code: MOCK_ROOM_CODE,
             isLocked: false,
@@ -88,11 +89,11 @@ describe('MatchRoomService', () => {
             hostSocket: undefined,
         } as MatchRoom;
         service.matchRooms = [searchedRoom, MOCK_MATCH_ROOM];
-        const result = service.getRoomIndexByCode(MOCK_ROOM_CODE);
+        const result = service.getRoomIndex(MOCK_ROOM_CODE);
         expect(result).toEqual(0);
     });
 
-    it('addMatchRoom() should generate a room code add the new MatchRoom in the rooms list', () => {
+    it('addRoom() should generate a room code add the new MatchRoom in the rooms list', () => {
         service.matchRooms = [];
         const generateSpy = jest.spyOn(service, 'generateRoomCode').mockReturnValue(MOCK_ROOM_CODE);
         const mockGame = getMockGame();
@@ -115,7 +116,7 @@ describe('MatchRoomService', () => {
             isTestRoom: false,
         };
 
-        const result = service.addMatchRoom(mockGame, socket);
+        const result = service.addRoom(mockGame, socket);
         expect(generateSpy).toHaveBeenCalled();
         expect(result).toEqual(expectedResult);
         expect(service.matchRooms.length).toEqual(1);
@@ -136,18 +137,18 @@ describe('MatchRoomService', () => {
         expect(result).toEqual(undefined);
     });
 
-    it('toggleLockMatchRoom() should toggle the isLocked property', () => {
+    it('toggleLock() should toggle the isLocked property', () => {
         const lockStates = [true, false];
         lockStates.forEach((lockState: boolean) => {
             const matchRoom = MOCK_MATCH_ROOM;
             matchRoom.isLocked = lockState;
-            jest.spyOn(service, 'getMatchRoomByCode').mockReturnValue(matchRoom);
-            service.toggleLockMatchRoom(MOCK_MATCH_ROOM.code);
+            jest.spyOn(service, 'getRoom').mockReturnValue(matchRoom);
+            service.toggleLock(MOCK_MATCH_ROOM.code);
             expect(matchRoom.isLocked).toEqual(!lockState);
         });
     });
 
-    it('deleteMatchRoom() should delete the MatchRoom with the corresponding code', () => {
+    it('deleteRoom() should delete the MatchRoom with the corresponding code', () => {
         const deletedMatchRoom = MOCK_MATCH_ROOM;
         deletedMatchRoom.code = MOCK_ROOM_CODE;
         const otherMatchRoom: MatchRoom = {
@@ -161,38 +162,38 @@ describe('MatchRoomService', () => {
             hostSocket: undefined,
         } as MatchRoom;
         service.matchRooms = [otherMatchRoom, deletedMatchRoom];
-        service.deleteMatchRoom(MOCK_ROOM_CODE);
+        service.deleteRoom(MOCK_ROOM_CODE);
         expect(service.matchRooms.length).toEqual(1);
         expect(service.matchRooms.find((room: MatchRoom) => room === deletedMatchRoom)).toBeFalsy();
     });
 
-    it('isValidMatchRoomCode() should return true if the room is found and is not locked', () => {
+    it('getRoomCodeErrors() should return empty string if the room is found and is not locked', () => {
         const validRoom = MOCK_MATCH_ROOM;
         validRoom.isLocked = false;
-        jest.spyOn(service, 'getMatchRoomByCode').mockReturnValue(MOCK_MATCH_ROOM);
-        const result = service.isValidMatchRoomCode('');
-        expect(result).toBeTruthy();
+        jest.spyOn(service, 'getRoom').mockReturnValue(MOCK_MATCH_ROOM);
+        const result = service.getRoomCodeErrors(validRoom.code);
+        expect(result).toEqual('');
     });
 
-    it('isValidMatchRoomCode() should return false if the room is found and is locked', () => {
-        const validRoom = MOCK_MATCH_ROOM;
-        validRoom.isLocked = true;
-        jest.spyOn(service, 'getMatchRoomByCode').mockReturnValue(MOCK_MATCH_ROOM);
-        const result = service.isValidMatchRoomCode('');
-        expect(result).toBeFalsy();
+    it('getRoomCodeErrors() should return LOCKED_ROOM error if the room is found and is locked', () => {
+        const invalidRoom = MOCK_MATCH_ROOM;
+        invalidRoom.isLocked = true;
+        jest.spyOn(service, 'getRoom').mockReturnValue(MOCK_MATCH_ROOM);
+        const result = service.getRoomCodeErrors(invalidRoom.code);
+        expect(result).toEqual(LOCKED_ROOM);
     });
 
-    it('isValidMatchRoomCode() should return false if the room is not found', () => {
-        jest.spyOn(service, 'getMatchRoomByCode').mockReturnValue(undefined);
-        const result = service.isValidMatchRoomCode('');
-        expect(result).toBeFalsy();
+    it('getRoomCodeErrors() should return INVALID_CODE if the room is not found', () => {
+        jest.spyOn(service, 'getRoom').mockReturnValue(undefined);
+        const result = service.getRoomCodeErrors('');
+        expect(result).toEqual(INVALID_CODE);
     });
 
     it('canStartMatch() should return true if room is locked and has at least one player', () => {
         const validRoom = MOCK_MATCH_ROOM;
         validRoom.isLocked = true;
         validRoom.players = [MOCK_PLAYER];
-        jest.spyOn(service, 'getMatchRoomByCode').mockReturnValue(MOCK_MATCH_ROOM);
+        jest.spyOn(service, 'getRoom').mockReturnValue(MOCK_MATCH_ROOM);
         const result = service['canStartMatch']('');
         expect(result).toBeTruthy();
     });
@@ -212,16 +213,16 @@ describe('MatchRoomService', () => {
 
         const invalidRooms = [unlockedRoom, noPlayerRoom, totallyInvalidRoom, undefined];
         invalidRooms.forEach((room: MatchRoom) => {
-            jest.spyOn(service, 'getMatchRoomByCode').mockReturnValue(room);
+            jest.spyOn(service, 'getRoom').mockReturnValue(room);
             expect(service['canStartMatch']('')).toBeFalsy();
         });
     });
 
     it('incrementCurrentQuestionIndex() should increment currentQuestionIndex when called', () => {
         service.matchRooms.push(MOCK_MATCH_ROOM);
-        expect(service.getMatchRoomByCode(MOCK_ROOM_CODE).currentQuestionIndex).toEqual(0);
+        expect(service.getRoom(MOCK_ROOM_CODE).currentQuestionIndex).toEqual(0);
         service.incrementCurrentQuestionIndex(MOCK_ROOM_CODE);
-        expect(service.getMatchRoomByCode(MOCK_ROOM_CODE).currentQuestionIndex).toEqual(1);
+        expect(service.getRoom(MOCK_ROOM_CODE).currentQuestionIndex).toEqual(1);
     });
 
     it('startMatch() should start match and timer with a 5 seconds countdown', () => {

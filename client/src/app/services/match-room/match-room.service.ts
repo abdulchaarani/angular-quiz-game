@@ -42,7 +42,7 @@ export class MatchRoomService {
         return this.socketService.socket.id ? this.socketService.socket.id : '';
     }
 
-    getMatchRoomCode() {
+    getRoomCode() {
         return this.matchRoomCode;
     }
 
@@ -63,6 +63,7 @@ export class MatchRoomService {
             this.gameOver();
             this.startCooldown();
             this.onHostQuit();
+            this.handleError();
         }
     }
 
@@ -107,6 +108,12 @@ export class MatchRoomService {
             const sentInfo: UserInfo = { roomCode: this.matchRoomCode, username };
             this.socketService.send('banUsername', sentInfo);
         }
+    }
+
+    handleError() {
+        this.socketService.on('error', (errorMessage: string) => {
+            this.notificationService.displayErrorMessage(errorMessage);
+        });
     }
 
     startMatch() {
@@ -177,7 +184,6 @@ export class MatchRoomService {
         this.socketService.on('disconnect', () => {
             this.router.navigateByUrl('/home');
             this.resetMatchValues();
-            this.notificationService.displayErrorMessage('Vous avez été déconnecté de la partie.');
         });
     }
 

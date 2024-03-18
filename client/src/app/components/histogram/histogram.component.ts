@@ -72,7 +72,7 @@ export class HistogramComponent implements OnInit, OnChanges, OnDestroy {
 
     renderChart(params: any) {
         return {
-            content: `Choice: ${params.datum.text} <br/> Selections: ${params.datum.picks}`,
+            content: `Choix: ${params.datum.text} <br/> Sélections: ${params.datum.picks}`,
         };
     }
 

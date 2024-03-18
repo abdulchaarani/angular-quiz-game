@@ -207,17 +207,13 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         }
     }
 
-    private handleFeedbackSubmission() {
-        this.showFeedback = true;
-        this.isNextQuestionButton = true;
-    }
-
     private subscribeToFeedback() {
         const feedbackSubscription = this.answerService.feedback$.subscribe((feedback) => {
             this.handleFeedback(feedback);
         });
         const feedbackObservable = this.answerService.feedbackSub$.subscribe(() => {
-            this.handleFeedbackSubmission();
+            this.showFeedback = true;
+            this.isNextQuestionButton = true;
         });
 
         this.eventSubscriptions.push(feedbackSubscription);
@@ -245,41 +241,28 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         this.eventSubscriptions.push(currentQuestionSubscription);
     }
 
-    private handleBonusPoints(bonus: number) {
-        if (bonus) {
-            this.bonus = bonus;
-        }
-    }
-
     private subscribeToBonus() {
         const bonusPointsSubscription = this.answerService.bonusPoints$.subscribe((bonus) => {
-            this.handleBonusPoints(bonus);
+            if (bonus) {
+                this.bonus = bonus;
+            }
         });
         this.eventSubscriptions.push(bonusPointsSubscription);
     }
 
-    private handleCooldown(coolDown: boolean) {
-        if (coolDown) {
-            this.isCooldown = true;
-            if (this.context !== 'testPage') this.currentQuestion.text = MatchStatus.PREPARE;
-        }
-    }
-
     private subscribeToCooldown() {
         const displayCoolDownSubscription = this.matchRoomService.displayCooldown$.subscribe((isCooldown) => {
-            this.handleCooldown(isCooldown);
+            this.isCooldown = isCooldown;
+            if (this.isCooldown && this.context !== 'testPage') {
+                this.currentQuestion.text = MatchStatus.PREPARE;
+            }
         });
-
         this.eventSubscriptions.push(displayCoolDownSubscription);
     }
 
-    private handleGameEnd() {
-        this.isLastQuestion = true;
-    }
-
     private subscribeToGameEnd() {
-        const endGameSubscription = this.answerService.endGame$.subscribe(() => {
-            this.handleGameEnd();
+        const endGameSubscription = this.answerService.endGame$.subscribe((endGame) => {
+            this.isLastQuestion = endGame;
         });
         this.eventSubscriptions.push(endGameSubscription);
     }

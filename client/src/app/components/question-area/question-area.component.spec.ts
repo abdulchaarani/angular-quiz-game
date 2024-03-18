@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 // To let the tests run smoothly
 /* eslint-disable max-classes-per-file */
 /* eslint-disable @typescript-eslint/no-empty-function */
@@ -20,10 +21,12 @@ import { AnswerService } from '@app/services/answer/answer.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { MatchService } from '@app/services/match/match.service';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
-import { BONUS_FACTOR } from '@common/constants/match-constants';
 import { Socket } from 'socket.io-client';
 import { QuestionAreaComponent } from './question-area.component';
 import spyObj = jasmine.SpyObj;
+import { BehaviorSubject, Subject, Subscription } from 'rxjs';
+import { MatchStatus } from '@app/constants/feedback-messages';
+import { getMockQuestion } from '@app/constants/question-mocks';
 
 class SocketHandlerServiceMock extends SocketHandlerService {
     override connect() {}
@@ -44,6 +47,9 @@ describe('QuestionAreaComponent', () => {
     let socketHelper: SocketTestHelper;
     let matchRoomSpy: spyObj<MatchRoomService>;
     let answerSpy: spyObj<AnswerService>;
+    let booleanSubject: BehaviorSubject<boolean>;
+    let bonusSubject: Subject<number>;
+    let questionSubject: Subject<Question>;
 
     beforeEach(async () => {
         const mockHistoryState = {
@@ -103,25 +109,15 @@ describe('QuestionAreaComponent', () => {
         spyOn<any>(component, 'subscribeToFeedback').and.callFake(() => {
             component.showFeedback = true;
         });
-        spyOn<any>(component, 'subscribeToBonus').and.callFake(() => {
-            component.bonus = BONUS_FACTOR;
-        });
-        spyOn<any>(component, 'subscribeToCurrentQuestion').and.callFake(() => {
-            component.currentQuestion = mockHistoryState.question;
-            matchRoomSpy.nextQuestion();
-        });
-        spyOn<any>(component, 'subscribeToCooldown').and.callFake(() => {
-            if (component.currentQuestion) {
-                component.isCooldown = true;
-            }
-        });
-        spyOn<any>(component, 'subscribeToGameEnd').and.callFake(() => {
-            component.isLastQuestion = true;
-        });
 
-        spyOn<any>(component, 'subscribeToHostPlaying').and.callFake(() => {
-            component.isHostPlaying = false;
-        });
+        booleanSubject = new BehaviorSubject<boolean>(false);
+        bonusSubject = new Subject<number>();
+        questionSubject = new Subject<Question>();
+        matchRoomSpy.displayCooldown$ = booleanSubject.asObservable();
+        answerSpy.endGame$ = booleanSubject.asObservable();
+        matchRoomSpy.isHostPlaying$ = booleanSubject.asObservable();
+        answerSpy.bonusPoints$ = bonusSubject.asObservable();
+        matchRoomSpy.currentQuestion$ = questionSubject.asObservable();
 
         fixture.detectChanges();
     });
@@ -292,13 +288,6 @@ describe('QuestionAreaComponent', () => {
         expect(component.isCorrectAnswer(choice)).toBeFalse();
     });
 
-    it('should call matchRoomService.nextQuestion when nextQuestion is called', () => {
-        spyOn(component, 'nextQuestion');
-        component.nextQuestion();
-
-        expect(matchRoomSpy.nextQuestion).toHaveBeenCalled();
-    });
-
     it('should reset the state for a new question when resetStateForNewQuestion is called', () => {
         component.showFeedback = true;
         component.isSelectionEnabled = false;
@@ -348,12 +337,6 @@ describe('QuestionAreaComponent', () => {
         expect(component.nextQuestion).toHaveBeenCalled();
     });
 
-    it('should call handleFeedbackSubmission when feedbackSub is received', () => {
-        component['handleFeedbackSubmission']();
-
-        expect(component.showFeedback).toBeTrue();
-    });
-
     it('should handle question change', () => {
         const question: Question = {
             id: '2',
@@ -378,23 +361,68 @@ describe('QuestionAreaComponent', () => {
         expect(component.ngOnChanges).toHaveBeenCalledTimes(1);
     });
 
-    it('should handle bonus points', () => {
-        const bonus = 5;
-
-        component['handleBonusPoints'](bonus);
-
-        expect(component.bonus).toBe(bonus);
+    it('subscribeToCurrentQuestion() should add a subscription to current question delegate question change to handleQuestionChange() ', () => {
+        const handleQuestionSpy = spyOn<any>(component, 'handleQuestionChange').and.returnValue(true);
+        const subscriptions: Subscription[] = (component['eventSubscriptions'] = []);
+        component['subscribeToCurrentQuestion']();
+        expect(subscriptions.length).toEqual(1);
+        const newQuestsion = getMockQuestion();
+        questionSubject.next(newQuestsion);
+        expect(handleQuestionSpy).toHaveBeenCalledWith(newQuestsion);
     });
 
-    it('should handle cooldown', () => {
-        component['handleCooldown'](true);
-
-        expect(component.isCooldown).toBeTrue();
+    it('subscribeToBonus() should add a subscription to bonus and display bonus when question ends ', () => {
+        const subscriptions: Subscription[] = (component['eventSubscriptions'] = []);
+        component['subscribeToBonus']();
+        expect(subscriptions.length).toEqual(1);
+        expect(component.bonus).toEqual(0);
+        bonusSubject.next(10);
+        expect(component.bonus).toEqual(10);
     });
 
-    it('should handle game end', () => {
-        component['handleGameEnd']();
+    it('subscribeToCooldown() should add a subscription to cooldown and respond when cooldown starts on play page ', () => {
+        component.isCooldown = false;
+        const subscriptions: Subscription[] = (component['eventSubscriptions'] = []);
+        component['subscribeToCooldown']();
+        expect(subscriptions.length).toEqual(1);
+        expect(component.isCooldown).toBe(false);
+        booleanSubject.next(true);
+        expect(component.isCooldown).toBe(true);
+    });
 
-        expect(component.isLastQuestion).toBeTrue();
+    it('subscribeToCooldown() should set the displayed text to Match Prepare if context is not testPage ', () => {
+        component.isCooldown = false;
+        component.context = 'playerView';
+        component['subscribeToCooldown']();
+        booleanSubject.next(true);
+        expect(component.currentQuestion.text).toEqual(MatchStatus.PREPARE);
+    });
+
+    it('subscribeToCooldown() should not set the displayed text to Match Prepare if context is testPage ', () => {
+        component.isCooldown = false;
+        component.context = 'testPage';
+        component['subscribeToCooldown']();
+        booleanSubject.next(true);
+        expect(component.currentQuestion.text).not.toEqual(MatchStatus.PREPARE);
+    });
+
+    it('subscribeToGameEnd() should add a subscription to endGame and respond when game ends ', () => {
+        component.isLastQuestion = false;
+        const subscriptions: Subscription[] = (component['eventSubscriptions'] = []);
+        component['subscribeToGameEnd']();
+        expect(subscriptions.length).toEqual(1);
+        expect(component.isLastQuestion).toBe(false);
+        booleanSubject.next(true);
+        expect(component.isLastQuestion).toBe(true);
+    });
+
+    it('subscribeToHostPlaying() should add a subscription to hostPlaying and respond when host quits ', () => {
+        booleanSubject.next(true);
+        const subscriptions: Subscription[] = (component['eventSubscriptions'] = []);
+        component['subscribeToHostPlaying']();
+        expect(subscriptions.length).toEqual(1);
+        expect(component.isHostPlaying).toBe(true);
+        booleanSubject.next(false);
+        expect(component.isHostPlaying).toBe(false);
     });
 });

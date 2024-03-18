@@ -18,16 +18,17 @@ export class MatchRoomService {
     messages: Message[];
     isResults: boolean;
     isWaitOver: boolean;
-
+    startMatch$: Observable<boolean>;
+    gameTitle$: Observable<string>;
     isHostPlaying$: Observable<boolean>;
     currentQuestion$: Observable<Question>;
     displayCooldown$: Observable<boolean>;
-    private startMatchSubject = new Subject<void>();
-    private gameTitle = new Subject<string>();
+
+    private startMatchSource = new Subject<boolean>();
+    private gameTitleSource = new Subject<string>();
     private currentQuestionSource = new Subject<Question>();
     private hostPlayingSource = new BehaviorSubject<boolean>(false);
     private displayCooldownSource = new BehaviorSubject<boolean>(false);
-
     private matchRoomCode: string;
     private username: string;
 
@@ -115,10 +116,10 @@ export class MatchRoomService {
     matchStarted() {
         this.socketService.on('matchStarting', (data: { start: boolean; gameTitle: string }) => {
             if (data.start) {
-                this.startMatchSubject.next();
+                this.startMatchSource.next(true);
             }
             if (data.gameTitle) {
-                this.gameTitle.next(data.gameTitle);
+                this.gameTitleSource.next(data.gameTitle);
             }
         });
     }
@@ -131,14 +132,6 @@ export class MatchRoomService {
                 this.router.navigate(['/play-test'], { state: { question: firstQuestion, duration: gameDuration } });
             } else this.router.navigate(['/play-match'], { state: { question: firstQuestion, duration: gameDuration } });
         });
-    }
-
-    getStartMatchObservable(): Observable<void> {
-        return this.startMatchSubject.asObservable();
-    }
-
-    getGameTitleObservable(): Observable<string> {
-        return this.gameTitle.asObservable();
     }
 
     nextQuestion() {
@@ -207,11 +200,13 @@ export class MatchRoomService {
     }
 
     private initialiseMatchSubjects() {
-        this.startMatchSubject = new Subject<void>();
-        this.gameTitle = new Subject<string>();
+        this.startMatchSource = new Subject<boolean>();
+        this.gameTitleSource = new Subject<string>();
         this.currentQuestionSource = new Subject<Question>();
         this.hostPlayingSource = new BehaviorSubject<boolean>(true);
         this.displayCooldownSource = new BehaviorSubject<boolean>(false);
+        this.startMatch$ = this.startMatchSource.asObservable();
+        this.gameTitle$ = this.gameTitleSource.asObservable();
         this.isHostPlaying$ = this.hostPlayingSource.asObservable();
         this.currentQuestion$ = this.currentQuestionSource.asObservable();
         this.displayCooldown$ = this.displayCooldownSource.asObservable();

@@ -67,15 +67,11 @@ export class WaitPageComponent implements OnInit, OnDestroy {
         this.subscribeToStartMatch();
 
         if (this.isHost) {
-            this.gameTitle = this.currentGame.title;
             this.questionContextService.setContext('hostView');
+            this.gameTitle = this.currentGame.title;
         } else {
-            this.eventSubscriptions.push(
-                this.matchRoomService.getGameTitleObservable().subscribe((title) => {
-                    this.gameTitle = title;
-                }),
-            );
             this.questionContextService.setContext('playerView');
+            this.subscribeToGameTitle();
         }
     }
 
@@ -130,9 +126,17 @@ export class WaitPageComponent implements OnInit, OnDestroy {
     }
 
     private subscribeToStartMatch() {
-        const startMatchSubscription = this.matchRoomService.getStartMatchObservable().subscribe(() => {
-            this.startTimerButton = true;
+        const startMatchSubscription = this.matchRoomService.startMatch$.subscribe((startMatch) => {
+            this.startTimerButton = startMatch;
         });
         this.eventSubscriptions.push(startMatchSubscription);
+    }
+
+    private subscribeToGameTitle() {
+        const gameTitleSubscription = this.matchRoomService.gameTitle$.subscribe((title) => {
+            this.gameTitle = title;
+        });
+
+        this.eventSubscriptions.push(gameTitleSubscription);
     }
 }

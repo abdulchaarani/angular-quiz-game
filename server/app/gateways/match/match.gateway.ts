@@ -155,7 +155,7 @@ export class MatchGateway implements OnGatewayDisconnect {
     }
 
     deleteRoom(matchRoomCode: string) {
-        this.server.to(matchRoomCode).emit('hostQuitMatch');
+        this.server.to(matchRoomCode).emit(MatchEvents.HostQuitMatch);
         this.server.in(matchRoomCode).disconnectSockets();
         this.matchRoomService.deleteRoom(matchRoomCode);
     }
@@ -165,15 +165,15 @@ export class MatchGateway implements OnGatewayDisconnect {
     }
 
     handleSendPlayersData(matchRoomCode: string) {
-        this.server.to(matchRoomCode).emit('fetchPlayersData', this.playerRoomService.getPlayersStringified(matchRoomCode));
+        this.server.to(matchRoomCode).emit(MatchEvents.FetchPlayersData, this.playerRoomService.getPlayersStringified(matchRoomCode));
     }
 
     handleSentMessagesHistory(matchRoomCode: string) {
-        this.server.to(matchRoomCode).emit('fetchOldMessages', this.chatService.getMessages(matchRoomCode));
+        this.server.to(matchRoomCode).emit(MatchEvents.FetchOldMessages, this.chatService.getMessages(matchRoomCode));
     }
 
     sendError(socketId: string, error: string) {
-        this.server.to(socketId).emit('error', error);
+        this.server.to(socketId).emit(MatchEvents.Error, error);
     }
 
     private emitHistogramHistory(matchRoomCode: string) {

@@ -14,4 +14,8 @@ export enum MatchEvents {
     SendMessagesHistory = 'sendMessagesHistory',
     RouteToResultsPage = 'routeToResultsPage',
     HistogramHistory = 'histogramHistory',
+    HostQuitMatch = 'hostQuitMatch',
+    FetchPlayersData = 'fetchPlayersData',
+    FetchOldMessages = 'fetchOldMessages',
+    Error = 'error',
 }

@@ -20,7 +20,7 @@ import { MatchRoomService } from './services/match-room/match-room.service';
 import { PlayerRoomService } from './services/player-room/player-room.service';
 import { TimeService } from './services/time/time.service';
 import { ChatService } from './services/chat/chat.service';
-import { AnwserGateway } from './gateways/anwser/anwser.gateway';
+import { AnswerGateway } from './gateways/answer/answer.gateway';
 import { AnswerService } from './services/answer/answer.service';
 import { HistogramService } from './services/histogram/histogram.service';
 
@@ -52,7 +52,7 @@ import { HistogramService } from './services/histogram/histogram.service';
         TimeService,
         PlayerRoomService,
         ChatService,
-        AnwserGateway,
+        AnswerGateway,
         AnswerService,
         HistogramService,
     ],

@@ -269,7 +269,7 @@ describe('MatchRoomService', () => {
         const matchRoom = { ...MOCK_PLAYER_ROOM };
         matchRoom.currentQuestionIndex = matchRoom.gameLength;
         matchRoom.isTestRoom = true;
-        jest.spyOn(service, 'getMatchRoomByCode').mockReturnValue(matchRoom);
+        jest.spyOn(service, 'getRoom').mockReturnValue(matchRoom);
         expect(emitMock).toHaveBeenCalledWith('gameOver', true);
     });
 

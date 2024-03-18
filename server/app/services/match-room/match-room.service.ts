@@ -137,7 +137,7 @@ export class MatchRoomService {
     sendNextQuestion(server: Server, matchRoomCode: string): void {
         const matchRoom: MatchRoom = this.getRoom(matchRoomCode);
         if (matchRoom.currentQuestionIndex === matchRoom.gameLength) {
-            server.in(matchRoomCode).emit('gameOver', this.getMatchRoomByCode(matchRoomCode).isTestRoom);
+            server.in(matchRoomCode).emit('gameOver', matchRoom.isTestRoom);
             return;
         }
         const nextQuestion = matchRoom.game.questions[matchRoom.currentQuestionIndex];

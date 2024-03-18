@@ -20,6 +20,7 @@ const MULTIPLICATION_FACTOR = 100;
 })
 export class WaitPageComponent implements OnInit, OnDestroy {
     isLocked: boolean;
+    isWaitOver: boolean;
     startTimerButton: boolean;
     gameTitle: string;
     private eventSubscriptions: Subscription[] = [];
@@ -36,6 +37,7 @@ export class WaitPageComponent implements OnInit, OnDestroy {
     ) {
         this.isLocked = false;
         this.startTimerButton = false;
+        this.isWaitOver = false;
     }
 
     get time() {
@@ -50,6 +52,8 @@ export class WaitPageComponent implements OnInit, OnDestroy {
     }
 
     canDeactivate(): CanDeactivateType {
+        if (this.isWaitOver) return true;
+
         if (!this.matchRoomService.isHostPlaying) {
             this.matchRoomService.disconnect();
             return true;
@@ -83,11 +87,9 @@ export class WaitPageComponent implements OnInit, OnDestroy {
 
         this.matchRoomService.matchStarted();
         this.matchRoomService.beginQuiz();
-        this.eventSubscriptions.push(
-            this.matchRoomService.getStartMatchObservable().subscribe(() => {
-                this.startTimerButton = true;
-            }),
-        );
+
+        this.subscribeToStartMatch();
+        this.subscribeToWaitOver();
     }
 
     ngOnDestroy(): void {
@@ -123,5 +125,20 @@ export class WaitPageComponent implements OnInit, OnDestroy {
 
     nextQuestion() {
         this.matchRoomService.nextQuestion();
+    }
+
+    private subscribeToStartMatch() {
+        const startMatchSubscription = this.matchRoomService.getStartMatchObservable().subscribe(() => {
+            this.startTimerButton = true;
+        });
+        this.eventSubscriptions.push(startMatchSubscription);
+    }
+
+    // TODO: rename
+    private subscribeToWaitOver() {
+        const beginQuizSubscription = this.matchRoomService.isWaitOver$.subscribe(() => {
+            this.isWaitOver = true;
+        });
+        this.eventSubscriptions.push(beginQuizSubscription);
     }
 }

@@ -39,9 +39,9 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
     // Allow more constructor parameters to decouple services
     // eslint-disable-next-line max-params
     constructor(
+        public matchRoomService: MatchRoomService,
         private readonly timeService: TimeService,
         private readonly matchService: MatchService,
-        private readonly matchRoomService: MatchRoomService,
         private readonly questionContextService: QuestionContextService,
         private readonly answerService: AnswerService,
         private readonly notificationService: NotificationService,
@@ -181,10 +181,6 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         this.correctAnswers = [];
         this.isRightAnswer = false;
         this.isCooldown = false;
-    }
-
-    quitGame() {
-        this.matchRoomService.quitGame();
     }
 
     handleQuit() {

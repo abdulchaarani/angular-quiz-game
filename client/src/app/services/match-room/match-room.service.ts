@@ -21,10 +21,12 @@ export class MatchRoomService {
 
     currentQuestion$: Observable<Question>;
     displayCooldown$: Observable<boolean>;
+    isWaitOver$: Observable<boolean>;
     private startMatchSubject = new Subject<void>();
     private gameTitle = new Subject<string>();
     private currentQuestionSource = new Subject<Question>();
     private displayCooldownSource = new BehaviorSubject<boolean>(false);
+    private waitOverSource = new BehaviorSubject<boolean>(false);
 
     private matchRoomCode: string;
     private username: string;
@@ -121,6 +123,7 @@ export class MatchRoomService {
 
     beginQuiz() {
         this.socketService.on('beginQuiz', (data: { firstQuestion: Question; gameDuration: number; isTestRoom: boolean }) => {
+            this.waitOverSource.next(true);
             const { firstQuestion, gameDuration, isTestRoom } = data;
             if (isTestRoom) {
                 this.router.navigate(['/play-test'], { state: { question: firstQuestion, duration: gameDuration } });
@@ -214,7 +217,9 @@ export class MatchRoomService {
         this.gameTitle = new Subject<string>();
         this.currentQuestionSource = new Subject<Question>();
         this.displayCooldownSource = new BehaviorSubject<boolean>(false);
+        this.waitOverSource = new BehaviorSubject<boolean>(false);
         this.currentQuestion$ = this.currentQuestionSource.asObservable();
         this.displayCooldown$ = this.displayCooldownSource.asObservable();
+        this.isWaitOver$ = this.waitOverSource.asObservable();
     }
 }

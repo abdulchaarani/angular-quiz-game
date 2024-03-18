@@ -42,7 +42,7 @@ export class MatchRoomService {
         return this.socketService.socket.id ? this.socketService.socket.id : '';
     }
 
-    getMatchRoomCode() {
+    getRoomCode() {
         return this.matchRoomCode;
     }
 

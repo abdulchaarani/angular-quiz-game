@@ -13,7 +13,7 @@ export class PlayerRoomService {
     constructor(private readonly matchRoomService: MatchRoomService) {}
 
     getPlayers(code: string): Player[] {
-        return this.matchRoomService.getMatchRoomByCode(code).players;
+        return this.matchRoomService.getRoom(code).players;
     }
 
     getPlayersStringified(code: string): string {
@@ -39,7 +39,7 @@ export class PlayerRoomService {
             socket: playerSocket,
         };
 
-        const matchRoom = this.matchRoomService.getMatchRoomByCode(matchRoomCode);
+        const matchRoom = this.matchRoomService.getRoom(matchRoomCode);
         matchRoom.players.push(newPlayer);
         matchRoom.activePlayers++;
 
@@ -70,8 +70,8 @@ export class PlayerRoomService {
     }
 
     makePlayerInactive(matchRoomCode: string, username: string): void {
-        const roomIndex = this.matchRoomService.getRoomIndexByCode(matchRoomCode);
-        const playerIndex = this.matchRoomService.getMatchRoomByCode(matchRoomCode).players.findIndex((player: Player) => {
+        const roomIndex = this.matchRoomService.getRoomIndex(matchRoomCode);
+        const playerIndex = this.matchRoomService.getRoom(matchRoomCode).players.findIndex((player: Player) => {
             return player.username === username;
         });
         if (roomIndex !== INDEX_NOT_FOUND && playerIndex !== INDEX_NOT_FOUND) {
@@ -81,18 +81,18 @@ export class PlayerRoomService {
     }
 
     deletePlayer(matchRoomCode: string, username: string): void {
-        const roomIndex = this.matchRoomService.getRoomIndexByCode(matchRoomCode);
+        const roomIndex = this.matchRoomService.getRoomIndex(matchRoomCode);
         this.matchRoomService.matchRooms[roomIndex].players = this.matchRoomService.matchRooms[roomIndex].players.filter((player) => {
             return player.username.toUpperCase() !== username.toUpperCase();
         });
     }
 
     getBannedUsernames(matchRoomCode: string): string[] {
-        return this.matchRoomService.getMatchRoomByCode(matchRoomCode).bannedUsernames;
+        return this.matchRoomService.getRoom(matchRoomCode).bannedUsernames;
     }
 
     addBannedUsername(matchRoomCode: string, username: string) {
-        const room = this.matchRoomService.getMatchRoomByCode(matchRoomCode);
+        const room = this.matchRoomService.getRoom(matchRoomCode);
         if (room) {
             room.bannedUsernames.push(username.toUpperCase());
         }
@@ -108,7 +108,7 @@ export class PlayerRoomService {
 
     getUsernameErrors(matchRoomCode: string, username: string): string {
         let errors = '';
-        if (this.matchRoomService.getMatchRoomByCode(matchRoomCode).isTestRoom) return errors;
+        if (this.matchRoomService.getRoom(matchRoomCode).isTestRoom) return errors;
         if (username.toUpperCase() === HOST_USERNAME) {
             errors += HOST_CONFLICT;
         }

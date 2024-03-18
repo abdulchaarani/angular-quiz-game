@@ -31,7 +31,7 @@ export class MatchGateway implements OnGatewayDisconnect {
 
     @SubscribeMessage(MatchEvents.JoinRoom)
     joinRoom(@ConnectedSocket() socket: Socket, @MessageBody() data: UserInfo) {
-        const codeErrors = this.matchRoomService.getMatchRoomCodeErrors(data.roomCode);
+        const codeErrors = this.matchRoomService.getRoomCodeErrors(data.roomCode);
         const usernameErrors = this.playerRoomService.getUsernameErrors(data.roomCode, data.username);
         const errorMessage = codeErrors + usernameErrors;
         if (errorMessage) {
@@ -47,7 +47,7 @@ export class MatchGateway implements OnGatewayDisconnect {
     @SubscribeMessage(MatchEvents.CreateRoom)
     createRoom(@ConnectedSocket() socket: Socket, @MessageBody() data: { gameId: string; isTestPage: boolean }) {
         const selectedGame: Game = this.matchBackupService.getBackupGame(data.gameId);
-        const newMatchRoom: MatchRoom = this.matchRoomService.addMatchRoom(selectedGame, socket, data.isTestPage);
+        const newMatchRoom: MatchRoom = this.matchRoomService.addRoom(selectedGame, socket, data.isTestPage);
         this.histogramService.resetChoiceTracker(newMatchRoom.code);
         if (data.isTestPage) {
             const playerInfo = { roomCode: newMatchRoom.code, username: 'Organisateur' };
@@ -72,7 +72,7 @@ export class MatchGateway implements OnGatewayDisconnect {
 
     @SubscribeMessage(MatchEvents.ToggleLock)
     toggleLock(@ConnectedSocket() socket: Socket, @MessageBody() matchRoomCode: string) {
-        this.matchRoomService.toggleLockMatchRoom(matchRoomCode);
+        this.matchRoomService.toggleLock(matchRoomCode);
     }
 
     @SubscribeMessage(MatchEvents.BanUsername)
@@ -133,27 +133,27 @@ export class MatchGateway implements OnGatewayDisconnect {
     handleDisconnect(@ConnectedSocket() socket: Socket) {
         const hostRoomCode = this.matchRoomService.getRoomCodeByHostSocket(socket.id);
         if (hostRoomCode) {
-            this.deleteMatchRoom(hostRoomCode);
+            this.deleteRoom(hostRoomCode);
             return;
         }
         const roomCode = this.playerRoomService.deletePlayerBySocket(socket.id);
         if (!roomCode) {
             return;
         }
-        const room = this.matchRoomService.getMatchRoomByCode(roomCode);
+        const room = this.matchRoomService.getRoom(roomCode);
         const isRoomEmpty = this.isRoomEmpty(room);
         if (room.isPlaying && isRoomEmpty) {
-            this.deleteMatchRoom(roomCode);
+            this.deleteRoom(roomCode);
             return;
         }
 
         this.handleSendPlayersData(roomCode);
     }
 
-    deleteMatchRoom(matchRoomCode: string) {
+    deleteRoom(matchRoomCode: string) {
         this.server.to(matchRoomCode).emit('hostQuitMatch');
         this.server.in(matchRoomCode).disconnectSockets();
-        this.matchRoomService.deleteMatchRoom(matchRoomCode);
+        this.matchRoomService.deleteRoom(matchRoomCode);
     }
 
     sendMessageToClients(data: MessageInfo) {
@@ -172,7 +172,7 @@ export class MatchGateway implements OnGatewayDisconnect {
         this.server.to(socketId).emit('error', error);
     }
 
-    private emitHistogramHistory(matchRoomCode) {
+    private emitHistogramHistory(matchRoomCode: string) {
         const histograms = this.histogramService.sendHistogramHistory(matchRoomCode);
         this.server.to(matchRoomCode).emit(MatchEvents.HistogramHistory, histograms);
     }

@@ -77,10 +77,10 @@ describe('MatchRoomService', () => {
         }
     });
 
-    it('getMatchRoomCode() should return match room code', () => {
+    it('getRoomCode() should return match room code', () => {
         const mockCode = 'mockCode';
         service['matchRoomCode'] = mockCode;
-        expect(service.getMatchRoomCode()).toEqual(mockCode);
+        expect(service.getRoomCode()).toEqual(mockCode);
     });
 
     it('getUsername() should return the username', () => {

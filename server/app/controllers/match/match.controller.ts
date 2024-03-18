@@ -36,8 +36,7 @@ export class MatchController {
 
     @Post('validate-code')
     validateMatchRoomCode(@Body() data: MatchRoomCodeInfo, @Res() response: Response) {
-        const errors = this.matchRoomService.getMatchRoomCodeErrors(data.matchRoomCode);
-        console.log(errors);
+        const errors = this.matchRoomService.getRoomCodeErrors(data.matchRoomCode);
         if (!errors) {
             response.status(HttpStatus.OK).send();
         } else {
@@ -48,7 +47,6 @@ export class MatchController {
     @Post('validate-username')
     validateUsername(@Body() data: MatchUsernameInfo, @Res() response: Response) {
         const errors = this.playerRoomService.getUsernameErrors(data.matchRoomCode, data.username);
-        console.log(errors);
         if (!errors) {
             response.status(HttpStatus.OK).send();
         } else {

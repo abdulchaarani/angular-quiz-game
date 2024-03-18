@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Message } from '@app/interfaces/message';
-import { MessageInfo } from '@common/interfaces/message-info';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
+import { MessageInfo } from '@common/interfaces/message-info';
 
 @Injectable({
     providedIn: 'root',
@@ -30,7 +30,7 @@ export class ChatService {
 
     displayOldMessages() {
         this.fetchOldMessages();
-        this.sendMessagesHistory(this.matchRoomService.getMatchRoomCode());
+        this.sendMessagesHistory(this.matchRoomService.getRoomCode());
     }
 
     handleReceivedMessages() {

@@ -1,17 +1,17 @@
-import { ChatComponent } from './chat.component';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ChatComponent } from './chat.component';
 
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatDialogModule } from '@angular/material/dialog';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { ChatService } from '@app/services/chat/chat.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 
-import { MOCK_MESSAGE, MOCK_ROOM_CODE, MOCK_DATE } from '@app/constants/chat-mocks';
+import { MOCK_DATE, MOCK_MESSAGE, MOCK_ROOM_CODE } from '@app/constants/chat-mocks';
 import SpyObj = jasmine.SpyObj;
 
 describe('ChatComponent', () => {
@@ -21,7 +21,7 @@ describe('ChatComponent', () => {
     let chatServiceSpy: SpyObj<ChatService>;
 
     beforeEach(() => {
-        const matchRoomSpy = jasmine.createSpyObj('MatchRoomService', ['getUsername', 'getMatchRoomCode']);
+        const matchRoomSpy = jasmine.createSpyObj('MatchRoomService', ['getUsername', 'getRoomCode']);
         const socketHandlerSpy = jasmine.createSpyObj('SocketHandlerService', ['send']);
         const chatSpy = jasmine.createSpyObj('ChatService', ['displayOldMessages', 'sendMessage', 'handleReceivedMessages']);
         socketHandlerSpy.socket = jasmine.createSpyObj('socket', ['removeListener']);
@@ -71,7 +71,7 @@ describe('ChatComponent', () => {
 
     it('should send message', () => {
         matchRoomServiceSpy.getUsername.and.returnValue(mockMessage.author);
-        matchRoomServiceSpy.getMatchRoomCode.and.returnValue(mockRoomCode);
+        matchRoomServiceSpy.getRoomCode.and.returnValue(mockRoomCode);
         component.sendMessage(mockMessage.text);
         expect(chatServiceSpy.sendMessage).toHaveBeenCalledWith(mockRoomCode, mockMessage);
     });

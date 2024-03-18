@@ -11,7 +11,7 @@ describe('matchLoginGuard', () => {
     let notificationSpy: SpyObj<NotificationService>;
 
     beforeEach(() => {
-        matchRoomSpy = jasmine.createSpyObj('MatchRoomService', ['getMatchRoomCode', 'getUsername']);
+        matchRoomSpy = jasmine.createSpyObj('MatchRoomService', ['getRoomCode', 'getUsername']);
         routerSpy = jasmine.createSpyObj('Router', ['navigateByUrl']);
         notificationSpy = jasmine.createSpyObj('NotificationService', ['displayErrorMessage']);
         TestBed.configureTestingModule({
@@ -28,14 +28,14 @@ describe('matchLoginGuard', () => {
     });
 
     it('should redirect to home page if match room code or username are empty', () => {
-        matchRoomSpy.getMatchRoomCode.and.returnValue('');
+        matchRoomSpy.getRoomCode.and.returnValue('');
         matchRoomSpy.getUsername.and.returnValue('');
         TestBed.runInInjectionContext(matchLoginGuard);
         expect(routerSpy.navigateByUrl).toHaveBeenCalled();
         expect(notificationSpy.displayErrorMessage).toHaveBeenCalled();
     });
     it('should not redirect to home page if room code and username are defined', () => {
-        matchRoomSpy.getMatchRoomCode.and.returnValue('mock');
+        matchRoomSpy.getRoomCode.and.returnValue('mock');
         matchRoomSpy.getUsername.and.returnValue('mock');
         TestBed.runInInjectionContext(matchLoginGuard);
         expect(routerSpy.navigateByUrl).not.toHaveBeenCalled();

@@ -1,3 +1,4 @@
+import { INVALID_CODE, LOCKED_ROOM } from '@app/constants/match-login-errors';
 import { TimerEvents } from '@app/constants/timer-events';
 import { ChoiceTracker } from '@app/model/choice-tracker/choice-tracker';
 import { Choice } from '@app/model/database/choice';
@@ -21,7 +22,7 @@ export class MatchRoomService {
 
     generateRoomCode(): string {
         let generatedCode: string;
-        while (!generatedCode || this.getMatchRoomByCode(generatedCode)) {
+        while (!generatedCode || this.getRoom(generatedCode)) {
             generatedCode = Math.floor(Math.random() * FACTOR).toString();
         }
         while (generatedCode.length < MAXIMUM_CODE_LENGTH) {
@@ -30,19 +31,19 @@ export class MatchRoomService {
         return generatedCode;
     }
 
-    getMatchRoomByCode(code: string): MatchRoom | undefined {
+    getRoom(code: string): MatchRoom | undefined {
         return this.matchRooms.find((room: MatchRoom) => {
             return room.code === code;
         });
     }
 
-    getRoomIndexByCode(code: string): number {
+    getRoomIndex(code: string): number {
         return this.matchRooms.findIndex((room: MatchRoom) => {
             return room.code === code;
         });
     }
 
-    addMatchRoom(selectedGame: Game, socket: Socket, isTestPage: boolean = false): MatchRoom {
+    addRoom(selectedGame: Game, socket: Socket, isTestPage: boolean = false): MatchRoom {
         const newRoom: MatchRoom = {
             code: this.generateRoomCode(),
             hostSocket: socket,
@@ -74,23 +75,26 @@ export class MatchRoomService {
         return matchRoomCode;
     }
 
-    toggleLockMatchRoom(matchRoomCode: string): void {
-        this.getMatchRoomByCode(matchRoomCode).isLocked = !this.getMatchRoomByCode(matchRoomCode).isLocked;
+    toggleLock(matchRoomCode: string): void {
+        this.getRoom(matchRoomCode).isLocked = !this.getRoom(matchRoomCode).isLocked;
     }
 
-    deleteMatchRoom(matchRoomCode: string): void {
+    deleteRoom(matchRoomCode: string): void {
         this.timeService.terminateTimer(matchRoomCode);
         this.matchRooms = this.matchRooms.filter((room: MatchRoom) => {
             return room.code !== matchRoomCode;
         });
     }
 
-    isValidMatchRoomCode(matchRoomCode: string): boolean {
-        const room = this.getMatchRoomByCode(matchRoomCode);
+    getRoomCodeErrors(matchRoomCode: string): string {
+        let errors = '';
+        const room = this.getRoom(matchRoomCode);
         if (!room) {
-            return false;
+            errors += INVALID_CODE;
+        } else if (room.isLocked) {
+            errors += LOCKED_ROOM;
         }
-        return !room.isLocked;
+        return errors;
     }
 
     startMatch(socket: Socket, server: Server, matchRoomCode: string) {
@@ -103,16 +107,16 @@ export class MatchRoomService {
     }
 
     markGameAsPlaying(matchRoomCode: string): void {
-        const matchRoom: MatchRoom = this.getMatchRoomByCode(matchRoomCode);
+        const matchRoom: MatchRoom = this.getRoom(matchRoomCode);
         matchRoom.isPlaying = true;
     }
 
     isGamePlaying(matchRoomCode: string): boolean {
-        return this.getMatchRoomByCode(matchRoomCode).isPlaying;
+        return this.getRoom(matchRoomCode).isPlaying;
     }
 
     sendFirstQuestion(server: Server, matchRoomCode: string): void {
-        const matchRoom: MatchRoom = this.getMatchRoomByCode(matchRoomCode);
+        const matchRoom: MatchRoom = this.getRoom(matchRoomCode);
         const firstQuestion = matchRoom.game.questions[0];
         const gameDuration: number = matchRoom.game.duration;
         const isTestRoom = matchRoom.isTestRoom;
@@ -131,7 +135,7 @@ export class MatchRoomService {
     }
 
     sendNextQuestion(server: Server, matchRoomCode: string): void {
-        const matchRoom: MatchRoom = this.getMatchRoomByCode(matchRoomCode);
+        const matchRoom: MatchRoom = this.getRoom(matchRoomCode);
 
         const nextQuestion = matchRoom.game.questions[matchRoom.currentQuestionIndex];
         matchRoom.currentQuestionAnswer = this.filterCorrectChoices(nextQuestion);
@@ -142,15 +146,15 @@ export class MatchRoomService {
     }
 
     incrementCurrentQuestionIndex(matchRoomCode: string) {
-        this.getMatchRoomByCode(matchRoomCode).currentQuestionIndex++;
+        this.getRoom(matchRoomCode).currentQuestionIndex++;
     }
 
     getGameTitle(matchRoomCode: string): string {
-        return this.getMatchRoomByCode(matchRoomCode).game.title;
+        return this.getRoom(matchRoomCode).game.title;
     }
 
     canStartMatch(matchRoomCode: string): boolean {
-        const room = this.getMatchRoomByCode(matchRoomCode);
+        const room = this.getRoom(matchRoomCode);
         if (!room) {
             return false;
         }
@@ -158,7 +162,7 @@ export class MatchRoomService {
     }
 
     getGameDuration(matchRoomCode: string) {
-        return this.getMatchRoomByCode(matchRoomCode).game.duration;
+        return this.getRoom(matchRoomCode).game.duration;
     }
     private filterCorrectChoices(question: Question) {
         const correctChoices = [];

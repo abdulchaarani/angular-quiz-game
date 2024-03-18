@@ -1,3 +1,4 @@
+import { HOST_CONFLICT, INVALID_CODE } from '@app/constants/match-login-errors';
 import { Game } from '@app/model/database/game';
 import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
@@ -98,7 +99,7 @@ describe('MatchController', () => {
     });
 
     it('validateMatchRoomCode() should return OK if the code is valid', () => {
-        matchRoomService.isValidMatchRoomCode.returns(true);
+        matchRoomService.getRoomCodeErrors.returns('');
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.OK);
@@ -109,7 +110,7 @@ describe('MatchController', () => {
     });
 
     it('validateMatchRoomCode() should return FORBIDDEN if the code is invalid', () => {
-        matchRoomService.isValidMatchRoomCode.returns(false);
+        matchRoomService.getRoomCodeErrors.returns(INVALID_CODE);
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.FORBIDDEN);
@@ -119,7 +120,7 @@ describe('MatchController', () => {
         controller.validateMatchRoomCode({ matchRoomCode: '' }, res);
     });
     it('validateUsername() should return OK if the username is valid', () => {
-        playerRoomService.isValidUsername.returns(true);
+        playerRoomService.getUsernameErrors.returns('');
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.OK);
@@ -129,7 +130,7 @@ describe('MatchController', () => {
         controller.validateUsername({ matchRoomCode: '', username: '' }, res);
     });
     it('validateUsername() should return FORBIDDEN if the username is invalid', () => {
-        playerRoomService.isValidUsername.returns(false);
+        playerRoomService.getUsernameErrors.returns(HOST_CONFLICT);
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.FORBIDDEN);

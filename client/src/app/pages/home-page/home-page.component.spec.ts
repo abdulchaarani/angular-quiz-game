@@ -119,8 +119,13 @@ describe('HomePageComponent', () => {
     });
 
     it('submitCode() should call validateMatchRoomCode and not open a new dialog if code is invalid', () => {
-        joinMatchSpy.validateMatchRoomCode.and.returnValue(throwError(() => new HttpErrorResponse({ status: 401 })));
+        const httpError = new HttpErrorResponse({
+            status: 409,
+            error: { code: '409', message: 'mock' },
+        });
+        joinMatchSpy.validateMatchRoomCode.and.returnValue(throwError(() => httpError));
         const openSpy = spyOn(component, 'openUsernameDialog');
+        spyOn(JSON, 'parse').and.returnValue(httpError.error);
         component.submitCode('mock');
         expect(joinMatchSpy.validateMatchRoomCode).toHaveBeenCalled();
         expect(openSpy).not.toHaveBeenCalled();

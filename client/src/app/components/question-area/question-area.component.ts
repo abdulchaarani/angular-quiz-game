@@ -53,7 +53,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     get matchRoomCode() {
-        return this.matchRoomService.getMatchRoomCode();
+        return this.matchRoomService.getRoomCode();
     }
 
     get username() {

@@ -49,10 +49,22 @@ describe('MatchRoomService', () => {
         const checkSpy = spyOn(socketSpy, 'isSocketAlive').and.returnValue(false);
         const redirectSpy = spyOn(service, 'redirectAfterDisconnection');
         const fetchSpy = spyOn(service, 'fetchPlayersData');
+        const handleErrorSpy = spyOn(service, 'handleError');
+        const startSpy = spyOn(service, 'matchStarted');
+        const beginSpy = spyOn(service, 'beginQuiz');
+        const moveSpy = spyOn(service, 'moveToNextQuestion');
+        const cooldownSpy = spyOn(service, 'startCooldown');
+        const hostSpy = spyOn(service, 'onHostQuit');
         service.connect();
         expect(checkSpy).toHaveBeenCalled();
         expect(redirectSpy).toHaveBeenCalled();
         expect(fetchSpy).toHaveBeenCalled();
+        expect(handleErrorSpy).toHaveBeenCalled();
+        expect(startSpy).toHaveBeenCalled();
+        expect(beginSpy).toHaveBeenCalled();
+        expect(moveSpy).toHaveBeenCalled();
+        expect(cooldownSpy).toHaveBeenCalled();
+        expect(hostSpy).toHaveBeenCalled();
     });
 
     it('connect() should not connect the socket if it is alive', () => {
@@ -172,6 +184,18 @@ describe('MatchRoomService', () => {
         service['matchRoomCode'] = '';
         service.startMatch();
         expect(sendSpy).toHaveBeenCalledWith('startMatch', '');
+    });
+
+    it('handleError() should display error message', () => {
+        // Any is required to simulate Function type in tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
+            cb('mock');
+        });
+        service.handleError();
+        socketHelper.peerSideEmit('error', 'mock');
+        expect(onSpy).toHaveBeenCalled();
+        expect(notificationService.displayErrorMessage).toHaveBeenCalled();
     });
 
     it('matchStarted() should send matchStarting event and update gameTitle', () => {

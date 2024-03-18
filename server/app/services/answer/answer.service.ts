@@ -106,7 +106,7 @@ export class AnswerService {
             }
         });
 
-        if ((fastestTime && players.length > 1 && !this.getMatchRoomByCode(roomCode).isTestRoom) || this.getMatchRoomByCode(roomCode).isTestRoom)
+        if ((fastestTime && players.length > 1 && !this.getRoom(roomCode).isTestRoom) || this.getRoom(roomCode).isTestRoom)
             this.computeFastestPlayerBonus(currentQuestionPoints, fastestTime, correctPlayers);
     }
 

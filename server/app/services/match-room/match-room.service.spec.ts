@@ -267,9 +267,11 @@ describe('MatchRoomService', () => {
 
     it('sendNextQuestion() should emit gameOver if last question', () => {
         const matchRoom = { ...MOCK_PLAYER_ROOM };
-        matchRoom.currentQuestionIndex = matchRoom.gameLength;
+        matchRoom.currentQuestionIndex = 2;
+        matchRoom.gameLength = 2;
         matchRoom.isTestRoom = true;
         jest.spyOn(service, 'getRoom').mockReturnValue(matchRoom);
+        service.sendNextQuestion(mockServer, matchRoom.code);
         expect(emitMock).toHaveBeenCalledWith('gameOver', true);
     });
 

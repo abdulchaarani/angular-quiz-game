@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 import { BehaviorSubject } from 'rxjs';
 import { TimerInfo } from '@common/interfaces/timer-info';
+import { MULTIPLICATION_FACTOR } from '@common/constants/match-constants';
 
 @Injectable({
     providedIn: 'root',
@@ -52,5 +53,9 @@ export class TimeService {
         this.socketService.on('stopTimer', () => {
             this.timerFinished.next(true);
         });
+    }
+
+    computeTimerProgress(): number {
+        return (this.time / this.duration) * MULTIPLICATION_FACTOR;
     }
 }

@@ -34,7 +34,7 @@
             </div>
 
             <div id="timer-area">
-                <mat-progress-spinner [value]="computeTimerProgress()" mode="determinate" diameter="90"> </mat-progress-spinner>
+                <mat-progress-spinner [value]="this.timeService.computeTimerProgress()" mode="determinate" diameter="90"> </mat-progress-spinner>
                 <h2 id="time-left">
                     {{ time }}
                 </h2>

@@ -9,7 +9,6 @@ import { MatchService } from '@app/services/match/match.service';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { QuestionContextService } from '@app/services/question-context/question-context.service';
 import { TimeService } from '@app/services/time/time.service';
-import { MULTIPLICATION_FACTOR } from '@common/constants/match-constants';
 import { Feedback } from '@common/interfaces/feedback';
 import { Subject, Subscription } from 'rxjs';
 @Component({
@@ -40,7 +39,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
     // eslint-disable-next-line max-params
     constructor(
         public matchRoomService: MatchRoomService,
-        private readonly timeService: TimeService,
+        public timeService: TimeService,
         private readonly matchService: MatchService,
         private readonly questionContextService: QuestionContextService,
         private readonly answerService: AnswerService,
@@ -133,10 +132,6 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
             }
             this.resetStateForNewQuestion();
         }
-    }
-
-    computeTimerProgress(): number {
-        return (this.timeService.time / this.timeService.duration) * MULTIPLICATION_FACTOR;
     }
 
     submitAnswers(): void {

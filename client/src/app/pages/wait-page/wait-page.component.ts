@@ -10,9 +10,6 @@ import { TimeService } from '@app/services/time/time.service';
 import { Subject } from 'rxjs';
 import { Subscription } from 'rxjs/internal/Subscription';
 
-const COUNTDOWN_DURATION = 5;
-const MULTIPLICATION_FACTOR = 100;
-
 @Component({
     selector: 'app-wait-page',
     templateUrl: './wait-page.component.html',
@@ -34,11 +31,7 @@ export class WaitPageComponent implements OnInit, OnDestroy {
         public matchService: MatchService,
         private readonly questionContextService: QuestionContextService,
         private readonly notificationService: NotificationService,
-    ) {
-        this.isLocked = false;
-        this.startTimerButton = false;
-        this.isWaitOver = false;
-    }
+    ) {}
 
     get time() {
         return this.timeService.time;
@@ -68,6 +61,7 @@ export class WaitPageComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
+        this.resetWaitPage();
         this.timeService.handleTimer();
         this.timeService.handleStopTimer();
 
@@ -119,12 +113,14 @@ export class WaitPageComponent implements OnInit, OnDestroy {
         });
     }
 
-    computeTimerProgress(): number {
-        return (this.timeService.time / COUNTDOWN_DURATION) * MULTIPLICATION_FACTOR;
-    }
-
     nextQuestion() {
         this.matchRoomService.nextQuestion();
+    }
+
+    private resetWaitPage() {
+        this.isLocked = false;
+        this.startTimerButton = false;
+        this.isWaitOver = false;
     }
 
     private subscribeToStartMatch() {

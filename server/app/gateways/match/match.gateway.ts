@@ -1,3 +1,4 @@
+import { BAN_PLAYER, NO_MORE_HOST, NO_MORE_PLAYERS } from '@app/constants/match-errors';
 import { TimerEvents } from '@app/constants/timer-events';
 import { Game } from '@app/model/database/game';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
@@ -35,7 +36,7 @@ export class MatchGateway implements OnGatewayDisconnect {
         const usernameErrors = this.playerRoomService.getUsernameErrors(data.roomCode, data.username);
         const errorMessage = codeErrors + usernameErrors;
         if (errorMessage) {
-            this.sendError(socket.id, errorMessage); // TODO: Test
+            this.sendError(socket.id, errorMessage);
             this.server.in(socket.id).disconnectSockets();
         } else {
             socket.join(data.roomCode);
@@ -81,7 +82,7 @@ export class MatchGateway implements OnGatewayDisconnect {
         const playerToBan = this.playerRoomService.getPlayerByUsername(data.roomCode, data.username);
         if (playerToBan) {
             this.playerRoomService.deletePlayer(data.roomCode, data.username);
-            this.sendError(playerToBan.socket.id, "L'organisateur vous a banni.");
+            this.sendError(playerToBan.socket.id, BAN_PLAYER);
             this.server.in(playerToBan.socket.id).disconnectSockets();
         }
         this.sendPlayersData(socket, data.roomCode);
@@ -134,7 +135,7 @@ export class MatchGateway implements OnGatewayDisconnect {
     handleDisconnect(@ConnectedSocket() socket: Socket) {
         const hostRoomCode = this.matchRoomService.getRoomCodeByHostSocket(socket.id);
         if (hostRoomCode) {
-            this.sendError(hostRoomCode, "L'organisateur a quitté la partie.");
+            this.sendError(hostRoomCode, NO_MORE_HOST);
             this.deleteRoom(hostRoomCode);
             return;
         }
@@ -145,7 +146,7 @@ export class MatchGateway implements OnGatewayDisconnect {
         const room = this.matchRoomService.getRoom(roomCode);
         const isRoomEmpty = this.isRoomEmpty(room);
         if (room.isPlaying && isRoomEmpty) {
-            this.sendError(roomCode, "Il n'y a plus de joueurs.");
+            this.sendError(roomCode, NO_MORE_PLAYERS);
             this.deleteRoom(roomCode);
             return;
         }

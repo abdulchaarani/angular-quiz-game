@@ -1,5 +1,6 @@
 /* eslint-disable max-lines */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { BAN_PLAYER, NO_MORE_HOST } from '@app/constants/match-errors';
 import { HOST_CONFLICT, INVALID_CODE } from '@app/constants/match-login-errors';
 import {
     MOCK_MATCH_ROOM,
@@ -157,6 +158,7 @@ describe('MatchGateway', () => {
         const addBannedUsernameSpy = jest.spyOn(playerRoomSpy, 'addBannedUsername').mockReturnThis();
         const mockPlayer = MOCK_PLAYER;
         mockPlayer.socket = socket;
+        const errorSpy = jest.spyOn(gateway, 'sendError').mockReturnThis();
         const playerSpy = jest.spyOn(playerRoomSpy, 'getPlayerByUsername').mockReturnValue(mockPlayer);
         const deleteSpy = jest.spyOn(playerRoomSpy, 'deletePlayer').mockReturnThis();
         server.in.returns({
@@ -170,6 +172,7 @@ describe('MatchGateway', () => {
         expect(playerSpy).toHaveBeenCalledWith(MOCK_USER_INFO.roomCode, MOCK_USER_INFO.username);
         expect(deleteSpy).toHaveBeenCalledWith(MOCK_USER_INFO.roomCode, MOCK_USER_INFO.username);
         expect(sendSpy).toHaveBeenCalledWith(socket, MOCK_USER_INFO.roomCode);
+        expect(errorSpy).toHaveBeenCalledWith(mockPlayer.socket.id, BAN_PLAYER);
     });
 
     it('handleIncomingRoomMessages() should add the received message to the list of messages, and emit a newMessage event', () => {
@@ -269,9 +272,11 @@ describe('MatchGateway', () => {
 
     it('handleDisconnect() should disconnect host and all other players and delete the match room if the host disconnects', () => {
         matchRoomSpy.getRoomCodeByHostSocket.returns(MOCK_ROOM_CODE);
+        const errorSpy = jest.spyOn(gateway, 'sendError').mockReturnThis();
         const deleteSpy = jest.spyOn(gateway, 'deleteRoom').mockReturnThis();
         gateway.handleDisconnect(socket);
         expect(deleteSpy).toHaveBeenCalled();
+        expect(errorSpy).toHaveBeenCalledWith(MOCK_ROOM_CODE, NO_MORE_HOST);
     });
 
     it('handleDisconnect() should disconnect the player and update list if a player disconnects', () => {
@@ -283,16 +288,18 @@ describe('MatchGateway', () => {
         expect(handleSpy).toHaveBeenCalled();
     });
 
-    it('handleDisconnect() should disconnect the player and update list if a player disconnects', () => {
+    it('handleDisconnect() should disconnect the player disconnect host as well if there are no more players', () => {
         matchRoomSpy.getRoomCodeByHostSocket.returns(undefined);
         const mockRoomToDelete = MOCK_MATCH_ROOM;
         mockRoomToDelete.players = [];
         mockRoomToDelete.isPlaying = true;
         playerRoomSpy.deletePlayerBySocket.returns(MOCK_ROOM_CODE);
         matchRoomSpy.getRoom.returns(mockRoomToDelete);
+        const errorSpy = jest.spyOn(gateway, 'sendError').mockReturnThis();
         const handleSpy = jest.spyOn(gateway, 'handleSendPlayersData').mockReturnThis();
         const deleteSpy = jest.spyOn(gateway, 'deleteRoom').mockReturnThis();
         gateway.handleDisconnect(socket);
+        expect(errorSpy).toHaveBeenCalled();
         expect(handleSpy).not.toHaveBeenCalled();
         expect(deleteSpy).toHaveBeenCalled();
     });
@@ -303,12 +310,14 @@ describe('MatchGateway', () => {
         mockRoomToDelete.players = [];
         mockRoomToDelete.isPlaying = true;
         playerRoomSpy.deletePlayerBySocket.returns(undefined);
+        const errorSpy = jest.spyOn(gateway, 'sendError').mockReturnThis();
         const getSpy = jest.spyOn(matchRoomSpy, 'getRoom').mockReturnThis();
         const handleSpy = jest.spyOn(gateway, 'handleSendPlayersData').mockReturnThis();
         const deleteSpy = jest.spyOn(gateway, 'deleteRoom').mockReturnThis();
         gateway.handleDisconnect(socket);
         expect(getSpy).not.toHaveBeenCalled();
         expect(handleSpy).not.toHaveBeenCalled();
+        expect(errorSpy).not.toHaveBeenCalled();
         expect(deleteSpy).not.toHaveBeenCalled();
     });
 

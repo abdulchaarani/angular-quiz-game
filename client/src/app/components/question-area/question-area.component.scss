@@ -72,7 +72,7 @@
     grid-template-columns: 1fr 1fr;
     gap: 0.5rem;
     position: fixed;
-    top: 50vh;
+    top: 55vh;
     align-self: center;
 }
 
@@ -124,7 +124,7 @@ button.answer.selected {
 
 #submit-button-container {
     position: absolute;
-    top: 85vh;
+    top: 90vh;
     align-self: center;
 }
 
@@ -142,10 +142,12 @@ button.answer.selected {
 }
 
 #right-answer {
+    font-size: 1rem;
     color: #4caf50;
 }
 
 #wrong-answer {
+    font-size: 1rem;
     color: #f44336;
 }
 

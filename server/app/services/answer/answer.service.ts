@@ -77,12 +77,11 @@ export class AnswerService {
     }
 
     private autoSubmitAnswers(roomCode: string) {
-        const submitTime = Date.now();
         const players: Player[] = this.playerService.getPlayers(roomCode);
         players.forEach((player) => {
             if (!player.answer.isSubmitted) {
                 player.answer.isSubmitted = true;
-                player.answer.timestamp = submitTime;
+                player.answer.timestamp = Infinity;
             }
         });
     }
@@ -102,12 +101,13 @@ export class AnswerService {
             if (this.isCorrectPlayerAnswer(player, roomCode)) {
                 player.score += currentQuestionPoints;
                 correctPlayers.push(player);
-                // TODO: replace with Math.min
-                if (!fastestTime || player.answer.timestamp < fastestTime) fastestTime = player.answer.timestamp;
+                if ((!fastestTime || player.answer.timestamp < fastestTime) && player.answer.timestamp !== Infinity)
+                    fastestTime = player.answer.timestamp;
             }
         });
 
-        if (fastestTime) this.computeFastestPlayerBonus(currentQuestionPoints, fastestTime, correctPlayers);
+        if ((fastestTime && players.length > 1 && !this.getMatchRoomByCode(roomCode).isTestRoom) || this.getMatchRoomByCode(roomCode).isTestRoom)
+            this.computeFastestPlayerBonus(currentQuestionPoints, fastestTime, correctPlayers);
     }
 
     private computeFastestPlayerBonus(points: number, fastestTime: number, correctPlayers: Player[]) {

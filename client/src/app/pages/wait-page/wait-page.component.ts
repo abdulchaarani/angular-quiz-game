@@ -1,9 +1,13 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { WarningMessage } from '@app/constants/feedback-messages';
+import { CanDeactivateType } from '@app/interfaces/can-component-deactivate';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { MatchService } from '@app/services/match/match.service';
+import { NotificationService } from '@app/services/notification/notification.service';
 import { QuestionContextService } from '@app/services/question-context/question-context.service';
 import { TimeService } from '@app/services/time/time.service';
+import { Subject } from 'rxjs';
 import { Subscription } from 'rxjs/internal/Subscription';
 
 const COUNTDOWN_DURATION = 5;
@@ -27,7 +31,8 @@ export class WaitPageComponent implements OnInit, OnDestroy {
         public timeService: TimeService,
         public router: Router,
         public matchService: MatchService,
-        private questionContextService: QuestionContextService,
+        private readonly questionContextService: QuestionContextService,
+        private readonly notificationService: NotificationService,
     ) {
         this.isLocked = false;
         this.startTimerButton = false;
@@ -42,6 +47,20 @@ export class WaitPageComponent implements OnInit, OnDestroy {
 
     get currentGame() {
         return this.matchService.currentGame;
+    }
+
+    canDeactivate(): CanDeactivateType {
+        if (!this.matchRoomService.isHostPlaying) {
+            this.matchRoomService.disconnect();
+            return true;
+        }
+
+        const deactivateSubject = new Subject<boolean>();
+        this.notificationService.openWarningDialog(WarningMessage.QUIT).subscribe((confirm: boolean) => {
+            deactivateSubject.next(confirm);
+            if (confirm) this.matchRoomService.disconnect();
+        });
+        return deactivateSubject;
     }
 
     ngOnInit(): void {

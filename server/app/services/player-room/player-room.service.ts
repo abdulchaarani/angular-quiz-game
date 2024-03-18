@@ -1,3 +1,4 @@
+import { BANNED_USERNAME, HOST_CONFLICT, USED_USERNAME } from '@app/constants/match-login-errors';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Player } from '@app/model/schema/player.schema';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
@@ -25,7 +26,7 @@ export class PlayerRoomService {
     }
 
     addPlayer(playerSocket: Socket, matchRoomCode: string, newUsername: string): Player | undefined {
-        if (!this.isValidUsername(matchRoomCode, newUsername)) {
+        if (this.getUsernameErrors(matchRoomCode, newUsername)) {
             return undefined;
         }
 
@@ -105,11 +106,18 @@ export class PlayerRoomService {
         return usernameIndex === INDEX_NOT_FOUND ? false : true;
     }
 
-    isValidUsername(matchRoomCode: string, username: string) {
-        if (this.matchRoomService.getMatchRoomByCode(matchRoomCode).isTestRoom) return true;
-        const hasHostConflict = username.toUpperCase() === HOST_USERNAME;
-        const isBannedUsername = this.isBannedUsername(matchRoomCode, username);
-        const isUsedUsername = this.getPlayerByUsername(matchRoomCode, username) ? true : false;
-        return !hasHostConflict && !isBannedUsername && !isUsedUsername;
+    getUsernameErrors(matchRoomCode: string, username: string): string {
+        let errors = '';
+        if (this.matchRoomService.getMatchRoomByCode(matchRoomCode).isTestRoom) return errors;
+        if (username.toUpperCase() === HOST_USERNAME) {
+            errors += HOST_CONFLICT;
+        }
+        if (this.isBannedUsername(matchRoomCode, username)) {
+            errors += BANNED_USERNAME;
+        }
+        if (this.getPlayerByUsername(matchRoomCode, username)) {
+            errors += USED_USERNAME;
+        }
+        return errors;
     }
 }

@@ -1,10 +1,10 @@
 import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
-import { Body, Controller, Get, HttpStatus, Param, Post, Res } from '@nestjs/common';
-import { Response } from 'express';
 import { MatchRoomCodeInfo } from '@common/interfaces/match-room-code-info';
 import { MatchUsernameInfo } from '@common/interfaces/match-username-info';
+import { Body, Controller, Get, HttpStatus, Param, Post, Res } from '@nestjs/common';
+import { Response } from 'express';
 
 @Controller('match')
 export class MatchController {
@@ -36,19 +36,23 @@ export class MatchController {
 
     @Post('validate-code')
     validateMatchRoomCode(@Body() data: MatchRoomCodeInfo, @Res() response: Response) {
-        if (this.matchRoomService.isValidMatchRoomCode(data.matchRoomCode)) {
+        const errors = this.matchRoomService.getMatchRoomCodeErrors(data.matchRoomCode);
+        console.log(errors);
+        if (!errors) {
             response.status(HttpStatus.OK).send();
         } else {
-            response.status(HttpStatus.FORBIDDEN).send();
+            response.status(HttpStatus.FORBIDDEN).send({ message: errors });
         }
     }
 
     @Post('validate-username')
     validateUsername(@Body() data: MatchUsernameInfo, @Res() response: Response) {
-        if (this.playerRoomService.isValidUsername(data.matchRoomCode, data.username)) {
+        const errors = this.playerRoomService.getUsernameErrors(data.matchRoomCode, data.username);
+        console.log(errors);
+        if (!errors) {
             response.status(HttpStatus.OK).send();
         } else {
-            response.status(HttpStatus.FORBIDDEN).send();
+            response.status(HttpStatus.FORBIDDEN).send({ message: errors });
         }
     }
 }

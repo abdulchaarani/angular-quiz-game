@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { NotificationService } from '@app/services/notification/notification.service';
@@ -52,8 +52,8 @@ export class JoinMatchService {
                 this.matchRoomCode = '';
                 this.addPlayerToMatchRoom(matchRoomCode, username);
             },
-            error: () => {
-                this.notificationService.displayErrorMessage('Le nom ne doit pas être banni, ni être déjà utilisé, ni être "Organisateur".');
+            error: (error: HttpErrorResponse) => {
+                this.notificationService.displayErrorMessage(`${JSON.parse(error.error)['message']}`);
             },
         });
     }

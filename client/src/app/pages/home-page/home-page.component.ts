@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogAdminPasswordComponent } from '@app/components/dialog-admin-password/dialog-admin-password.component';
@@ -59,8 +60,8 @@ export class HomePageComponent {
                 this.joinMatchService.matchRoomCode = roomCode;
                 this.openUsernameDialog();
             },
-            error: () => {
-                this.notificationService.displayErrorMessage('Le code est invalide ou la salle de jeu est verrouillée.');
+            error: (error: HttpErrorResponse) => {
+                this.notificationService.displayErrorMessage(`${JSON.parse(error.error)['message']}`);
                 this.joinMatchService.matchRoomCode = '';
             },
         });

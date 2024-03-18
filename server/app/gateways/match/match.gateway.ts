@@ -2,17 +2,17 @@ import { TimerEvents } from '@app/constants/timer-events';
 import { Game } from '@app/model/database/game';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { ChatService } from '@app/services/chat/chat.service';
+import { HistogramService } from '@app/services/histogram/histogram.service';
 import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
+import { MessageInfo } from '@common/interfaces/message-info';
 import { UserInfo } from '@common/interfaces/user-info';
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
+import { ConnectedSocket, MessageBody, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { MatchEvents } from './match.gateway.events';
-import { MessageInfo } from '@common/interfaces/message-info';
-import { HistogramService } from '@app/services/histogram/histogram.service';
-import { ConnectedSocket, MessageBody, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 
 @WebSocketGateway({ cors: true })
 @Injectable()
@@ -31,7 +31,11 @@ export class MatchGateway implements OnGatewayDisconnect {
 
     @SubscribeMessage(MatchEvents.JoinRoom)
     joinRoom(@ConnectedSocket() socket: Socket, @MessageBody() data: UserInfo) {
-        if (!this.matchRoomService.isValidMatchRoomCode(data.roomCode) || !this.playerRoomService.isValidUsername(data.roomCode, data.username)) {
+        const codeErrors = this.matchRoomService.getMatchRoomCodeErrors(data.roomCode);
+        const usernameErrors = this.playerRoomService.getUsernameErrors(data.roomCode, data.username);
+        const errorMessage = codeErrors + usernameErrors;
+        if (errorMessage) {
+            this.sendError(socket.id, errorMessage); // TODO: Test
             this.server.in(socket.id).disconnectSockets();
         } else {
             socket.join(data.roomCode);
@@ -162,6 +166,10 @@ export class MatchGateway implements OnGatewayDisconnect {
 
     handleSentMessagesHistory(matchRoomCode: string) {
         this.server.to(matchRoomCode).emit('fetchOldMessages', this.chatService.getMessages(matchRoomCode));
+    }
+
+    sendError(socketId: string, error: string) {
+        this.server.to(socketId).emit('error', error);
     }
 
     private emitHistogramHistory(matchRoomCode) {

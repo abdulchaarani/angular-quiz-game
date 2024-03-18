@@ -1,3 +1,4 @@
+import { INVALID_CODE, LOCKED_ROOM } from '@app/constants/match-login-errors';
 import { TimerEvents } from '@app/constants/timer-events';
 import { ChoiceTracker } from '@app/model/choice-tracker/choice-tracker';
 import { Choice } from '@app/model/database/choice';
@@ -85,12 +86,15 @@ export class MatchRoomService {
         });
     }
 
-    isValidMatchRoomCode(matchRoomCode: string): boolean {
+    getMatchRoomCodeErrors(matchRoomCode: string): string {
+        let errors = '';
         const room = this.getMatchRoomByCode(matchRoomCode);
         if (!room) {
-            return false;
+            errors += INVALID_CODE;
+        } else if (room.isLocked) {
+            errors += LOCKED_ROOM;
         }
-        return !room.isLocked;
+        return errors;
     }
 
     startMatch(socket: Socket, server: Server, matchRoomCode: string) {

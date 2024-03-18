@@ -63,6 +63,7 @@ export class MatchRoomService {
             this.gameOver();
             this.startCooldown();
             this.onHostQuit();
+            this.handleError();
         }
     }
 
@@ -107,6 +108,12 @@ export class MatchRoomService {
             const sentInfo: UserInfo = { roomCode: this.matchRoomCode, username };
             this.socketService.send('banUsername', sentInfo);
         }
+    }
+
+    handleError() {
+        this.socketService.on('error', (errorMessage: string) => {
+            this.notificationService.displayErrorMessage(errorMessage);
+        });
     }
 
     startMatch() {

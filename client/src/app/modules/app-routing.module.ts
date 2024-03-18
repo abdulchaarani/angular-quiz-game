@@ -10,7 +10,6 @@ import { AdminQuestionBankComponent } from '@app/pages/admin-page/admin-question
 import { AdminQuestionsListComponent } from '@app/pages/admin-page/admin-questions-list/admin-questions-list.component';
 import { HomePageComponent } from '@app/pages/home-page/home-page.component';
 import { MatchCreationPageComponent } from '@app/pages/match-creation-page/match-creation-page.component';
-import { PlayerPageComponent } from '@app/pages/player-page/player-page.component';
 import { ResultsPageComponent } from '@app/pages/results-page/results-page.component';
 import { WaitPageComponent } from '@app/pages/wait-page/wait-page.component';
 
@@ -38,11 +37,10 @@ const routes: Routes = [
         ],
     },
     { path: 'host', component: MatchCreationPageComponent },
-    { path: 'player', canActivate: [matchLoginGuard], component: PlayerPageComponent },
-    { path: 'match-room', canActivate: [matchLoginGuard], component: WaitPageComponent },
-    { path: 'results', canActivate: [matchLoginGuard], component: ResultsPageComponent },
+    { path: 'match-room', canActivate: [matchLoginGuard], canDeactivate: [returnGuard], component: WaitPageComponent },
     { path: 'play-test', canDeactivate: [returnGuard], component: QuestionAreaComponent },
     { path: 'play-match', canActivate: [matchLoginGuard], canDeactivate: [returnGuard], component: QuestionAreaComponent },
+    { path: 'results', canActivate: [matchLoginGuard], component: ResultsPageComponent },
 ];
 
 @NgModule({

@@ -4,10 +4,10 @@ import { ChoiceInfo } from '@common/interfaces/choice-info';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance, stub } from 'sinon';
 import { Server, Socket } from 'socket.io';
-import { AnwserGateway } from './anwser.gateway';
+import { AnswerGateway } from './answer.gateway';
 
 describe('AnwserGateway', () => {
-    let gateway: AnwserGateway;
+    let gateway: AnswerGateway;
     let answerServiceSpy: SinonStubbedInstance<AnswerService>;
     let server: SinonStubbedInstance<Server>;
     let socket: SinonStubbedInstance<Socket>;
@@ -18,10 +18,10 @@ describe('AnwserGateway', () => {
         server = createStubInstance<Server>(Server);
 
         const module: TestingModule = await Test.createTestingModule({
-            providers: [AnwserGateway, { provide: AnswerService, useValue: answerServiceSpy }],
+            providers: [AnswerGateway, { provide: AnswerService, useValue: answerServiceSpy }],
         }).compile();
 
-        gateway = module.get<AnwserGateway>(AnwserGateway);
+        gateway = module.get<AnswerGateway>(AnswerGateway);
         gateway['server'] = server;
 
         choice = { choice: 'choice', userInfo: { roomCode: MOCK_ROOM_CODE, username: 'player1' } };

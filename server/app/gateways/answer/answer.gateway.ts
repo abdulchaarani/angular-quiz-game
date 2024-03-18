@@ -5,7 +5,7 @@ import { AnswerEvents } from './answer.gateway.events';
 import { ChoiceInfo } from '@common/interfaces/choice-info';
 import { UserInfo } from '@common/interfaces/user-info';
 @WebSocketGateway({ cors: true })
-export class AnwserGateway {
+export class AnswerGateway {
     @WebSocketServer() private server: Server;
 
     constructor(private readonly answerService: AnswerService) {}

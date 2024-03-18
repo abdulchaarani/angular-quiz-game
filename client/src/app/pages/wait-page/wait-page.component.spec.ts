@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { HttpClient } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Component } from '@angular/core';
@@ -11,6 +12,7 @@ import { TimeService } from '@app/services/time/time.service';
 import { of } from 'rxjs';
 import { WaitPageComponent } from './wait-page.component';
 import SpyObj = jasmine.SpyObj;
+import { NotificationService } from '@app/services/notification/notification.service';
 
 @Component({
     selector: 'app-chat',
@@ -25,6 +27,7 @@ describe('WaitPageComponent', () => {
     let matchSpy: SpyObj<MatchService>;
     let timeSpy: SpyObj<TimeService>;
     let questionContextSpy: SpyObj<QuestionContextService>;
+    let notificationService: SpyObj<NotificationService>;
 
     beforeEach(() => {
         matchRoomSpy = jasmine.createSpyObj('MatchRoomService', [
@@ -39,11 +42,13 @@ describe('WaitPageComponent', () => {
             'beginQuiz',
             'nextQuestion',
         ]);
-        matchRoomSpy.getGameTitleObservable.and.returnValue(of(''));
-        matchRoomSpy.getStartMatchObservable.and.returnValue(of<void>(undefined));
+        matchRoomSpy.gameTitle$ = of('gameTitle');
+        matchRoomSpy.startMatch$ = of(true);
         matchSpy = jasmine.createSpyObj('MatchService', ['']);
         questionContextSpy = jasmine.createSpyObj('QuestionContextService', ['setContext']);
-        timeSpy = jasmine.createSpyObj('TimeService', ['handleTimer', 'handleStopTimer']);
+        timeSpy = jasmine.createSpyObj('TimeService', ['handleTimer', 'handleStopTimer', 'computeTimerProgress']);
+        notificationService = jasmine.createSpyObj('NotificationService', ['displayErrorMessage']);
+
         TestBed.configureTestingModule({
             declarations: [WaitPageComponent, MockChatComponent],
             imports: [HttpClientTestingModule, MatProgressSpinnerModule],
@@ -53,11 +58,17 @@ describe('WaitPageComponent', () => {
                 { provide: MatchService, useValue: matchSpy },
                 { provide: QuestionContextService, useValue: questionContextSpy },
                 { provide: TimeService, useValue: timeSpy },
+                { provide: NotificationService, useValue: notificationService },
             ],
         });
 
         fixture = TestBed.createComponent(WaitPageComponent);
         component = fixture.componentInstance;
+
+        spyOn<any>(component, 'subscribeToHostPlaying').and.callFake(() => {
+            component.isHostPlaying = false;
+        });
+
         fixture.detectChanges();
     });
 
@@ -121,8 +132,8 @@ describe('WaitPageComponent', () => {
         expect(matchRoomSpy.startMatch).toHaveBeenCalled();
     });
 
-    it('nextQuestion() should call beginQuiz from matchRoomService', () => {
+    it('nextQuestion() should delegate call to nextQuestion to matchRoomService', () => {
         component.nextQuestion();
-        expect(matchRoomSpy.beginQuiz).toHaveBeenCalled();
+        expect(matchRoomSpy.nextQuestion).toHaveBeenCalled();
     });
 });

@@ -118,6 +118,11 @@ describe('QuestionAreaComponent', () => {
         spyOn<any>(component, 'subscribeToGameEnd').and.callFake(() => {
             component.isLastQuestion = true;
         });
+
+        spyOn<any>(component, 'subscribeToHostPlaying').and.callFake(() => {
+            component.isHostPlaying = false;
+        });
+
         fixture.detectChanges();
     });
 
@@ -313,12 +318,6 @@ describe('QuestionAreaComponent', () => {
         expect(component.correctAnswers).toEqual([]);
         expect(component.isRightAnswer).toBeFalse();
         expect(component.isCooldown).toBeFalse();
-    });
-
-    it('should call matchRoomService.disconnect when handleQuit is called', () => {
-        component.handleQuit();
-
-        expect(matchRoomSpy.disconnect).toHaveBeenCalled();
     });
 
     it('should call matchRoomService.routeToResultsPage when routeToResultsPage is called', () => {

@@ -180,11 +180,9 @@ describe('MatchRoomService', () => {
         const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb({ start: true, gameTitle: 'mockTitle' });
         });
-        const spy = spyOn(service['startMatchSubject'], 'next');
         service.matchStarted();
         socketHelper.peerSideEmit('matchStarting', { start: true, gameTitle: 'mockTitle' });
         expect(onSpy).toHaveBeenCalled();
-        expect(spy).toHaveBeenCalled();
     });
 
     it('beginQuiz() should send beginQuiz event and navigate to /play-test in test room', () => {
@@ -209,16 +207,6 @@ describe('MatchRoomService', () => {
         socketHelper.peerSideEmit('beginQuiz', { firstQuestion: 'mockQuestion', gameDuration: 0, isTestRoom: true });
         expect(onSpy).toHaveBeenCalled();
         expect(router.navigate).toHaveBeenCalledWith(['/play-match'], { state: { question: 'mockQuestion', duration: 0 } });
-    });
-
-    it('getStartMatchObservable() should return startMatchSubject as observable', () => {
-        const mockSubject = service['startMatchSubject'];
-        expect(service.getStartMatchObservable()).toEqual(mockSubject.asObservable());
-    });
-
-    it('getGameTitleObservable() should return gameTitle as observable', () => {
-        const mockSubject = service['gameTitle'];
-        expect(service.getGameTitleObservable()).toEqual(mockSubject.asObservable());
     });
 
     it('nextQuestion() should send nextQuestion event', () => {
@@ -341,7 +329,7 @@ describe('MatchRoomService', () => {
     });
 
     it('onHostQuit() should set isHostPlaying to false', () => {
-        service.isHostPlaying = true;
+        service['hostPlayingSource'].next(true);
         // Any is required to simulate Function type in tests
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
@@ -350,28 +338,5 @@ describe('MatchRoomService', () => {
         service.onHostQuit();
         socketHelper.peerSideEmit('hostQuitMatch');
         expect(onSpy).toHaveBeenCalled();
-    });
-
-    it('quitGame() should navigate to /home and disconnect the socket', () => {
-        const disconnectSpy = spyOn(service, 'disconnect');
-        service.quitGame();
-        expect(disconnectSpy).toHaveBeenCalled();
-        expect(router.navigateByUrl).toHaveBeenCalledWith('/home');
-    });
-
-    it('isRoomEmpty() should return true if there are no more playing players in the room', () => {
-        const player1 = { isPlaying: false } as Player;
-        const player2 = { isPlaying: false } as Player;
-        service.players = [player1, player2];
-        const isRoomEmpty = service.isRoomEmpty();
-        expect(isRoomEmpty).toBe(true);
-    });
-
-    it('isRoomEmpty() should return false if there are still playing players in the room', () => {
-        const player1 = { isPlaying: true } as Player;
-        const player2 = { isPlaying: false } as Player;
-        service.players = [player1, player2];
-        const isRoomEmpty = service.isRoomEmpty();
-        expect(isRoomEmpty).toBe(false);
     });
 });

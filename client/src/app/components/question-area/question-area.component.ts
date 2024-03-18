@@ -9,7 +9,6 @@ import { MatchService } from '@app/services/match/match.service';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { QuestionContextService } from '@app/services/question-context/question-context.service';
 import { TimeService } from '@app/services/time/time.service';
-import { MULTIPLICATION_FACTOR } from '@common/constants/match-constants';
 import { Feedback } from '@common/interfaces/feedback';
 import { Subject, Subscription } from 'rxjs';
 @Component({
@@ -28,20 +27,22 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
     bonus: number;
     context: 'testPage' | 'hostView' | 'playerView';
     correctAnswers: string[];
+    isHostPlaying: boolean = true;
     isFirstQuestion: boolean = true;
     isCooldown: boolean = false;
     isRightAnswer: boolean = false;
     isNextQuestionButton: boolean = false;
     isLastQuestion: boolean = false;
+    isQuitting: boolean = false;
 
     private eventSubscriptions: Subscription[];
 
     // Allow more constructor parameters to decouple services
     // eslint-disable-next-line max-params
     constructor(
-        private readonly timeService: TimeService,
+        public matchRoomService: MatchRoomService,
+        public timeService: TimeService,
         private readonly matchService: MatchService,
-        private readonly matchRoomService: MatchRoomService,
         private readonly questionContextService: QuestionContextService,
         private readonly answerService: AnswerService,
         private readonly notificationService: NotificationService,
@@ -85,14 +86,14 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     canDeactivate(): CanDeactivateType {
+        if (this.isQuitting) return true;
         if (this.matchRoomService.isResults) return true;
-        if (this.matchRoomService.isRoomEmpty()) return true;
-        if (!this.matchRoomService.isHostPlaying) return true;
+        if (!this.isHostPlaying) return true;
 
         const deactivateSubject = new Subject<boolean>();
         this.notificationService.openWarningDialog(WarningMessage.QUIT).subscribe((confirm: boolean) => {
             deactivateSubject.next(confirm);
-            if (confirm) this.handleQuit();
+            if (confirm) this.matchRoomService.disconnect();
         });
         return deactivateSubject;
     }
@@ -135,10 +136,6 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         }
     }
 
-    computeTimerProgress(): number {
-        return (this.timeService.time / this.timeService.duration) * MULTIPLICATION_FACTOR;
-    }
-
     submitAnswers(): void {
         this.answerService.submitAnswer({ username: this.username, roomCode: this.matchRoomCode });
         this.isSelectionEnabled = false;
@@ -174,6 +171,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     resetStateForNewQuestion(): void {
+        this.isHostPlaying = true;
         this.showFeedback = false;
         this.isSelectionEnabled = true;
         this.selectedAnswers = [];
@@ -181,18 +179,16 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         this.correctAnswers = [];
         this.isRightAnswer = false;
         this.isCooldown = false;
-    }
-
-    quitGame() {
-        this.matchRoomService.quitGame();
-    }
-
-    handleQuit() {
-        this.matchRoomService.disconnect();
+        this.isQuitting = false;
     }
 
     routeToResultsPage() {
         this.matchRoomService.routeToResultsPage();
+    }
+
+    quitGame() {
+        this.isQuitting = true;
+        this.matchRoomService.disconnect();
     }
 
     private handleFeedback(feedback: Feedback) {
@@ -288,6 +284,13 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         this.eventSubscriptions.push(endGameSubscription);
     }
 
+    private subscribeToHostPlaying() {
+        const hostPlayingSubscription = this.matchRoomService.isHostPlaying$.subscribe((isHostPlaying) => {
+            this.isHostPlaying = isHostPlaying;
+        });
+        this.eventSubscriptions.push(hostPlayingSubscription);
+    }
+
     private listenToGameEvents() {
         this.timeService.handleTimer();
         this.timeService.handleStopTimer();
@@ -298,6 +301,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     private initialiseSubscriptions() {
+        this.subscribeToHostPlaying();
         this.subscribeToFeedback();
         this.subscribeToCurrentQuestion();
         this.subscribeToBonus();

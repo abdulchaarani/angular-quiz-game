@@ -1,13 +1,14 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { WarningMessage } from '@app/constants/feedback-messages';
+import { CanDeactivateType } from '@app/interfaces/can-component-deactivate';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { MatchService } from '@app/services/match/match.service';
+import { NotificationService } from '@app/services/notification/notification.service';
 import { QuestionContextService } from '@app/services/question-context/question-context.service';
 import { TimeService } from '@app/services/time/time.service';
+import { Subject } from 'rxjs';
 import { Subscription } from 'rxjs/internal/Subscription';
-
-const COUNTDOWN_DURATION = 5;
-const MULTIPLICATION_FACTOR = 100;
 
 @Component({
     selector: 'app-wait-page',
@@ -15,7 +16,9 @@ const MULTIPLICATION_FACTOR = 100;
     styleUrls: ['./wait-page.component.scss'],
 })
 export class WaitPageComponent implements OnInit, OnDestroy {
+    isHostPlaying: boolean;
     isLocked: boolean;
+    isQuitting: boolean;
     startTimerButton: boolean;
     gameTitle: string;
     private eventSubscriptions: Subscription[] = [];
@@ -27,11 +30,9 @@ export class WaitPageComponent implements OnInit, OnDestroy {
         public timeService: TimeService,
         public router: Router,
         public matchService: MatchService,
-        private questionContextService: QuestionContextService,
-    ) {
-        this.isLocked = false;
-        this.startTimerButton = false;
-    }
+        private readonly questionContextService: QuestionContextService,
+        private readonly notificationService: NotificationService,
+    ) {}
 
     get time() {
         return this.timeService.time;
@@ -44,31 +45,34 @@ export class WaitPageComponent implements OnInit, OnDestroy {
         return this.matchService.currentGame;
     }
 
+    canDeactivate(): CanDeactivateType {
+        if (this.isQuitting) return true;
+        if (this.matchRoomService.isWaitOver) return true;
+        if (!this.isHostPlaying) return true;
+
+        const deactivateSubject = new Subject<boolean>();
+        this.notificationService.openWarningDialog(WarningMessage.QUIT).subscribe((confirm: boolean) => {
+            deactivateSubject.next(confirm);
+            if (confirm) this.matchRoomService.disconnect();
+        });
+        return deactivateSubject;
+    }
+
     ngOnInit(): void {
+        this.resetWaitPage();
         this.timeService.handleTimer();
         this.timeService.handleStopTimer();
 
-        this.matchRoomService.connect();
+        this.subscribeToHostPlaying();
+        this.subscribeToStartMatch();
 
         if (this.isHost) {
-            this.gameTitle = this.currentGame.title;
             this.questionContextService.setContext('hostView');
+            this.gameTitle = this.currentGame.title;
         } else {
-            this.eventSubscriptions.push(
-                this.matchRoomService.getGameTitleObservable().subscribe((title) => {
-                    this.gameTitle = title;
-                }),
-            );
             this.questionContextService.setContext('playerView');
+            this.subscribeToGameTitle();
         }
-
-        this.matchRoomService.matchStarted();
-        this.matchRoomService.beginQuiz();
-        this.eventSubscriptions.push(
-            this.matchRoomService.getStartMatchObservable().subscribe(() => {
-                this.startTimerButton = true;
-            }),
-        );
     }
 
     ngOnDestroy(): void {
@@ -98,11 +102,41 @@ export class WaitPageComponent implements OnInit, OnDestroy {
         });
     }
 
-    computeTimerProgress(): number {
-        return (this.timeService.time / COUNTDOWN_DURATION) * MULTIPLICATION_FACTOR;
-    }
-
     nextQuestion() {
         this.matchRoomService.nextQuestion();
+    }
+
+    quitGame() {
+        this.isQuitting = true;
+        this.matchRoomService.disconnect();
+    }
+
+    private resetWaitPage() {
+        this.isHostPlaying = true;
+        this.isLocked = false;
+        this.isQuitting = false;
+        this.startTimerButton = false;
+    }
+
+    private subscribeToHostPlaying() {
+        const hostPlayingSubscription = this.matchRoomService.isHostPlaying$.subscribe((isHostPlaying) => {
+            this.isHostPlaying = isHostPlaying;
+        });
+        this.eventSubscriptions.push(hostPlayingSubscription);
+    }
+
+    private subscribeToStartMatch() {
+        const startMatchSubscription = this.matchRoomService.startMatch$.subscribe((startMatch) => {
+            this.startTimerButton = startMatch;
+        });
+        this.eventSubscriptions.push(startMatchSubscription);
+    }
+
+    private subscribeToGameTitle() {
+        const gameTitleSubscription = this.matchRoomService.gameTitle$.subscribe((title) => {
+            this.gameTitle = title;
+        });
+
+        this.eventSubscriptions.push(gameTitleSubscription);
     }
 }

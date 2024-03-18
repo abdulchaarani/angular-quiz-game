@@ -81,6 +81,7 @@ export class MatchGateway implements OnGatewayDisconnect {
         const playerToBan = this.playerRoomService.getPlayerByUsername(data.roomCode, data.username);
         if (playerToBan) {
             this.playerRoomService.deletePlayer(data.roomCode, data.username);
+            this.sendError(playerToBan.socket.id, "L'organisateur vous a banni.");
             this.server.in(playerToBan.socket.id).disconnectSockets();
         }
         this.sendPlayersData(socket, data.roomCode);
@@ -133,6 +134,7 @@ export class MatchGateway implements OnGatewayDisconnect {
     handleDisconnect(@ConnectedSocket() socket: Socket) {
         const hostRoomCode = this.matchRoomService.getRoomCodeByHostSocket(socket.id);
         if (hostRoomCode) {
+            this.sendError(hostRoomCode, "L'organisateur a quitté la partie.");
             this.deleteRoom(hostRoomCode);
             return;
         }
@@ -143,6 +145,7 @@ export class MatchGateway implements OnGatewayDisconnect {
         const room = this.matchRoomService.getRoom(roomCode);
         const isRoomEmpty = this.isRoomEmpty(room);
         if (room.isPlaying && isRoomEmpty) {
+            this.sendError(roomCode, "Il n'y a plus de joueurs.");
             this.deleteRoom(roomCode);
             return;
         }

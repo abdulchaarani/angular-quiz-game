@@ -182,7 +182,6 @@ export class MatchRoomService {
         this.socketService.on('disconnect', () => {
             this.router.navigateByUrl('/home');
             this.resetMatchValues();
-            this.notificationService.displayErrorMessage('Vous avez été déconnecté de la partie.');
         });
     }
 

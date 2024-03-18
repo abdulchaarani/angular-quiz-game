@@ -313,7 +313,6 @@ describe('MatchRoomService', () => {
         service.redirectAfterDisconnection();
         socketHelper.peerSideEmit('disconnect');
         expect(resetSpy).toHaveBeenCalled();
-        expect(notificationService.displayErrorMessage).toHaveBeenCalled();
         expect(router.navigateByUrl).toHaveBeenCalled();
     });
 

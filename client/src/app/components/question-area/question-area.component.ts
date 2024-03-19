@@ -87,8 +87,12 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
 
     canDeactivate(): CanDeactivateType {
         if (this.isQuitting) return true;
-        if (this.matchRoomService.isResults) return true;
         if (!this.isHostPlaying) return true;
+        if (this.matchRoomService.isResults) return true;
+        if (this.questionContextService.getContext() === 'testPage') {
+            this.quitGame();
+            return true;
+        }
 
         const deactivateSubject = new Subject<boolean>();
         this.notificationService.openWarningDialog(WarningMessage.QUIT).subscribe((confirm: boolean) => {

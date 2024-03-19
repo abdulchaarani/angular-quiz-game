@@ -166,6 +166,9 @@ describe('MatchGateway', () => {
             disconnectSockets: () => {
                 return null;
             },
+            emit: (event: string) => {
+                expect(event).toBe('banned');
+            },
         } as BroadcastOperator<unknown, unknown>);
         const sendSpy = jest.spyOn(gateway, 'sendPlayersData').mockReturnThis();
         gateway.banUsername(socket, MOCK_USER_INFO);

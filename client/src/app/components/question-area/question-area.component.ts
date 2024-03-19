@@ -215,13 +215,13 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         const feedbackSubscription = this.answerService.feedback$.subscribe((feedback) => {
             this.handleFeedback(feedback);
         });
-        const feedbackObservable = this.answerService.feedbackSub$.subscribe(() => {
+        const feedbackChangeSubscription = this.answerService.isFeedback$.subscribe(() => {
             this.showFeedback = true;
             this.isNextQuestionButton = true;
         });
 
         this.eventSubscriptions.push(feedbackSubscription);
-        this.eventSubscriptions.push(feedbackObservable);
+        this.eventSubscriptions.push(feedbackChangeSubscription);
     }
 
     private handleQuestionChange(question: Question) {
@@ -232,10 +232,14 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
                     currentValue: question,
                     previousValue: this.currentQuestion,
                     firstChange: false,
-                    isFirstChange: () => false,
+                    isFirstChange: this.isFirstChangeFn,
                 },
             });
         }
+    }
+
+    private isFirstChangeFn() {
+        return false;
     }
 
     private subscribeToCurrentQuestion() {
@@ -284,8 +288,8 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         this.answerService.feedback();
         this.answerService.bonusPoints();
         this.answerService.gameOver();
-        this.matchRoomService.gameOver();
-        this.matchRoomService.listenRouteToResultsPage();
+        this.matchRoomService.onGameOver();
+        this.matchRoomService.onRouteToResultsPage();
     }
 
     private initialiseSubscriptions() {

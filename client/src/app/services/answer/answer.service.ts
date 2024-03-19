@@ -9,11 +9,11 @@ import { Observable, Subject } from 'rxjs';
 })
 export class AnswerService {
     feedback$: Observable<Feedback>;
-    feedbackSub$: Observable<boolean>;
+    isFeedback$: Observable<boolean>;
     bonusPoints$: Observable<number>;
     endGame$: Observable<boolean>;
 
-    private feedbackSubject: Subject<boolean>;
+    private isFeedbackSource: Subject<boolean>;
     private feedbackSource: Subject<Feedback>;
     private bonusPointsSubject: Subject<number>;
     private endGameSubject: Subject<boolean>;
@@ -39,7 +39,7 @@ export class AnswerService {
     feedback() {
         this.socketService.on('feedback', (data: Feedback) => {
             this.feedbackSource.next(data);
-            this.feedbackSubject.next(true);
+            this.isFeedbackSource.next(true);
         });
     }
 
@@ -58,11 +58,11 @@ export class AnswerService {
     private initialiseAnwserSubjects() {
         this.feedbackSource = new Subject<Feedback>();
         this.bonusPointsSubject = new Subject<number>();
-        this.feedbackSubject = new Subject<boolean>();
+        this.isFeedbackSource = new Subject<boolean>();
         this.endGameSubject = new Subject<boolean>();
         this.feedback$ = this.feedbackSource.asObservable();
         this.bonusPoints$ = this.bonusPointsSubject.asObservable();
-        this.feedbackSub$ = this.feedbackSubject.asObservable();
+        this.isFeedback$ = this.isFeedbackSource.asObservable();
         this.endGame$ = this.endGameSubject.asObservable();
     }
 }

@@ -47,13 +47,13 @@ describe('MatchRoomService', () => {
 
     it('connect() should connect the socket if it is not alive', () => {
         const checkSpy = spyOn(socketSpy, 'isSocketAlive').and.returnValue(false);
-        const redirectSpy = spyOn(service, 'redirectAfterDisconnection');
-        const fetchSpy = spyOn(service, 'fetchPlayersData');
-        const handleErrorSpy = spyOn(service, 'handleError');
-        const startSpy = spyOn(service, 'matchStarted');
-        const beginSpy = spyOn(service, 'beginQuiz');
-        const moveSpy = spyOn(service, 'moveToNextQuestion');
-        const cooldownSpy = spyOn(service, 'startCooldown');
+        const redirectSpy = spyOn(service, 'onRedirectAfterDisconnection');
+        const fetchSpy = spyOn(service, 'onFetchPlayersData');
+        const handleErrorSpy = spyOn(service, 'onHandleError');
+        const startSpy = spyOn(service, 'onMatchStarted');
+        const beginSpy = spyOn(service, 'onBeginQuiz');
+        const moveSpy = spyOn(service, 'onNextQuestion');
+        const cooldownSpy = spyOn(service, 'onStartCooldown');
         const hostSpy = spyOn(service, 'onHostQuit');
         service.connect();
         expect(checkSpy).toHaveBeenCalled();
@@ -69,8 +69,8 @@ describe('MatchRoomService', () => {
 
     it('connect() should not connect the socket if it is alive', () => {
         const checkSpy = spyOn(socketSpy, 'isSocketAlive').and.returnValue(true);
-        const redirectSpy = spyOn(service, 'redirectAfterDisconnection');
-        const fetchSpy = spyOn(service, 'fetchPlayersData');
+        const redirectSpy = spyOn(service, 'onRedirectAfterDisconnection');
+        const fetchSpy = spyOn(service, 'onFetchPlayersData');
         service.connect();
         expect(checkSpy).toHaveBeenCalled();
         expect(redirectSpy).not.toHaveBeenCalled();
@@ -192,7 +192,7 @@ describe('MatchRoomService', () => {
         const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb('mock');
         });
-        service.handleError();
+        service.onHandleError();
         socketHelper.peerSideEmit('error', 'mock');
         expect(onSpy).toHaveBeenCalled();
         expect(notificationService.displayErrorMessage).toHaveBeenCalled();
@@ -204,7 +204,7 @@ describe('MatchRoomService', () => {
         const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb({ start: true, gameTitle: 'mockTitle' });
         });
-        service.matchStarted();
+        service.onMatchStarted();
         socketHelper.peerSideEmit('matchStarting', { start: true, gameTitle: 'mockTitle' });
         expect(onSpy).toHaveBeenCalled();
     });
@@ -215,7 +215,7 @@ describe('MatchRoomService', () => {
         const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb({ firstQuestion: 'mockQuestion', gameDuration: 0, isTestRoom: true });
         });
-        service.beginQuiz();
+        service.onBeginQuiz();
         socketHelper.peerSideEmit('beginQuiz', { firstQuestion: 'mockQuestion', gameDuration: 0, isTestRoom: true });
         expect(onSpy).toHaveBeenCalled();
         expect(router.navigate).toHaveBeenCalledWith(['/play-test'], { state: { question: 'mockQuestion', duration: 0 } });
@@ -227,7 +227,7 @@ describe('MatchRoomService', () => {
         const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb({ firstQuestion: 'mockQuestion', gameDuration: 0, isTestRoom: false });
         });
-        service.beginQuiz();
+        service.onBeginQuiz();
         socketHelper.peerSideEmit('beginQuiz', { firstQuestion: 'mockQuestion', gameDuration: 0, isTestRoom: true });
         expect(onSpy).toHaveBeenCalled();
         expect(router.navigate).toHaveBeenCalledWith(['/play-match'], { state: { question: 'mockQuestion', duration: 0 } });
@@ -246,7 +246,7 @@ describe('MatchRoomService', () => {
         const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb('');
         });
-        service.startCooldown();
+        service.onStartCooldown();
         socketHelper.peerSideEmit('startCooldown');
         expect(onSpy).toHaveBeenCalled();
     });
@@ -257,7 +257,7 @@ describe('MatchRoomService', () => {
         const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb(true);
         });
-        service.gameOver();
+        service.onGameOver();
         socketHelper.peerSideEmit('gameOver', true);
         expect(onSpy).toHaveBeenCalled();
         expect(router.navigateByUrl).toHaveBeenCalledWith('/host');
@@ -269,7 +269,7 @@ describe('MatchRoomService', () => {
         const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb(false);
         });
-        service.gameOver();
+        service.onGameOver();
         socketHelper.peerSideEmit('gameOver', false);
         expect(onSpy).toHaveBeenCalled();
         expect(router.navigateByUrl).not.toHaveBeenCalled();
@@ -281,7 +281,7 @@ describe('MatchRoomService', () => {
         const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb('mockQuestion');
         });
-        service.moveToNextQuestion();
+        service.onNextQuestion();
         socketHelper.peerSideEmit('nextQuestion', 'mockQuestion');
         expect(onSpy).toHaveBeenCalled();
     });
@@ -301,7 +301,7 @@ describe('MatchRoomService', () => {
             cb({ res: mockStringifiedPlayer });
         });
         const parseSpy = spyOn(JSON, 'parse').and.returnValue([mockPlayer]);
-        service.fetchPlayersData();
+        service.onFetchPlayersData();
         socketHelper.peerSideEmit('fetchPlayersData', mockStringifiedPlayer);
         expect(service.players).toEqual([mockPlayer]);
         expect(parseSpy).toHaveBeenCalled();
@@ -310,7 +310,7 @@ describe('MatchRoomService', () => {
 
     it('redirectAfterDisconnection() should redirect to home, reset values and display error message when receiving disconnect event', () => {
         const resetSpy = spyOn(service, 'resetMatchValues');
-        service.redirectAfterDisconnection();
+        service.onRedirectAfterDisconnection();
         socketHelper.peerSideEmit('disconnect');
         expect(resetSpy).toHaveBeenCalled();
         expect(router.navigateByUrl).toHaveBeenCalled();
@@ -345,7 +345,7 @@ describe('MatchRoomService', () => {
         const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb('');
         });
-        service.listenRouteToResultsPage();
+        service.onRouteToResultsPage();
         socketHelper.peerSideEmit('routeToResultsPage');
         expect(onSpy).toHaveBeenCalled();
         expect(router.navigateByUrl).toHaveBeenCalledWith('/results');

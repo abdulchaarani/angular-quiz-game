@@ -62,16 +62,16 @@ export class MatchRoomService {
             this.resetMatchValues();
             this.initialiseMatchSubjects();
             this.socketService.connect();
-            this.redirectAfterDisconnection();
-            this.fetchPlayersData();
-            this.matchStarted();
-            this.beginQuiz();
-            this.moveToNextQuestion();
-            this.gameOver();
-            this.startCooldown();
+            this.onRedirectAfterDisconnection();
+            this.onFetchPlayersData();
+            this.onMatchStarted();
+            this.onBeginQuiz();
+            this.onNextQuestion();
+            this.onGameOver();
+            this.onStartCooldown();
             this.onHostQuit();
-            this.banPlayer();
-            this.handleError();
+            this.onPlayerBan();
+            this.onHandleError();
         }
     }
 
@@ -117,7 +117,7 @@ export class MatchRoomService {
         }
     }
 
-    handleError() {
+    onHandleError() {
         this.socketService.on('error', (errorMessage: string) => {
             this.notificationService.displayErrorMessage(errorMessage);
         });
@@ -127,7 +127,7 @@ export class MatchRoomService {
         this.socketService.send('startMatch', this.matchRoomCode);
     }
 
-    matchStarted() {
+    onMatchStarted() {
         this.socketService.on('matchStarting', (data: { start: boolean; gameTitle: string }) => {
             if (data.start) {
                 this.startMatchSource.next(true);
@@ -138,7 +138,7 @@ export class MatchRoomService {
         });
     }
 
-    beginQuiz() {
+    onBeginQuiz() {
         this.socketService.on('beginQuiz', (data: { firstQuestion: Question; gameDuration: number; isTestRoom: boolean }) => {
             this.isWaitOver = true;
             const { firstQuestion, gameDuration, isTestRoom } = data;
@@ -152,13 +152,13 @@ export class MatchRoomService {
         this.socketService.send('nextQuestion', this.matchRoomCode);
     }
 
-    startCooldown() {
+    onStartCooldown() {
         this.socketService.on('startCooldown', () => {
             this.displayCooldownSource.next(true);
         });
     }
 
-    gameOver() {
+    onGameOver() {
         this.socketService.on('gameOver', (isTestRoom) => {
             if (isTestRoom) {
                 this.router.navigateByUrl('/host');
@@ -166,14 +166,14 @@ export class MatchRoomService {
         });
     }
 
-    moveToNextQuestion() {
+    onNextQuestion() {
         this.socketService.on('nextQuestion', (question: Question) => {
             this.displayCooldownSource.next(false);
             this.currentQuestionSource.next(question);
         });
     }
 
-    fetchPlayersData() {
+    onFetchPlayersData() {
         this.socketService.on('fetchPlayersData', (res: string) => {
             this.players = JSON.parse(res);
         });
@@ -185,7 +185,7 @@ export class MatchRoomService {
         });
     }
 
-    redirectAfterDisconnection() {
+    onRedirectAfterDisconnection() {
         this.socketService.on('disconnect', () => {
             this.router.navigateByUrl('/home');
             this.resetMatchValues();
@@ -207,14 +207,14 @@ export class MatchRoomService {
         this.socketService.send('routeToResultsPage', this.matchRoomCode);
     }
 
-    listenRouteToResultsPage() {
+    onRouteToResultsPage() {
         this.socketService.on('routeToResultsPage', () => {
             this.isResults = true;
             this.router.navigateByUrl('/results');
         });
     }
 
-    banPlayer() {
+    onPlayerBan() {
         this.socketService.on('banned', () => {
             this.bannedSource.next(true);
             this.disconnect();

@@ -33,7 +33,7 @@ export class HistogramComponent implements OnInit, OnChanges, OnDestroy {
 
     ngOnInit(): void {
         if (!this.isResultsPage) {
-            this.histogramService.currentHistogram();
+            this.histogramService.onCurrentHistogram();
             this.subscribeToChoiceTally();
         } else {
             this.choiceTally = this.currentHistogram.choiceTallies;

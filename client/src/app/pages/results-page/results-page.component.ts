@@ -16,32 +16,36 @@ export class ResultsPageComponent implements OnInit, OnDestroy {
     players: Player[] = [];
     currentQuestionIndex: number = 0;
     histogramsGame: Histogram[] = [];
-    private subscriptions: Subscription[] = [];
+    private histogramSubscriptions: Subscription[] = [];
     constructor(
         private readonly matchRoomService: MatchRoomService,
         private readonly histogramService: HistogramService,
     ) {}
-    initializeHistograms() {
-        this.subscriptions.push(
-            this.histogramService.histogramHistory$.subscribe((histograms: Histogram[]) => {
-                this.histogramsGame = histograms;
-            }),
-        );
-    }
+
     ngOnInit(): void {
         this.players = this.matchRoomService.players;
-        this.histogramService.histogramHistory();
-        this.initializeHistograms();
+        this.histogramService.onHistogramHistory();
+        this.subscribeToHistogramHistory();
     }
+
     ngOnDestroy(): void {
-        this.subscriptions.forEach((sub) => sub.unsubscribe());
-        this.subscriptions = [];
+        this.histogramSubscriptions.forEach((subscription) => subscription.unsubscribe());
+        this.histogramSubscriptions = [];
     }
-    handlePageEvent(e: PageEvent) {
-        this.pageEvent = e;
-        this.currentQuestionIndex = e.pageIndex;
+
+    handlePageEvent(event: PageEvent) {
+        this.pageEvent = event;
+        this.currentQuestionIndex = event.pageIndex;
     }
+
     handleDisconnect() {
         this.matchRoomService.disconnect();
+    }
+
+    private subscribeToHistogramHistory() {
+        const histogramHistorySubscription = this.histogramService.histogramHistory$.subscribe((histograms: Histogram[]) => {
+            this.histogramsGame = histograms;
+        });
+        this.histogramSubscriptions.push(histogramHistorySubscription);
     }
 }

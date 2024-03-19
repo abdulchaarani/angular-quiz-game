@@ -16,13 +16,13 @@ export class HistogramService {
         this.histogramHistory$ = this.histogramHistorySource.asObservable();
     }
 
-    currentHistogram() {
+    onCurrentHistogram() {
         this.socketService.on('currentHistogram', (data: Histogram) => {
             this.currentHistogramSource.next(data);
         });
     }
 
-    histogramHistory() {
+    onHistogramHistory() {
         this.socketService.on('histogramHistory', (data: Histogram[]) => {
             this.histogramHistorySource.next(data);
         });

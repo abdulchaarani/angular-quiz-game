@@ -9,7 +9,7 @@ describe('HistogramComponent', () => {
     let histogramServiceSpy: jasmine.SpyObj<HistogramService>;
 
     beforeEach(() => {
-        histogramServiceSpy = jasmine.createSpyObj('HistogramService', ['currentHistogram']);
+        histogramServiceSpy = jasmine.createSpyObj('HistogramService', ['onCurrentHistogram']);
         TestBed.configureTestingModule({
             declarations: [HistogramComponent],
             imports: [AgChartsAngularModule],

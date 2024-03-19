@@ -5,6 +5,7 @@ import {
     ERROR_GAME_SAME_TITLE,
     ERROR_INVALID_GAME,
     ERROR_QUESTION_NOT_FOUND,
+    ERROR_WRONG_FORMAT,
 } from '@app/constants/request-errors';
 import { Game, GameDocument } from '@app/model/database/game';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
@@ -170,7 +171,7 @@ describe('GameService', () => {
         const spyDateVisibility = jest.spyOn(gameCreationService, 'updateDateAndVisibility').mockReturnValue(mockGame);
         const spyGenerateId = jest.spyOn(gameCreationService, 'generateId').mockReturnValue(mockGame);
         await service.addGame({ ...mockGame }).catch((error) => {
-            expect(error).toBe(`${ERROR_DEFAULT} `);
+            expect(error).toBe(`${ERROR_DEFAULT} ${ERROR_WRONG_FORMAT}`);
         });
         expect(spyGet).toHaveBeenCalledWith(mockGame.title);
         expect(spyGenerateId).toHaveBeenCalledWith(mockGame);

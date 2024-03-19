@@ -1,11 +1,10 @@
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { QuestionCreationFormComponent } from '@app/components/question-creation-form/question-creation-form.component';
 import { ManagementState } from '@app/constants/states';
-import { BankStatus } from '@app/constants/feedback-messages';
 import { Question } from '@app/interfaces/question';
-import { NotificationService } from '@app/services/notification.service';
-import { QuestionService } from '@app/services/question.service';
+import { BankService } from '@app/services/bank/bank.service';
+import { QuestionService } from '@app/services/question/question.service';
 
 @Component({
     selector: 'app-admin-question-bank',
@@ -16,8 +15,6 @@ export class AdminQuestionBankComponent implements OnInit {
     @Output() createQuestionEventQuestionBank: EventEmitter<Question> = new EventEmitter<Question>();
     @Input() createNewQuestionButton: boolean = false;
     @Input() createNewQuestionToBankButton: boolean = false;
-
-    questions: Question[] = [];
 
     response: string = '';
     newQuestion: Question = {
@@ -31,65 +28,40 @@ export class AdminQuestionBankComponent implements OnInit {
 
     constructor(
         public dialog: MatDialog,
+        public bankService: BankService,
         private readonly questionService: QuestionService,
-        private readonly notificationService: NotificationService,
     ) {}
 
     ngOnInit() {
-        this.questionService.getAllQuestions().subscribe({
-            next: (data: Question[]) => (this.questions = [...data]),
-            error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`${BankStatus.UNRETRIEVED}\n ${error.message}`),
-        });
+        this.bankService.getAllQuestions();
     }
 
     deleteQuestion(questionId: string) {
-        this.questionService.deleteQuestion(questionId).subscribe({
-            next: () => (this.questions = this.questions.filter((question: Question) => question.id !== questionId)),
-            error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`${BankStatus.STILL}\n ${error.message}`),
-        });
+        this.bankService.deleteQuestion(questionId);
     }
 
     addQuestion(newQuestion: Question = this.newQuestion) {
-        this.questionService.createQuestion(newQuestion).subscribe({
-            next: (response: HttpResponse<string>) => {
-                if (response.body) {
-                    newQuestion = JSON.parse(response.body);
-                    this.questions.push(newQuestion);
-                    this.notificationService.displaySuccessMessage(BankStatus.SUCCESS);
-                }
-            },
-            error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`${BankStatus.FAILURE}\n ${error.message}`),
-        });
+        this.bankService.addQuestion(newQuestion);
     }
 
     updateQuestion(newQuestion: Question) {
-        if (!this.isDuplicateQuestion(newQuestion, this.questions)) {
-            this.questionService.updateQuestion(newQuestion).subscribe({
-                next: () => {
-                    this.notificationService.displaySuccessMessage(BankStatus.MODIFIED);
-                },
-                error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`${BankStatus.UNMODIFIED} \n ${error.message}`),
-            });
-        } else {
-            this.notificationService.displayErrorMessage(BankStatus.DUPLICATE);
-        }
+        this.bankService.updateQuestion(newQuestion);
     }
 
     openDialog() {
         if (!this.dialogState) {
             const dialogRef = this.questionService.openCreateQuestionModal(ManagementState.BankCreate);
-
             dialogRef.componentInstance.createQuestionEvent.subscribe((newQuestion: Question) => {
-                if (newQuestion) {
-                    this.addQuestion(newQuestion);
-                    dialogRef.close();
-                }
-                this.dialogState = false;
+                this.handleDialog(newQuestion, dialogRef);
             });
         }
     }
 
-    private isDuplicateQuestion(newQuestion: Question, questionList: Question[]): boolean {
-        return !!questionList.find((question) => question.text === newQuestion.text && question.id !== newQuestion.id);
+    handleDialog(newQuestion: Question, dialogRef: MatDialogRef<QuestionCreationFormComponent, unknown>) {
+        if (newQuestion) {
+            this.addQuestion(newQuestion);
+            dialogRef.close();
+        }
+        this.dialogState = false;
     }
 }

@@ -12,7 +12,7 @@ import { v4 as uuidv4 } from 'uuid';
 export class QuestionService {
     constructor(
         @InjectModel(Question.name) public questionModel: Model<QuestionDocument>,
-        private validation: GameValidationService,
+        private readonly validation: GameValidationService,
     ) {}
 
     async getAllQuestions(): Promise<Question[]> {

@@ -5,7 +5,7 @@
     </div>
 
     <div class="match-buttons">
-        <button mat-raised-button disabled routerLink="/" class="match-button" id="join-button">
+        <button mat-raised-button (click)="openJoinDialog()" color="primary" class="match-button" id="join-button">
             <mat-icon>play_circle</mat-icon>
             Joindre une partie
         </button>
@@ -15,7 +15,7 @@
         </button>
     </div>
 
-    <button mat-raised-button color="basic" (click)="openDialog()" class="match-button" id="admin-button">Administrer les jeux</button>
+    <button mat-raised-button color="basic" (click)="openAdminDialog()" class="match-button" id="admin-button">Administrer les jeux</button>
 
     <footer class="footer-container">
         <h4 class="team-name">Équipe 305:</h4>

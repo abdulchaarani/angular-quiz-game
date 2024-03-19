@@ -4,3 +4,9 @@ export enum ManagementState {
     BankModify,
     GameModify,
 }
+
+export enum MatchContext {
+    TestPage = 'testPage',
+    HostView = 'hostView',
+    PlayerView = 'playerView',
+}

@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Game } from '@app/interfaces/game';
-import { DownloadGameService } from '@app/services/download-game.service';
-import { GamesService } from '@app/services/games.service';
+import { DownloadGameService } from '@app/services/download-game/download-game.service';
+import { GameService } from '@app/services/game/game.service';
 
 @Component({
     selector: 'app-game-list-item',
@@ -14,7 +14,7 @@ export class GameListItemComponent {
     @Output() deleteGameFromList: EventEmitter<string> = new EventEmitter<string>();
 
     constructor(
-        private gamesService: GamesService,
+        private readonly gamesService: GameService,
         private readonly downloadGameService: DownloadGameService,
     ) {}
 

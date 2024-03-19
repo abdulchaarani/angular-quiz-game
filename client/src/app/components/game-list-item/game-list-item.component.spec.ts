@@ -1,16 +1,16 @@
+import { ScrollingModule } from '@angular/cdk/scrolling';
 import { HttpClientModule } from '@angular/common/http';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { By } from '@angular/platform-browser';
+import { RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { getMockGame } from '@app/constants/game-mocks';
-import { DownloadGameService } from '@app/services/download-game.service';
-import { GamesService } from '@app/services/games.service';
+import { DownloadGameService } from '@app/services/download-game/download-game.service';
+import { GameService } from '@app/services/game/game.service';
 import { of } from 'rxjs';
 import { GameListItemComponent } from './game-list-item.component';
-import { RouterModule } from '@angular/router';
-import { ScrollingModule } from '@angular/cdk/scrolling';
 import SpyObj = jasmine.SpyObj;
 
 const MOCK_GAME = getMockGame();
@@ -18,11 +18,11 @@ const MOCK_GAME = getMockGame();
 describe('GameListItemComponent', () => {
     let component: GameListItemComponent;
     let fixture: ComponentFixture<GameListItemComponent>;
-    let gamesServiceSpy: SpyObj<GamesService>;
+    let gamesServiceSpy: SpyObj<GameService>;
     let downloadSpy: SpyObj<DownloadGameService>;
 
     beforeEach(waitForAsync(() => {
-        gamesServiceSpy = jasmine.createSpyObj('GamesService', ['getGames', 'getGameById', 'toggleGameVisibility', 'deleteGame', 'uploadGame']);
+        gamesServiceSpy = jasmine.createSpyObj('GameService', ['getGames', 'getGameById', 'toggleGameVisibility', 'deleteGame', 'uploadGame']);
         downloadSpy = jasmine.createSpyObj('DownloadGameService', ['downloadGameAsJson']);
 
         gamesServiceSpy.toggleGameVisibility.and.returnValue(of());
@@ -31,7 +31,7 @@ describe('GameListItemComponent', () => {
             imports: [MatCardModule, HttpClientModule, MatIconModule, RouterModule, RouterTestingModule, ScrollingModule],
             declarations: [GameListItemComponent],
             providers: [
-                { provide: GamesService, useValue: gamesServiceSpy },
+                { provide: GameService, useValue: gamesServiceSpy },
                 { provide: DownloadGameService, useValue: downloadSpy },
             ],
         }).compileComponents();

@@ -1,92 +1,132 @@
-import { HttpResponse } from '@angular/common/http';
-import { Component, HostListener, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { ChatComponent } from '@app/components/chat/chat.component';
+import { Component, HostListener, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { MatchStatus, WarningMessage } from '@app/constants/feedback-messages';
+import { CanDeactivateType } from '@app/interfaces/can-component-deactivate';
 import { Choice } from '@app/interfaces/choice';
 import { Question } from '@app/interfaces/question';
-import { MatchService } from '@app/services/match.service';
-import { TimeService } from '@app/services/time.service';
-
+import { AnswerService } from '@app/services/answer/answer.service';
+import { MatchRoomService } from '@app/services/match-room/match-room.service';
+import { MatchService } from '@app/services/match/match.service';
+import { NotificationService } from '@app/services/notification/notification.service';
+import { QuestionContextService } from '@app/services/question-context/question-context.service';
+import { TimeService } from '@app/services/time/time.service';
+import { Feedback } from '@common/interfaces/feedback';
+import { Subject, Subscription } from 'rxjs';
 @Component({
     selector: 'app-question-area',
     templateUrl: './question-area.component.html',
     styleUrls: ['./question-area.component.scss'],
 })
-export class QuestionAreaComponent implements OnInit, OnChanges {
-    @Input() currentQuestion: Question;
-    @Input() gameDuration: number;
-    @Input() isTestPage: boolean;
-
+export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
+    currentQuestion: Question;
+    gameDuration: number;
     answers: Choice[];
     selectedAnswers: Choice[];
     isSelectionEnabled: boolean;
     showFeedback: boolean;
-    isCorrect: boolean;
-    playerScore: number;
-    havePointsBeenAdded: boolean;
+    playerScore: number = 0;
     bonus: number;
+    context: 'testPage' | 'hostView' | 'playerView';
+    correctAnswers: string[];
+    isHostPlaying: boolean = true;
+    isFirstQuestion: boolean = true;
+    isCooldown: boolean = false;
+    isRightAnswer: boolean = false;
+    isNextQuestionButton: boolean = false;
+    isLastQuestion: boolean = false;
+    isQuitting: boolean = false;
 
-    readonly bonusFactor = 0.2;
-    private readonly multiplicationFactor = 100;
-    private readonly timeout = 3000;
+    private eventSubscriptions: Subscription[];
 
+    // Allow more constructor parameters to decouple services
+    // eslint-disable-next-line max-params
     constructor(
+        public matchRoomService: MatchRoomService,
         public timeService: TimeService,
-        public dialog: MatDialog,
-        private matchService: MatchService,
-    ) {
-        this.selectedAnswers = [];
-        this.isSelectionEnabled = true;
-        this.showFeedback = false;
-        this.isCorrect = false;
-        this.playerScore = 0;
-        this.havePointsBeenAdded = false;
-        this.bonus = 0;
-    }
+        private readonly matchService: MatchService,
+        private readonly questionContextService: QuestionContextService,
+        private readonly answerService: AnswerService,
+        private readonly notificationService: NotificationService,
+    ) {}
 
     get time() {
         return this.timeService.time;
     }
 
+    get matchRoomCode() {
+        return this.matchRoomService.getRoomCode();
+    }
+
+    get username() {
+        return this.matchRoomService.getUsername();
+    }
+
+    get players() {
+        return this.matchRoomService.players;
+    }
+
     @HostListener('document:keydown', ['$event'])
     handleKeyboardEvent(event: KeyboardEvent) {
+        if (document?.activeElement?.id === 'chat-input') return;
+
         if (event.key === 'Enter' && this.isSelectionEnabled) {
             this.submitAnswers();
-        } else {
-            const numKey = parseInt(event.key, 5);
-            if (numKey >= 1 && numKey <= this.answers.length) {
-                const choiceIndex = numKey - 1;
-                const choice = this.answers?.[choiceIndex];
-                if (choice) {
-                    this.selectChoice(choice);
-                }
+            return;
+        }
+
+        const numKey = parseInt(event.key, 5);
+        if (!numKey || !this.currentQuestion.choices) return;
+
+        if (numKey >= 1 && numKey <= this.currentQuestion.choices.length) {
+            const choiceIndex = numKey - 1;
+            const choice = this.currentQuestion.choices[choiceIndex];
+            if (choice) {
+                this.selectChoice(choice);
             }
         }
+    }
+
+    canDeactivate(): CanDeactivateType {
+        if (this.isQuitting) return true;
+        if (!this.isHostPlaying) return true;
+        if (this.matchRoomService.isResults) return true;
+        if (this.questionContextService.getContext() === 'testPage') {
+            this.quitGame();
+            return true;
+        }
+
+        const deactivateSubject = new Subject<boolean>();
+        this.notificationService.openWarningDialog(WarningMessage.QUIT).subscribe((confirm: boolean) => {
+            deactivateSubject.next(confirm);
+            if (confirm) this.matchRoomService.disconnect();
+        });
+        return deactivateSubject;
+    }
+
+    getHistoryState() {
+        return history.state;
     }
 
     ngOnInit(): void {
-        this.timeService.stopTimer();
-        this.timeService.startTimer(this.gameDuration);
-        if (this.currentQuestion.choices) {
-            this.answers = this.currentQuestion.choices;
-        }
-        if (this.currentQuestion.id) {
-            this.matchService.questionId = this.currentQuestion.id;
+        this.eventSubscriptions = [];
+        this.resetStateForNewQuestion();
+
+        this.context = this.questionContextService.getContext();
+
+        if (this.isFirstQuestion) {
+            this.currentQuestion = this.getHistoryState().question;
+            this.gameDuration = this.getHistoryState().duration;
+            this.isFirstQuestion = false;
         }
 
-        this.timeService.timerFinished$.subscribe((timerFinished) => {
-            if (timerFinished) {
-                this.checkAnswers();
-            }
-        });
+        this.listenToGameEvents();
+        this.initialiseSubscriptions();
+    }
+
+    ngOnDestroy() {
+        this.eventSubscriptions.forEach((subscription) => subscription.unsubscribe());
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes.gameDuration) {
-            const newTimeLimit = changes.gameDuration.currentValue;
-            this.timeService.startTimer(newTimeLimit);
-        }
-
         if (changes.currentQuestion) {
             const newQuestion = changes.currentQuestion.currentValue;
             this.currentQuestion = newQuestion;
@@ -100,21 +140,8 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         }
     }
 
-    computeTimerProgress(): number {
-        return (this.timeService.time / this.gameDuration) * this.multiplicationFactor;
-    }
-
-    checkAnswers(): void {
-        const choicesText: string[] = this.selectedAnswers.map((choice) => choice.text);
-        this.matchService.validateChoices(choicesText).subscribe((response: HttpResponse<string>) => {
-            if (response.body) {
-                this.isCorrect = JSON.parse(response.body);
-                this.afterFeedback();
-            }
-        });
-    }
-
     submitAnswers(): void {
+        this.answerService.submitAnswer({ username: this.username, roomCode: this.matchRoomCode });
         this.isSelectionEnabled = false;
     }
 
@@ -122,8 +149,14 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         if (this.isSelectionEnabled) {
             if (!this.selectedAnswers.includes(choice)) {
                 this.selectedAnswers.push(choice);
+                if (this.context !== 'hostView') {
+                    this.answerService.selectChoice(choice.text, { username: this.username, roomCode: this.matchRoomCode });
+                }
             } else {
                 this.selectedAnswers = this.selectedAnswers.filter((answer) => answer !== choice);
+                if (this.context !== 'hostView') {
+                    this.answerService.deselectChoice(choice.text, { username: this.username, roomCode: this.matchRoomCode });
+                }
             }
         }
     }
@@ -132,43 +165,139 @@ export class QuestionAreaComponent implements OnInit, OnChanges {
         return this.selectedAnswers.includes(choice);
     }
 
-    openChatDialog(): void {
-        this.dialog.open(ChatComponent, {
-            width: '50%',
-            height: '50%',
-        });
+    isCorrectAnswer(choice: Choice): boolean {
+        return this.correctAnswers.includes(choice.text);
     }
 
-    playerScoreUpdate(): void {
-        if (this.isCorrect === true) {
-            if (this.isTestPage === true) {
-                this.bonus = this.currentQuestion.points * this.bonusFactor;
-            }
-            this.playerScore += this.currentQuestion.points;
-            this.playerScore += this.bonus;
-        }
-    }
-
-    afterFeedback(): void {
-        if (this.havePointsBeenAdded === false) {
-            this.playerScoreUpdate();
-            this.havePointsBeenAdded = true;
-        }
-        this.showFeedback = true;
-        setTimeout(() => {
-            this.matchService.advanceQuestion();
-            this.resetStateForNewQuestion();
-            this.timeService.stopTimer();
-            this.timeService.startTimer(this.gameDuration);
-        }, this.timeout);
+    nextQuestion() {
+        this.matchRoomService.nextQuestion();
+        this.isNextQuestionButton = false;
     }
 
     resetStateForNewQuestion(): void {
+        this.isHostPlaying = true;
         this.showFeedback = false;
         this.isSelectionEnabled = true;
         this.selectedAnswers = [];
-        this.isCorrect = false;
-        this.havePointsBeenAdded = false;
         this.bonus = 0;
+        this.correctAnswers = [];
+        this.isRightAnswer = false;
+        this.isCooldown = false;
+        this.isQuitting = false;
+    }
+
+    routeToResultsPage() {
+        this.matchRoomService.routeToResultsPage();
+    }
+
+    quitGame() {
+        this.isQuitting = true;
+        this.matchRoomService.disconnect();
+    }
+
+    private handleFeedback(feedback: Feedback) {
+        if (feedback) {
+            this.isSelectionEnabled = false;
+            this.correctAnswers = feedback.correctAnswer;
+            if (this.playerScore < feedback.score) {
+                this.isRightAnswer = true;
+            }
+            this.playerScore = feedback.score;
+            this.matchRoomService.sendPlayersData(this.matchRoomCode);
+            this.showFeedback = true;
+            if (this.context === 'testPage') {
+                this.nextQuestion();
+            }
+        }
+    }
+
+    private subscribeToFeedback() {
+        const feedbackSubscription = this.answerService.feedback$.subscribe((feedback) => {
+            this.handleFeedback(feedback);
+        });
+        const feedbackChangeSubscription = this.answerService.isFeedback$.subscribe(() => {
+            this.showFeedback = true;
+            this.isNextQuestionButton = true;
+        });
+
+        this.eventSubscriptions.push(feedbackSubscription);
+        this.eventSubscriptions.push(feedbackChangeSubscription);
+    }
+
+    private handleQuestionChange(question: Question) {
+        if (question) {
+            this.currentQuestion = question;
+            this.ngOnChanges({
+                currentQuestion: {
+                    currentValue: question,
+                    previousValue: this.currentQuestion,
+                    firstChange: false,
+                    isFirstChange: this.isFirstChangeFn,
+                },
+            });
+        }
+    }
+
+    private isFirstChangeFn() {
+        return false;
+    }
+
+    private subscribeToCurrentQuestion() {
+        const currentQuestionSubscription = this.matchRoomService.currentQuestion$.subscribe((question) => {
+            this.handleQuestionChange(question);
+        });
+        this.eventSubscriptions.push(currentQuestionSubscription);
+    }
+
+    private subscribeToBonus() {
+        const bonusPointsSubscription = this.answerService.bonusPoints$.subscribe((bonus) => {
+            if (bonus) {
+                this.bonus = bonus;
+            }
+        });
+        this.eventSubscriptions.push(bonusPointsSubscription);
+    }
+
+    private subscribeToCooldown() {
+        const displayCoolDownSubscription = this.matchRoomService.displayCooldown$.subscribe((isCooldown) => {
+            this.isCooldown = isCooldown;
+            if (this.isCooldown && this.context !== 'testPage') {
+                this.currentQuestion.text = MatchStatus.PREPARE;
+            }
+        });
+        this.eventSubscriptions.push(displayCoolDownSubscription);
+    }
+
+    private subscribeToGameEnd() {
+        const endGameSubscription = this.answerService.endGame$.subscribe((endGame) => {
+            this.isLastQuestion = endGame;
+        });
+        this.eventSubscriptions.push(endGameSubscription);
+    }
+
+    private subscribeToHostPlaying() {
+        const hostPlayingSubscription = this.matchRoomService.isHostPlaying$.subscribe((isHostPlaying) => {
+            this.isHostPlaying = isHostPlaying;
+        });
+        this.eventSubscriptions.push(hostPlayingSubscription);
+    }
+
+    private listenToGameEvents() {
+        this.timeService.handleTimer();
+        this.timeService.handleStopTimer();
+        this.answerService.onFeedback();
+        this.answerService.onBonusPoints();
+        this.answerService.onEndGame();
+        this.matchRoomService.onGameOver();
+        this.matchRoomService.onRouteToResultsPage();
+    }
+
+    private initialiseSubscriptions() {
+        this.subscribeToHostPlaying();
+        this.subscribeToFeedback();
+        this.subscribeToCurrentQuestion();
+        this.subscribeToBonus();
+        this.subscribeToCooldown();
+        this.subscribeToGameEnd();
     }
 }

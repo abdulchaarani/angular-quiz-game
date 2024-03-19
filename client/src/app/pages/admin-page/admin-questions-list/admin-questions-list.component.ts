@@ -2,15 +2,17 @@ import { CdkDragDrop, CdkDragEnd, moveItemInArray, transferArrayItem } from '@an
 import { HttpErrorResponse } from '@angular/common/http';
 import { AfterViewInit, Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
+import { QuestionCreationFormComponent } from '@app/components/question-creation-form/question-creation-form.component';
+import { BankStatus, GameStatus, QuestionStatus, WarningMessage } from '@app/constants/feedback-messages';
 import { ManagementState } from '@app/constants/states';
-import { BankStatus, GameStatus, QuestionStatus } from '@app/constants/feedback-messages';
 import { CanComponentDeactivate, CanDeactivateType } from '@app/interfaces/can-component-deactivate';
 import { Game } from '@app/interfaces/game';
 import { Question } from '@app/interfaces/question';
-import { GamesService } from '@app/services/games.service';
-import { NotificationService } from '@app/services/notification.service';
-import { QuestionService } from '@app/services/question.service';
+import { GameService } from '@app/services/game/game.service';
+import { NotificationService } from '@app/services/notification/notification.service';
+import { QuestionService } from '@app/services/question/question.service';
 import { Subject, Subscription, concatMap, iif, lastValueFrom } from 'rxjs';
 @Component({
     selector: 'app-admin-questions-list',
@@ -40,7 +42,6 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
     currentQuestion: Question;
     currentBankMessage = '';
     addToBank: boolean;
-    // addToBankToggleButtonState: boolean = false;
 
     gameForm = new FormGroup({
         title: new FormControl('', Validators.required),
@@ -51,22 +52,22 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
     isPendingChanges: boolean;
     private isPendingChangesSubscription: Subscription = new Subscription();
 
+    // permit more constructor params to decouple services
     // eslint-disable-next-line max-params
     constructor(
-        private readonly gamesService: GamesService,
+        private readonly gamesService: GameService,
         private readonly notificationService: NotificationService,
         private readonly questionService: QuestionService,
-        private route: ActivatedRoute,
-        private router: Router,
+        private readonly route: ActivatedRoute,
+        private readonly router: Router,
     ) {}
 
     canDeactivate(): CanDeactivateType {
-        if (this.isPendingChanges) {
-            const deactivateSubject = new Subject<boolean>();
-            this.notificationService.openPendingChangesConfirmDialog().subscribe((confirm: boolean) => deactivateSubject.next(confirm));
-            return deactivateSubject;
-        }
-        return true;
+        if (!this.isPendingChanges) return true;
+
+        const deactivateSubject = new Subject<boolean>();
+        this.notificationService.openWarningDialog(WarningMessage.PENDING).subscribe((confirm: boolean) => deactivateSubject.next(confirm));
+        return deactivateSubject;
     }
 
     setGame() {
@@ -168,7 +169,7 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
     }
 
     deleteQuestion(questionId: string) {
-        if (this.game.questions.length === 1 || this.game.id === null) return;
+        if (this.game.questions.length === 1 || !this.game.id) return;
 
         this.game.questions = this.game.questions.filter((question: Question) => question.id !== questionId);
         this.bankQuestions = this.filterBankQuestions(this.originalBankQuestions, this.game.questions);
@@ -189,8 +190,7 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
             const dialogRef = this.questionService.openCreateQuestionModal(ManagementState.GameCreate);
 
             dialogRef.componentInstance.createQuestionEvent.subscribe((newQuestion: Question) => {
-                this.addQuestionToGame(newQuestion);
-                dialogRef.close();
+                this.handleCreateQuestionDialog(newQuestion, dialogRef);
             });
         }
     }
@@ -240,6 +240,11 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
 
     getButtonText() {
         return this.state === ManagementState.GameModify ? 'Appliquer les modifications' : 'Créer le jeu';
+    }
+
+    private handleCreateQuestionDialog(newQuestion: Question, dialogRef: MatDialogRef<QuestionCreationFormComponent, unknown>) {
+        this.addQuestionToGame(newQuestion);
+        dialogRef.close();
     }
 
     private setBankMessage() {

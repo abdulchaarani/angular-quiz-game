@@ -1,0 +1,10 @@
+<div id="players-main-container">
+    <h2>Joueurs</h2>
+    <div *ngFor="let player of this.players | sortByScore" class="player-card">
+        <p [ngClass]="player.isPlaying ? '' : 'inactive-player'">{{ player.username }}</p>
+        <div class="player-performance">
+            <p>{{ player.score }} pts</p>
+            <p>({{ player.bonusCount }}✨)</p>
+        </div>
+    </div>
+</div>

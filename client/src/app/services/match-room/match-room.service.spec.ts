@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Lines were added to explain why ESlint was disabled at specific lines
 /* eslint-disable max-lines */
 import { TestBed } from '@angular/core/testing';
@@ -49,7 +50,7 @@ describe('MatchRoomService', () => {
         const checkSpy = spyOn(socketSpy, 'isSocketAlive').and.returnValue(false);
         const redirectSpy = spyOn(service, 'onRedirectAfterDisconnection');
         const fetchSpy = spyOn(service, 'onFetchPlayersData');
-        const handleErrorSpy = spyOn(service, 'onHandleError');
+        const handleErrorSpy = spyOn(service, 'handleError');
         const startSpy = spyOn(service, 'onMatchStarted');
         const beginSpy = spyOn(service, 'onBeginQuiz');
         const moveSpy = spyOn(service, 'onNextQuestion');
@@ -192,13 +193,13 @@ describe('MatchRoomService', () => {
         const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb('mock');
         });
-        service.onHandleError();
+        service.handleError();
         socketHelper.peerSideEmit('error', 'mock');
         expect(onSpy).toHaveBeenCalled();
         expect(notificationService.displayErrorMessage).toHaveBeenCalled();
     });
 
-    it('matchStarted() should send matchStarting event and update gameTitle', () => {
+    it('onMatchStarted() should send matchStarting event and update gameTitle', () => {
         // Any is required to simulate Function type in tests
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
@@ -209,7 +210,7 @@ describe('MatchRoomService', () => {
         expect(onSpy).toHaveBeenCalled();
     });
 
-    it('beginQuiz() should send beginQuiz event and navigate to /play-test in test room', () => {
+    it('onBeginQuiz() should send game data and navigate to /play-test in test room', () => {
         // Any is required to simulate Function type in tests
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
@@ -221,7 +222,7 @@ describe('MatchRoomService', () => {
         expect(router.navigate).toHaveBeenCalledWith(['/play-test'], { state: { question: 'mockQuestion', duration: 0 } });
     });
 
-    it('beginQuiz() should send beginQuiz event and navigate to /play-match when not in test room', () => {
+    it('onBeginQuiz() should send game data and navigate to /play-match when not in test room', () => {
         // Any is required to simulate Function type in tests
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
@@ -251,7 +252,7 @@ describe('MatchRoomService', () => {
         expect(onSpy).toHaveBeenCalled();
     });
 
-    it('gameOver() should navigate to /host in test room', () => {
+    it('onGameOver() should navigate to /host in test room', () => {
         // Any is required to simulate Function type in tests
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
@@ -263,7 +264,7 @@ describe('MatchRoomService', () => {
         expect(router.navigateByUrl).toHaveBeenCalledWith('/host');
     });
 
-    it('gameOver() should not navigate to /host when not in test room', () => {
+    it('onGameOver() should not navigate to /host when not in test room', () => {
         // Any is required to simulate Function type in tests
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
@@ -275,7 +276,7 @@ describe('MatchRoomService', () => {
         expect(router.navigateByUrl).not.toHaveBeenCalled();
     });
 
-    it('moveToNextQuestion() should send nextQuestion event', () => {
+    it('onNextQuestion() should send nextQuestion event', () => {
         // Any is required to simulate Function type in tests
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
@@ -286,7 +287,7 @@ describe('MatchRoomService', () => {
         expect(onSpy).toHaveBeenCalled();
     });
 
-    it('fetchPlayersData() should update players when receiving event', () => {
+    it('onFetchPlayersData() should update players when receiving event', () => {
         service.players = [];
         const mockPlayer: Player = {
             username: '',
@@ -308,7 +309,7 @@ describe('MatchRoomService', () => {
         expect(onSpy).toHaveBeenCalled();
     });
 
-    it('redirectAfterDisconnection() should redirect to home, reset values and display error message when receiving disconnect event', () => {
+    it('onRedirectAfterDisconnection() should redirect to home, reset values and display error message when receiving disconnect event', () => {
         const resetSpy = spyOn(service, 'resetMatchValues');
         service.onRedirectAfterDisconnection();
         socketHelper.peerSideEmit('disconnect');
@@ -339,7 +340,7 @@ describe('MatchRoomService', () => {
         expect(sendSpy).toHaveBeenCalledWith('routeToResultsPage', '');
     });
 
-    it('listenRouteToResultsPage() should receive the route and navigate to /results', () => {
+    it('onRouteToResultsPage() should receive the route and navigate to /results', () => {
         // Any is required to simulate Function type in tests
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
@@ -361,5 +362,19 @@ describe('MatchRoomService', () => {
         service.onHostQuit();
         socketHelper.peerSideEmit('hostQuitMatch');
         expect(onSpy).toHaveBeenCalled();
+    });
+
+    it('onPlayerKick() should set isBanned to true and disconnect player', () => {
+        service['bannedSource'].next(false);
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
+            cb('');
+        });
+        const disconnectSpy = spyOn(socketSpy, 'disconnect');
+
+        service.onPlayerKick();
+        socketHelper.peerSideEmit('kickPlayer');
+        expect(service['bannedSource'].value).toBe(true);
+        expect(onSpy).toHaveBeenCalled();
+        expect(disconnectSpy).toHaveBeenCalled();
     });
 });

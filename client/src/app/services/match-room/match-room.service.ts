@@ -70,8 +70,8 @@ export class MatchRoomService {
             this.onGameOver();
             this.onStartCooldown();
             this.onHostQuit();
-            this.onPlayerBan();
-            this.onHandleError();
+            this.onPlayerKick();
+            this.handleError();
         }
     }
 
@@ -117,7 +117,7 @@ export class MatchRoomService {
         }
     }
 
-    onHandleError() {
+    handleError() {
         this.socketService.on('error', (errorMessage: string) => {
             this.notificationService.displayErrorMessage(errorMessage);
         });
@@ -214,8 +214,8 @@ export class MatchRoomService {
         });
     }
 
-    onPlayerBan() {
-        this.socketService.on('banned', () => {
+    onPlayerKick() {
+        this.socketService.on('kickPlayer', () => {
             this.bannedSource.next(true);
             this.disconnect();
         });

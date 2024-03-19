@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
@@ -7,6 +8,7 @@ import { Socket } from 'socket.io-client';
 import { TimeService } from './time.service';
 import SpyObj = jasmine.SpyObj;
 import { TimerInfo } from '@common/interfaces/timer-info';
+import { BehaviorSubject } from 'rxjs';
 
 class SocketHandlerServiceMock extends SocketHandlerService {
     override connect() {
@@ -40,6 +42,18 @@ describe('TimeService', () => {
 
     it('should be created', () => {
         expect(service).toBeTruthy();
+    });
+
+    it('it should get the timerFinished$ subject as observable', () => {
+        service['timerFinished'] = new BehaviorSubject<boolean>(false);
+        const timerFinished$ = service.timerFinished$;
+        expect(timerFinished$).toBeDefined();
+    });
+
+    it('it should set the time', () => {
+        service['counter'] = 0;
+        service.time = 10;
+        expect(service['counter']).toEqual(10);
     });
 
     it('should emit startTimer event when startTimer() is called', () => {

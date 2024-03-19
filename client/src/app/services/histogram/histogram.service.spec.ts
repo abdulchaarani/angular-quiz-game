@@ -50,7 +50,7 @@ describe('HistogramService', () => {
             cb({ histogram });
         });
 
-        service.currentHistogram();
+        service.onCurrentHistogram();
 
         expect(onSpy).toHaveBeenCalled();
     });
@@ -63,7 +63,7 @@ describe('HistogramService', () => {
             cb({ histogram });
         });
 
-        service.histogramHistory();
+        service.onHistogramHistory();
 
         expect(onSpy).toHaveBeenCalled();
     });

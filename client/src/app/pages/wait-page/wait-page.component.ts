@@ -19,6 +19,7 @@ export class WaitPageComponent implements OnInit, OnDestroy {
     isHostPlaying: boolean;
     isLocked: boolean;
     isQuitting: boolean;
+    isBanned: boolean;
     startTimerButton: boolean;
     gameTitle: string;
     private eventSubscriptions: Subscription[] = [];
@@ -47,8 +48,9 @@ export class WaitPageComponent implements OnInit, OnDestroy {
 
     canDeactivate(): CanDeactivateType {
         if (this.isQuitting) return true;
-        if (this.matchRoomService.isWaitOver) return true;
         if (!this.isHostPlaying) return true;
+        if (this.matchRoomService.isWaitOver) return true;
+        if (this.isBanned) return true;
 
         const deactivateSubject = new Subject<boolean>();
         this.notificationService.openWarningDialog(WarningMessage.QUIT).subscribe((confirm: boolean) => {
@@ -65,6 +67,7 @@ export class WaitPageComponent implements OnInit, OnDestroy {
 
         this.subscribeToHostPlaying();
         this.subscribeToStartMatch();
+        this.subscribeToBanishment();
 
         if (this.isHost) {
             this.questionContextService.setContext('hostView');
@@ -138,5 +141,13 @@ export class WaitPageComponent implements OnInit, OnDestroy {
         });
 
         this.eventSubscriptions.push(gameTitleSubscription);
+    }
+
+    private subscribeToBanishment() {
+        const banishmentSubscription = this.matchRoomService.isBanned$.subscribe((isBanned) => {
+            this.isBanned = isBanned;
+        });
+
+        this.eventSubscriptions.push(banishmentSubscription);
     }
 }

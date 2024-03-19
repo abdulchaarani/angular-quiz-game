@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Lines were added to explain why ESlint was disabled at specific lines
 /* eslint-disable max-lines */
 import { TestBed } from '@angular/core/testing';
@@ -47,13 +48,13 @@ describe('MatchRoomService', () => {
 
     it('connect() should connect the socket if it is not alive', () => {
         const checkSpy = spyOn(socketSpy, 'isSocketAlive').and.returnValue(false);
-        const redirectSpy = spyOn(service, 'redirectAfterDisconnection');
-        const fetchSpy = spyOn(service, 'fetchPlayersData');
+        const redirectSpy = spyOn(service, 'onRedirectAfterDisconnection');
+        const fetchSpy = spyOn(service, 'onFetchPlayersData');
         const handleErrorSpy = spyOn(service, 'handleError');
-        const startSpy = spyOn(service, 'matchStarted');
-        const beginSpy = spyOn(service, 'beginQuiz');
-        const moveSpy = spyOn(service, 'moveToNextQuestion');
-        const cooldownSpy = spyOn(service, 'startCooldown');
+        const startSpy = spyOn(service, 'onMatchStarted');
+        const beginSpy = spyOn(service, 'onBeginQuiz');
+        const moveSpy = spyOn(service, 'onNextQuestion');
+        const cooldownSpy = spyOn(service, 'onStartCooldown');
         const hostSpy = spyOn(service, 'onHostQuit');
         service.connect();
         expect(checkSpy).toHaveBeenCalled();
@@ -69,8 +70,8 @@ describe('MatchRoomService', () => {
 
     it('connect() should not connect the socket if it is alive', () => {
         const checkSpy = spyOn(socketSpy, 'isSocketAlive').and.returnValue(true);
-        const redirectSpy = spyOn(service, 'redirectAfterDisconnection');
-        const fetchSpy = spyOn(service, 'fetchPlayersData');
+        const redirectSpy = spyOn(service, 'onRedirectAfterDisconnection');
+        const fetchSpy = spyOn(service, 'onFetchPlayersData');
         service.connect();
         expect(checkSpy).toHaveBeenCalled();
         expect(redirectSpy).not.toHaveBeenCalled();
@@ -198,36 +199,36 @@ describe('MatchRoomService', () => {
         expect(notificationService.displayErrorMessage).toHaveBeenCalled();
     });
 
-    it('matchStarted() should send matchStarting event and update gameTitle', () => {
+    it('onMatchStarted() should send matchStarting event and update gameTitle', () => {
         // Any is required to simulate Function type in tests
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb({ start: true, gameTitle: 'mockTitle' });
         });
-        service.matchStarted();
+        service.onMatchStarted();
         socketHelper.peerSideEmit('matchStarting', { start: true, gameTitle: 'mockTitle' });
         expect(onSpy).toHaveBeenCalled();
     });
 
-    it('beginQuiz() should send beginQuiz event and navigate to /play-test in test room', () => {
+    it('onBeginQuiz() should send game data and navigate to /play-test in test room', () => {
         // Any is required to simulate Function type in tests
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb({ firstQuestion: 'mockQuestion', gameDuration: 0, isTestRoom: true });
         });
-        service.beginQuiz();
+        service.onBeginQuiz();
         socketHelper.peerSideEmit('beginQuiz', { firstQuestion: 'mockQuestion', gameDuration: 0, isTestRoom: true });
         expect(onSpy).toHaveBeenCalled();
         expect(router.navigate).toHaveBeenCalledWith(['/play-test'], { state: { question: 'mockQuestion', duration: 0 } });
     });
 
-    it('beginQuiz() should send beginQuiz event and navigate to /play-match when not in test room', () => {
+    it('onBeginQuiz() should send game data and navigate to /play-match when not in test room', () => {
         // Any is required to simulate Function type in tests
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb({ firstQuestion: 'mockQuestion', gameDuration: 0, isTestRoom: false });
         });
-        service.beginQuiz();
+        service.onBeginQuiz();
         socketHelper.peerSideEmit('beginQuiz', { firstQuestion: 'mockQuestion', gameDuration: 0, isTestRoom: true });
         expect(onSpy).toHaveBeenCalled();
         expect(router.navigate).toHaveBeenCalledWith(['/play-match'], { state: { question: 'mockQuestion', duration: 0 } });
@@ -246,47 +247,47 @@ describe('MatchRoomService', () => {
         const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb('');
         });
-        service.startCooldown();
+        service.onStartCooldown();
         socketHelper.peerSideEmit('startCooldown');
         expect(onSpy).toHaveBeenCalled();
     });
 
-    it('gameOver() should navigate to /host in test room', () => {
+    it('onGameOver() should navigate to /host in test room', () => {
         // Any is required to simulate Function type in tests
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb(true);
         });
-        service.gameOver();
+        service.onGameOver();
         socketHelper.peerSideEmit('gameOver', true);
         expect(onSpy).toHaveBeenCalled();
         expect(router.navigateByUrl).toHaveBeenCalledWith('/host');
     });
 
-    it('gameOver() should not navigate to /host when not in test room', () => {
+    it('onGameOver() should not navigate to /host when not in test room', () => {
         // Any is required to simulate Function type in tests
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb(false);
         });
-        service.gameOver();
+        service.onGameOver();
         socketHelper.peerSideEmit('gameOver', false);
         expect(onSpy).toHaveBeenCalled();
         expect(router.navigateByUrl).not.toHaveBeenCalled();
     });
 
-    it('moveToNextQuestion() should send nextQuestion event', () => {
+    it('onNextQuestion() should send nextQuestion event', () => {
         // Any is required to simulate Function type in tests
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb('mockQuestion');
         });
-        service.moveToNextQuestion();
+        service.onNextQuestion();
         socketHelper.peerSideEmit('nextQuestion', 'mockQuestion');
         expect(onSpy).toHaveBeenCalled();
     });
 
-    it('fetchPlayersData() should update players when receiving event', () => {
+    it('onFetchPlayersData() should update players when receiving event', () => {
         service.players = [];
         const mockPlayer: Player = {
             username: '',
@@ -301,16 +302,16 @@ describe('MatchRoomService', () => {
             cb({ res: mockStringifiedPlayer });
         });
         const parseSpy = spyOn(JSON, 'parse').and.returnValue([mockPlayer]);
-        service.fetchPlayersData();
+        service.onFetchPlayersData();
         socketHelper.peerSideEmit('fetchPlayersData', mockStringifiedPlayer);
         expect(service.players).toEqual([mockPlayer]);
         expect(parseSpy).toHaveBeenCalled();
         expect(onSpy).toHaveBeenCalled();
     });
 
-    it('redirectAfterDisconnection() should redirect to home, reset values and display error message when receiving disconnect event', () => {
+    it('onRedirectAfterDisconnection() should redirect to home, reset values and display error message when receiving disconnect event', () => {
         const resetSpy = spyOn(service, 'resetMatchValues');
-        service.redirectAfterDisconnection();
+        service.onRedirectAfterDisconnection();
         socketHelper.peerSideEmit('disconnect');
         expect(resetSpy).toHaveBeenCalled();
         expect(router.navigateByUrl).toHaveBeenCalled();
@@ -339,13 +340,13 @@ describe('MatchRoomService', () => {
         expect(sendSpy).toHaveBeenCalledWith('routeToResultsPage', '');
     });
 
-    it('listenRouteToResultsPage() should receive the route and navigate to /results', () => {
+    it('onRouteToResultsPage() should receive the route and navigate to /results', () => {
         // Any is required to simulate Function type in tests
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb('');
         });
-        service.listenRouteToResultsPage();
+        service.onRouteToResultsPage();
         socketHelper.peerSideEmit('routeToResultsPage');
         expect(onSpy).toHaveBeenCalled();
         expect(router.navigateByUrl).toHaveBeenCalledWith('/results');
@@ -361,5 +362,19 @@ describe('MatchRoomService', () => {
         service.onHostQuit();
         socketHelper.peerSideEmit('hostQuitMatch');
         expect(onSpy).toHaveBeenCalled();
+    });
+
+    it('onPlayerKick() should set isBanned to true and disconnect player', () => {
+        service['bannedSource'].next(false);
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
+            cb('');
+        });
+        const disconnectSpy = spyOn(socketSpy, 'disconnect');
+
+        service.onPlayerKick();
+        socketHelper.peerSideEmit('kickPlayer');
+        expect(service['bannedSource'].value).toBe(true);
+        expect(onSpy).toHaveBeenCalled();
+        expect(disconnectSpy).toHaveBeenCalled();
     });
 });

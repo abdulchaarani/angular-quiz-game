@@ -1,15 +1,21 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HistogramService } from '@app/services/histogram/histogram.service';
 import { AgChartsAngularModule } from 'ag-charts-angular';
 import { HistogramComponent } from './histogram.component';
+import { Subject, Subscription } from 'rxjs';
+import { Histogram } from '@common/interfaces/histogram';
+import { ChoiceTally } from '@common/interfaces/choice-tally';
 
 describe('HistogramComponent', () => {
     let component: HistogramComponent;
     let fixture: ComponentFixture<HistogramComponent>;
     let histogramServiceSpy: jasmine.SpyObj<HistogramService>;
+    let histogramSubject: Subject<Histogram>;
 
     beforeEach(() => {
-        histogramServiceSpy = jasmine.createSpyObj('HistogramService', ['currentHistogram']);
+        histogramServiceSpy = jasmine.createSpyObj('HistogramService', ['onCurrentHistogram']);
         TestBed.configureTestingModule({
             declarations: [HistogramComponent],
             imports: [AgChartsAngularModule],
@@ -19,15 +25,32 @@ describe('HistogramComponent', () => {
         fixture = TestBed.createComponent(HistogramComponent);
         component = fixture.componentInstance;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        spyOn<any>(component, 'subscribeToChoiceTally').and.callFake(() => {
-            component.currentQuestion = '';
-            component.choiceTally = [];
-        });
+
+        histogramSubject = new Subject<Histogram>();
+        histogramServiceSpy.currentHistogram$ = histogramSubject.asObservable();
+
         fixture.detectChanges();
     });
 
     it('should create', () => {
         expect(component).toBeTruthy();
+    });
+
+    it('subscribeToCurrentHistogram() should add a subscription to currentHistogram and respond when histogram changes ', () => {
+        const mockHistogram: Histogram = {
+            question: 'question',
+            choiceTallies: [{} as ChoiceTally],
+        };
+        const setUpDataSpy = spyOn(component, 'setUpData');
+        const setupChartSpy = spyOn<any>(component, 'setupChart').and.callFake(() => {});
+        const subscriptions: Subscription[] = (component['histogramSubscriptions'] = []);
+        component['subscribeToCurrentHistogram']();
+        expect(subscriptions.length).toEqual(1);
+        histogramSubject.next(mockHistogram);
+        expect(component.currentQuestion).toEqual(mockHistogram.question);
+        expect(component.choiceTally).toEqual(mockHistogram.choiceTallies);
+        expect(setUpDataSpy).toHaveBeenCalled();
+        expect(setupChartSpy).toHaveBeenCalled();
     });
 
     it('should initalize correctly if it is in results page', () => {
@@ -85,7 +108,7 @@ describe('HistogramComponent', () => {
     it('should unsubscribe from subscriptions on ngOnDestroy', () => {
         const unsubscribeSpy = jasmine.createSpyObj('unsubscribe', ['unsubscribe']);
         const subscriptions = [unsubscribeSpy, unsubscribeSpy, unsubscribeSpy];
-        component['subscriptions'] = subscriptions;
+        component['histogramSubscriptions'] = subscriptions;
 
         component.ngOnDestroy();
 

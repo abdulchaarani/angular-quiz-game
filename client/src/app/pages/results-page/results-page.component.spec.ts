@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Mock classes are required to avoid errors during tests
 /* eslint-disable max-classes-per-file */
 import { Component, Input } from '@angular/core';
@@ -14,6 +15,7 @@ import { Histogram } from '@common/interfaces/histogram';
 import { AgChartsAngularModule } from 'ag-charts-angular';
 import { AgChartOptions } from 'ag-charts-community';
 import { ResultsPageComponent } from './results-page.component';
+import { Subject, Subscription } from 'rxjs';
 
 @Component({
     // Component is provided by Angular Material; therefore, its selector starts with mat
@@ -71,10 +73,11 @@ describe('ResultsPageComponent', () => {
     let fixture: ComponentFixture<ResultsPageComponent>;
     let matchRoomServiceSpy: jasmine.SpyObj<MatchRoomService>;
     let histogramServiceSpy: jasmine.SpyObj<HistogramService>;
+    let histogramSubject: Subject<Histogram[]>;
 
     beforeEach(() => {
         matchRoomServiceSpy = jasmine.createSpyObj('MatchRoomService', ['disconnect', 'gameOver']);
-        histogramServiceSpy = jasmine.createSpyObj('HistogramService', ['histogramHistory']);
+        histogramServiceSpy = jasmine.createSpyObj('HistogramService', ['onHistogramHistory']);
         TestBed.configureTestingModule({
             declarations: [
                 ResultsPageComponent,
@@ -93,9 +96,10 @@ describe('ResultsPageComponent', () => {
         }).compileComponents();
         fixture = TestBed.createComponent(ResultsPageComponent);
         component = fixture.componentInstance;
-        spyOn(component, 'initializeHistograms').and.callFake(() => {
-            component.histogramsGame = [];
-        });
+
+        histogramSubject = new Subject<Histogram[]>();
+        histogramServiceSpy.histogramHistory$ = histogramSubject.asObservable();
+
         fixture.detectChanges();
     });
 
@@ -106,12 +110,12 @@ describe('ResultsPageComponent', () => {
     it('should unsubscribe from subscriptions on ngOnDestroy', () => {
         const unsubscribeSpy = jasmine.createSpyObj('unsubscribe', ['unsubscribe']);
         const subscriptions = [unsubscribeSpy, unsubscribeSpy, unsubscribeSpy];
-        component['subscriptions'] = subscriptions;
+        component['histogramSubscriptions'] = subscriptions;
 
         component.ngOnDestroy();
 
         expect(unsubscribeSpy.unsubscribe).toHaveBeenCalledTimes(subscriptions.length);
-        expect(component['subscriptions']).toEqual([]);
+        expect(component['histogramSubscriptions']).toEqual([]);
     });
 
     it('should handle page event', () => {
@@ -125,5 +129,14 @@ describe('ResultsPageComponent', () => {
     it('should call matchRoomService.disconnect on handleDisconnect', () => {
         component.handleDisconnect();
         expect(matchRoomServiceSpy.disconnect).toHaveBeenCalled();
+    });
+
+    it('subscribeToHistogramHistory() should add a subscription to histogram history and respond when history changes ', () => {
+        const mockHistogramHistory = [] as Histogram[];
+        const subscriptions: Subscription[] = (component['histogramSubscriptions'] = []);
+        component['subscribeToHistogramHistory']();
+        expect(subscriptions.length).toEqual(1);
+        histogramSubject.next(mockHistogramHistory);
+        expect(component.histogramsGame).toEqual(mockHistogramHistory);
     });
 });

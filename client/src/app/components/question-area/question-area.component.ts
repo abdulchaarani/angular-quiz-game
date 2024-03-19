@@ -87,8 +87,12 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
 
     canDeactivate(): CanDeactivateType {
         if (this.isQuitting) return true;
-        if (this.matchRoomService.isResults) return true;
         if (!this.isHostPlaying) return true;
+        if (this.matchRoomService.isResults) return true;
+        if (this.questionContextService.getContext() === 'testPage') {
+            this.quitGame();
+            return true;
+        }
 
         const deactivateSubject = new Subject<boolean>();
         this.notificationService.openWarningDialog(WarningMessage.QUIT).subscribe((confirm: boolean) => {
@@ -207,21 +211,17 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         }
     }
 
-    private handleFeedbackSubmission() {
-        this.showFeedback = true;
-        this.isNextQuestionButton = true;
-    }
-
     private subscribeToFeedback() {
         const feedbackSubscription = this.answerService.feedback$.subscribe((feedback) => {
             this.handleFeedback(feedback);
         });
-        const feedbackObservable = this.answerService.feedbackSub$.subscribe(() => {
-            this.handleFeedbackSubmission();
+        const feedbackChangeSubscription = this.answerService.isFeedback$.subscribe(() => {
+            this.showFeedback = true;
+            this.isNextQuestionButton = true;
         });
 
         this.eventSubscriptions.push(feedbackSubscription);
-        this.eventSubscriptions.push(feedbackObservable);
+        this.eventSubscriptions.push(feedbackChangeSubscription);
     }
 
     private handleQuestionChange(question: Question) {
@@ -232,10 +232,14 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
                     currentValue: question,
                     previousValue: this.currentQuestion,
                     firstChange: false,
-                    isFirstChange: () => false,
+                    isFirstChange: this.isFirstChangeFn,
                 },
             });
         }
+    }
+
+    private isFirstChangeFn() {
+        return false;
     }
 
     private subscribeToCurrentQuestion() {
@@ -245,41 +249,28 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         this.eventSubscriptions.push(currentQuestionSubscription);
     }
 
-    private handleBonusPoints(bonus: number) {
-        if (bonus) {
-            this.bonus = bonus;
-        }
-    }
-
     private subscribeToBonus() {
         const bonusPointsSubscription = this.answerService.bonusPoints$.subscribe((bonus) => {
-            this.handleBonusPoints(bonus);
+            if (bonus) {
+                this.bonus = bonus;
+            }
         });
         this.eventSubscriptions.push(bonusPointsSubscription);
     }
 
-    private handleCooldown(coolDown: boolean) {
-        if (coolDown) {
-            this.isCooldown = true;
-            if (this.context !== 'testPage') this.currentQuestion.text = MatchStatus.PREPARE;
-        }
-    }
-
     private subscribeToCooldown() {
         const displayCoolDownSubscription = this.matchRoomService.displayCooldown$.subscribe((isCooldown) => {
-            this.handleCooldown(isCooldown);
+            this.isCooldown = isCooldown;
+            if (this.isCooldown && this.context !== 'testPage') {
+                this.currentQuestion.text = MatchStatus.PREPARE;
+            }
         });
-
         this.eventSubscriptions.push(displayCoolDownSubscription);
     }
 
-    private handleGameEnd() {
-        this.isLastQuestion = true;
-    }
-
     private subscribeToGameEnd() {
-        const endGameSubscription = this.answerService.endGame$.subscribe(() => {
-            this.handleGameEnd();
+        const endGameSubscription = this.answerService.endGame$.subscribe((endGame) => {
+            this.isLastQuestion = endGame;
         });
         this.eventSubscriptions.push(endGameSubscription);
     }
@@ -297,8 +288,8 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         this.answerService.feedback();
         this.answerService.bonusPoints();
         this.answerService.gameOver();
-        this.matchRoomService.gameOver();
-        this.matchRoomService.listenRouteToResultsPage();
+        this.matchRoomService.onGameOver();
+        this.matchRoomService.onRouteToResultsPage();
     }
 
     private initialiseSubscriptions() {

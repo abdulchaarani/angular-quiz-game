@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { WarningMessage } from '@app/constants/feedback-messages';
+import { MatchContext } from '@app/constants/states';
 import { CanDeactivateType } from '@app/interfaces/can-component-deactivate';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { MatchService } from '@app/services/match/match.service';
@@ -70,10 +71,10 @@ export class WaitPageComponent implements OnInit, OnDestroy {
         this.subscribeToBanishment();
 
         if (this.isHost) {
-            this.questionContextService.setContext('hostView');
+            this.questionContextService.setContext(MatchContext.HostView);
             this.gameTitle = this.currentGame.title;
         } else {
-            this.questionContextService.setContext('playerView');
+            this.questionContextService.setContext(MatchContext.PlayerView);
             this.subscribeToGameTitle();
         }
     }

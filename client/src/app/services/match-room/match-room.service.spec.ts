@@ -195,8 +195,10 @@ describe('MatchRoomService', () => {
         });
         service.handleError();
         socketHelper.peerSideEmit('error', 'mock');
+        socketHelper.emit('error', 'mock');
         expect(onSpy).toHaveBeenCalled();
         expect(notificationService.displayErrorMessage).toHaveBeenCalled();
+        socketHelper.disconnect();
     });
 
     it('onMatchStarted() should send matchStarting event and update gameTitle', () => {

@@ -251,7 +251,7 @@ describe('MatchGateway', () => {
         mockRoomToDelete.isPlaying = true;
         playerRoomSpy.deletePlayerBySocket.returns(undefined);
         const errorSpy = jest.spyOn(gateway, 'sendError').mockReturnThis();
-        const getSpy = jest.spyOn(matchRoomSpy, 'getRoom').mockReturnThis();
+        jest.spyOn(matchRoomSpy, 'getRoom').mockReturnThis();
         const handleSpy = jest.spyOn(gateway, 'handleSendPlayersData').mockReturnThis();
         const deleteSpy = jest.spyOn(gateway, 'deleteRoom').mockReturnThis();
         gateway.handleDisconnect(socket);

@@ -10,9 +10,10 @@ import { MatchService } from '@app/services/match/match.service';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { QuestionContextService } from '@app/services/question-context/question-context.service';
 import { TimeService } from '@app/services/time/time.service';
-import { of } from 'rxjs';
+import { BehaviorSubject, Subject, of } from 'rxjs';
 import { WaitPageComponent } from './wait-page.component';
 import SpyObj = jasmine.SpyObj;
+import { WarningMessage } from '@app/constants/feedback-messages';
 
 @Component({
     selector: 'app-chat',
@@ -20,14 +21,16 @@ import SpyObj = jasmine.SpyObj;
 })
 class MockChatComponent {}
 
-xdescribe('WaitPageComponent', () => {
+describe('WaitPageComponent', () => {
     let component: WaitPageComponent;
     let fixture: ComponentFixture<WaitPageComponent>;
     let matchRoomSpy: SpyObj<MatchRoomService>;
     let matchSpy: SpyObj<MatchService>;
     let timeSpy: SpyObj<TimeService>;
     let questionContextSpy: SpyObj<QuestionContextService>;
-    let notificationService: SpyObj<NotificationService>;
+    let notificationServiceSpy: SpyObj<NotificationService>;
+    let booleanSubject: BehaviorSubject<boolean>;
+    let gameTitleSubject: Subject<string>;
 
     beforeEach(() => {
         matchRoomSpy = jasmine.createSpyObj('MatchRoomService', [
@@ -42,13 +45,12 @@ xdescribe('WaitPageComponent', () => {
             'beginQuiz',
             'nextQuestion',
             'gameOver',
+            'disconnect',
         ]);
-        matchRoomSpy.gameTitle$ = of('gameTitle');
-        matchRoomSpy.startMatch$ = of(true);
         matchSpy = jasmine.createSpyObj('MatchService', ['']);
         questionContextSpy = jasmine.createSpyObj('QuestionContextService', ['setContext']);
         timeSpy = jasmine.createSpyObj('TimeService', ['handleTimer', 'handleStopTimer', 'computeTimerProgress']);
-        notificationService = jasmine.createSpyObj('NotificationService', ['displayErrorMessage']);
+        notificationServiceSpy = jasmine.createSpyObj('NotificationService', ['displayErrorMessage', 'openWarningDialog']);
 
         TestBed.configureTestingModule({
             declarations: [WaitPageComponent, MockChatComponent],
@@ -59,16 +61,19 @@ xdescribe('WaitPageComponent', () => {
                 { provide: MatchService, useValue: matchSpy },
                 { provide: QuestionContextService, useValue: questionContextSpy },
                 { provide: TimeService, useValue: timeSpy },
-                { provide: NotificationService, useValue: notificationService },
+                { provide: NotificationService, useValue: notificationServiceSpy },
             ],
         });
 
         fixture = TestBed.createComponent(WaitPageComponent);
         component = fixture.componentInstance;
 
-        spyOn<any>(component, 'subscribeToHostPlaying').and.callFake(() => {
-            component.isHostPlaying = false;
-        });
+        booleanSubject = new BehaviorSubject<boolean>(false);
+        gameTitleSubject = new Subject<string>();
+        matchRoomSpy.isHostPlaying$ = booleanSubject.asObservable();
+        matchRoomSpy.startMatch$ = booleanSubject.asObservable();
+        matchRoomSpy.isBanned$ = booleanSubject.asObservable();
+        matchRoomSpy.gameTitle$ = gameTitleSubject.asObservable();
 
         fixture.detectChanges();
     });
@@ -136,5 +141,63 @@ xdescribe('WaitPageComponent', () => {
     it('nextQuestion() should delegate call to nextQuestion to matchRoomService', () => {
         component.nextQuestion();
         expect(matchRoomSpy.nextQuestion).toHaveBeenCalled();
+    });
+
+    it('subscribeToGameTitle() should add a subscription to game title and display correct game ', () => {
+        component.gameTitle = '';
+        component['subscribeToGameTitle']();
+        gameTitleSubject.next('new game');
+        expect(component.gameTitle).toEqual('new game');
+    });
+
+    it('quitGame() should set isQuitting to true and delegate deconnection to matchService', () => {
+        component.isQuitting = false;
+        component.quitGame();
+        expect(component.isQuitting).toBe(true);
+        expect(matchRoomSpy.disconnect).toHaveBeenCalled();
+    });
+
+    it('should deactivate page when player or host is quitting', () => {
+        component.isQuitting = true;
+        const isDeactivated = component.canDeactivate();
+        expect(isDeactivated).toBe(true);
+    });
+
+    it('should deactivate page host quit', () => {
+        component.isHostPlaying = false;
+        const isDeactivated = component.canDeactivate();
+        expect(isDeactivated).toBe(true);
+    });
+
+    it('should deactivate page if wait is over', () => {
+        component.isQuitting = false;
+        component.isHostPlaying = true;
+        matchRoomSpy.isWaitOver = true;
+        const isDeactivated = component.canDeactivate();
+        expect(isDeactivated).toBe(true);
+    });
+
+    it('should deactivate page if user is banned', () => {
+        component.isQuitting = false;
+        component.isHostPlaying = true;
+        matchRoomSpy.isWaitOver = false;
+        component.isBanned = true;
+        const isDeactivated = component.canDeactivate();
+        expect(isDeactivated).toBe(true);
+    });
+
+    it('should prompt user if back button is pressed and only deactivate if user confirms', () => {
+        component.isQuitting = false;
+        component.isHostPlaying = true;
+        matchRoomSpy.isWaitOver = false;
+        component.isBanned = false;
+        const deactivateSubject = new Subject<boolean>();
+        notificationServiceSpy.openWarningDialog.and.returnValue(deactivateSubject);
+        const result = component.canDeactivate();
+        expect(result instanceof Subject).toBeTrue();
+        expect(notificationServiceSpy.openWarningDialog).toHaveBeenCalledWith(WarningMessage.QUIT);
+        expect(matchRoomSpy.disconnect).not.toHaveBeenCalled();
+        deactivateSubject.next(true);
+        expect(matchRoomSpy.disconnect).toHaveBeenCalled();
     });
 });

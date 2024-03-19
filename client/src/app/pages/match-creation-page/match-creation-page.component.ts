@@ -1,5 +1,6 @@
 import { HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { MatchContext } from '@app/constants/states';
 import { Game } from '@app/interfaces/game';
 import { GameService } from '@app/services/game/game.service';
 import { MatchService } from '@app/services/match/match.service';
@@ -88,8 +89,8 @@ export class MatchCreationPageComponent implements OnInit {
     }
 
     createMatch(testGame: boolean): void {
-        if (testGame) this.questionContextService.setContext('testPage');
-        else this.questionContextService.setContext('hostView');
+        if (testGame) this.questionContextService.setContext(MatchContext.TestPage);
+        else this.questionContextService.setContext(MatchContext.HostView);
         this.reloadSelectedGame();
     }
 }

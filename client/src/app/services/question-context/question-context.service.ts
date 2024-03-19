@@ -1,16 +1,17 @@
 import { Injectable } from '@angular/core';
+import { MatchContext } from '@app/constants/states';
 
 @Injectable({
     providedIn: 'root',
 })
 export class QuestionContextService {
-    private context: 'testPage' | 'hostView' | 'playerView';
+    private context: MatchContext;
 
-    setContext(context: 'testPage' | 'hostView' | 'playerView'): void {
+    setContext(context: MatchContext): void {
         this.context = context;
     }
 
-    getContext(): 'testPage' | 'hostView' | 'playerView' {
+    getContext(): MatchContext {
         return this.context;
     }
 }

@@ -5,7 +5,8 @@ export enum ManagementState {
     GameModify,
 }
 
-export enum MatchState {
-    Play,
-    Test,
+export enum MatchContext {
+    TestPage = 'testPage',
+    HostView = 'hostView',
+    PlayerView = 'playerView',
 }

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import { MOCK_MATCH_ROOM, MOCK_PLAYER, MOCK_ROOM_CODE } from '@app/constants/match-mocks';
-import { TimerEvents } from '@app/constants/timer-events';
+import { ExpiredTimerEvents } from '@app/constants/expired-timer-events';
 import { Feedback } from '@app/model/schema/answer.schema';
 import { HistogramService } from '@app/services/histogram/histogram.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
@@ -238,8 +238,8 @@ describe('AnswerService', () => {
         const resetPlayersAnswerSpy = jest.spyOn<any, any>(service, 'resetPlayersAnswer');
         matchRoomServiceSpy = jest.spyOn<any, any>(matchRoomService, 'incrementCurrentQuestionIndex');
 
-        eventEmitter.addListener(TimerEvents.QuestionTimerExpired, service.onQuestionTimerExpired);
-        expect(eventEmitter.hasListeners(TimerEvents.QuestionTimerExpired)).toBe(true);
+        eventEmitter.addListener(ExpiredTimerEvents.QuestionTimerExpired, service.onQuestionTimerExpired);
+        expect(eventEmitter.hasListeners(ExpiredTimerEvents.QuestionTimerExpired)).toBe(true);
 
         service.onQuestionTimerExpired(MOCK_ROOM_CODE);
 
@@ -249,7 +249,7 @@ describe('AnswerService', () => {
         expect(resetPlayersAnswerSpy).toHaveBeenCalledWith(MOCK_ROOM_CODE);
         expect(matchRoomServiceSpy).toHaveBeenCalledWith(MOCK_ROOM_CODE);
 
-        eventEmitter.removeListener(TimerEvents.QuestionTimerExpired, service.onQuestionTimerExpired);
+        eventEmitter.removeListener(ExpiredTimerEvents.QuestionTimerExpired, service.onQuestionTimerExpired);
     });
 
     it('handleFinalAnswerSubmitted() should cancel current timer and call score calculating functions if all active players have submitted', () => {

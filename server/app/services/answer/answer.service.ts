@@ -1,5 +1,5 @@
-import { MatchServiceEvents } from '@app/constants/match-events';
-import { TimerEvents } from '@app/constants/timer-events';
+import { AnswerEvents } from '@common/events/answer.events';
+import { ExpiredTimerEvents } from '@app/constants/expired-timer-events';
 import { Answer } from '@app/model/schema/answer.schema';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Player } from '@app/model/schema/player.schema';
@@ -23,7 +23,7 @@ export class AnswerService {
         private readonly histogramService: HistogramService,
     ) {}
 
-    @OnEvent(TimerEvents.QuestionTimerExpired)
+    @OnEvent(ExpiredTimerEvents.QuestionTimerExpired)
     onQuestionTimerExpired(roomCode: string) {
         this.autoSubmitAnswers(roomCode);
         this.calculateScore(roomCode);
@@ -118,18 +118,18 @@ export class AnswerService {
         const bonus = points * BONUS_FACTOR;
         fastestPlayer.score += bonus;
         fastestPlayer.bonusCount++;
-        fastestPlayer.socket.emit(MatchServiceEvents.Bonus, bonus);
+        fastestPlayer.socket.emit(AnswerEvents.Bonus, bonus);
     }
     private sendFeedback(roomCode: string) {
         const correctAnswer: string[] = this.getRoom(roomCode).currentQuestionAnswer;
         const players: Player[] = this.playerService.getPlayers(roomCode);
         players.forEach((player: Player) => {
             const feedback: Feedback = { score: player.score, correctAnswer };
-            player.socket.emit(MatchServiceEvents.Feedback, feedback);
+            player.socket.emit(AnswerEvents.Feedback, feedback);
         });
 
         const matchRoom = this.getRoom(roomCode);
-        matchRoom.hostSocket.emit(MatchServiceEvents.Feedback);
+        matchRoom.hostSocket.emit(AnswerEvents.Feedback);
         if (matchRoom.gameLength === 1 + matchRoom.currentQuestionIndex) matchRoom.hostSocket.emit('endGame');
     }
     private resetPlayersAnswer(roomCode: string) {

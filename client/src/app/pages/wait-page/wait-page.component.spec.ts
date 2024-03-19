@@ -14,6 +14,7 @@ import { BehaviorSubject, Subject, of } from 'rxjs';
 import { WaitPageComponent } from './wait-page.component';
 import SpyObj = jasmine.SpyObj;
 import { WarningMessage } from '@app/constants/feedback-messages';
+import { MatchContext } from '@app/constants/states';
 
 @Component({
     selector: 'app-chat',
@@ -98,7 +99,7 @@ describe('WaitPageComponent', () => {
         component.ngOnInit();
 
         expect(component.gameTitle).toEqual(mockGame.title);
-        expect(questionContextSpy.setContext).toHaveBeenCalledWith('hostView');
+        expect(questionContextSpy.setContext).toHaveBeenCalledWith(MatchContext.HostView);
     });
 
     it('should get current game', () => {

@@ -4,7 +4,7 @@ import { MOCK_CHOICES, getMockGame } from '@app/constants/game-mocks';
 import { INVALID_CODE, LOCKED_ROOM } from '@app/constants/match-login-errors';
 import { MOCK_MATCH_ROOM, MOCK_PLAYER, MOCK_PLAYER_ROOM, MOCK_ROOM_CODE } from '@app/constants/match-mocks';
 import { getMockQuestion } from '@app/constants/question-mocks';
-import { TimerEvents } from '@app/constants/timer-events';
+import { ExpiredTimerEvents } from '@app/constants/expired-timer-events';
 import { ChoiceTracker } from '@app/model/choice-tracker/choice-tracker';
 import { PlayerInfo } from '@app/model/schema/answer.schema';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
@@ -231,7 +231,7 @@ describe('MatchRoomService', () => {
         service.startMatch(mockSocket, null, MOCK_ROOM_CODE);
         const playerInfo: PlayerInfo = { gameTitle: 'game1', start: true };
         expect(emitMock).toHaveBeenCalledWith('matchStarting', playerInfo);
-        expect(startTimerMock).toHaveBeenCalledWith(null, MOCK_ROOM_CODE, 5, TimerEvents.CountdownTimerExpired);
+        expect(startTimerMock).toHaveBeenCalledWith(null, MOCK_ROOM_CODE, 5, ExpiredTimerEvents.CountdownTimerExpired);
     });
 
     it('startMatch() should not start the match nor the timer if match is not in a valid state', () => {
@@ -245,7 +245,7 @@ describe('MatchRoomService', () => {
     it('startNextQuestionCooldown() should start timer with a 3 seconds countdown', () => {
         service.startNextQuestionCooldown(mockServer, MOCK_ROOM_CODE);
         expect(emitMock).toHaveBeenCalledWith('startCooldown', MOCK_ROOM_CODE);
-        expect(startTimerMock).toHaveBeenCalledWith(mockServer, MOCK_ROOM_CODE, 3, TimerEvents.CooldownTimerExpired);
+        expect(startTimerMock).toHaveBeenCalledWith(mockServer, MOCK_ROOM_CODE, 3, ExpiredTimerEvents.CooldownTimerExpired);
     });
 
     it('sendFirstQuestion() should emit the first question along with the game duration', () => {
@@ -262,7 +262,7 @@ describe('MatchRoomService', () => {
             isTestRoom: false,
         });
         expect(mockHostSocket.send).toHaveBeenCalledWith('currentAnswers', [currentAnswers]);
-        expect(startTimerMock).toHaveBeenCalledWith(mockServer, MOCK_ROOM_CODE, matchRoom.game.duration, TimerEvents.QuestionTimerExpired);
+        expect(startTimerMock).toHaveBeenCalledWith(mockServer, MOCK_ROOM_CODE, matchRoom.game.duration, ExpiredTimerEvents.QuestionTimerExpired);
     });
 
     it('sendNextQuestion() should emit gameOver if last question', () => {
@@ -284,7 +284,7 @@ describe('MatchRoomService', () => {
         const currentQuestion = matchRoom.game.questions[0];
         service.sendNextQuestion(mockServer, MOCK_ROOM_CODE);
         expect(emitMock).toHaveBeenCalledWith('nextQuestion', currentQuestion);
-        expect(startTimerMock).toHaveBeenCalledWith(mockServer, MOCK_ROOM_CODE, matchRoom.game.duration, TimerEvents.QuestionTimerExpired);
+        expect(startTimerMock).toHaveBeenCalledWith(mockServer, MOCK_ROOM_CODE, matchRoom.game.duration, ExpiredTimerEvents.QuestionTimerExpired);
     });
 
     it('markGameAsPlaying() should set match room isPlaying to true', () => {

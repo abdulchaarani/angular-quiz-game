@@ -4,6 +4,7 @@ import { ChoiceInfo } from '@common/interfaces/choice-info';
 import { Feedback } from '@common/interfaces/feedback';
 import { UserInfo } from '@common/interfaces/user-info';
 import { Observable, Subject } from 'rxjs';
+import { AnswerEvents } from '@common/events/answer.events';
 @Injectable({
     providedIn: 'root',
 })
@@ -24,33 +25,33 @@ export class AnswerService {
 
     selectChoice(choice: string, userInfo: UserInfo) {
         const choiceInfo: ChoiceInfo = { choice, userInfo };
-        this.socketService.send('selectChoice', choiceInfo);
+        this.socketService.send(AnswerEvents.SelectChoice, choiceInfo);
     }
 
     deselectChoice(choice: string, userInfo: UserInfo) {
         const choiceInfo: ChoiceInfo = { choice, userInfo };
-        this.socketService.send('deselectChoice', choiceInfo);
+        this.socketService.send(AnswerEvents.DeselectChoice, choiceInfo);
     }
 
     submitAnswer(userInfo: UserInfo) {
-        this.socketService.send('submitAnswer', userInfo);
+        this.socketService.send(AnswerEvents.SubmitAnswer, userInfo);
     }
 
-    feedback() {
-        this.socketService.on('feedback', (data: Feedback) => {
+    onFeedback() {
+        this.socketService.on(AnswerEvents.Feedback, (data: Feedback) => {
             this.feedbackSource.next(data);
             this.isFeedbackSource.next(true);
         });
     }
 
-    bonusPoints() {
-        this.socketService.on('bonus', (data: number) => {
+    onBonusPoints() {
+        this.socketService.on(AnswerEvents.Bonus, (data: number) => {
             this.bonusPointsSubject.next(data);
         });
     }
 
-    gameOver() {
-        this.socketService.on('endGame', () => {
+    onEndGame() {
+        this.socketService.on(AnswerEvents.EndGame, () => {
             this.endGameSubject.next(true);
         });
     }

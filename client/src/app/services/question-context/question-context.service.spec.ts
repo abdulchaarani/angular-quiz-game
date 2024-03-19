@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
 import { QuestionContextService } from './question-context.service';
+import { MatchContext } from '@app/constants/states';
 
 describe('QuestionContextService', () => {
     let service: QuestionContextService;
@@ -15,13 +16,13 @@ describe('QuestionContextService', () => {
     });
 
     it('should set context', () => {
-        service.setContext('testPage');
-        expect(service['context']).toBe('testPage');
+        service.setContext(MatchContext.TestPage);
+        expect(service['context']).toBe(MatchContext.TestPage);
     });
 
     it('should get context', () => {
-        service.setContext('testPage');
+        service.setContext(MatchContext.TestPage);
         const context = service.getContext();
-        expect(context).toBe('testPage');
+        expect(context).toBe(MatchContext.TestPage);
     });
 });

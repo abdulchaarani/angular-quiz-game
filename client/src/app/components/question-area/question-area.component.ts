@@ -285,9 +285,9 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
     private listenToGameEvents() {
         this.timeService.handleTimer();
         this.timeService.handleStopTimer();
-        this.answerService.feedback();
-        this.answerService.bonusPoints();
-        this.answerService.gameOver();
+        this.answerService.onFeedback();
+        this.answerService.onBonusPoints();
+        this.answerService.onEndGame();
         this.matchRoomService.onGameOver();
         this.matchRoomService.onRouteToResultsPage();
     }

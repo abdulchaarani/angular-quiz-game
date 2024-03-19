@@ -82,6 +82,7 @@ export class PlayerRoomService {
 
     deletePlayer(matchRoomCode: string, username: string): void {
         const roomIndex = this.matchRoomService.getRoomIndex(matchRoomCode);
+        this.matchRoomService.matchRooms[roomIndex].activePlayers--;
         this.matchRoomService.matchRooms[roomIndex].players = this.matchRoomService.matchRooms[roomIndex].players.filter((player) => {
             return player.username.toUpperCase() !== username.toUpperCase();
         });

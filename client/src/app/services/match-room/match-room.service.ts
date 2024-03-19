@@ -19,6 +19,7 @@ export class MatchRoomService {
     isResults: boolean;
     isWaitOver: boolean;
     isBanned: boolean;
+    isPlaying: boolean;
 
     startMatch$: Observable<boolean>;
     gameTitle$: Observable<string>;
@@ -192,6 +193,7 @@ export class MatchRoomService {
         this.isResults = false;
         this.isWaitOver = false;
         this.isBanned = false;
+        this.isPlaying = false;
     }
 
     routeToResultsPage() {

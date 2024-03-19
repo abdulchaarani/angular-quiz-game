@@ -25,6 +25,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance, stub } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
+import { MatchEvents } from './match.gateway.events';
 
 describe('MatchGateway', () => {
     let gateway: MatchGateway;
@@ -218,7 +219,7 @@ describe('MatchGateway', () => {
 
         server.to.returns({
             emit: (event: string, res) => {
-                expect(event).toEqual('fetchOldMessages');
+                expect(event).toEqual(MatchEvents.FetchOldMessages);
                 expect(res).toEqual(mockMessages);
             },
         } as BroadcastOperator<unknown, unknown>);
@@ -263,7 +264,7 @@ describe('MatchGateway', () => {
 
         server.to.returns({
             emit: (event: string) => {
-                expect(event).toEqual('hostQuitMatch');
+                expect(event).toEqual(MatchEvents.HostQuitMatch);
             },
         } as BroadcastOperator<unknown, unknown>);
         gateway.deleteRoom('');
@@ -325,7 +326,7 @@ describe('MatchGateway', () => {
         const getSpy = jest.spyOn(playerRoomSpy, 'getPlayersStringified').mockReturnValue('mock');
         server.to.returns({
             emit: (event: string, playersStringified: string) => {
-                expect(event).toEqual('fetchPlayersData');
+                expect(event).toEqual(MatchEvents.FetchPlayersData);
                 expect(playersStringified).toEqual('mock');
             },
         } as BroadcastOperator<unknown, unknown>);
@@ -336,7 +337,7 @@ describe('MatchGateway', () => {
     it('sendError() should send the error to the socketId', () => {
         server.to.returns({
             emit: (event: string, error: string) => {
-                expect(event).toEqual('error');
+                expect(event).toEqual(MatchEvents.Error);
                 expect(error).toEqual(INVALID_CODE);
             },
         } as BroadcastOperator<unknown, unknown>);

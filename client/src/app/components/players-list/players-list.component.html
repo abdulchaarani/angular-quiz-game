@@ -1,6 +1,5 @@
 <div id="players-main-container">
     <h2>Joueurs</h2>
-    <!--TODO: Sort players by score, then alphabetically if same score, using new pipe -->
     <div *ngFor="let player of this.players | sortByScore" class="player-card">
         <p [ngClass]="player.isPlaying ? '' : 'inactive-player'">{{ player.username }}</p>
         <div class="player-performance">

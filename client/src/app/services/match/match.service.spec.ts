@@ -36,7 +36,7 @@ describe('MatchService', () => {
     const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK', body: JSON.stringify(true) });
 
     beforeEach(() => {
-        matchRoomSpy = jasmine.createSpyObj('MatchRoomService', ['connect', 'createRoom']);
+        matchRoomSpy = jasmine.createSpyObj('MatchRoomService', ['connect', 'createRoom', 'gameOver']);
         notificationSpy = jasmine.createSpyObj('NotificationService', ['displayErrorMessage']);
         choiceValidationSpy = jasmine.createSpyObj('ChoiceValidationService', ['validateChoices']);
         TestBed.configureTestingModule({

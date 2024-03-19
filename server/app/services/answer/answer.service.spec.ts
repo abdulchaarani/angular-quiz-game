@@ -121,11 +121,10 @@ describe('AnswerService', () => {
     it("autoSubmitAnswers() should submit every player's answer if not already submitted", () => {
         expect(matchRoom.players[1].answer.isSubmitted).toBe(false);
         expect(matchRoom.players[0].answer.timestamp).toBe(currentDate);
-        currentDate += 1000;
         service['autoSubmitAnswers'](MOCK_ROOM_CODE);
         expect(matchRoom.players[1].answer.isSubmitted).toBe(true);
         expect(matchRoom.players[0].answer.timestamp).toBe(oldDate);
-        expect(matchRoom.players[1].answer.timestamp).toBe(currentDate);
+        expect(matchRoom.players[1].answer.timestamp).toBe(Infinity);
     });
 
     it("getCurrentQuestionValue() should return the current question's points weight", () => {

@@ -17,7 +17,7 @@ describe('JoinMatchService', () => {
     let httpMock: HttpTestingController;
 
     beforeEach(() => {
-        matchRoomSpy = jasmine.createSpyObj(MatchRoomService, ['connect', 'joinRoom']);
+        matchRoomSpy = jasmine.createSpyObj(MatchRoomService, ['connect', 'joinRoom', 'gameOver']);
         notificationSpy = jasmine.createSpyObj(NotificationService, ['displayErrorMessage']);
         TestBed.configureTestingModule({
             imports: [HttpClientTestingModule],

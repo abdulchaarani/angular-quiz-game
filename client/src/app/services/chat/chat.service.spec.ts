@@ -19,7 +19,7 @@ describe('ChatService', () => {
 
     beforeEach(() => {
         const socketSpy = jasmine.createSpyObj('SocketHandlerService', ['on', 'send', 'isSocketAlive']);
-        const matchRoomSpy = jasmine.createSpyObj('MatchRoomService', ['getRoomCode']);
+        const matchRoomSpy = jasmine.createSpyObj('MatchRoomService', ['getRoomCode', 'gameOver']);
 
         matchRoomSpy.messages = [];
 

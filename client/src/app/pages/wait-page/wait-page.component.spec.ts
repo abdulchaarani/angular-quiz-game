@@ -7,12 +7,12 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Game } from '@app/interfaces/game';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { MatchService } from '@app/services/match/match.service';
+import { NotificationService } from '@app/services/notification/notification.service';
 import { QuestionContextService } from '@app/services/question-context/question-context.service';
 import { TimeService } from '@app/services/time/time.service';
 import { of } from 'rxjs';
 import { WaitPageComponent } from './wait-page.component';
 import SpyObj = jasmine.SpyObj;
-import { NotificationService } from '@app/services/notification/notification.service';
 
 @Component({
     selector: 'app-chat',
@@ -41,6 +41,7 @@ describe('WaitPageComponent', () => {
             'matchStarted',
             'beginQuiz',
             'nextQuestion',
+            'gameOver',
         ]);
         matchRoomSpy.gameTitle$ = of('gameTitle');
         matchRoomSpy.startMatch$ = of(true);

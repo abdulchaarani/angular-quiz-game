@@ -10,6 +10,8 @@ import { BehaviorSubject } from 'rxjs';
 import { Observable } from 'rxjs/internal/Observable';
 import { Subject } from 'rxjs/internal/Subject';
 
+const HOST_USERNAME = 'Organisateur';
+
 @Injectable({
     providedIn: 'root',
 })
@@ -97,14 +99,13 @@ export class MatchRoomService {
     }
 
     toggleLock() {
-        // TODO: Make "Organisateur" a global constant
-        if (this.username === 'Organisateur') {
+        if (this.username === HOST_USERNAME) {
             this.socketService.send('toggleLock', this.matchRoomCode);
         }
     }
 
     banUsername(username: string) {
-        if (this.username === 'Organisateur') {
+        if (this.username === HOST_USERNAME) {
             const sentInfo: UserInfo = { roomCode: this.matchRoomCode, username };
             this.socketService.send('banUsername', sentInfo);
         }

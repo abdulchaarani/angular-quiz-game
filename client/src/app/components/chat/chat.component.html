@@ -13,7 +13,7 @@
             <div
                 class="message-text-container"
                 [ngClass]="[
-                    message.author === this.matchRoomService.getUsername() ? 'own-message' : '',
+                    message.author === this.matchRoomService.getUsername() ? 'own-message' : 'received-message',
                     message.author === 'Organisateur' ? 'host-message' : ''
                 ]"
             >

@@ -129,8 +129,10 @@ export class MatchGateway implements OnGatewayDisconnect {
     @OnEvent(TimerEvents.CooldownTimerExpired)
     onCooldownTimerExpired(matchRoomCode: string) {
         this.matchRoomService.sendNextQuestion(this.server, matchRoomCode);
-        this.histogramService.resetChoiceTracker(matchRoomCode);
-        this.histogramService.sendHistogram(matchRoomCode);
+        if (!this.isTestRoom(matchRoomCode)) {
+            this.histogramService.resetChoiceTracker(matchRoomCode);
+            this.histogramService.sendHistogram(matchRoomCode);
+        }
     }
 
     handleDisconnect(@ConnectedSocket() socket: Socket) {
@@ -184,5 +186,10 @@ export class MatchGateway implements OnGatewayDisconnect {
 
     private isRoomEmpty(room: MatchRoom) {
         return room.players.every((player) => !player.isPlaying);
+    }
+
+    private isTestRoom(matchRoomCode: string) {
+        const matchRoom = this.matchRoomService.getRoom(matchRoomCode);
+        return matchRoom.hostSocket === matchRoom.players[0].socket;
     }
 }

@@ -381,14 +381,27 @@ describe('MatchGateway', () => {
     });
 
     it('onCooldownTimerExpired() should call helper functions when CooldownTimerExpired event is emitted', () => {
-        const sendNextQuestionSpy = jest.spyOn(matchRoomSpy, 'sendNextQuestion');
-
+        const sendNextQuestionSpy = jest.spyOn(matchRoomSpy, 'sendNextQuestion').mockReturnThis();
+        const histogramResetSpy = jest.spyOn(histogramSpy, 'resetChoiceTracker').mockReturnThis();
+        const hisotramSendSpy = jest.spyOn(histogramSpy, 'sendHistogram').mockReturnThis();
+        jest.spyOn<any, any>(gateway, 'isTestRoom').mockReturnValue(false);
         eventEmitter.addListener(TimerEvents.CooldownTimerExpired, gateway.onCountdownTimerExpired);
         expect(eventEmitter.hasListeners(TimerEvents.CooldownTimerExpired)).toBe(true);
 
         gateway.onCooldownTimerExpired(MOCK_ROOM_CODE);
         expect(sendNextQuestionSpy).toHaveBeenCalledWith(server, MOCK_ROOM_CODE);
+        expect(histogramResetSpy).toHaveBeenCalledWith(MOCK_ROOM_CODE);
+        expect(hisotramSendSpy).toHaveBeenCalledWith(MOCK_ROOM_CODE);
 
         eventEmitter.removeListener(TimerEvents.CooldownTimerExpired, gateway.onCountdownTimerExpired);
+    });
+
+    it('isTestRoom() should return true if context is test page, or false otherwise', () => {
+        const mockRoom = { ...MOCK_PLAYER_ROOM };
+        mockRoom.code = MOCK_ROOM_CODE;
+        mockRoom.hostSocket = mockRoom.players[0].socket;
+        jest.spyOn(matchRoomSpy, 'getRoom').mockReturnValue(mockRoom);
+        const isTestPage = gateway['isTestRoom'](MOCK_ROOM_CODE);
+        expect(isTestPage).toBe(true);
     });
 });

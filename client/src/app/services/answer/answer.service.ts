@@ -36,20 +36,20 @@ export class AnswerService {
         this.socketService.send('submitAnswer', userInfo);
     }
 
-    feedback() {
+    onFeedback() {
         this.socketService.on('feedback', (data: Feedback) => {
             this.feedbackSource.next(data);
             this.isFeedbackSource.next(true);
         });
     }
 
-    bonusPoints() {
+    onBonusPoints() {
         this.socketService.on('bonus', (data: number) => {
             this.bonusPointsSubject.next(data);
         });
     }
 
-    gameOver() {
+    onEndGame() {
         this.socketService.on('endGame', () => {
             this.endGameSubject.next(true);
         });

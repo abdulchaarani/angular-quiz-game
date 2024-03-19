@@ -83,7 +83,7 @@ describe('AnswerService', () => {
             cb(feedback);
         });
 
-        service.feedback();
+        service.onFeedback();
         socketHelper.peerSideEmit('feedback', feedback);
 
         expect(feedbackSpy).toHaveBeenCalled();
@@ -98,7 +98,7 @@ describe('AnswerService', () => {
             cb(bonusPoints);
         });
 
-        service.bonusPoints();
+        service.onBonusPoints();
         socketHelper.peerSideEmit('bonus', bonusPoints);
 
         expect(bonusPointsSpy).toHaveBeenCalled();
@@ -110,7 +110,7 @@ describe('AnswerService', () => {
         const gameOverSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => void) => {
             cb('');
         });
-        service.gameOver();
+        service.onEndGame();
         socketHelper.peerSideEmit('endGame');
         expect(gameOverSpy).toHaveBeenCalled();
     });

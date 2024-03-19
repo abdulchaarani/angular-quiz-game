@@ -76,7 +76,14 @@ describe('QuestionAreaComponent', () => {
             duration: 60,
         };
         router = jasmine.createSpyObj('Router', ['navigateByUrl']);
-        answerSpy = jasmine.createSpyObj('AnswerService', ['selectChoice', 'deselectChoice', 'submitAnswer', 'feedback', 'bonusPoints', 'gameOver']);
+        answerSpy = jasmine.createSpyObj('AnswerService', [
+            'selectChoice',
+            'deselectChoice',
+            'submitAnswer',
+            'onFeedback',
+            'onBonusPoints',
+            'onEndGame',
+        ]);
         matchRoomSpy = jasmine.createSpyObj('MatchRoomService', [
             'nextQuestion',
             'getUsername',

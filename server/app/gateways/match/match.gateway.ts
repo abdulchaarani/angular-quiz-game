@@ -1,18 +1,18 @@
-import { BAN_PLAYER, NO_MORE_HOST, NO_MORE_PLAYERS } from '@app/constants/match-errors';
 import { ExpiredTimerEvents } from '@app/constants/expired-timer-events';
+import { BAN_PLAYER, NO_MORE_HOST, NO_MORE_PLAYERS } from '@app/constants/match-errors';
 import { Game } from '@app/model/database/game';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { HistogramService } from '@app/services/histogram/histogram.service';
 import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
+import { HOST_USERNAME } from '@common/constants/match-constants';
+import { MatchEvents } from '@common/events/match.events';
 import { UserInfo } from '@common/interfaces/user-info';
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { ConnectedSocket, MessageBody, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { MatchEvents } from '@common/events/match.events';
-import { HOST_USERNAME } from '@common/constants/match-constants';
 
 @WebSocketGateway({ cors: true })
 @Injectable()
@@ -122,7 +122,8 @@ export class MatchGateway implements OnGatewayDisconnect {
 
     handleDisconnect(@ConnectedSocket() socket: Socket) {
         const hostRoomCode = this.matchRoomService.getRoomCodeByHostSocket(socket.id);
-        if (hostRoomCode) {
+        const hostRoom = this.matchRoomService.getRoom(hostRoomCode);
+        if (hostRoomCode && hostRoom.currentQuestionIndex !== hostRoom.gameLength) {
             this.sendError(hostRoomCode, NO_MORE_HOST);
             this.deleteRoom(hostRoomCode);
             return;
@@ -133,7 +134,7 @@ export class MatchGateway implements OnGatewayDisconnect {
         }
         const room = this.matchRoomService.getRoom(roomCode);
         const isRoomEmpty = this.isRoomEmpty(room);
-        if (room.isPlaying && isRoomEmpty) {
+        if (room.isPlaying && isRoomEmpty && room.currentQuestionIndex !== room.gameLength) {
             this.sendError(roomCode, NO_MORE_PLAYERS);
             this.deleteRoom(roomCode);
             return;

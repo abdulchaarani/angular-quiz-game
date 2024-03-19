@@ -15,12 +15,15 @@ import { NotificationService } from '@app/services/notification/notification.ser
 import { of, throwError } from 'rxjs';
 import { MatchCreationPageComponent } from './match-creation-page.component';
 import SpyObj = jasmine.SpyObj;
+import { QuestionContextService } from '@app/services/question-context/question-context.service';
 
 describe('MatchCreationPageComponent', () => {
     let component: MatchCreationPageComponent;
     let fixture: ComponentFixture<MatchCreationPageComponent>;
     let gameService: GameService;
     let notificationSpy: SpyObj<NotificationService>;
+    let questionContextSpy: SpyObj<QuestionContextService>;
+
     const invisibleGame: Game = { isVisible: false } as Game;
     const fakeGame: Game = getMockGame();
 
@@ -41,6 +44,8 @@ describe('MatchCreationPageComponent', () => {
 
     beforeEach(() => {
         notificationSpy = jasmine.createSpyObj('NotificationService', ['displayErrorMessageAction', 'openSnackBar']);
+        questionContextSpy = jasmine.createSpyObj('QuestionContextService', ['setContext']);
+
         TestBed.configureTestingModule({
             declarations: [MatchCreationPageComponent],
             imports: [HttpClientTestingModule, BrowserAnimationsModule, ScrollingModule],
@@ -49,6 +54,7 @@ describe('MatchCreationPageComponent', () => {
                 { provide: NotificationService, useValue: notificationSpy },
                 { provide: MatchService, useValue: matchServiceSpy },
                 { provide: MatDialog, useClass: MatDialogMock },
+                { provide: QuestionContextService, useValue: questionContextSpy },
             ],
         });
         fixture = TestBed.createComponent(MatchCreationPageComponent);
@@ -195,5 +201,12 @@ describe('MatchCreationPageComponent', () => {
         const reloadSpy = spyOn(component, 'reloadSelectedGame');
         component.createMatch(false);
         expect(reloadSpy).toHaveBeenCalled();
+    });
+
+    it('createMatch() should create a test match if testGame is set to true', () => {
+        const reloadSpy = spyOn(component, 'reloadSelectedGame');
+        component.createMatch(true);
+        expect(reloadSpy).toHaveBeenCalled();
+        expect(questionContextSpy.setContext).toHaveBeenCalled();
     });
 });

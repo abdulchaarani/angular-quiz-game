@@ -17,24 +17,24 @@ export class HistogramComponent implements OnInit, OnChanges, OnDestroy {
     chartOptions: AgChartOptions = {};
     choiceTally: ChoiceTally[] = [];
     histogramsGame: Histogram[] = [];
-    private subscriptions: Subscription[] = [];
+    private histogramSubscriptions: Subscription[] = [];
 
     constructor(private readonly histogramService: HistogramService) {}
-    subscribeToChoiceTally() {
-        this.subscriptions.push(
-            this.histogramService.currentHistogram$.subscribe((data: { question: string; choiceTallies: ChoiceTally[] }) => {
-                this.currentQuestion = data.question;
-                this.choiceTally = data.choiceTallies;
-                const dataTally = this.setUpData();
-                this.setupChart(dataTally);
-            }),
-        );
+
+    subscribeToCurrentHistogram() {
+        const currentHistogramSubscription = this.histogramService.currentHistogram$.subscribe((data: Histogram) => {
+            this.currentQuestion = data.question;
+            this.choiceTally = data.choiceTallies;
+            const dataTally = this.setUpData();
+            this.setupChart(dataTally);
+        });
+        this.histogramSubscriptions.push(currentHistogramSubscription);
     }
 
     ngOnInit(): void {
         if (!this.isResultsPage) {
             this.histogramService.onCurrentHistogram();
-            this.subscribeToChoiceTally();
+            this.subscribeToCurrentHistogram();
         } else {
             this.choiceTally = this.currentHistogram.choiceTallies;
             this.currentQuestion = this.currentHistogram.question;
@@ -51,7 +51,7 @@ export class HistogramComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     ngOnDestroy(): void {
-        this.subscriptions.forEach((sub) => sub.unsubscribe());
+        this.histogramSubscriptions.forEach((subscription) => subscription.unsubscribe());
     }
 
     resetChart(): void {

@@ -72,6 +72,7 @@ describe('QuestionAreaComponent', () => {
             'sendPlayersData',
             'listenRouteToResultsPage',
             'routeToResultsPage',
+            'gameOver',
         ]);
         socketHelper = new SocketTestHelper();
         socketSpy = new SocketHandlerServiceMock(router);

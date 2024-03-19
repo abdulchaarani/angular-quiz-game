@@ -21,7 +21,7 @@ describe('ChatComponent', () => {
     let chatServiceSpy: SpyObj<ChatService>;
 
     beforeEach(() => {
-        const matchRoomSpy = jasmine.createSpyObj('MatchRoomService', ['getUsername', 'getRoomCode']);
+        const matchRoomSpy = jasmine.createSpyObj('MatchRoomService', ['getUsername', 'getRoomCode', 'gameOver']);
         const socketHandlerSpy = jasmine.createSpyObj('SocketHandlerService', ['send']);
         const chatSpy = jasmine.createSpyObj('ChatService', ['displayOldMessages', 'sendMessage', 'handleReceivedMessages']);
         socketHandlerSpy.socket = jasmine.createSpyObj('socket', ['removeListener']);

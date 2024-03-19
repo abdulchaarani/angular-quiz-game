@@ -11,7 +11,7 @@ describe('matchLoginGuard', () => {
     let notificationSpy: SpyObj<NotificationService>;
 
     beforeEach(() => {
-        matchRoomSpy = jasmine.createSpyObj('MatchRoomService', ['getRoomCode', 'getUsername']);
+        matchRoomSpy = jasmine.createSpyObj('MatchRoomService', ['getRoomCode', 'getUsername', 'gameOver']);
         routerSpy = jasmine.createSpyObj('Router', ['navigateByUrl']);
         notificationSpy = jasmine.createSpyObj('NotificationService', ['displayErrorMessage']);
         TestBed.configureTestingModule({

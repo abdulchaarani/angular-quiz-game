@@ -1,9 +1,9 @@
+import { MOCK_MESSAGE, MOCK_ROOM_CODE } from '@app/constants/chat-mocks';
+import { MOCK_MATCH_ROOM } from '@app/constants/match-mocks';
+import { MatchRoom } from '@app/model/schema/match-room.schema';
+import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ChatService } from './chat.service';
-import { MatchRoomService } from '@app/services/match-room/match-room.service';
-import { MatchRoom } from '@app/model/schema/match-room.schema';
-import { MOCK_MATCH_ROOM } from '@app/constants/match-mocks';
-import { MOCK_MESSAGE, MOCK_ROOM_CODE } from '@app/constants/chat-mocks';
 
 describe('ChatService', () => {
     let service: ChatService;
@@ -19,7 +19,7 @@ describe('ChatService', () => {
                 {
                     provide: MatchRoomService,
                     useValue: {
-                        getRoomIndexByCode: jest.fn(),
+                        getRoomIndex: jest.fn(),
                         matchRooms: mockMatchRooms,
                     },
                 },
@@ -41,7 +41,7 @@ describe('ChatService', () => {
 
     it('should add and get messages', () => {
         const matchRoomIndex = 0;
-        jest.spyOn(matchRoomService, 'getRoomIndexByCode').mockReturnValue(matchRoomIndex);
+        jest.spyOn(matchRoomService, 'getRoomIndex').mockReturnValue(matchRoomIndex);
         service.addMessage(mockMessage, MOCK_MATCH_ROOM.code);
         const messages = service.getMessages(mockRoomCode);
         expect(messages).toEqual([mockMessage]);
@@ -50,7 +50,7 @@ describe('ChatService', () => {
     });
 
     it('should not add a message to a match room that does not exist', () => {
-        jest.spyOn(matchRoomService, 'getRoomIndexByCode').mockReturnValue(INDEX_NOT_FOUND);
+        jest.spyOn(matchRoomService, 'getRoomIndex').mockReturnValue(INDEX_NOT_FOUND);
         service.addMessage(mockMessage, matchRoomCode);
         const messages = service.getMessages(matchRoomCode);
         expect(messages).toEqual([]);
@@ -58,7 +58,7 @@ describe('ChatService', () => {
 
     it('should return the added message', () => {
         const matchRoomIndex = 0;
-        jest.spyOn(matchRoomService, 'getRoomIndexByCode').mockReturnValue(matchRoomIndex);
+        jest.spyOn(matchRoomService, 'getRoomIndex').mockReturnValue(matchRoomIndex);
         const returnedMessage = service.addMessage(mockMessage, matchRoomCode);
         expect(returnedMessage).toEqual(mockMessage);
     });

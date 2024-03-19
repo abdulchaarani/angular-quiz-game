@@ -11,7 +11,7 @@ export const matchLoginGuard = (): boolean => {
     const questionContextService = inject(QuestionContextService);
 
     if (questionContextService.getContext() === 'testPage' && !matchRoomService.isPlaying) return true;
-    if (!matchRoomService.getMatchRoomCode() || !matchRoomService.getUsername() || matchRoomService.isPlaying) {
+    if (!matchRoomService.getRoomCode() || !matchRoomService.getUsername() || matchRoomService.isPlaying) {
         router.navigateByUrl('/home');
         notificationService.displayErrorMessage('Accès refusé: Veillez joindre une partie ou créer une partie.');
         return false;

@@ -1,5 +1,5 @@
-import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { Message } from '@app/model/schema/message.schema';
+import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { Injectable } from '@nestjs/common';
 
 const INDEX_NOT_FOUND = -1;
@@ -9,7 +9,7 @@ export class ChatService {
     constructor(private readonly matchRoomService: MatchRoomService) {}
 
     addMessage(message: Message, roomCode: string) {
-        const matchRoomIndex = this.matchRoomService.getRoomIndexByCode(roomCode);
+        const matchRoomIndex = this.matchRoomService.getRoomIndex(roomCode);
         if (matchRoomIndex === INDEX_NOT_FOUND) {
             return;
         }
@@ -18,7 +18,7 @@ export class ChatService {
     }
 
     getMessages(roomCode: string): Message[] {
-        const matchRoomIndex = this.matchRoomService.getRoomIndexByCode(roomCode);
+        const matchRoomIndex = this.matchRoomService.getRoomIndex(roomCode);
         if (matchRoomIndex === INDEX_NOT_FOUND) {
             return [];
         }

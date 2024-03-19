@@ -73,11 +73,12 @@ describe('QuestionAreaComponent', () => {
         matchRoomSpy = jasmine.createSpyObj('MatchRoomService', [
             'nextQuestion',
             'getUsername',
-            'getMatchRoomCode',
+            'getRoomCode',
             'disconnect',
             'sendPlayersData',
             'listenRouteToResultsPage',
             'routeToResultsPage',
+            'gameOver',
         ]);
         socketHelper = new SocketTestHelper();
         socketSpy = new SocketHandlerServiceMock(router);

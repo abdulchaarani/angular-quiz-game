@@ -18,9 +18,10 @@
     height: 75vh;
     width: 20vw;
     overflow-y: scroll;
+    overflow-x: hidden;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.25rem;
 }
 
 @keyframes slideUp {
@@ -36,12 +37,11 @@
 
 .message-container {
     position: relative;
-    margin: 1rem;
     overflow-wrap: break-word;
+    margin: 0.5rem;
     padding: 0.625rem 1.25rem;
     border-radius: 1.125rem;
-    cursor: pointer;
-    animation: slideUp 0.15s ;
+    animation: slideUp 0.15s;
 }
 
 .message-info-container {
@@ -69,6 +69,14 @@
     color: #fff;
 }
 
+.right-message {
+    margin-right: -0.65vw;
+}
+
+.left-message {
+    margin-left: -0.75vw;
+}
+
 #chat-form {
     display: flex;
     flex-direction: column;
@@ -87,6 +95,7 @@
 
 input[matInput] {
     width: 100%;
+    max-width: 17vw;
 }
 
 #chat-send-icon {

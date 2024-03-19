@@ -1,3 +1,4 @@
+import { BANNED_USERNAME, HOST_CONFLICT, USED_USERNAME } from '@app/constants/match-login-errors';
 import { MOCK_MATCH_ROOM, MOCK_PLAYER, MOCK_PLAYER_ROOM, MOCK_ROOM_CODE, MOCK_USERNAME } from '@app/constants/match-mocks';
 import { Player } from '@app/model/schema/player.schema';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
@@ -19,7 +20,7 @@ describe('PlayerRoomService', () => {
         }).compile();
 
         service = module.get<PlayerRoomService>(PlayerRoomService);
-        jest.spyOn(matchRoomSpy, 'getMatchRoomByCode').mockReturnValue(MOCK_PLAYER_ROOM);
+        jest.spyOn(matchRoomSpy, 'getRoom').mockReturnValue(MOCK_PLAYER_ROOM);
     });
 
     it('should be defined', () => {
@@ -39,14 +40,14 @@ describe('PlayerRoomService', () => {
     });
 
     it('addPlayer() should not add player if the username is invalid', () => {
-        const validateSpy = jest.spyOn(service, 'isValidUsername').mockReturnValue(false);
+        const validateSpy = jest.spyOn(service, 'getUsernameErrors').mockReturnValue(HOST_CONFLICT);
         const result = service.addPlayer(socket, '', '');
         expect(result).toBeFalsy();
         expect(validateSpy).toHaveBeenCalled();
     });
 
     it('addPlayer() should add the player if the username is valid', () => {
-        const validateSpy = jest.spyOn(service, 'isValidUsername').mockReturnValue(true);
+        const validateSpy = jest.spyOn(service, 'getUsernameErrors').mockReturnValue('');
         const pushSpy = jest.spyOn(Array.prototype, 'push');
         const mockUsername = 'mock';
         const expectedResult: Player = {
@@ -135,9 +136,9 @@ describe('PlayerRoomService', () => {
             mockRoom.players = [mockPlayer];
             matchRoomSpy.matchRooms = [mockRoom];
 
-            jest.spyOn(matchRoomSpy, 'getRoomIndexByCode').mockReturnValue(0);
-            jest.spyOn(matchRoomSpy, 'getMatchRoomByCode').mockClear();
-            jest.spyOn(matchRoomSpy, 'getMatchRoomByCode').mockReturnValue(mockRoom);
+            jest.spyOn(matchRoomSpy, 'getRoomIndex').mockReturnValue(0);
+            jest.spyOn(matchRoomSpy, 'getRoom').mockClear();
+            jest.spyOn(matchRoomSpy, 'getRoom').mockReturnValue(mockRoom);
             service.makePlayerInactive('', mockUsername);
             expect(matchRoomSpy.matchRooms[0].players[0].isPlaying).toBeFalsy();
         });
@@ -150,7 +151,7 @@ describe('PlayerRoomService', () => {
         mockRoom.players = [mockPlayer];
         matchRoomSpy.matchRooms = [mockRoom];
 
-        jest.spyOn(matchRoomSpy, 'getRoomIndexByCode').mockReturnValue(0);
+        jest.spyOn(matchRoomSpy, 'getRoomIndex').mockReturnValue(0);
         service.deletePlayer('', MOCK_USERNAME);
         expect(matchRoomSpy.matchRooms[0].players.length).toEqual(0);
     });
@@ -178,27 +179,26 @@ describe('PlayerRoomService', () => {
         expect(service.isBannedUsername('', MOCK_USERNAME)).toEqual(false);
     });
 
-    it('isValidUsername() should return true only if username is valid (not host, not banned, and not used)', () => {
+    it('getUsernameErrors() should applicable errors', () => {
         const testCases = [
-            { username: MOCK_USERNAME, isBanned: false, isUsed: false, expectedResult: true },
-            { username: 'Organisateur', isBanned: false, isUsed: false, expectedResult: false },
-            { username: MOCK_USERNAME, isBanned: true, isUsed: false, expectedResult: false },
-            { username: MOCK_USERNAME, isBanned: false, isUsed: true, expectedResult: false },
-            { username: MOCK_USERNAME, isBanned: true, isUsed: true, expectedResult: false },
+            { username: MOCK_USERNAME, isBanned: false, isUsed: false, expectedResult: '' },
+            { username: 'Organisateur', isBanned: false, isUsed: false, expectedResult: HOST_CONFLICT },
+            { username: MOCK_USERNAME, isBanned: true, isUsed: false, expectedResult: BANNED_USERNAME },
+            { username: MOCK_USERNAME, isBanned: false, isUsed: true, expectedResult: USED_USERNAME },
         ];
         for (const { username, isBanned, isUsed, expectedResult } of testCases) {
             const banSpy = jest.spyOn(service, 'isBannedUsername').mockReturnValue(isBanned);
             const usedSpy = jest.spyOn(service, 'getPlayerByUsername').mockReturnValue(isUsed ? MOCK_PLAYER : undefined);
-            const result = service.isValidUsername('', username);
+            const result = service.getUsernameErrors('', username);
             expect(banSpy).toHaveBeenCalled();
             expect(usedSpy).toHaveBeenCalled();
             expect(result).toEqual(expectedResult);
         }
     });
 
-    it('isValidUsername() should always return true if used in testPage', () => {
-        matchRoomSpy.getMatchRoomByCode(MOCK_ROOM_CODE).isTestRoom = true;
-        const result = service.isValidUsername(MOCK_ROOM_CODE, 'caca');
-        expect(result).toBe(true);
+    it('getUsernameErrors() should always return empty string if used in testPage', () => {
+        matchRoomSpy.getRoom(MOCK_ROOM_CODE).isTestRoom = true;
+        const result = service.getUsernameErrors(MOCK_ROOM_CODE, '');
+        expect(result).toBe('');
     });
 });

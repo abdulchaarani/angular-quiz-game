@@ -8,21 +8,21 @@ export class HistogramService {
     constructor(private readonly matchRoomService: MatchRoomService) {}
 
     updateHistogram(choice: string, selection: boolean, roomCode: string) {
-        const choiceTracker = this.matchRoomService.getMatchRoomByCode(roomCode).currentChoiceTracker;
+        const choiceTracker = this.matchRoomService.getRoom(roomCode).currentChoiceTracker;
         if (selection) choiceTracker.incrementCount(choice);
         else choiceTracker.decrementCount(choice);
         this.sendHistogram(roomCode);
     }
 
     saveHistogram(matchRoomCode: string) {
-        const matchRoom = this.matchRoomService.getMatchRoomByCode(matchRoomCode);
+        const matchRoom = this.matchRoomService.getRoom(matchRoomCode);
         const choiceTracker: ChoiceTracker = matchRoom.currentChoiceTracker;
         const histogram: Histogram = this.buildHistogram(choiceTracker);
         matchRoom.matchHistograms.push(histogram);
     }
 
     sendHistogramHistory(matchRoomCode: string) {
-        const matchRoom = this.matchRoomService.getMatchRoomByCode(matchRoomCode);
+        const matchRoom = this.matchRoomService.getRoom(matchRoomCode);
         const histograms: Histogram[] = matchRoom.matchHistograms;
 
         matchRoom.hostSocket.emit('histogramHistory', histograms);
@@ -30,13 +30,13 @@ export class HistogramService {
     }
 
     resetChoiceTracker(matchRoomCode: string) {
-        const matchRoom = this.matchRoomService.getMatchRoomByCode(matchRoomCode);
+        const matchRoom = this.matchRoomService.getRoom(matchRoomCode);
         const currentQuestion = matchRoom.game.questions[matchRoom.currentQuestionIndex];
         matchRoom.currentChoiceTracker.resetChoiceTracker(currentQuestion.text, currentQuestion.choices);
     }
 
     sendHistogram(roomCode: string) {
-        const matchRoom = this.matchRoomService.getMatchRoomByCode(roomCode);
+        const matchRoom = this.matchRoomService.getRoom(roomCode);
         const choiceTracker = matchRoom.currentChoiceTracker;
         const histogram: Histogram = this.buildHistogram(choiceTracker);
         matchRoom.hostSocket.emit('currentHistogram', histogram);

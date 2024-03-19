@@ -9,7 +9,7 @@ xdescribe('PlayersListComponent', () => {
     let matchRoomSpy: jasmine.SpyObj<MatchRoomService>;
 
     beforeEach(() => {
-        matchRoomSpy = jasmine.createSpyObj(MatchRoomService, ['']);
+        matchRoomSpy = jasmine.createSpyObj(MatchRoomService, ['gameOver']);
         matchRoomSpy.players = [];
         TestBed.configureTestingModule({
             declarations: [PlayersListComponent, SortByScorePipe],

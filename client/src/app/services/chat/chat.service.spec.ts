@@ -19,7 +19,7 @@ describe('ChatService', () => {
 
     beforeEach(() => {
         const socketSpy = jasmine.createSpyObj('SocketHandlerService', ['on', 'send', 'isSocketAlive']);
-        const matchRoomSpy = jasmine.createSpyObj('MatchRoomService', ['getMatchRoomCode']);
+        const matchRoomSpy = jasmine.createSpyObj('MatchRoomService', ['getRoomCode', 'gameOver']);
 
         matchRoomSpy.messages = [];
 
@@ -69,7 +69,7 @@ describe('ChatService', () => {
     });
 
     it('should display old messages', () => {
-        matchRoomServiceSpy.getMatchRoomCode.and.returnValue(mockRoomCode);
+        matchRoomServiceSpy.getRoomCode.and.returnValue(mockRoomCode);
         service.displayOldMessages();
         expect(socketHandlerSpy.on).toHaveBeenCalled();
         expect(socketHandlerSpy.send).toHaveBeenCalledWith('sendMessagesHistory', mockRoomCode);

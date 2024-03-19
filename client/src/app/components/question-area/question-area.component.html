@@ -11,7 +11,7 @@
                 <h1 id="score">SCORE : {{ playerScore }}</h1>
                 <div *ngIf="isRightAnswer">
                     <h1 class="points" id="right-answer">👏 Bonne Réponse! Vous avez obtenu {{ currentQuestion.points }} points 👏</h1>
-                    <h1 class="points" id="right-answer" *ngIf="bonus > 0">✨ Vous avec obtenu un bonus de {{ bonus }} points!✨</h1>
+                    <h1 class="points" id="right-answer" *ngIf="bonus > 0">✨ Vous avez obtenu un bonus de {{ bonus }} points!✨</h1>
                 </div>
                 <h1 class="points" id="wrong-answer" *ngIf="!isRightAnswer">😔 Mauvaise Réponse 😔</h1>
             </div>
@@ -25,7 +25,6 @@
                 </div>
             </ng-template>
 
-            <!-- TODO: remove the ! -->
             <div id="question">
                 <div id="question-text-container">
                     <h1>{{ this.currentQuestion!.text }}</h1>

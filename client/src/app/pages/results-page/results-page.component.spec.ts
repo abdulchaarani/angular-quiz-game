@@ -73,7 +73,7 @@ describe('ResultsPageComponent', () => {
     let histogramServiceSpy: jasmine.SpyObj<HistogramService>;
 
     beforeEach(() => {
-        matchRoomServiceSpy = jasmine.createSpyObj('MatchRoomService', ['disconnect']);
+        matchRoomServiceSpy = jasmine.createSpyObj('MatchRoomService', ['disconnect', 'gameOver']);
         histogramServiceSpy = jasmine.createSpyObj('HistogramService', ['histogramHistory']);
         TestBed.configureTestingModule({
             declarations: [

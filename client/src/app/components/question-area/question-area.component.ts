@@ -53,7 +53,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     get matchRoomCode() {
-        return this.matchRoomService.getMatchRoomCode();
+        return this.matchRoomService.getRoomCode();
     }
 
     get username() {
@@ -284,6 +284,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         this.answerService.feedback();
         this.answerService.bonusPoints();
         this.answerService.gameOver();
+        this.matchRoomService.gameOver();
         this.matchRoomService.listenRouteToResultsPage();
     }
 

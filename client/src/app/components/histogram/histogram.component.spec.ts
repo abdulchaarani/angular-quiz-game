@@ -135,7 +135,7 @@ describe('HistogramComponent', () => {
         };
         const content = component.renderChart(params);
         expect(content).toEqual({
-            content: 'Choice: text <br/> Selections: 1',
+            content: 'Choix: text <br/> Sélections: 1',
         });
     });
 

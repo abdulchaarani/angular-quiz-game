@@ -55,7 +55,7 @@ describe('AnswerService', () => {
         playerService = module.get<PlayerRoomService>(PlayerRoomService);
         eventEmitter = module.get<EventEmitter2>(EventEmitter2);
         timeService = module.get<EventEmitter2>(TimeService);
-        matchRoomServiceSpy = jest.spyOn(matchRoomService, 'getMatchRoomByCode').mockReturnValue(matchRoom);
+        matchRoomServiceSpy = jest.spyOn(matchRoomService, 'getRoom').mockReturnValue(matchRoom);
 
         mockHostSocket = {
             send: jest.fn(),
@@ -94,8 +94,8 @@ describe('AnswerService', () => {
         expect(service).toBeDefined();
     });
 
-    it('getMatchRoomByCode() should delegate call to match room service', () => {
-        service['getMatchRoomByCode'](MOCK_ROOM_CODE);
+    it('getRoom() should delegate call to match room service', () => {
+        service['getRoom'](MOCK_ROOM_CODE);
         expect(matchRoomServiceSpy).toHaveBeenCalledWith(MOCK_ROOM_CODE);
     });
 
@@ -106,7 +106,7 @@ describe('AnswerService', () => {
     });
 
     it('isCorrectPlayerAnswer() should return false if player has wrong answer', () => {
-        jest.spyOn<any, any>(service, 'getMatchRoomByCode').mockReturnValue(matchRoom);
+        jest.spyOn<any, any>(service, 'getRoom').mockReturnValue(matchRoom);
         matchRoom.currentQuestionAnswer = ['choice2'];
         const isCorrect = service['isCorrectPlayerAnswer'](matchRoom.players[0], MOCK_ROOM_CODE);
         expect(isCorrect).toEqual(false);
@@ -121,11 +121,10 @@ describe('AnswerService', () => {
     it("autoSubmitAnswers() should submit every player's answer if not already submitted", () => {
         expect(matchRoom.players[1].answer.isSubmitted).toBe(false);
         expect(matchRoom.players[0].answer.timestamp).toBe(currentDate);
-        currentDate += 1000;
         service['autoSubmitAnswers'](MOCK_ROOM_CODE);
         expect(matchRoom.players[1].answer.isSubmitted).toBe(true);
         expect(matchRoom.players[0].answer.timestamp).toBe(oldDate);
-        expect(matchRoom.players[1].answer.timestamp).toBe(currentDate);
+        expect(matchRoom.players[1].answer.timestamp).toBe(Infinity);
     });
 
     it("getCurrentQuestionValue() should return the current question's points weight", () => {

@@ -29,8 +29,8 @@ export enum MatchStatus {
 }
 
 export enum WarningMessage {
-    PENDING = 'Vous avec des modifications non sauvegardés. Êtes-vous certain de vouloir quitter?',
-    QUIT = 'Vous avec sur le point de quitter la partie. Êtes-vous certain de vouloir quitter?',
+    PENDING = 'Vous avez des modifications non sauvegardés. Êtes-vous certain de vouloir quitter?',
+    QUIT = 'Vous êtes sur le point de quitter la partie. Êtes-vous certain de vouloir quitter?',
 }
 
 export enum SnackBarError {

@@ -18,12 +18,12 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { BackupController } from './controllers/backup/backup.controller';
 import { MatchRoomService } from './services/match-room/match-room.service';
 import { PlayerRoomService } from './services/player-room/player-room.service';
-import { TimeService } from './services/time/time.service';
-import { ChatService } from './services/chat/chat.service';
-import { AnswerGateway } from './gateways/answer/answer.gateway';
-import { AnswerService } from './services/answer/answer.service';
-import { HistogramService } from './services/histogram/histogram.service';
-
+import { TimeService } from '@app/services/time/time.service';
+import { ChatService } from '@app/services/chat/chat.service';
+import { AnswerGateway } from '@app/gateways/answer/answer.gateway';
+import { AnswerService } from '@app/services/answer/answer.service';
+import { HistogramService } from '@app/services/histogram/histogram.service';
+import { ChatGateway } from '@app/gateways/chat/chat.gateway';
 @Module({
     imports: [
         ConfigModule.forRoot({ isGlobal: true }),
@@ -55,6 +55,7 @@ import { HistogramService } from './services/histogram/histogram.service';
         AnswerGateway,
         AnswerService,
         HistogramService,
+        ChatGateway,
     ],
 })
 export class AppModule {}

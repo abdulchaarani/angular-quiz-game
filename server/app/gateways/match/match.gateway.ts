@@ -2,19 +2,16 @@ import { BAN_PLAYER, NO_MORE_HOST, NO_MORE_PLAYERS } from '@app/constants/match-
 import { ExpiredTimerEvents } from '@app/constants/expired-timer-events';
 import { Game } from '@app/model/database/game';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
-import { ChatService } from '@app/services/chat/chat.service';
 import { HistogramService } from '@app/services/histogram/histogram.service';
 import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
-import { MessageInfo } from '@common/interfaces/message-info';
 import { UserInfo } from '@common/interfaces/user-info';
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { ConnectedSocket, MessageBody, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { MatchEvents } from '@common/events/match.events';
-import { ChatEvents } from '@common/events/chat.events';
 import { HOST_USERNAME } from '@common/constants/match-constants';
 
 @WebSocketGateway({ cors: true })
@@ -29,7 +26,6 @@ export class MatchGateway implements OnGatewayDisconnect {
         private readonly playerRoomService: PlayerRoomService,
         private readonly matchBackupService: MatchBackupService,
         private readonly histogramService: HistogramService,
-        private readonly chatService: ChatService,
     ) {}
 
     @SubscribeMessage(MatchEvents.JoinRoom)
@@ -98,19 +94,6 @@ export class MatchGateway implements OnGatewayDisconnect {
         }
     }
 
-    @SubscribeMessage(ChatEvents.RoomMessage)
-    handleIncomingRoomMessages(@ConnectedSocket() socket: Socket, @MessageBody() data: MessageInfo) {
-        this.chatService.addMessage(data.message, data.roomCode);
-        this.sendMessageToClients(data);
-    }
-
-    @SubscribeMessage(ChatEvents.SendMessagesHistory)
-    sendMessagesHistory(@ConnectedSocket() socket: Socket, @MessageBody() matchRoomCode: string) {
-        if (socket.rooms.has(matchRoomCode)) {
-            this.handleSentMessagesHistory(matchRoomCode);
-        }
-    }
-
     @SubscribeMessage(MatchEvents.StartMatch)
     startMatch(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
         this.matchRoomService.markGameAsPlaying(roomCode);
@@ -165,16 +148,8 @@ export class MatchGateway implements OnGatewayDisconnect {
         this.matchRoomService.deleteRoom(matchRoomCode);
     }
 
-    sendMessageToClients(data: MessageInfo) {
-        this.server.to(data.roomCode).emit(ChatEvents.NewMessage, data);
-    }
-
     handleSendPlayersData(matchRoomCode: string) {
         this.server.to(matchRoomCode).emit(MatchEvents.FetchPlayersData, this.playerRoomService.getPlayersStringified(matchRoomCode));
-    }
-
-    handleSentMessagesHistory(matchRoomCode: string) {
-        this.server.to(matchRoomCode).emit(ChatEvents.FetchOldMessages, this.chatService.getMessages(matchRoomCode));
     }
 
     sendError(socketId: string, error: string) {

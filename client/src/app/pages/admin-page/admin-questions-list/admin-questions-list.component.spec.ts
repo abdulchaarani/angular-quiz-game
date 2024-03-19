@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable max-lines */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import { HttpClientModule, HttpErrorResponse, HttpResponse } from '@angular/common/http';
@@ -21,7 +22,7 @@ import { CdkDragDrop, CdkDragEnd, DragDropModule } from '@angular/cdk/drag-drop'
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -30,7 +31,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 describe('AdminQuestionsListComponent', () => {
     let component: AdminQuestionsListComponent;
@@ -40,6 +41,7 @@ describe('AdminQuestionsListComponent', () => {
     let questionServiceSpy: jasmine.SpyObj<QuestionService>;
     let notificationServiceSpy: jasmine.SpyObj<NotificationService>;
     let matDialogSpy: jasmine.SpyObj<MatDialog>;
+    let mockDialogRef: jasmine.SpyObj<MatDialogRef<any, any>>;
 
     let routerSpy: jasmine.SpyObj<Router>;
     let activatedRouteSpy: jasmine.SpyObj<ActivatedRoute>;
@@ -90,6 +92,10 @@ describe('AdminQuestionsListComponent', () => {
     class MockCreateQuestionComponent {
         @Input() modificationState: ManagementState;
         @Input() question: Question;
+        @Output() createQuestionEvent: EventEmitter<Question> = new EventEmitter<Question>();
+        mockEmit() {
+            this.createQuestionEvent.emit(mockNewQuestion);
+        }
     }
 
     beforeEach(() => {
@@ -162,6 +168,8 @@ describe('AdminQuestionsListComponent', () => {
             ],
         }).compileComponents();
 
+        const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['close']);
+
         fixture = TestBed.createComponent(AdminQuestionsListComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
@@ -169,6 +177,7 @@ describe('AdminQuestionsListComponent', () => {
         component.originalBankQuestions = JSON.parse(JSON.stringify(mockBankQuestions));
         questionServiceSpy.getAllQuestions.and.returnValue(of(mockBankQuestions));
         gamesServiceSpy.submitGame.and.returnValue(of(mockHttpResponse));
+        mockDialogRef = dialogRefSpy as jasmine.SpyObj<MatDialogRef<any, any>>;
     });
 
     it('should create', () => {
@@ -222,12 +231,14 @@ describe('AdminQuestionsListComponent', () => {
         expect(result).toBeTrue();
     });
 
-    it('should return a subject when there are pending changes', () => {
+    it('should prompt user if they try to leave while there are pending changes and only deactivate if user confirms', () => {
         component.isPendingChanges = true;
-        const confirmSubject = new Subject<boolean>();
-        notificationServiceSpy.openWarningDialog.and.returnValue(confirmSubject);
+        const deactivateSubject = new Subject<boolean>();
+        notificationServiceSpy.openWarningDialog.and.returnValue(deactivateSubject);
         const result = component.canDeactivate();
+        deactivateSubject.next(true);
         expect(result instanceof Subject).toBeTrue();
+        expect(notificationServiceSpy.openWarningDialog).toHaveBeenCalledWith(WarningMessage.PENDING);
     });
 
     it('should call openWarningDialog when there are pending changes', () => {
@@ -409,6 +420,18 @@ describe('AdminQuestionsListComponent', () => {
         expect(questionServiceSpy.openCreateQuestionModal).not.toHaveBeenCalled();
     });
 
+    it('openDialog() should open a dialog if dialogState is false', () => {
+        const spyHandleDialog = spyOn<any>(component, 'handleCreateQuestionDialog');
+        component.dialogState = false;
+        questionServiceSpy.openCreateQuestionModal.and.returnValue(mockDialogRef);
+        const mock = new MockCreateQuestionComponent();
+        mockDialogRef.componentInstance = mock;
+        component.openCreateQuestionDialog();
+        mock.mockEmit();
+        expect(questionServiceSpy.openCreateQuestionModal).toHaveBeenCalled();
+        expect(spyHandleDialog).toHaveBeenCalled();
+    });
+
     it('should set currentQuestion on dragQuizQuestion', () => {
         const mockQuestion: Question = { id: '1', text: 'Test question', type: 'QCM', points: 10, lastModification: '' };
         component.dragQuizQuestion(mockQuestion);
@@ -442,25 +465,27 @@ describe('AdminQuestionsListComponent', () => {
         expect(component.isBankQuestionDragged).toBeFalse();
     });
 
-    // it('should move question within the quiz list and mark changes', () => {
-    //     const mockListQuestions: Question[] = [
-    //         { id: '1', text: 'Question 1', type: 'QCM', points: 10, lastModification: '' },
-    //         { id: '2', text: 'Question 2', type: 'QCM', points: 20, lastModification: '' },
-    //         { id: '3', text: 'Question 3', type: 'QCM', points: 30, lastModification: '' },
-    //     ];
-    //     component.game.questions = [...mockListQuestions];
+    it('should move question within the quiz list and mark changes', () => {
+        const mockListQuestions: Question[] = [
+            { id: '1', text: 'Question 1', type: 'QCM', points: 10, lastModification: '' },
+            { id: '2', text: 'Question 2', type: 'QCM', points: 20, lastModification: '' },
+            { id: '3', text: 'Question 3', type: 'QCM', points: 30, lastModification: '' },
+        ];
+        component.game.questions = [...mockListQuestions];
 
-    //     const mockDragDropEvent = {
-    //         previousContainer: { data: component.game.questions },
-    //         container: { data: component.game.questions },
-    //         previousIndex: 0,
-    //         currentIndex: 1,
-    //     } as unknown as CdkDragDrop<Question[]>;
-    //     fixture.detectChanges();
-    //     component.dropInQuizList(mockDragDropEvent);
-    //     expect(component.game.questions[0]).toEqual(mockListQuestions[1]);
-    //     expect(component.game.questions[1]).toEqual(mockListQuestions[0]);
-    // });
+        const container = { data: component.game.questions };
+        const mockDragDropEvent = {
+            previousIndex: 0,
+            currentIndex: 1,
+            container,
+            previousContainer: container,
+        } as unknown as CdkDragDrop<Question[]>;
+        fixture.detectChanges();
+        component.dropInQuizList(mockDragDropEvent);
+        expect(component.game.questions[0].id).toEqual('2');
+        expect(component.game.questions[1].id).toEqual('1');
+        expect(gamesServiceSpy.markPendingChanges).toHaveBeenCalled();
+    });
 
     it('should transfer question to another list if not duplicate and mark changes', () => {
         const mockDragDropEvent = {
@@ -528,5 +553,14 @@ describe('AdminQuestionsListComponent', () => {
     it('should return "Créer le jeu" as button text when state is GameCreate', () => {
         component.state = ManagementState.GameCreate;
         expect(component.getButtonText()).toEqual('Créer le jeu');
+    });
+
+    it('handleDialog() should add question if applicable and close dialog', () => {
+        const spyAdd = spyOn(component, 'addQuestionToGame');
+        const mockQuestion = mockNewQuestion;
+        component['handleCreateQuestionDialog'](mockQuestion, mockDialogRef);
+        expect(spyAdd).toHaveBeenCalled();
+        expect(mockDialogRef.close).toHaveBeenCalled();
+        expect(component.dialogState).toBeFalsy();
     });
 });

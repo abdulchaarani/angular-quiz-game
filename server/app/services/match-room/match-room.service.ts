@@ -1,3 +1,4 @@
+import { MatchServiceEvents } from '@app/constants/match-events';
 import { INVALID_CODE, LOCKED_ROOM } from '@app/constants/match-login-errors';
 import { TimerEvents } from '@app/constants/timer-events';
 import { ChoiceTracker } from '@app/model/choice-tracker/choice-tracker';
@@ -101,7 +102,7 @@ export class MatchRoomService {
         if (!this.canStartMatch(matchRoomCode)) return;
         const gameTitle = this.getGameTitle(matchRoomCode);
         const gameInfo: GameInfo = { start: true, gameTitle };
-        socket.to(matchRoomCode).emit('matchStarting', gameInfo);
+        socket.to(matchRoomCode).emit(MatchServiceEvents.MatchStarting, gameInfo);
 
         this.timeService.startTimer(server, matchRoomCode, COUNTDOWN_TIME, TimerEvents.CountdownTimerExpired);
     }
@@ -123,28 +124,28 @@ export class MatchRoomService {
         matchRoom.currentQuestionAnswer = this.filterCorrectChoices(firstQuestion);
         this.removeIsCorrectField(firstQuestion);
         if (!isTestRoom) {
-            matchRoom.hostSocket.send('currentAnswers', matchRoom.currentQuestionAnswer);
+            matchRoom.hostSocket.send(MatchServiceEvents.CurrentAnswers, matchRoom.currentQuestionAnswer);
         }
-        server.in(matchRoomCode).emit('beginQuiz', { firstQuestion, gameDuration, isTestRoom });
+        server.in(matchRoomCode).emit(MatchServiceEvents.BeginQuiz, { firstQuestion, gameDuration, isTestRoom });
         this.timeService.startTimer(server, matchRoomCode, this.getGameDuration(matchRoomCode), TimerEvents.QuestionTimerExpired);
     }
 
     startNextQuestionCooldown(server: Server, matchRoomCode: string): void {
-        server.in(matchRoomCode).emit('startCooldown', matchRoomCode);
+        server.in(matchRoomCode).emit(MatchServiceEvents.StartCooldown, matchRoomCode);
         this.timeService.startTimer(server, matchRoomCode, COOLDOWN_TIME, TimerEvents.CooldownTimerExpired);
     }
 
     sendNextQuestion(server: Server, matchRoomCode: string): void {
         const matchRoom: MatchRoom = this.getRoom(matchRoomCode);
         if (matchRoom.currentQuestionIndex === matchRoom.gameLength) {
-            server.in(matchRoomCode).emit('gameOver', matchRoom.isTestRoom);
+            server.in(matchRoomCode).emit(MatchServiceEvents.GameOver, matchRoom.isTestRoom);
             return;
         }
         const nextQuestion = matchRoom.game.questions[matchRoom.currentQuestionIndex];
         matchRoom.currentQuestionAnswer = this.filterCorrectChoices(nextQuestion);
         this.removeIsCorrectField(nextQuestion);
-        server.in(matchRoomCode).emit('nextQuestion', nextQuestion);
-        matchRoom.hostSocket.send('currentAnswers', matchRoom.currentQuestionAnswer);
+        server.in(matchRoomCode).emit(MatchServiceEvents.NextQuestion, nextQuestion);
+        matchRoom.hostSocket.send(MatchServiceEvents.CurrentAnswers, matchRoom.currentQuestionAnswer);
         this.timeService.startTimer(server, matchRoomCode, this.getGameDuration(matchRoomCode), TimerEvents.QuestionTimerExpired);
     }
 

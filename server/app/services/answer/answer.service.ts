@@ -1,3 +1,4 @@
+import { MatchServiceEvents } from '@app/constants/match-events';
 import { TimerEvents } from '@app/constants/timer-events';
 import { Answer } from '@app/model/schema/answer.schema';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
@@ -117,18 +118,18 @@ export class AnswerService {
         const bonus = points * BONUS_FACTOR;
         fastestPlayer.score += bonus;
         fastestPlayer.bonusCount++;
-        fastestPlayer.socket.emit('bonus', bonus);
+        fastestPlayer.socket.emit(MatchServiceEvents.Bonus, bonus);
     }
     private sendFeedback(roomCode: string) {
         const correctAnswer: string[] = this.getRoom(roomCode).currentQuestionAnswer;
         const players: Player[] = this.playerService.getPlayers(roomCode);
         players.forEach((player: Player) => {
             const feedback: Feedback = { score: player.score, correctAnswer };
-            player.socket.emit('feedback', feedback);
+            player.socket.emit(MatchServiceEvents.Feedback, feedback);
         });
 
         const matchRoom = this.getRoom(roomCode);
-        matchRoom.hostSocket.emit('feedback');
+        matchRoom.hostSocket.emit(MatchServiceEvents.Feedback);
         if (matchRoom.gameLength === 1 + matchRoom.currentQuestionIndex) matchRoom.hostSocket.emit('endGame');
     }
     private resetPlayersAnswer(roomCode: string) {

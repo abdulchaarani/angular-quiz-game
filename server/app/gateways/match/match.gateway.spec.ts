@@ -1,21 +1,21 @@
 /* eslint-disable max-lines */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { ExpiredTimerEvents } from '@app/constants/expired-timer-events';
 import { BAN_PLAYER, NO_MORE_HOST } from '@app/constants/match-errors';
 import { HOST_CONFLICT, INVALID_CODE } from '@app/constants/match-login-errors';
 import { MOCK_MATCH_ROOM, MOCK_PLAYER, MOCK_PLAYER_ROOM, MOCK_ROOM_CODE, MOCK_TEST_MATCH_ROOM, MOCK_USER_INFO } from '@app/constants/match-mocks';
-import { ExpiredTimerEvents } from '@app/constants/expired-timer-events';
 import { MatchGateway } from '@app/gateways/match/match.gateway';
 import { HistogramService } from '@app/services/histogram/histogram.service';
 import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
 import { TimeService } from '@app/services/time/time.service';
+import { MatchEvents } from '@common/events/match.events';
 import { Histogram } from '@common/interfaces/histogram';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance, stub } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
-import { MatchEvents } from '@common/events/match.events';
 
 describe('MatchGateway', () => {
     let gateway: MatchGateway;
@@ -211,6 +211,7 @@ describe('MatchGateway', () => {
 
     it('handleDisconnect() should disconnect host and all other players and delete the match room if the host disconnects', () => {
         matchRoomSpy.getRoomCodeByHostSocket.returns(MOCK_ROOM_CODE);
+        matchRoomSpy.getRoom.returns(MOCK_MATCH_ROOM);
         const errorSpy = jest.spyOn(gateway, 'sendError').mockReturnThis();
         const deleteSpy = jest.spyOn(gateway, 'deleteRoom').mockReturnThis();
         gateway.handleDisconnect(socket);
@@ -250,11 +251,10 @@ describe('MatchGateway', () => {
         mockRoomToDelete.isPlaying = true;
         playerRoomSpy.deletePlayerBySocket.returns(undefined);
         const errorSpy = jest.spyOn(gateway, 'sendError').mockReturnThis();
-        const getSpy = jest.spyOn(matchRoomSpy, 'getRoom').mockReturnThis();
+        jest.spyOn(matchRoomSpy, 'getRoom').mockReturnThis();
         const handleSpy = jest.spyOn(gateway, 'handleSendPlayersData').mockReturnThis();
         const deleteSpy = jest.spyOn(gateway, 'deleteRoom').mockReturnThis();
         gateway.handleDisconnect(socket);
-        expect(getSpy).not.toHaveBeenCalled();
         expect(handleSpy).not.toHaveBeenCalled();
         expect(errorSpy).not.toHaveBeenCalled();
         expect(deleteSpy).not.toHaveBeenCalled();

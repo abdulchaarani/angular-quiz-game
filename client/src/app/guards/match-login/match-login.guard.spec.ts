@@ -4,21 +4,26 @@ import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { matchLoginGuard } from './match-login.guard';
 import SpyObj = jasmine.SpyObj;
+import { QuestionContextService } from '@app/services/question-context/question-context.service';
 
 describe('matchLoginGuard', () => {
     let matchRoomSpy: SpyObj<MatchRoomService>;
     let routerSpy: SpyObj<Router>;
     let notificationSpy: SpyObj<NotificationService>;
+    let questionContextSpy: SpyObj<QuestionContextService>;
 
     beforeEach(() => {
         matchRoomSpy = jasmine.createSpyObj('MatchRoomService', ['getRoomCode', 'getUsername', 'gameOver']);
         routerSpy = jasmine.createSpyObj('Router', ['navigateByUrl']);
         notificationSpy = jasmine.createSpyObj('NotificationService', ['displayErrorMessage']);
+        questionContextSpy = jasmine.createSpyObj('QuestionContextService', ['getContext']);
+
         TestBed.configureTestingModule({
             providers: [
                 { provide: MatchRoomService, useValue: matchRoomSpy },
                 { provide: Router, useValue: routerSpy },
                 { provide: NotificationService, useValue: notificationSpy },
+                { provide: QuestionContextService, useValue: questionContextSpy },
             ],
         });
     });
@@ -34,7 +39,26 @@ describe('matchLoginGuard', () => {
         expect(routerSpy.navigateByUrl).toHaveBeenCalled();
         expect(notificationSpy.displayErrorMessage).toHaveBeenCalled();
     });
+
     it('should not redirect to home page if room code and username are defined', () => {
+        matchRoomSpy.getRoomCode.and.returnValue('mock');
+        matchRoomSpy.getUsername.and.returnValue('mock');
+        TestBed.runInInjectionContext(matchLoginGuard);
+        expect(routerSpy.navigateByUrl).not.toHaveBeenCalled();
+        expect(notificationSpy.displayErrorMessage).not.toHaveBeenCalled();
+    });
+
+    it('should redirect to home page if is testPage and page refreshed while game is playing', () => {
+        questionContextSpy.getContext.and.returnValue('testPage');
+        matchRoomSpy.isPlaying = true;
+        TestBed.runInInjectionContext(matchLoginGuard);
+        expect(routerSpy.navigateByUrl).toHaveBeenCalled();
+        expect(notificationSpy.displayErrorMessage).toHaveBeenCalled();
+    });
+
+    it('should not redirect to home page if is testPage and game is starting', () => {
+        questionContextSpy.getContext.and.returnValue('testPage');
+        matchRoomSpy.isPlaying = false;
         matchRoomSpy.getRoomCode.and.returnValue('mock');
         matchRoomSpy.getUsername.and.returnValue('mock');
         TestBed.runInInjectionContext(matchLoginGuard);

@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { TestBed } from '@angular/core/testing';
 
 import { MatDialogModule } from '@angular/material/dialog';
@@ -62,6 +60,7 @@ describe('ChatService', () => {
     });
 
     it('should fetch old messages', () => {
+        // any is required since the cb function here expects "any" type.
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         socketHandlerSpy.on.and.callFake((event, cb) => cb(mockMessages as any));
         service.fetchOldMessages();

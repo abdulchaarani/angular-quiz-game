@@ -5,6 +5,7 @@ import { NotificationService } from '@app/services/notification/notification.ser
 import { matchLoginGuard } from './match-login.guard';
 import SpyObj = jasmine.SpyObj;
 import { QuestionContextService } from '@app/services/question-context/question-context.service';
+import { MatchContext } from '@app/constants/states';
 
 describe('matchLoginGuard', () => {
     let matchRoomSpy: SpyObj<MatchRoomService>;
@@ -49,7 +50,7 @@ describe('matchLoginGuard', () => {
     });
 
     it('should redirect to home page if is testPage and page refreshed while game is playing', () => {
-        questionContextSpy.getContext.and.returnValue('testPage');
+        questionContextSpy.getContext.and.returnValue(MatchContext.TestPage);
         matchRoomSpy.isPlaying = true;
         TestBed.runInInjectionContext(matchLoginGuard);
         expect(routerSpy.navigateByUrl).toHaveBeenCalled();
@@ -57,7 +58,7 @@ describe('matchLoginGuard', () => {
     });
 
     it('should not redirect to home page if is testPage and game is starting', () => {
-        questionContextSpy.getContext.and.returnValue('testPage');
+        questionContextSpy.getContext.and.returnValue(MatchContext.TestPage);
         matchRoomSpy.isPlaying = false;
         matchRoomSpy.getRoomCode.and.returnValue('mock');
         matchRoomSpy.getUsername.and.returnValue('mock');

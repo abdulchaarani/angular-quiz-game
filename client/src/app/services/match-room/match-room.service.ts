@@ -9,8 +9,8 @@ import { UserInfo } from '@common/interfaces/user-info';
 import { BehaviorSubject } from 'rxjs';
 import { Observable } from 'rxjs/internal/Observable';
 import { Subject } from 'rxjs/internal/Subject';
-
-const HOST_USERNAME = 'Organisateur';
+import { MatchEvents } from '@common/events/match.events';
+import { HOST_USERNAME } from '@common/constants/match-constants';
 
 @Injectable({
     providedIn: 'root',
@@ -80,9 +80,9 @@ export class MatchRoomService {
     }
 
     createRoom(gameId: string, isTestRoom: boolean = false) {
-        this.socketService.send('createRoom', { gameId, isTestPage: isTestRoom }, (res: { code: string }) => {
+        this.socketService.send(MatchEvents.CreateRoom, { gameId, isTestPage: isTestRoom }, (res: { code: string }) => {
             this.matchRoomCode = res.code;
-            this.username = 'Organisateur';
+            this.username = HOST_USERNAME;
             if (isTestRoom) {
                 this.players = [{ username: this.username, score: 0, bonusCount: 0, isPlaying: true }];
                 this.router.navigateByUrl('/play-test');
@@ -92,7 +92,7 @@ export class MatchRoomService {
 
     joinRoom(roomCode: string, username: string) {
         const sentInfo: UserInfo = { roomCode, username };
-        this.socketService.send('joinRoom', sentInfo, (res: { code: string; username: string }) => {
+        this.socketService.send(MatchEvents.JoinRoom, sentInfo, (res: { code: string; username: string }) => {
             this.matchRoomCode = res.code;
             this.username = res.username;
             this.router.navigateByUrl('/match-room');
@@ -101,34 +101,34 @@ export class MatchRoomService {
     }
 
     sendPlayersData(roomCode: string) {
-        this.socketService.send('sendPlayersData', roomCode);
+        this.socketService.send(MatchEvents.SendPlayersData, roomCode);
     }
 
     toggleLock() {
         if (this.username === HOST_USERNAME) {
-            this.socketService.send('toggleLock', this.matchRoomCode);
+            this.socketService.send(MatchEvents.ToggleLock, this.matchRoomCode);
         }
     }
 
     banUsername(username: string) {
         if (this.username === HOST_USERNAME) {
             const sentInfo: UserInfo = { roomCode: this.matchRoomCode, username };
-            this.socketService.send('banUsername', sentInfo);
+            this.socketService.send(MatchEvents.BanUsername, sentInfo);
         }
     }
 
     handleError() {
-        this.socketService.on('error', (errorMessage: string) => {
+        this.socketService.on(MatchEvents.Error, (errorMessage: string) => {
             this.notificationService.displayErrorMessage(errorMessage);
         });
     }
 
     startMatch() {
-        this.socketService.send('startMatch', this.matchRoomCode);
+        this.socketService.send(MatchEvents.StartMatch, this.matchRoomCode);
     }
 
     onMatchStarted() {
-        this.socketService.on('matchStarting', (data: { start: boolean; gameTitle: string }) => {
+        this.socketService.on(MatchEvents.MatchStarting, (data: { start: boolean; gameTitle: string }) => {
             if (data.start) {
                 this.startMatchSource.next(true);
             }
@@ -139,7 +139,7 @@ export class MatchRoomService {
     }
 
     onBeginQuiz() {
-        this.socketService.on('beginQuiz', (data: { firstQuestion: Question; gameDuration: number; isTestRoom: boolean }) => {
+        this.socketService.on(MatchEvents.BeginQuiz, (data: { firstQuestion: Question; gameDuration: number; isTestRoom: boolean }) => {
             this.isWaitOver = true;
             const { firstQuestion, gameDuration, isTestRoom } = data;
             if (isTestRoom) {
@@ -149,17 +149,17 @@ export class MatchRoomService {
     }
 
     nextQuestion() {
-        this.socketService.send('nextQuestion', this.matchRoomCode);
+        this.socketService.send(MatchEvents.NextQuestion, this.matchRoomCode);
     }
 
     onStartCooldown() {
-        this.socketService.on('startCooldown', () => {
+        this.socketService.on(MatchEvents.StartCooldown, () => {
             this.displayCooldownSource.next(true);
         });
     }
 
     onGameOver() {
-        this.socketService.on('gameOver', (isTestRoom) => {
+        this.socketService.on(MatchEvents.GameOver, (isTestRoom) => {
             if (isTestRoom) {
                 this.router.navigateByUrl('/host');
             }
@@ -167,26 +167,26 @@ export class MatchRoomService {
     }
 
     onNextQuestion() {
-        this.socketService.on('nextQuestion', (question: Question) => {
+        this.socketService.on(MatchEvents.NextQuestion, (question: Question) => {
             this.displayCooldownSource.next(false);
             this.currentQuestionSource.next(question);
         });
     }
 
     onFetchPlayersData() {
-        this.socketService.on('fetchPlayersData', (res: string) => {
+        this.socketService.on(MatchEvents.FetchPlayersData, (res: string) => {
             this.players = JSON.parse(res);
         });
     }
 
     onHostQuit() {
-        this.socketService.on('hostQuitMatch', () => {
+        this.socketService.on(MatchEvents.HostQuitMatch, () => {
             this.hostPlayingSource.next(false);
         });
     }
 
     onRedirectAfterDisconnection() {
-        this.socketService.on('disconnect', () => {
+        this.socketService.on(MatchEvents.Disconnect, () => {
             this.router.navigateByUrl('/home');
             this.resetMatchValues();
         });
@@ -204,18 +204,18 @@ export class MatchRoomService {
     }
 
     routeToResultsPage() {
-        this.socketService.send('routeToResultsPage', this.matchRoomCode);
+        this.socketService.send(MatchEvents.RouteToResultsPage, this.matchRoomCode);
     }
 
     onRouteToResultsPage() {
-        this.socketService.on('routeToResultsPage', () => {
+        this.socketService.on(MatchEvents.RouteToResultsPage, () => {
             this.isResults = true;
             this.router.navigateByUrl('/results');
         });
     }
 
     onPlayerKick() {
-        this.socketService.on('kickPlayer', () => {
+        this.socketService.on(MatchEvents.KickPlayer, () => {
             this.bannedSource.next(true);
             this.disconnect();
         });

@@ -3,6 +3,7 @@ import { Message } from '@app/interfaces/message';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 import { MessageInfo } from '@common/interfaces/message-info';
+import { ChatEvents } from '@common/events/chat.events';
 
 @Injectable({
     providedIn: 'root',
@@ -15,15 +16,15 @@ export class ChatService {
 
     sendMessage(roomCode: string, message: Message): void {
         const messageInfo: MessageInfo = { roomCode, message };
-        this.socketHandler.send('roomMessage', messageInfo);
+        this.socketHandler.send(ChatEvents.RoomMessage, messageInfo);
     }
 
     sendMessagesHistory(roomCode: string) {
-        this.socketHandler.send('sendMessagesHistory', roomCode);
+        this.socketHandler.send(ChatEvents.SendMessagesHistory, roomCode);
     }
 
     fetchOldMessages() {
-        this.socketHandler.on('fetchOldMessages', (messages: Message[]) => {
+        this.socketHandler.on(ChatEvents.FetchOldMessages, (messages: Message[]) => {
             this.matchRoomService.messages = messages;
         });
     }
@@ -34,7 +35,7 @@ export class ChatService {
     }
 
     handleReceivedMessages() {
-        this.socketHandler.on('newMessage', (messageInfo: MessageInfo) => {
+        this.socketHandler.on(ChatEvents.NewMessage, (messageInfo: MessageInfo) => {
             this.matchRoomService.messages.push(messageInfo.message);
         });
     }

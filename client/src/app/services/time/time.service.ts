@@ -3,6 +3,7 @@ import { SocketHandlerService } from '@app/services/socket-handler/socket-handle
 import { BehaviorSubject } from 'rxjs';
 import { TimerInfo } from '@common/interfaces/timer-info';
 import { MULTIPLICATION_FACTOR } from '@common/constants/match-constants';
+import { TimerEvents } from '@common/events/timer.events';
 
 @Injectable({
     providedIn: 'root',
@@ -35,22 +36,22 @@ export class TimeService {
     }
 
     startTimer(roomCode: string, time: number): void {
-        this.socketService.send('startTimer', { roomCode, time });
+        this.socketService.send(TimerEvents.StartTimer, { roomCode, time });
     }
 
     stopTimer(roomCode: string): void {
-        this.socketService.send('stopTimer', { roomCode });
+        this.socketService.send(TimerEvents.StopTimer, { roomCode });
     }
 
     handleTimer(): void {
-        this.socketService.on('timer', (timerInfo: TimerInfo) => {
+        this.socketService.on(TimerEvents.Timer, (timerInfo: TimerInfo) => {
             this.counter = timerInfo.currentTime;
             this.initialValue = timerInfo.duration;
         });
     }
 
     handleStopTimer(): void {
-        this.socketService.on('stopTimer', () => {
+        this.socketService.on(TimerEvents.StopTimer, () => {
             this.timerFinished.next(true);
         });
     }

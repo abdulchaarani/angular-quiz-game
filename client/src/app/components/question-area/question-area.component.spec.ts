@@ -30,6 +30,7 @@ import { getMockQuestion } from '@app/constants/question-mocks';
 import { Feedback } from '@common/interfaces/feedback';
 import { QuestionContextService } from '@app/services/question-context/question-context.service';
 import { NotificationService } from '@app/services/notification/notification.service';
+import { MatchContext } from '@app/constants/states';
 
 class SocketHandlerServiceMock extends SocketHandlerService {
     override connect() {}
@@ -172,7 +173,7 @@ describe('QuestionAreaComponent', () => {
         component.isHostPlaying = true;
         matchRoomSpy.isResults = false;
 
-        questionContextSpy.getContext.and.returnValue('testPage');
+        questionContextSpy.getContext.and.returnValue(MatchContext.TestPage);
         const quitGameSpy = spyOn(component, 'quitGame').and.callFake(() => {});
         const isDeactivated = component.canDeactivate();
         expect(quitGameSpy).toHaveBeenCalled();
@@ -183,7 +184,7 @@ describe('QuestionAreaComponent', () => {
         component.isQuitting = false;
         component.isHostPlaying = true;
         matchRoomSpy.isResults = false;
-        questionContextSpy.getContext.and.returnValue('playerView');
+        questionContextSpy.getContext.and.returnValue(MatchContext.PlayerView);
         const deactivateSubject = new Subject<boolean>();
         notificationServiceSpy.openWarningDialog.and.returnValue(deactivateSubject);
         const result = component.canDeactivate();

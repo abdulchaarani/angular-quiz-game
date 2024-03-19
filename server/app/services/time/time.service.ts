@@ -1,4 +1,5 @@
-import { TimerEvents } from '@app/constants/timer-events';
+import { ExpiredTimerEvents } from '@app/constants/expired-timer-events';
+import { TimerEvents } from '@common/events/timer.events';
 import { TimerInfo } from '@common/interfaces/timer-info';
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -22,10 +23,10 @@ export class TimeService {
 
     // passing event allows decoupling of timer service
     // eslint-disable-next-line max-params
-    startTimer(server: Server, roomId: string, startValue: number, onTimerExpiredEvent: TimerEvents) {
+    startTimer(server: Server, roomId: string, startValue: number, onTimerExpiredEvent: ExpiredTimerEvents) {
         if (this.intervals.has(roomId)) return;
         let timerInfo: TimerInfo = { currentTime: startValue, duration: startValue };
-        server.in(roomId).emit('timer', timerInfo);
+        server.in(roomId).emit(TimerEvents.Timer, timerInfo);
 
         this.counters.set(roomId, startValue - 1);
 
@@ -35,7 +36,7 @@ export class TimeService {
                 const currentTime = this.counters.get(roomId);
                 if (currentTime >= 0) {
                     timerInfo = { currentTime, duration: startValue };
-                    server.in(roomId).emit('timer', timerInfo);
+                    server.in(roomId).emit(TimerEvents.Timer, timerInfo);
                     this.counters.set(roomId, currentTime - 1);
                 } else {
                     this.expireTimer(roomId, server, onTimerExpiredEvent);
@@ -44,9 +45,9 @@ export class TimeService {
         );
     }
 
-    expireTimer(roomId: string, server: Server, onTimerExpiredEvent: TimerEvents) {
+    expireTimer(roomId: string, server: Server, onTimerExpiredEvent: ExpiredTimerEvents) {
         this.terminateTimer(roomId);
-        server.to(roomId).emit('stopTimer');
+        server.to(roomId).emit(TimerEvents.StopTimer);
         this.eventEmitter.emit(onTimerExpiredEvent, roomId);
     }
 

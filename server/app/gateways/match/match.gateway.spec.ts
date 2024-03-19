@@ -11,7 +11,7 @@ import {
     MOCK_TEST_MATCH_ROOM,
     MOCK_USER_INFO,
 } from '@app/constants/match-mocks';
-import { TimerEvents } from '@app/constants/timer-events';
+import { ExpiredTimerEvents } from '@app/constants/expired-timer-events';
 import { MatchGateway } from '@app/gateways/match/match.gateway';
 import { ChatService } from '@app/services/chat/chat.service';
 import { HistogramService } from '@app/services/histogram/histogram.service';
@@ -365,8 +365,8 @@ describe('MatchGateway', () => {
     it('onCountdownTimerExpired() should call helper functions when CountdownTimerExpired event is emitted', () => {
         const sendFirstQuestionSpy = jest.spyOn(matchRoomSpy, 'sendFirstQuestion');
 
-        eventEmitter.addListener(TimerEvents.CountdownTimerExpired, gateway.onCountdownTimerExpired);
-        expect(eventEmitter.hasListeners(TimerEvents.CountdownTimerExpired)).toBe(true);
+        eventEmitter.addListener(ExpiredTimerEvents.CountdownTimerExpired, gateway.onCountdownTimerExpired);
+        expect(eventEmitter.hasListeners(ExpiredTimerEvents.CountdownTimerExpired)).toBe(true);
 
         server.in.returns({
             emit: (event: string) => {
@@ -377,7 +377,7 @@ describe('MatchGateway', () => {
         gateway.onCountdownTimerExpired(MOCK_ROOM_CODE);
         expect(sendFirstQuestionSpy).toHaveBeenCalledWith(server, MOCK_ROOM_CODE);
 
-        eventEmitter.removeListener(TimerEvents.CountdownTimerExpired, gateway.onCountdownTimerExpired);
+        eventEmitter.removeListener(ExpiredTimerEvents.CountdownTimerExpired, gateway.onCountdownTimerExpired);
     });
 
     it('onCooldownTimerExpired() should call helper functions when CooldownTimerExpired event is emitted', () => {
@@ -385,15 +385,15 @@ describe('MatchGateway', () => {
         const histogramResetSpy = jest.spyOn(histogramSpy, 'resetChoiceTracker').mockReturnThis();
         const hisotramSendSpy = jest.spyOn(histogramSpy, 'sendHistogram').mockReturnThis();
         jest.spyOn<any, any>(gateway, 'isTestRoom').mockReturnValue(false);
-        eventEmitter.addListener(TimerEvents.CooldownTimerExpired, gateway.onCountdownTimerExpired);
-        expect(eventEmitter.hasListeners(TimerEvents.CooldownTimerExpired)).toBe(true);
+        eventEmitter.addListener(ExpiredTimerEvents.CooldownTimerExpired, gateway.onCountdownTimerExpired);
+        expect(eventEmitter.hasListeners(ExpiredTimerEvents.CooldownTimerExpired)).toBe(true);
 
         gateway.onCooldownTimerExpired(MOCK_ROOM_CODE);
         expect(sendNextQuestionSpy).toHaveBeenCalledWith(server, MOCK_ROOM_CODE);
         expect(histogramResetSpy).toHaveBeenCalledWith(MOCK_ROOM_CODE);
         expect(hisotramSendSpy).toHaveBeenCalledWith(MOCK_ROOM_CODE);
 
-        eventEmitter.removeListener(TimerEvents.CooldownTimerExpired, gateway.onCountdownTimerExpired);
+        eventEmitter.removeListener(ExpiredTimerEvents.CooldownTimerExpired, gateway.onCountdownTimerExpired);
     });
 
     it('isTestRoom() should return true if context is test page, or false otherwise', () => {

@@ -1,5 +1,5 @@
 import { FAKE_COUNTER, FAKE_ROOM_ID, TICK, TIMER_VALUE } from '@app/constants/time-mocks';
-import { TimerEvents } from '@app/constants/timer-events';
+import { ExpiredTimerEvents } from '@app/constants/expired-timer-events';
 import { MatchGateway } from '@app/gateways/match/match.gateway';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -52,7 +52,7 @@ describe('TimeService', () => {
 
     it('should not start a timer in a room that already has a started timer', () => {
         service['intervals'] = FAKE_INTERVAL;
-        const result = service.startTimer(server, FAKE_ROOM_ID, TIMER_VALUE, TimerEvents.CountdownTimerExpired);
+        const result = service.startTimer(server, FAKE_ROOM_ID, TIMER_VALUE, ExpiredTimerEvents.CountdownTimerExpired);
         expect(result).toBeUndefined();
     });
 
@@ -62,7 +62,7 @@ describe('TimeService', () => {
                 expect(event).toEqual('timer');
             },
         } as BroadcastOperator<unknown, unknown>);
-        service.startTimer(server, FAKE_ROOM_ID, TIMER_VALUE, TimerEvents.CountdownTimerExpired);
+        service.startTimer(server, FAKE_ROOM_ID, TIMER_VALUE, ExpiredTimerEvents.CountdownTimerExpired);
         jest.advanceTimersByTime(TICK);
         expect(service['counters'].get(FAKE_ROOM_ID)).toBeDefined();
         expect(service['counters'].get(FAKE_ROOM_ID)).toEqual(1);
@@ -84,7 +84,7 @@ describe('TimeService', () => {
                 expect(event).toEqual('stopTimer');
             },
         } as BroadcastOperator<unknown, unknown>);
-        service.startTimer(server, '2990', 0, TimerEvents.CountdownTimerExpired);
+        service.startTimer(server, '2990', 0, ExpiredTimerEvents.CountdownTimerExpired);
         jest.advanceTimersByTime(TICK);
         expect(terminateSpy).toHaveBeenCalled();
         expect(expireSpy).toHaveBeenCalled();

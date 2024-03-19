@@ -1,5 +1,5 @@
 import { BAN_PLAYER, NO_MORE_HOST, NO_MORE_PLAYERS } from '@app/constants/match-errors';
-import { TimerEvents } from '@app/constants/timer-events';
+import { ExpiredTimerEvents } from '@app/constants/expired-timer-events';
 import { Game } from '@app/model/database/game';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { ChatService } from '@app/services/chat/chat.service';
@@ -13,7 +13,9 @@ import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { ConnectedSocket, MessageBody, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { MatchEvents } from './match.gateway.events';
+import { MatchEvents } from '@common/events/match.events';
+import { ChatEvents } from '@common/events/chat.events';
+import { HOST_USERNAME } from '@common/constants/match-constants';
 
 @WebSocketGateway({ cors: true })
 @Injectable()
@@ -51,7 +53,7 @@ export class MatchGateway implements OnGatewayDisconnect {
         const newMatchRoom: MatchRoom = this.matchRoomService.addRoom(selectedGame, socket, data.isTestPage);
         this.histogramService.resetChoiceTracker(newMatchRoom.code);
         if (data.isTestPage) {
-            const playerInfo = { roomCode: newMatchRoom.code, username: 'Organisateur' };
+            const playerInfo = { roomCode: newMatchRoom.code, username: HOST_USERNAME };
             socket.join(newMatchRoom.code);
 
             this.playerRoomService.addPlayer(socket, playerInfo.roomCode, playerInfo.username);
@@ -96,13 +98,13 @@ export class MatchGateway implements OnGatewayDisconnect {
         }
     }
 
-    @SubscribeMessage(MatchEvents.RoomMessage)
+    @SubscribeMessage(ChatEvents.RoomMessage)
     handleIncomingRoomMessages(@ConnectedSocket() socket: Socket, @MessageBody() data: MessageInfo) {
         this.chatService.addMessage(data.message, data.roomCode);
         this.sendMessageToClients(data);
     }
 
-    @SubscribeMessage(MatchEvents.SendMessagesHistory)
+    @SubscribeMessage(ChatEvents.SendMessagesHistory)
     sendMessagesHistory(@ConnectedSocket() socket: Socket, @MessageBody() matchRoomCode: string) {
         if (socket.rooms.has(matchRoomCode)) {
             this.handleSentMessagesHistory(matchRoomCode);
@@ -120,13 +122,13 @@ export class MatchGateway implements OnGatewayDisconnect {
         this.matchRoomService.startNextQuestionCooldown(this.server, roomCode);
     }
 
-    @OnEvent(TimerEvents.CountdownTimerExpired)
+    @OnEvent(ExpiredTimerEvents.CountdownTimerExpired)
     onCountdownTimerExpired(matchRoomCode: string) {
         this.matchRoomService.sendFirstQuestion(this.server, matchRoomCode);
         this.histogramService.sendHistogram(matchRoomCode);
     }
 
-    @OnEvent(TimerEvents.CooldownTimerExpired)
+    @OnEvent(ExpiredTimerEvents.CooldownTimerExpired)
     onCooldownTimerExpired(matchRoomCode: string) {
         this.matchRoomService.sendNextQuestion(this.server, matchRoomCode);
         if (!this.isTestRoom(matchRoomCode)) {
@@ -164,7 +166,7 @@ export class MatchGateway implements OnGatewayDisconnect {
     }
 
     sendMessageToClients(data: MessageInfo) {
-        this.server.to(data.roomCode).emit(MatchEvents.NewMessage, data);
+        this.server.to(data.roomCode).emit(ChatEvents.NewMessage, data);
     }
 
     handleSendPlayersData(matchRoomCode: string) {
@@ -172,7 +174,7 @@ export class MatchGateway implements OnGatewayDisconnect {
     }
 
     handleSentMessagesHistory(matchRoomCode: string) {
-        this.server.to(matchRoomCode).emit(MatchEvents.FetchOldMessages, this.chatService.getMessages(matchRoomCode));
+        this.server.to(matchRoomCode).emit(ChatEvents.FetchOldMessages, this.chatService.getMessages(matchRoomCode));
     }
 
     sendError(socketId: string, error: string) {

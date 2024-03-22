@@ -8,6 +8,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { GameListItemComponent } from '@app/components/game-list-item/game-list-item.component';
 import { getMockGame } from '@app/constants/game-mocks';
 import { GameService } from '@app/services/game/game.service';
+import { HistoryService } from '@app/services/history/history.service';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { of } from 'rxjs';
 import { AdminPageComponent } from './admin-page.component';
@@ -17,6 +18,7 @@ describe('AdminPageComponent', () => {
     let component: AdminPageComponent;
     let fixture: ComponentFixture<AdminPageComponent>;
     let gameSpy: SpyObj<GameService>;
+    let historySpy: SpyObj<HistoryService>;
     let notificationServiceSpy: SpyObj<NotificationService>;
     let dialogMock: SpyObj<MatDialog>;
 
@@ -26,6 +28,7 @@ describe('AdminPageComponent', () => {
                 afterClosed: of('mockResult'),
             }),
         });
+        historySpy = jasmine.createSpyObj('HistoryService', ['getHistory']);
         gameSpy = jasmine.createSpyObj('GameService', ['getGames', 'deleteGame', 'onFileSelected', 'uploadGame']);
         notificationServiceSpy = jasmine.createSpyObj('NotificationService', ['displayErrorMessage', 'displaySuccessMessage']);
 
@@ -38,6 +41,7 @@ describe('AdminPageComponent', () => {
                 { provide: MatDialog, useValue: dialogMock },
                 { provide: GameService, useValue: gameSpy },
                 { provide: NotificationService, useValue: notificationServiceSpy },
+                { provide: HistoryService, useValue: historySpy },
             ],
         }).compileComponents();
     }));
@@ -52,8 +56,9 @@ describe('AdminPageComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should get games on init', () => {
+    it('should get games and history on init', () => {
         expect(gameSpy.getGames).toHaveBeenCalled();
+        expect(historySpy.getHistory).toHaveBeenCalled();
     });
 
     it('onDeleteGameFromList should delete the game', () => {

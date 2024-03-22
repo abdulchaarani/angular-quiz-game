@@ -14,7 +14,7 @@ export class HistoryService {
     }
 
     async deleteHistory(): Promise<void> {
-        await this.historyModel.deleteMany();
+        await this.historyModel.deleteMany({});
     }
 
     computeBestScore(players: Player[]): number {

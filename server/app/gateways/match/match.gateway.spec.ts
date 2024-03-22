@@ -105,6 +105,7 @@ describe('MatchGateway', () => {
 
     it('routeToResultsPage() should emit a routing event to a room, save history and call emitHistogramHistory', () => {
         const spy = jest.spyOn<any, any>(gateway, 'emitHistogramHistory').mockReturnThis();
+        const spyHistory = jest.spyOn(historySpy, 'createHistoryItem').mockReturnThis();
         server.to.returns({
             emit: (event: string) => {
                 expect(event).toBe('routeToResultsPage');

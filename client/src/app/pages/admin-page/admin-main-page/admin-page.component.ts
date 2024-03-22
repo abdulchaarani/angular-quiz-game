@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Game } from '@app/interfaces/game';
 import { GameService } from '@app/services/game/game.service';
+import { HistoryService } from '@app/services/history/history.service';
 
 @Component({
     selector: 'app-admin-page',
@@ -8,10 +9,14 @@ import { GameService } from '@app/services/game/game.service';
     styleUrls: ['./admin-page.component.scss'],
 })
 export class AdminPageComponent implements OnInit {
-    constructor(readonly gameService: GameService) {}
+    constructor(
+        readonly gameService: GameService,
+        readonly historyService: HistoryService,
+    ) {}
 
     ngOnInit(): void {
         this.gameService.getGames();
+        this.historyService.getHistory();
     }
 
     onDeleteGameFromList(gameToDeleteId: string): void {
@@ -24,5 +29,9 @@ export class AdminPageComponent implements OnInit {
 
     addGame(newGame: Game): void {
         this.gameService.uploadGame(newGame);
+    }
+
+    onDeleteHistory(): void {
+        this.historyService.deleteHistory();
     }
 }

@@ -6,6 +6,7 @@ import { HOST_CONFLICT, INVALID_CODE } from '@app/constants/match-login-errors';
 import { MOCK_MATCH_ROOM, MOCK_PLAYER, MOCK_PLAYER_ROOM, MOCK_ROOM_CODE, MOCK_TEST_MATCH_ROOM, MOCK_USER_INFO } from '@app/constants/match-mocks';
 import { MatchGateway } from '@app/gateways/match/match.gateway';
 import { HistogramService } from '@app/services/histogram/histogram.service';
+import { HistoryService } from '@app/services/history/history.service';
 import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
@@ -24,6 +25,7 @@ describe('MatchGateway', () => {
     let matchBackupSpy: SinonStubbedInstance<MatchBackupService>;
     let timeSpy: SinonStubbedInstance<TimeService>;
     let playerRoomSpy: SinonStubbedInstance<PlayerRoomService>;
+    let historySpy: SinonStubbedInstance<HistoryService>;
     let socket: SinonStubbedInstance<Socket>;
     let server: SinonStubbedInstance<Server>;
     let eventEmitter: EventEmitter2;
@@ -33,6 +35,7 @@ describe('MatchGateway', () => {
         matchRoomSpy = createStubInstance(MatchRoomService);
         matchBackupSpy = createStubInstance(MatchBackupService);
         timeSpy = createStubInstance(TimeService);
+        historySpy = createStubInstance(HistoryService);
         playerRoomSpy = createStubInstance(PlayerRoomService);
         socket = createStubInstance<Socket>(Socket);
         server = createStubInstance<Server>(Server);
@@ -45,6 +48,7 @@ describe('MatchGateway', () => {
                 { provide: MatchBackupService, useValue: matchBackupSpy },
                 { provide: TimeService, useValue: timeSpy },
                 { provide: PlayerRoomService, useValue: playerRoomSpy },
+                { provide: HistoryService, useValue: historySpy },
                 EventEmitter2,
             ],
         }).compile();
@@ -99,7 +103,7 @@ describe('MatchGateway', () => {
         expect(result).toEqual({ code: MOCK_TEST_MATCH_ROOM.code });
     });
 
-    it('routeToResultsPage() should emit a routing event to a room and call emitHistogramHistory', () => {
+    it('routeToResultsPage() should emit a routing event to a room, save history and call emitHistogramHistory', () => {
         const spy = jest.spyOn<any, any>(gateway, 'emitHistogramHistory').mockReturnThis();
         server.to.returns({
             emit: (event: string) => {
@@ -108,6 +112,7 @@ describe('MatchGateway', () => {
         } as BroadcastOperator<unknown, unknown>);
         gateway.routeToResultsPage(socket, MOCK_ROOM_CODE);
         expect(spy).toHaveBeenCalled();
+        expect(historySpy.createHistoryItem).toHaveBeenCalled();
     });
 
     it('emitHistogramHistory() should emit a list of histograms to a given room', () => {

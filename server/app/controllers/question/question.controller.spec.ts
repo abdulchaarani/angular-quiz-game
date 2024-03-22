@@ -38,8 +38,8 @@ describe('QuestionController', () => {
             expect(code).toEqual(HttpStatus.OK);
             return res;
         };
-        res.json = (courses) => {
-            expect(courses).toEqual(fakeQuestions);
+        res.json = (questions) => {
+            expect(questions).toEqual(fakeQuestions);
             return res;
         };
 

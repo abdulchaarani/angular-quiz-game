@@ -1,10 +1,11 @@
+import { MOCK_MATCH_ROOM } from '@app/constants/match-mocks';
 import { HistoryItem, HistoryItemDocument } from '@app/model/database/history-item';
+import { Player } from '@app/model/schema/player.schema';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Model } from 'mongoose';
 import { HistoryService } from './history.service';
 
-// TODO: ComputeBestScore and createHistoryItem tests
 describe('HistoryService', () => {
     let service: HistoryService;
     let historyModel: Model<HistoryItemDocument>;
@@ -51,5 +52,34 @@ describe('HistoryService', () => {
         const spyDelete = jest.spyOn(historyModel, 'deleteMany').mockImplementation();
         service.deleteHistory();
         expect(spyDelete).toHaveBeenCalledWith({});
+    });
+
+    it('computeBestScore() should return the highest score', () => {
+        const firstPlayer: Player = {
+            score: 3,
+        } as Player;
+        const secondPlayer: Player = {
+            score: 2,
+        } as Player;
+        const thirdPlayer: Player = {
+            score: 1,
+        } as Player;
+        const players = [thirdPlayer, firstPlayer, secondPlayer];
+        const result = service.computeBestScore(players);
+        expect(result).toEqual(firstPlayer.score);
+    });
+
+    it('createHistoryItem() should create new history item and add it to the database', () => {
+        const spyBestScore = jest.spyOn(service, 'computeBestScore').mockReturnValue(0);
+        const spyAdd = jest.spyOn(service, 'addHistoryItem').mockReturnThis();
+        const expectedParameter: HistoryItem = {
+            title: MOCK_MATCH_ROOM.game.title,
+            date: MOCK_MATCH_ROOM.startTime,
+            playersCount: MOCK_MATCH_ROOM.players.length,
+            bestScore: 0,
+        };
+        service.createHistoryItem(MOCK_MATCH_ROOM);
+        expect(spyBestScore).toHaveBeenCalledWith(MOCK_MATCH_ROOM.players);
+        expect(spyAdd).toHaveBeenCalledWith(expectedParameter);
     });
 });

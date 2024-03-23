@@ -19,10 +19,9 @@ export class HistoryService {
 
     computeBestScore(players: Player[]): number {
         return players.reduce((previous, current) => (previous && previous.score > current.score ? previous : current)).score;
-        // return Math.max(...players.map((player) => player.score));
     }
 
-    createHistoryItem(matchRoom: MatchRoom) {
+    createHistoryItem(matchRoom: MatchRoom): void {
         const newHistoryItem: HistoryItem = {
             title: matchRoom.game.title,
             date: matchRoom.startTime,
@@ -32,7 +31,7 @@ export class HistoryService {
         this.addHistoryItem(newHistoryItem);
     }
 
-    async addHistoryItem(historyItem: HistoryItem) {
+    async addHistoryItem(historyItem: HistoryItem): Promise<void> {
         await this.historyModel.create(historyItem);
     }
 }

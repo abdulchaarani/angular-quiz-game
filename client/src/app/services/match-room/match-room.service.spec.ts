@@ -296,7 +296,7 @@ describe('MatchRoomService', () => {
             score: 0,
             bonusCount: 0,
             isPlaying: false,
-        };
+        } as Player;
         const mockStringifiedPlayer = JSON.stringify([mockPlayer]);
         // Any is required to simulate Function type in tests
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -327,7 +327,7 @@ describe('MatchRoomService', () => {
             score: 0,
             bonusCount: 0,
             isPlaying: true,
-        };
+        } as Player;
         service['players'] = [mockPlayer];
         service.resetMatchValues();
         expect(service['matchRoomCode']).toEqual('');

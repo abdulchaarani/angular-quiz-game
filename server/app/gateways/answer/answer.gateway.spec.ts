@@ -1,5 +1,7 @@
 import { MOCK_ROOM_CODE } from '@app/constants/match-mocks';
 import { AnswerService } from '@app/services/answer/answer.service';
+import { PlayerRoomService } from '@app/services/player-room/player-room.service';
+import { PlayerState } from '@common/constants/player-states';
 import { ChoiceInfo } from '@common/interfaces/choice-info';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance, stub } from 'sinon';
@@ -9,6 +11,7 @@ import { AnswerGateway } from './answer.gateway';
 describe('AnwserGateway', () => {
     let gateway: AnswerGateway;
     let answerServiceSpy: SinonStubbedInstance<AnswerService>;
+    let playerSpy: SinonStubbedInstance<PlayerRoomService>;
     let server: SinonStubbedInstance<Server>;
     let socket: SinonStubbedInstance<Socket>;
     let choice: ChoiceInfo;
@@ -16,9 +19,10 @@ describe('AnwserGateway', () => {
         answerServiceSpy = createStubInstance(AnswerService);
         socket = createStubInstance<Socket>(Socket);
         server = createStubInstance<Server>(Server);
+        playerSpy = createStubInstance(PlayerRoomService);
 
         const module: TestingModule = await Test.createTestingModule({
-            providers: [AnswerGateway, { provide: AnswerService, useValue: answerServiceSpy }],
+            providers: [AnswerGateway, { provide: AnswerService, useValue: answerServiceSpy }, { provide: PlayerRoomService, useValue: playerSpy }],
         }).compile();
 
         gateway = module.get<AnswerGateway>(AnswerGateway);
@@ -33,9 +37,11 @@ describe('AnwserGateway', () => {
 
     it('selectChoice() should delegate selection of choice to answer service', () => {
         const updateChoiceSpy = jest.spyOn(answerServiceSpy, 'updateChoice').mockReturnThis();
+        const stateSpy = jest.spyOn(playerSpy, 'setState').mockReturnThis();
         stub(socket, 'rooms').value(new Set([MOCK_ROOM_CODE]));
         gateway.selectChoice(socket, choice);
         expect(updateChoiceSpy).toHaveBeenCalledWith(choice.choice, true, choice.userInfo.username, choice.userInfo.roomCode);
+        expect(stateSpy).toHaveBeenCalledWith(socket.id, PlayerState.firstInteraction);
     });
 
     it('deselectChoice() should delegate deselection of choice to answer service', () => {
@@ -48,7 +54,9 @@ describe('AnwserGateway', () => {
     it('submitAnswer() should delegate submitting of answer to answer service', () => {
         const submitAnswerSpy = jest.spyOn(answerServiceSpy, 'submitAnswer').mockReturnThis();
         stub(socket, 'rooms').value(new Set([MOCK_ROOM_CODE]));
+        const stateSpy = jest.spyOn(playerSpy, 'setState').mockReturnThis();
         gateway.submitAnswer(socket, choice.userInfo);
         expect(submitAnswerSpy).toHaveBeenCalledWith(choice.userInfo.username, choice.userInfo.roomCode);
+        expect(stateSpy).toHaveBeenCalledWith(socket.id, PlayerState.finalAnswer);
     });
 });

@@ -8,6 +8,7 @@ import { MatchBackupService } from '@app/services/match-backup/match-backup.serv
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
 import { HOST_USERNAME } from '@common/constants/match-constants';
+import { PlayerState } from '@common/constants/player-states';
 import { MatchEvents } from '@common/events/match.events';
 import { UserInfo } from '@common/interfaces/user-info';
 import { Injectable } from '@nestjs/common';
@@ -67,6 +68,7 @@ export class MatchGateway implements OnGatewayDisconnect {
 
     @SubscribeMessage(MatchEvents.RouteToResultsPage)
     routeToResultsPage(@ConnectedSocket() socket: Socket, @MessageBody() matchRoomCode: string) {
+        this.playerRoomService.setStateForAll(matchRoomCode, PlayerState.default);
         this.server.to(matchRoomCode).emit(MatchEvents.RouteToResultsPage);
         this.emitHistogramHistory(matchRoomCode);
         this.historyService.createHistoryItem(this.matchRoomService.getRoom(matchRoomCode));
@@ -101,10 +103,12 @@ export class MatchGateway implements OnGatewayDisconnect {
     startMatch(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
         this.matchRoomService.markGameAsPlaying(roomCode);
         this.matchRoomService.startMatch(socket, this.server, roomCode);
+        this.playerRoomService.setStateForAll(roomCode, PlayerState.noInteraction);
     }
 
     @SubscribeMessage(MatchEvents.NextQuestion)
     nextQuestion(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
+        this.playerRoomService.setStateForAll(roomCode, PlayerState.noInteraction);
         this.matchRoomService.startNextQuestionCooldown(this.server, roomCode);
     }
 

@@ -1,5 +1,5 @@
-import { Socket } from 'socket.io';
 import { Answer } from '@app/model/schema/answer.schema';
+import { Socket } from 'socket.io';
 
 export interface Player {
     username: string;
@@ -8,4 +8,5 @@ export interface Player {
     bonusCount: number;
     isPlaying: boolean;
     socket: Socket;
+    state: string;
 }

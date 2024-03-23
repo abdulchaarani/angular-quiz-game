@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { HistoryItem } from '@app/interfaces/history-item';
-import { CommunicationService } from '../communication/communication.service';
+import { CommunicationService } from '@app/services/communication/communication.service';
 
 @Injectable({
     providedIn: 'root',

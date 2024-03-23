@@ -31,6 +31,7 @@ const MOCK_MATCH_ROOM: MatchRoom = {
     messages: [],
     hostSocket: undefined,
     isTestRoom: false,
+    startTime: new Date(),
 };
 
 const MOCK_TEST_MATCH_ROOM: MatchRoom = {
@@ -50,6 +51,7 @@ const MOCK_TEST_MATCH_ROOM: MatchRoom = {
     messages: [],
     hostSocket: undefined,
     isTestRoom: true,
+    startTime: new Date(),
 };
 
 const MOCK_PLAYER_ROOM: MatchRoom = {
@@ -69,6 +71,7 @@ const MOCK_PLAYER_ROOM: MatchRoom = {
     messages: [],
     hostSocket: undefined,
     isTestRoom: false,
+    startTime: new Date(),
 };
 const MOCK_ROOM_CODE = 'mockCode';
 const MOCK_USERNAME = 'mockUsername';

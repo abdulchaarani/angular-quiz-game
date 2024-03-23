@@ -23,10 +23,9 @@ export class HistoryService {
     }
 
     createHistoryItem(matchRoom: MatchRoom) {
-        // TODO: Actual begin date
         const newHistoryItem: HistoryItem = {
             title: matchRoom.game.title,
-            date: new Date(),
+            date: matchRoom.startTime,
             playersCount: matchRoom.players.length,
             bestScore: this.computeBestScore(matchRoom.players),
         };

@@ -28,16 +28,20 @@
         <button mat-raised-button color="primary" (click)="onDeleteHistory()" id="delete-history-button">
             <mat-icon>delete</mat-icon>Supprimer l'historique
         </button>
-        <mat-button-toggle-group>
-            <mat-button-toggle value="ascending">Croissant</mat-button-toggle>
-            <mat-button-toggle value="descending">Décroissant</mat-button-toggle>
-        </mat-button-toggle-group>
-        <mat-button-toggle-group>
-            <mat-button-toggle value="title">Par titre</mat-button-toggle>
-            <mat-button-toggle value="date">Par date</mat-button-toggle>
-        </mat-button-toggle-group>
+        <div>
+            <mat-button-toggle-group #order="matButtonToggleGroup" name="order">
+                <mat-button-toggle value="ascending">Croissant</mat-button-toggle>
+                <mat-button-toggle value="descending">Décroissant</mat-button-toggle>
+            </mat-button-toggle-group>
+        </div>
+        <div>
+            <mat-button-toggle-group #subject="matButtonToggleGroup" name="subject">
+                <mat-button-toggle value="title">Par titre</mat-button-toggle>
+                <mat-button-toggle value="date">Par date</mat-button-toggle>
+            </mat-button-toggle-group>
+        </div>
         <div id="history-item-container">
-            <mat-card *ngFor="let history of this.historyService.historyItems | sortHistory: 'descending' : 'title'" class="history-card">
+            <mat-card *ngFor="let history of this.historyService.historyItems | sortHistory: order.value : subject.value" class="history-card">
                 <mat-card-content class="history-content">
                     <p>{{ history.title }}</p>
                     <p>{{ history.date | date: 'YYYY-MM-dd hh:mm:ss' }}</p>

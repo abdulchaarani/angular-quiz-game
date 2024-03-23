@@ -9,6 +9,8 @@ import { HistoryService } from '@app/services/history/history.service';
     styleUrls: ['./admin-page.component.scss'],
 })
 export class AdminPageComponent implements OnInit {
+    order: string = 'ascending';
+    subject: string = 'date';
     constructor(
         readonly gameService: GameService,
         readonly historyService: HistoryService,

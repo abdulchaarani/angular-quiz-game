@@ -10,9 +10,10 @@ export class SortHistoryPipe implements PipeTransform {
             return historyItems.sort((a: HistoryItem, b: HistoryItem) => {
                 return sortDirection === 'ascending' ? (a.title > b.title ? 1 : -1) : a.title > b.title ? -1 : 1;
             });
-        } else if (sortBy === 'date') {
+        }
+        if (sortBy === 'date') {
             return historyItems.sort((a: HistoryItem, b: HistoryItem) => {
-                return sortDirection === 'ascending' ? b.date.getTime() - a.date.getTime() : a.date.getTime() - b.date.getTime();
+                return sortDirection === 'ascending' ? (a.date > b.date ? 1 : -1) : a.date > b.date ? -1 : 1;
             });
         }
         return historyItems;

@@ -5,12 +5,13 @@ import { Player } from '@app/interfaces/player';
 import { Question } from '@app/interfaces/question';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
+import { HOST_USERNAME } from '@common/constants/match-constants';
+import { PlayerState } from '@common/constants/player-states';
+import { MatchEvents } from '@common/events/match.events';
 import { UserInfo } from '@common/interfaces/user-info';
 import { BehaviorSubject } from 'rxjs';
 import { Observable } from 'rxjs/internal/Observable';
 import { Subject } from 'rxjs/internal/Subject';
-import { MatchEvents } from '@common/events/match.events';
-import { HOST_USERNAME } from '@common/constants/match-constants';
 
 @Injectable({
     providedIn: 'root',
@@ -84,7 +85,7 @@ export class MatchRoomService {
             this.matchRoomCode = res.code;
             this.username = HOST_USERNAME;
             if (isTestRoom) {
-                this.players = [{ username: this.username, score: 0, bonusCount: 0, isPlaying: true }];
+                this.players = [{ username: this.username, score: 0, bonusCount: 0, isPlaying: true, state: PlayerState.default }];
                 this.router.navigateByUrl('/play-test');
             } else this.router.navigateByUrl('/match-room');
         });

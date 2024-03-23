@@ -1,6 +1,7 @@
 import { ChoiceTracker } from '@app/model/choice-tracker/choice-tracker';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Player } from '@app/model/schema/player.schema';
+import { PlayerState } from '@common/constants/player-states';
 import { getMockGame } from './game-mocks';
 
 const MOCK_USER_INFO = { roomCode: '', username: '' };
@@ -13,6 +14,7 @@ const MOCK_PLAYER: Player = {
     bonusCount: 0,
     isPlaying: true,
     socket: undefined,
+    state: PlayerState.default,
 };
 const MOCK_MATCH_ROOM: MatchRoom = {
     code: '',

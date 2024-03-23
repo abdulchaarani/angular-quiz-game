@@ -2,6 +2,8 @@ import { BANNED_USERNAME, HOST_CONFLICT, USED_USERNAME } from '@app/constants/ma
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Player } from '@app/model/schema/player.schema';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
+import { PlayerState } from '@common/constants/player-states';
+import { MatchEvents } from '@common/events/match.events';
 import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
 
@@ -37,6 +39,7 @@ export class PlayerRoomService {
             bonusCount: 0,
             isPlaying: true,
             socket: playerSocket,
+            state: PlayerState.default,
         };
 
         const matchRoom = this.matchRoomService.getRoom(matchRoomCode);
@@ -53,7 +56,9 @@ export class PlayerRoomService {
             foundPlayer = matchRoom.players.find((currentPlayer: Player) => {
                 return currentPlayer.socket.id === socketId;
             });
-            foundMatchRoom = foundPlayer ? matchRoom : undefined;
+            if (!foundMatchRoom) {
+                foundMatchRoom = foundPlayer ? matchRoom : undefined;
+            }
         });
         if (foundPlayer && foundMatchRoom && !foundMatchRoom.isPlaying) {
             this.deletePlayer(foundMatchRoom.code, foundPlayer.username);
@@ -75,6 +80,7 @@ export class PlayerRoomService {
             return player.username === username;
         });
         if (roomIndex !== INDEX_NOT_FOUND && playerIndex !== INDEX_NOT_FOUND) {
+            this.matchRoomService.matchRooms[roomIndex].players[playerIndex].state = PlayerState.exit;
             this.matchRoomService.matchRooms[roomIndex].players[playerIndex].isPlaying = false;
             this.matchRoomService.matchRooms[roomIndex].activePlayers--;
         }
@@ -120,5 +126,39 @@ export class PlayerRoomService {
             errors += USED_USERNAME;
         }
         return errors;
+    }
+
+    setStateForAll(matchRoomCode: string, state: string): void {
+        const matchRoomIndex = this.matchRoomService.getRoomIndex(matchRoomCode);
+        this.matchRoomService.matchRooms[matchRoomIndex].players.forEach((player: Player) => {
+            if (player.state !== PlayerState.exit) {
+                player.state = state;
+                return player;
+            }
+        });
+        this.sendPlayersToHost(matchRoomCode);
+    }
+
+    setState(socketId: string, state: string): void {
+        let foundPlayerIndex = INDEX_NOT_FOUND;
+        let foundMatchRoomIndex = INDEX_NOT_FOUND;
+        this.matchRoomService.matchRooms.forEach((matchRoom: MatchRoom, currentIndex: number) => {
+            foundPlayerIndex = matchRoom.players.findIndex((currentPlayer: Player) => {
+                return currentPlayer.socket.id === socketId;
+            });
+            if (foundMatchRoomIndex === INDEX_NOT_FOUND) {
+                foundMatchRoomIndex = foundPlayerIndex !== INDEX_NOT_FOUND ? currentIndex : INDEX_NOT_FOUND;
+            }
+        });
+        if (foundPlayerIndex !== INDEX_NOT_FOUND && foundMatchRoomIndex !== INDEX_NOT_FOUND) {
+            this.matchRoomService.matchRooms[foundMatchRoomIndex].players[foundPlayerIndex].state = state;
+            console.log(state);
+            this.sendPlayersToHost(this.matchRoomService.matchRooms[foundMatchRoomIndex].code);
+        }
+    }
+
+    sendPlayersToHost(matchRoomCode: string) {
+        const matchRoomIndex = this.matchRoomService.getRoomIndex(matchRoomCode);
+        this.matchRoomService.matchRooms[matchRoomIndex].hostSocket.emit(MatchEvents.FetchPlayersData, this.getPlayersStringified(matchRoomCode));
     }
 }

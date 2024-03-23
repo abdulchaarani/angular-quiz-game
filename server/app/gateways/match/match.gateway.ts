@@ -3,6 +3,7 @@ import { BAN_PLAYER, NO_MORE_HOST, NO_MORE_PLAYERS } from '@app/constants/match-
 import { Game } from '@app/model/database/game';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { HistogramService } from '@app/services/histogram/histogram.service';
+import { HistoryService } from '@app/services/history/history.service';
 import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
@@ -26,6 +27,7 @@ export class MatchGateway implements OnGatewayDisconnect {
         private readonly playerRoomService: PlayerRoomService,
         private readonly matchBackupService: MatchBackupService,
         private readonly histogramService: HistogramService,
+        private readonly historyService: HistoryService,
     ) {}
 
     @SubscribeMessage(MatchEvents.JoinRoom)
@@ -67,6 +69,7 @@ export class MatchGateway implements OnGatewayDisconnect {
     routeToResultsPage(@ConnectedSocket() socket: Socket, @MessageBody() matchRoomCode: string) {
         this.server.to(matchRoomCode).emit(MatchEvents.RouteToResultsPage);
         this.emitHistogramHistory(matchRoomCode);
+        this.historyService.createHistoryItem(this.matchRoomService.getRoom(matchRoomCode));
     }
 
     @SubscribeMessage(MatchEvents.ToggleLock)
@@ -123,6 +126,7 @@ export class MatchGateway implements OnGatewayDisconnect {
     handleDisconnect(@ConnectedSocket() socket: Socket) {
         const hostRoomCode = this.matchRoomService.getRoomCodeByHostSocket(socket.id);
         const hostRoom = this.matchRoomService.getRoom(hostRoomCode);
+        // TODO: Improve
         if (hostRoomCode && hostRoom.currentQuestionIndex !== hostRoom.gameLength) {
             this.sendError(hostRoomCode, NO_MORE_HOST);
             this.deleteRoom(hostRoomCode);
@@ -139,7 +143,6 @@ export class MatchGateway implements OnGatewayDisconnect {
             this.deleteRoom(roomCode);
             return;
         }
-
         this.handleSendPlayersData(roomCode);
     }
 

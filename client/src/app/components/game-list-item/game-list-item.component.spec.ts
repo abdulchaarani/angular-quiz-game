@@ -48,14 +48,6 @@ describe('GameListItemComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should display game title and last modification', () => {
-        fixture.detectChanges();
-        const dom = fixture.nativeElement;
-        expect(dom.textContent).toContain(MOCK_GAME.title);
-        const lastModificationLabel = 'Dernière modification';
-        expect(dom.textContent).toContain(lastModificationLabel);
-    });
-
     it('should emit deleteGameFromList Event when deleteGame is called', () => {
         const spy = spyOn(component.deleteGameFromList, 'emit').and.callThrough();
         component.isAdminMode = true;

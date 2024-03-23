@@ -2,6 +2,7 @@ import { BANNED_USERNAME, HOST_CONFLICT, USED_USERNAME } from '@app/constants/ma
 import { MOCK_MATCH_ROOM, MOCK_PLAYER, MOCK_PLAYER_ROOM, MOCK_ROOM_CODE, MOCK_USERNAME } from '@app/constants/match-mocks';
 import { Player } from '@app/model/schema/player.schema';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
+import { PlayerState } from '@common/constants/player-states';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { Socket } from 'socket.io';
@@ -34,7 +35,8 @@ describe('PlayerRoomService', () => {
 
     it('getPlayersStringified() should return the list of stringified players without socket attribute', () => {
         jest.spyOn(service, 'getPlayers').mockReturnValue([MOCK_PLAYER]);
-        const expectedResult = '[{"username":"","answer":{"selectedChoices":{},"isSubmitted":false},"score":0,"bonusCount":0,"isPlaying":true}]';
+        const expectedResult =
+            '[{"username":"","answer":{"selectedChoices":{},"isSubmitted":false},"score":0,"bonusCount":0,"isPlaying":true,"state":"default"}]';
         const result = service.getPlayersStringified('');
         expect(result).toEqual(expectedResult);
     });
@@ -57,6 +59,7 @@ describe('PlayerRoomService', () => {
             bonusCount: 0,
             isPlaying: true,
             socket,
+            state: PlayerState.default,
         };
         const result = service.addPlayer(socket, '', mockUsername);
         expect(result).toEqual(expectedResult);

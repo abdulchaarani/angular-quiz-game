@@ -1,5 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { Player } from '@app/interfaces/player';
+import { PlayerState } from '@common/constants/player-states';
 
 const ALTERNATIVE_OPTION = -1;
 
@@ -27,7 +28,27 @@ export class SortPlayersPipe implements PipeTransform {
                 return scoreComparison !== 0 ? scoreComparison : nameComparison;
             });
         }
-        // TODO: State
+        if (sortBy === 'state') {
+            // Rouge, jaune, vert, noir
+            const noInteractionPlayers = players.filter((player: Player) => player.state === PlayerState.noInteraction);
+            const firstInteractionPlayers = players.filter((player: Player) => player.state === PlayerState.firstInteraction);
+            const finalAnswerPlayers = players.filter((player: Player) => player.state === PlayerState.finalAnswer);
+            const defaultPlayers = players.filter((player: Player) => player.state === PlayerState.default);
+            const exitPlayers = players.filter((player: Player) => player.state === PlayerState.exit);
+
+            const categoriesToOrder: Player[][] =
+                sortDirection === 'ascending'
+                    ? [noInteractionPlayers, firstInteractionPlayers, finalAnswerPlayers, defaultPlayers, exitPlayers]
+                    : [exitPlayers, defaultPlayers, finalAnswerPlayers, firstInteractionPlayers, noInteractionPlayers];
+
+            let result: Player[] = [];
+
+            categoriesToOrder.forEach((players: Player[]) => {
+                const sortedPlayers = players.sort((firstPlayer: Player, secondPlayer: Player) => compareNames(firstPlayer, secondPlayer));
+                sortedPlayers.forEach((player: Player) => result.push(player));
+            });
+            return result;
+        }
         return players;
     }
 }

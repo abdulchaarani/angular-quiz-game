@@ -35,15 +35,15 @@ export class SortPlayersPipe implements PipeTransform {
             const defaultPlayers = players.filter((player: Player) => player.state === PlayerState.default);
             const exitPlayers = players.filter((player: Player) => player.state === PlayerState.exit);
 
-            const categoriesToOrder: Player[][] =
+            const categoriesToSort: Player[][] =
                 sortDirection === 'ascending'
                     ? [noInteractionPlayers, firstInteractionPlayers, finalAnswerPlayers, defaultPlayers, exitPlayers]
                     : [exitPlayers, defaultPlayers, finalAnswerPlayers, firstInteractionPlayers, noInteractionPlayers];
 
-            let result: Player[] = [];
+            const result: Player[] = [];
 
-            categoriesToOrder.forEach((players: Player[]) => {
-                const sortedPlayers = players.sort((firstPlayer: Player, secondPlayer: Player) => compareNames(firstPlayer, secondPlayer));
+            categoriesToSort.forEach((playersToSort: Player[]) => {
+                const sortedPlayers = playersToSort.sort((firstPlayer: Player, secondPlayer: Player) => compareNames(firstPlayer, secondPlayer));
                 sortedPlayers.forEach((player: Player) => result.push(player));
             });
             return result;

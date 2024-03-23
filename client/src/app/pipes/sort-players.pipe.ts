@@ -29,7 +29,6 @@ export class SortPlayersPipe implements PipeTransform {
             });
         }
         if (sortBy === 'state') {
-            // Rouge, jaune, vert, noir
             const noInteractionPlayers = players.filter((player: Player) => player.state === PlayerState.noInteraction);
             const firstInteractionPlayers = players.filter((player: Player) => player.state === PlayerState.firstInteraction);
             const finalAnswerPlayers = players.filter((player: Player) => player.state === PlayerState.finalAnswer);

@@ -113,7 +113,7 @@ describe('MatchGateway', () => {
         } as BroadcastOperator<unknown, unknown>);
         gateway.routeToResultsPage(socket, MOCK_ROOM_CODE);
         expect(spy).toHaveBeenCalled();
-        expect(historySpy.createHistoryItem).toHaveBeenCalled();
+        expect(spyHistory).toHaveBeenCalled();
     });
 
     it('emitHistogramHistory() should emit a list of histograms to a given room', () => {

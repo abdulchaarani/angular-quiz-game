@@ -29,7 +29,6 @@ export class HistoryService {
             playersCount: matchRoom.players.length,
             bestScore: this.computeBestScore(matchRoom.players),
         };
-        console.log(newHistoryItem); // Debugging purposes
         this.addHistoryItem(newHistoryItem);
     }
 

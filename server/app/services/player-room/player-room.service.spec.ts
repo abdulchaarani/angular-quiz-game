@@ -9,11 +9,21 @@ import { Socket } from 'socket.io';
 import { PlayerRoomService } from './player-room.service';
 
 describe('PlayerRoomService', () => {
+    let emitMock;
+    let mockSocket;
     let service: PlayerRoomService;
     let matchRoomSpy: SinonStubbedInstance<MatchRoomService>;
     let socket: SinonStubbedInstance<Socket>;
 
     beforeEach(async () => {
+        emitMock = jest.fn();
+        mockSocket = {
+            id: '',
+            to: jest.fn().mockReturnValueOnce({ emit: emitMock }),
+            send: jest.fn().mockReturnValueOnce({ emit: emitMock }),
+            emit: emitMock,
+        };
+
         matchRoomSpy = createStubInstance(MatchRoomService);
         socket = createStubInstance<Socket>(Socket);
         const module: TestingModule = await Test.createTestingModule({
@@ -144,6 +154,7 @@ describe('PlayerRoomService', () => {
             jest.spyOn(matchRoomSpy, 'getRoom').mockReturnValue(mockRoom);
             service.makePlayerInactive('', mockUsername);
             expect(matchRoomSpy.matchRooms[0].players[0].isPlaying).toBeFalsy();
+            expect(matchRoomSpy.matchRooms[0].players[0].state).toEqual(PlayerState.exit);
         });
     });
 
@@ -203,5 +214,47 @@ describe('PlayerRoomService', () => {
         matchRoomSpy.getRoom(MOCK_ROOM_CODE).isTestRoom = true;
         const result = service.getUsernameErrors(MOCK_ROOM_CODE, '');
         expect(result).toBe('');
+    });
+
+    it('setStateForAll() should change state for all players in match room', () => {
+        jest.spyOn(matchRoomSpy, 'getRoomIndex').mockReturnValue(0);
+        const sendSpy = jest.spyOn(service, 'sendPlayersToHost').mockReturnThis();
+        const mockRoom = MOCK_MATCH_ROOM;
+        mockRoom.players = [
+            { state: PlayerState.default } as Player,
+            { state: PlayerState.default } as Player,
+            { state: PlayerState.exit } as Player,
+        ];
+        matchRoomSpy.matchRooms = [mockRoom];
+        service.setStateForAll(mockRoom.code, 'mock');
+        expect(
+            matchRoomSpy.matchRooms[0].players.every((player: Player) =>
+                player.state === PlayerState.exit ? player.state === PlayerState.exit : player.state === 'mock',
+            ),
+        );
+        expect(sendSpy).toHaveBeenCalledWith(MOCK_PLAYER_ROOM.code);
+    });
+
+    it('setState() should change the state for the player in the match room', () => {
+        const sendSpy = jest.spyOn(service, 'sendPlayersToHost').mockReturnThis();
+        const mockPlayerRoom = { ...MOCK_PLAYER_ROOM };
+        const mockPlayer = { ...MOCK_PLAYER };
+        mockPlayerRoom.players = [mockPlayer];
+        matchRoomSpy.matchRooms = [mockPlayerRoom];
+        mockPlayerRoom.players[0].socket = mockSocket;
+        service.setState(mockPlayerRoom.players[0].socket.id, 'mock');
+        expect(sendSpy).toHaveBeenCalledWith(mockPlayerRoom.code);
+        expect(matchRoomSpy.matchRooms[0].players[0].state).toEqual('mock');
+    });
+
+    it('sendPlayersToHost should emit FetchPlayersData to host socket', () => {
+        const getSpy = jest.spyOn(matchRoomSpy, 'getRoomIndex').mockReturnValue(0);
+        const stringifySpy = jest.spyOn(service, 'getPlayersStringified').mockReturnValue('mock');
+        const mockRoom = { ...MOCK_PLAYER_ROOM };
+        mockRoom.hostSocket = mockSocket;
+        matchRoomSpy.matchRooms = [mockRoom];
+        service.sendPlayersToHost(mockRoom.code);
+        expect(getSpy).toHaveBeenCalledWith(mockRoom.code);
+        expect(stringifySpy).toHaveBeenCalledWith(mockRoom.code);
     });
 });

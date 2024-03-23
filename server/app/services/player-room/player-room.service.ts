@@ -152,7 +152,6 @@ export class PlayerRoomService {
         });
         if (foundPlayerIndex !== INDEX_NOT_FOUND && foundMatchRoomIndex !== INDEX_NOT_FOUND) {
             this.matchRoomService.matchRooms[foundMatchRoomIndex].players[foundPlayerIndex].state = state;
-            console.log(state);
             this.sendPlayersToHost(this.matchRoomService.matchRooms[foundMatchRoomIndex].code);
         }
     }

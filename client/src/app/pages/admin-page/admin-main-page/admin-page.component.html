@@ -29,13 +29,13 @@
             <mat-icon>delete</mat-icon>Supprimer l'historique
         </button>
         <div>
-            <mat-button-toggle-group #order="matButtonToggleGroup" name="order">
+            <mat-button-toggle-group #order="matButtonToggleGroup" name="order" value="ascending">
                 <mat-button-toggle value="ascending">Croissant</mat-button-toggle>
                 <mat-button-toggle value="descending">Décroissant</mat-button-toggle>
             </mat-button-toggle-group>
         </div>
         <div>
-            <mat-button-toggle-group #subject="matButtonToggleGroup" name="subject">
+            <mat-button-toggle-group #subject="matButtonToggleGroup" name="subject" value="date">
                 <mat-button-toggle value="title">Par titre</mat-button-toggle>
                 <mat-button-toggle value="date">Par date</mat-button-toggle>
             </mat-button-toggle-group>

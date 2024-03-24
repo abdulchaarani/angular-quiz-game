@@ -31,4 +31,9 @@ export class AnswerGateway {
         this.answerService.submitAnswer(userInfo.username, userInfo.roomCode);
         this.playerRoomService.setState(socket.id, PlayerState.finalAnswer);
     }
+
+    @SubscribeMessage(AnswerEvents.UpdateFreeAnswer)
+    updateAnswer(@ConnectedSocket() socket: Socket, @MessageBody() choice: ChoiceInfo) {
+        this.answerService.updateFreeAnswer(choice.choice, choice.userInfo.username, choice.userInfo.roomCode);
+    }
 }

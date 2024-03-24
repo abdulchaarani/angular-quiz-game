@@ -112,6 +112,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
         this.answerService.submitAnswer({ username: this.username, roomCode: this.matchRoomCode });
         this.isSelectionEnabled = false;
     }
+
     nextQuestion() {
         this.matchRoomService.nextQuestion();
         this.isNextQuestionButton = false;
@@ -138,15 +139,17 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
     }
 
     private handleFeedback(feedback: Feedback) {
-        if (feedback) {
+        this.showFeedback = true;
+        this.isNextQuestionButton = true;
+
+        if (this.context !== 'hostView') {
             this.isSelectionEnabled = false;
             if (this.playerScore < feedback.score) {
                 this.isRightAnswer = true;
             }
             this.playerScore = feedback.score;
+            // TODO: À revoir si chaque client renvoi son data...
             this.matchRoomService.sendPlayersData(this.matchRoomCode);
-            this.showFeedback = true;
-            this.isNextQuestionButton = true;
 
             if (this.context === 'testPage') {
                 this.nextQuestion();

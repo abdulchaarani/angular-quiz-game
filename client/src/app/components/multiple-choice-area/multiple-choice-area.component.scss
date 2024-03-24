@@ -35,3 +35,11 @@ button.answer.selected {
     background-color: #f44336;
     color: white;
 }
+
+#histogram-container {
+    align-self: center;
+    position: fixed;
+    top: 40vh;
+    left: 30vw;
+    right: 30vw;
+}

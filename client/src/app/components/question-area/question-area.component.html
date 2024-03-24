@@ -47,17 +47,14 @@
             [currentQuestion]="currentQuestion"
         ></app-multiple-choice-area>
 
-        <app-free-answer-area
+        <app-long-answer-area
             *ngIf="currentQuestion.type === 'QRL'"
             class="choice-area"
             [isSelectionEnabled]="isSelectionEnabled"
             [currentQuestion]="currentQuestion"
-        ></app-free-answer-area>
+        ></app-long-answer-area>
 
         <div id="host-area" *ngIf="context === 'hostView'">
-            <div id="histogram-container" *ngIf="!isCooldown">
-                <app-histogram></app-histogram>
-            </div>
             <div id="buttons-container">
                 <button mat-raised-button *ngIf="isLastQuestion" (click)="routeToResultsPage()">Présenter les résultats finaux</button>
                 <button mat-raised-button color="primary" (click)="nextQuestion()" *ngIf="isNextQuestionButton && !isLastQuestion">
@@ -65,9 +62,9 @@
                 </button>
             </div>
         </div>
-        <div id="submit-button-container" *ngIf="context === 'testPage' || context === 'playerView'">
+        <div id="submit-button-container" *ngIf="context !== 'hostView'">
             <button mat-raised-button color="primary" id="submit-button" *ngIf="isSelectionEnabled" (click)="submitAnswers()">SOUMETTRE</button>
         </div>
     </div>
 </div>
-<app-players-list [players]="this.players" *ngIf="context === 'playerView' || context === 'hostView'"></app-players-list>
+<app-players-list [players]="this.players" *ngIf="context !== 'testPage'"></app-players-list>

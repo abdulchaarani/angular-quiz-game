@@ -37,6 +37,11 @@ export class AnswerService {
         this.socketService.send(AnswerEvents.SubmitAnswer, userInfo);
     }
 
+    updateFreeAnswer(answer: string, userInfo: UserInfo) {
+        const choiceInfo: ChoiceInfo = { choice: answer, userInfo };
+        this.socketService.send(AnswerEvents.UpdateFreeAnswer, choiceInfo);
+    }
+
     onFeedback() {
         this.socketService.on(AnswerEvents.Feedback, (data: Feedback) => {
             this.feedbackSource.next(data);

@@ -10,7 +10,6 @@ import { BONUS_FACTOR } from '@common/constants/match-constants';
 import { Feedback } from '@common/interfaces/feedback';
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { MultipleChoiceAnswer } from '@app/answer/answer';
 
 @Injectable()
 export class AnswerService {
@@ -37,6 +36,13 @@ export class AnswerService {
         if (!player.answer.isSubmitted) {
             player.answer.updateChoice(choice, selection);
             this.histogramService.updateHistogram(choice, selection, roomCode);
+        }
+    }
+
+    updateFreeAnswer(answer: string, username: string, roomCode: string) {
+        const player: Player = this.playerService.getPlayerByUsername(roomCode, username);
+        if (!player.answer.isSubmitted) {
+            player.answer.updateChoice(answer);
         }
     }
 

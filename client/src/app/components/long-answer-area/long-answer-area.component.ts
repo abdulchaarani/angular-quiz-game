@@ -4,13 +4,14 @@ import { AnswerService } from '@app/services/answer/answer.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { Subscription } from 'rxjs';
 import { FREE_ANSWER_MAX_LENGTH } from '@common/constants/match-constants';
+import { QuestionContextService } from '@app/services/question-context/question-context.service';
 
 @Component({
-    selector: 'app-free-answer-area',
-    templateUrl: './free-answer-area.component.html',
-    styleUrls: ['./free-answer-area.component.scss'],
+    selector: 'app-long-answer-area',
+    templateUrl: './long-answer-area.component.html',
+    styleUrls: ['./long-answer-area.component.scss'],
 })
-export class FreeAnswerAreaComponent implements OnInit, OnDestroy {
+export class LongAnswerAreaComponent implements OnInit, OnDestroy {
     @Input() isSelectionEnabled: boolean;
     @Input() currentQuestion: Question;
     showFeedback: boolean;
@@ -21,6 +22,7 @@ export class FreeAnswerAreaComponent implements OnInit, OnDestroy {
 
     constructor(
         public matchRoomService: MatchRoomService,
+        public questionContextService: QuestionContextService,
         private readonly answerService: AnswerService,
     ) {}
 
@@ -39,6 +41,12 @@ export class FreeAnswerAreaComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.eventSubscriptions.forEach((subscription) => subscription.unsubscribe());
+    }
+
+    updateAnswer(): void {
+        if (this.isSelectionEnabled) {
+            this.answerService.updateFreeAnswer(this.answer, { username: this.username, roomCode: this.matchRoomCode });
+        }
     }
 
     private subscribeToCurrentQuestion() {

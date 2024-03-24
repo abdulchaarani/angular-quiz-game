@@ -1,9 +1,0 @@
-<div class="answer-area">
-    <form class="free-answer-form text-form">
-        <mat-form-field class="text-form" appearance="outline">
-            <mat-label class="text-label">Réponse</mat-label>
-            <textarea class="text-input" matInput #message [attr.maxlength]="answerMaxLength" [(ngModel)]="answer" name="answer"></textarea>
-            <mat-hint align="end">{{ message.value.length }} / {{ answerMaxLength }}</mat-hint>
-        </mat-form-field>
-    </form>
-</div>

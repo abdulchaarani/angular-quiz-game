@@ -20,7 +20,7 @@ export class MultipleChoiceAnswer extends Answer {
         this.selectedChoices.clear();
     }
 
-    updateChoice(choice: string, selection: boolean): void {
+    updateChoice(choice: string, selection?: boolean): void {
         this.selectedChoices.set(choice, selection);
     }
 
@@ -38,7 +38,7 @@ export class MultipleChoiceAnswer extends Answer {
     }
 }
 
-export class FreeAnswer extends Answer {
+export class LongAnswer extends Answer {
     answer: string = '';
 
     resetAnswer(): void {
@@ -47,8 +47,7 @@ export class FreeAnswer extends Answer {
     }
 
     updateChoice(choice: string): void {
-        console.log(choice);
-        return;
+        this.answer = choice;
     }
 
     isCorrectAnswer() {

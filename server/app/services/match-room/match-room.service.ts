@@ -1,4 +1,4 @@
-import { FreeAnswer, MultipleChoiceAnswer } from '@app/answer/answer';
+import { LongAnswer, MultipleChoiceAnswer } from '@app/answer/answer';
 import { ExpiredTimerEvents } from '@app/constants/expired-timer-events';
 import { INVALID_CODE, LOCKED_ROOM } from '@app/constants/match-login-errors';
 import { ChoiceTracker } from '@app/model/choice-tracker/choice-tracker';
@@ -194,7 +194,7 @@ export class MatchRoomService {
     private resetPlayerAnswers(matchRoom: MatchRoom) {
         matchRoom.players.forEach((player) => {
             if (matchRoom.game.questions[matchRoom.currentQuestionIndex].type === 'QCM') player.answer = new MultipleChoiceAnswer();
-            else player.answer = new FreeAnswer();
+            else player.answer = new LongAnswer();
         });
     }
 }

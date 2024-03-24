@@ -3,6 +3,7 @@ import { Choice } from '@app/interfaces/choice';
 import { Question } from '@app/interfaces/question';
 import { AnswerService } from '@app/services/answer/answer.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
+import { QuestionContextService } from '@app/services/question-context/question-context.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -16,12 +17,14 @@ export class MultipleChoiceAreaComponent implements OnInit, OnDestroy {
     selectedAnswers: Choice[];
     correctAnswers: string[];
     showFeedback: boolean;
+    isCooldown: boolean;
 
     private eventSubscriptions: Subscription[];
 
     constructor(
         public matchRoomService: MatchRoomService,
         private readonly answerService: AnswerService,
+        public questionContextService: QuestionContextService,
     ) {}
 
     get matchRoomCode() {
@@ -95,9 +98,17 @@ export class MultipleChoiceAreaComponent implements OnInit, OnDestroy {
         this.eventSubscriptions.push(feedbackChangeSubscription);
     }
 
+    private subscribeToCooldown() {
+        const displayCoolDownSubscription = this.matchRoomService.displayCooldown$.subscribe((isCooldown) => {
+            this.isCooldown = isCooldown;
+        });
+        this.eventSubscriptions.push(displayCoolDownSubscription);
+    }
+
     private initialiseSubscriptions() {
         this.subscribeToCurrentQuestion();
         this.subscribeToFeedback();
+        this.subscribeToCooldown();
     }
 
     private resetStateForNewQuestion(): void {

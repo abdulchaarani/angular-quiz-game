@@ -1,4 +1,4 @@
-import { Component, HostListener, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { MatchStatus, WarningMessage } from '@app/constants/feedback-messages';
 import { CanDeactivateType } from '@app/interfaces/can-component-deactivate';
 import { Choice } from '@app/interfaces/choice';
@@ -16,7 +16,7 @@ import { Subject, Subscription } from 'rxjs';
     templateUrl: './question-area.component.html',
     styleUrls: ['./question-area.component.scss'],
 })
-export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
+export class QuestionAreaComponent implements OnInit, OnDestroy {
     currentQuestion: Question;
     gameDuration: number;
     answers: Choice[];
@@ -126,20 +126,6 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         this.eventSubscriptions.forEach((subscription) => subscription.unsubscribe());
     }
 
-    ngOnChanges(changes: SimpleChanges): void {
-        if (changes.currentQuestion) {
-            const newQuestion = changes.currentQuestion.currentValue;
-            this.currentQuestion = newQuestion;
-            if (this.currentQuestion.choices) {
-                this.answers = this.currentQuestion.choices;
-            }
-            if (this.currentQuestion.id) {
-                this.matchService.questionId = this.currentQuestion.id;
-            }
-            this.resetStateForNewQuestion();
-        }
-    }
-
     submitAnswers(): void {
         this.answerService.submitAnswer({ username: this.username, roomCode: this.matchRoomCode });
         this.isSelectionEnabled = false;
@@ -227,21 +213,15 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
     private handleQuestionChange(question: Question) {
         if (question) {
             this.currentQuestion = question;
-            this.ngOnChanges({
-                currentQuestion: {
-                    currentValue: question,
-                    previousValue: this.currentQuestion,
-                    firstChange: false,
-                    isFirstChange: this.isFirstChangeFn,
-                },
-            });
+            if (this.currentQuestion.choices) {
+                this.answers = this.currentQuestion.choices;
+            }
+            if (this.currentQuestion.id) {
+                this.matchService.questionId = this.currentQuestion.id;
+            }
+            this.resetStateForNewQuestion();
         }
     }
-
-    private isFirstChangeFn() {
-        return false;
-    }
-
     private subscribeToCurrentQuestion() {
         const currentQuestionSubscription = this.matchRoomService.currentQuestion$.subscribe((question) => {
             this.handleQuestionChange(question);

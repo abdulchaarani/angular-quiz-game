@@ -31,6 +31,8 @@ import { SortByLastModificationPipe } from './pipes/sort-by-last-modification.pi
 import { SortByScorePipe } from './pipes/sort-by-score.pipe';
 import { SortHistoryPipe } from './pipes/sort-history.pipe';
 import { SortPlayersPipe } from './pipes/sort-players.pipe';
+import { MultipleChoiceAreaComponent } from './components/multiple-choice-area/multiple-choice-area.component';
+import { FreeAnswerAreaComponent } from './components/free-answer-area/free-answer-area.component';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -64,6 +66,8 @@ import { SortPlayersPipe } from './pipes/sort-players.pipe';
         HistogramComponent,
         SortHistoryPipe,
         SortPlayersPipe,
+        MultipleChoiceAreaComponent,
+        FreeAnswerAreaComponent,
     ],
     imports: [
         AppMaterialModule,

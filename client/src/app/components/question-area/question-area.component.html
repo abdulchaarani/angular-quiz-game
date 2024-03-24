@@ -40,19 +40,18 @@
             </div>
         </div>
 
-        <div id="choice-area" *ngIf="context === 'testPage' || (context === 'playerView' && !isCooldown)">
-            <button
-                mat-raised-button
-                *ngFor="let choice of currentQuestion.choices; let i = index"
-                class="answer"
-                [class.selected]="isSelected(choice) && !showFeedback"
-                [class.correct]="showFeedback && isCorrectAnswer(choice)"
-                [class.incorrect]="showFeedback && !isCorrectAnswer(choice) && isSelected(choice)"
-                (click)="selectChoice(choice)"
-            >
-                <p>{{ i + 1 }}. {{ choice.text }}</p>
-            </button>
-        </div>
+        <app-multiple-choice-area
+            *ngIf="currentQuestion.type === 'QCM'"
+            [isSelectionEnabled]="isSelectionEnabled"
+            [currentQuestion]="currentQuestion"
+        ></app-multiple-choice-area>
+
+        <app-free-answer-area
+            *ngIf="currentQuestion.type === 'QRL'"
+            [isSelectionEnabled]="isSelectionEnabled"
+            [currentQuestion]="currentQuestion"
+        ></app-free-answer-area>
+
         <div id="host-area" *ngIf="context === 'hostView'">
             <div id="histogram-container" *ngIf="!isCooldown">
                 <app-histogram></app-histogram>

@@ -1,11 +1,9 @@
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { MatchStatus, WarningMessage } from '@app/constants/feedback-messages';
 import { CanDeactivateType } from '@app/interfaces/can-component-deactivate';
-import { Choice } from '@app/interfaces/choice';
 import { Question } from '@app/interfaces/question';
 import { AnswerService } from '@app/services/answer/answer.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
-import { MatchService } from '@app/services/match/match.service';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { QuestionContextService } from '@app/services/question-context/question-context.service';
 import { TimeService } from '@app/services/time/time.service';
@@ -19,14 +17,11 @@ import { Subject, Subscription } from 'rxjs';
 export class QuestionAreaComponent implements OnInit, OnDestroy {
     currentQuestion: Question;
     gameDuration: number;
-    answers: Choice[];
-    selectedAnswers: Choice[];
     isSelectionEnabled: boolean;
     showFeedback: boolean;
     playerScore: number = 0;
     bonus: number;
     context: 'testPage' | 'hostView' | 'playerView';
-    correctAnswers: string[];
     isHostPlaying: boolean = true;
     isFirstQuestion: boolean = true;
     isCooldown: boolean = false;
@@ -42,7 +37,6 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
     constructor(
         public matchRoomService: MatchRoomService,
         public timeService: TimeService,
-        private readonly matchService: MatchService,
         private readonly questionContextService: QuestionContextService,
         private readonly answerService: AnswerService,
         private readonly notificationService: NotificationService,
@@ -72,17 +66,6 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
             this.submitAnswers();
             return;
         }
-
-        const numKey = parseInt(event.key, 5);
-        if (!numKey || !this.currentQuestion.choices) return;
-
-        if (numKey >= 1 && numKey <= this.currentQuestion.choices.length) {
-            const choiceIndex = numKey - 1;
-            const choice = this.currentQuestion.choices[choiceIndex];
-            if (choice) {
-                this.selectChoice(choice);
-            }
-        }
     }
 
     canDeactivate(): CanDeactivateType {
@@ -107,7 +90,6 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        this.eventSubscriptions = [];
         this.resetStateForNewQuestion();
 
         this.context = this.questionContextService.getContext();
@@ -130,43 +112,17 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
         this.answerService.submitAnswer({ username: this.username, roomCode: this.matchRoomCode });
         this.isSelectionEnabled = false;
     }
-
-    selectChoice(choice: Choice): void {
-        if (this.isSelectionEnabled) {
-            if (!this.selectedAnswers.includes(choice)) {
-                this.selectedAnswers.push(choice);
-                if (this.context !== 'hostView') {
-                    this.answerService.selectChoice(choice.text, { username: this.username, roomCode: this.matchRoomCode });
-                }
-            } else {
-                this.selectedAnswers = this.selectedAnswers.filter((answer) => answer !== choice);
-                if (this.context !== 'hostView') {
-                    this.answerService.deselectChoice(choice.text, { username: this.username, roomCode: this.matchRoomCode });
-                }
-            }
-        }
-    }
-
-    isSelected(choice: Choice): boolean {
-        return this.selectedAnswers.includes(choice);
-    }
-
-    isCorrectAnswer(choice: Choice): boolean {
-        return this.correctAnswers.includes(choice.text);
-    }
-
     nextQuestion() {
         this.matchRoomService.nextQuestion();
         this.isNextQuestionButton = false;
     }
 
     resetStateForNewQuestion(): void {
+        this.eventSubscriptions = [];
         this.isHostPlaying = true;
         this.showFeedback = false;
         this.isSelectionEnabled = true;
-        this.selectedAnswers = [];
         this.bonus = 0;
-        this.correctAnswers = [];
         this.isRightAnswer = false;
         this.isCooldown = false;
         this.isQuitting = false;
@@ -184,13 +140,14 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
     private handleFeedback(feedback: Feedback) {
         if (feedback) {
             this.isSelectionEnabled = false;
-            this.correctAnswers = feedback.correctAnswer;
             if (this.playerScore < feedback.score) {
                 this.isRightAnswer = true;
             }
             this.playerScore = feedback.score;
             this.matchRoomService.sendPlayersData(this.matchRoomCode);
             this.showFeedback = true;
+            this.isNextQuestionButton = true;
+
             if (this.context === 'testPage') {
                 this.nextQuestion();
             }
@@ -201,24 +158,12 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
         const feedbackSubscription = this.answerService.feedback$.subscribe((feedback) => {
             this.handleFeedback(feedback);
         });
-        const feedbackChangeSubscription = this.answerService.isFeedback$.subscribe(() => {
-            this.showFeedback = true;
-            this.isNextQuestionButton = true;
-        });
-
         this.eventSubscriptions.push(feedbackSubscription);
-        this.eventSubscriptions.push(feedbackChangeSubscription);
     }
 
     private handleQuestionChange(newQuestion: Question) {
         if (newQuestion) {
             this.currentQuestion = newQuestion;
-            if (this.currentQuestion.choices) {
-                this.answers = this.currentQuestion.choices;
-            }
-            if (this.currentQuestion.id) {
-                this.matchService.questionId = this.currentQuestion.id;
-            }
             this.resetStateForNewQuestion();
         }
     }

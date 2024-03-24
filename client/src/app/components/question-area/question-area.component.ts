@@ -210,9 +210,9 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
         this.eventSubscriptions.push(feedbackChangeSubscription);
     }
 
-    private handleQuestionChange(question: Question) {
-        if (question) {
-            this.currentQuestion = question;
+    private handleQuestionChange(newQuestion: Question) {
+        if (newQuestion) {
+            this.currentQuestion = newQuestion;
             if (this.currentQuestion.choices) {
                 this.answers = this.currentQuestion.choices;
             }

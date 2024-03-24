@@ -7,7 +7,7 @@
 /* eslint-disable max-lines */
 import { HttpClient } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { Component, SimpleChanges } from '@angular/core';
+import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -263,39 +263,6 @@ describe('QuestionAreaComponent', () => {
         expect(players).toBeDefined();
     });
 
-    it('should update currentQuestion and answers when ngOnChanges is called with changes to currentQuestion', () => {
-        const newQuestion: Question = {
-            id: '2',
-            type: 'multiple-choice',
-            text: 'What is the capital of Germany?',
-            points: 10,
-            choices: [
-                { text: 'London', isCorrect: false },
-                { text: 'Berlin', isCorrect: true },
-                { text: 'Paris', isCorrect: false },
-                { text: 'Madrid', isCorrect: false },
-            ],
-            lastModification: '2021-07-02T00:00:00.000Z',
-        };
-        const changes: SimpleChanges = {
-            currentQuestion: {
-                currentValue: newQuestion,
-                previousValue: null,
-                firstChange: true,
-                isFirstChange: () => true,
-            },
-        };
-
-        spyOn(component, 'resetStateForNewQuestion');
-
-        component.ngOnChanges(changes);
-
-        expect(component.currentQuestion).toEqual(newQuestion);
-        expect(component.answers).toBeDefined();
-        expect(matchSpy.questionId).toBe(newQuestion.id);
-        expect(component.resetStateForNewQuestion).toHaveBeenCalled();
-    });
-
     it('should submit answers when submitAnswers is called', () => {
         component.submitAnswers();
         expect(answerSpy.submitAnswer).toHaveBeenCalled();
@@ -449,11 +416,15 @@ describe('QuestionAreaComponent', () => {
 
     it('should handle question change', () => {
         const question = getMockQuestion();
-        spyOn(component, 'ngOnChanges');
-        component['handleQuestionChange'](question);
+        const newQuestion = getMockQuestion();
+        component.currentQuestion = question;
 
-        expect(component.currentQuestion).toEqual(question);
-        expect(component.ngOnChanges).toHaveBeenCalled();
+        spyOn(component, 'resetStateForNewQuestion');
+        component['handleQuestionChange'](newQuestion);
+        expect(component.currentQuestion).toEqual(newQuestion);
+        expect(component.answers).toBeDefined();
+        expect(matchSpy.questionId).toBe(newQuestion.id);
+        expect(component.resetStateForNewQuestion).toHaveBeenCalled();
     });
 
     it('subscribeToFeedback() should add a subscription to feedback and delegate feedbacnk change to handleFeedback() ', () => {
@@ -483,11 +454,6 @@ describe('QuestionAreaComponent', () => {
         const newQuestsion = getMockQuestion();
         questionSubject.next(newQuestsion);
         expect(handleQuestionSpy).toHaveBeenCalledWith(newQuestsion);
-    });
-
-    it('isFirstChangeFn should return false', () => {
-        const isFirstChange = component['isFirstChangeFn']();
-        expect(isFirstChange).toBe(false);
     });
 
     it('subscribeToBonus() should add a subscription to bonus and display bonus when question ends ', () => {

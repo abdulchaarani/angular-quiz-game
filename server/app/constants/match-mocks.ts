@@ -3,13 +3,14 @@ import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Player } from '@app/model/schema/player.schema';
 import { PlayerState } from '@common/constants/player-states';
 import { getMockGame } from './game-mocks';
+import { MultipleChoiceAnswer } from '@app/answer/answer';
 
 const MOCK_USER_INFO = { roomCode: '', username: '' };
 const MOCK_MESSAGE = { text: 'Text', author: '', date: new Date() };
 const MOCK_MESSAGE_INFO = { roomCode: '', message: MOCK_MESSAGE };
 const MOCK_PLAYER: Player = {
     username: '',
-    answer: { selectedChoices: new Map<string, boolean>(), isSubmitted: false },
+    answer: new MultipleChoiceAnswer(),
     score: 0,
     bonusCount: 0,
     isPlaying: true,

@@ -1,6 +1,5 @@
 import { AnswerEvents } from '@common/events/answer.events';
 import { ExpiredTimerEvents } from '@app/constants/expired-timer-events';
-import { Answer } from '@app/model/schema/answer.schema';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Player } from '@app/model/schema/player.schema';
 import { HistogramService } from '@app/services/histogram/histogram.service';
@@ -11,6 +10,7 @@ import { BONUS_FACTOR } from '@common/constants/match-constants';
 import { Feedback } from '@common/interfaces/feedback';
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
+import { MultipleChoiceAnswer } from '@app/answer/answer';
 
 @Injectable()
 export class AnswerService {
@@ -28,15 +28,14 @@ export class AnswerService {
         this.autoSubmitAnswers(roomCode);
         this.calculateScore(roomCode);
         this.sendFeedback(roomCode);
-        this.resetPlayersAnswer(roomCode);
-        this.matchRoomService.incrementCurrentQuestionIndex(roomCode);
+        this.finaliseRound(roomCode);
     }
     // permit more paramters to make method reusable
     // eslint-disable-next-line max-params
     updateChoice(choice: string, selection: boolean, username: string, roomCode: string) {
         const player: Player = this.playerService.getPlayerByUsername(roomCode, username);
         if (!player.answer.isSubmitted) {
-            player.answer.selectedChoices.set(choice, selection);
+            player.answer.updateChoice(choice, selection);
             this.histogramService.updateHistogram(choice, selection, roomCode);
         }
     }
@@ -54,20 +53,6 @@ export class AnswerService {
 
     private getRoom(roomCode: string) {
         return this.matchRoomService.getRoom(roomCode);
-    }
-
-    private isCorrectPlayerAnswer(player: Player, roomCode: string) {
-        const correctAnswer: string[] = this.getRoom(roomCode).currentQuestionAnswer;
-        const playerChoices = this.filterSelectedChoices(player.answer);
-        return playerChoices.sort().toString() === correctAnswer.sort().toString();
-    }
-
-    private filterSelectedChoices(answer: Answer) {
-        const selectedChoices: string[] = [];
-        for (const [choice, selection] of answer.selectedChoices) {
-            if (selection) selectedChoices.push(choice);
-        }
-        return selectedChoices;
     }
 
     private handleFinalAnswerSubmitted(matchRoom: MatchRoom) {
@@ -98,8 +83,9 @@ export class AnswerService {
         const players: Player[] = this.playerService.getPlayers(roomCode);
         const correctPlayers: Player[] = [];
         let fastestTime: number;
+        const correctAnswer: string[] = this.getRoom(roomCode).currentQuestionAnswer;
         players.forEach((player) => {
-            if (this.isCorrectPlayerAnswer(player, roomCode)) {
+            if (player.answer.isCorrectAnswer(correctAnswer)) {
                 player.score += currentQuestionPoints;
                 correctPlayers.push(player);
                 if ((!fastestTime || player.answer.timestamp < fastestTime) && player.answer.timestamp !== Infinity)
@@ -132,16 +118,9 @@ export class AnswerService {
         matchRoom.hostSocket.emit(AnswerEvents.Feedback);
         if (matchRoom.gameLength === 1 + matchRoom.currentQuestionIndex) matchRoom.hostSocket.emit('endGame');
     }
-    private resetPlayersAnswer(roomCode: string) {
+    private finaliseRound(roomCode: string) {
         this.histogramService.saveHistogram(roomCode);
-
         this.getRoom(roomCode).submittedPlayers = 0;
-
-        const players: Player[] = this.playerService.getPlayers(roomCode);
-        players.forEach((player) => {
-            player.answer.selectedChoices.clear();
-            player.answer.isSubmitted = false;
-            player.answer.timestamp = undefined;
-        });
+        this.matchRoomService.incrementCurrentQuestionIndex(roomCode);
     }
 }

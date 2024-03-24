@@ -1,3 +1,4 @@
+import { FreeAnswer, MultipleChoiceAnswer } from '@app/answer/answer';
 import { ExpiredTimerEvents } from '@app/constants/expired-timer-events';
 import { INVALID_CODE, LOCKED_ROOM } from '@app/constants/match-login-errors';
 import { ChoiceTracker } from '@app/model/choice-tracker/choice-tracker';
@@ -125,6 +126,8 @@ export class MatchRoomService {
         const firstQuestion = matchRoom.game.questions[0];
         const gameDuration: number = matchRoom.game.duration;
         const isTestRoom = matchRoom.isTestRoom;
+        this.resetPlayerAnswers(matchRoom);
+
         matchRoom.currentQuestionAnswer = this.filterCorrectChoices(firstQuestion);
         this.removeIsCorrectField(firstQuestion);
         if (!isTestRoom) {
@@ -141,12 +144,14 @@ export class MatchRoomService {
 
     sendNextQuestion(server: Server, matchRoomCode: string): void {
         const matchRoom: MatchRoom = this.getRoom(matchRoomCode);
+
         if (matchRoom.currentQuestionIndex === matchRoom.gameLength) {
             server.in(matchRoomCode).emit(MatchEvents.GameOver, matchRoom.isTestRoom);
             return;
         }
         const nextQuestion = matchRoom.game.questions[matchRoom.currentQuestionIndex];
         matchRoom.currentQuestionAnswer = this.filterCorrectChoices(nextQuestion);
+        this.resetPlayerAnswers(matchRoom);
         this.removeIsCorrectField(nextQuestion);
         server.in(matchRoomCode).emit(MatchEvents.NextQuestion, nextQuestion);
         matchRoom.hostSocket.send(MatchEvents.CurrentAnswers, matchRoom.currentQuestionAnswer);
@@ -184,5 +189,12 @@ export class MatchRoomService {
 
     private removeIsCorrectField(question: Question) {
         question.choices.forEach((choice: Choice) => delete choice.isCorrect);
+    }
+
+    private resetPlayerAnswers(matchRoom: MatchRoom) {
+        matchRoom.players.forEach((player) => {
+            if (matchRoom.game.questions[matchRoom.currentQuestionIndex].type === 'QCM') player.answer = new MultipleChoiceAnswer();
+            else player.answer = new FreeAnswer();
+        });
     }
 }

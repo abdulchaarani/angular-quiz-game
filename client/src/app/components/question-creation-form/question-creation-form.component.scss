@@ -23,6 +23,12 @@
     display: flex;
 }
 
+.answer-text-container{
+    width: 50vw;
+    display: flex;
+    align-items: flex-start;
+}
+
 .choice-buttons {
     display: flex;
     align-items: center;
@@ -39,3 +45,4 @@
     flex-direction: column;
     gap: 0.25rem;
 }
+

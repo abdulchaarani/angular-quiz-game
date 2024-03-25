@@ -6,5 +6,6 @@ export interface Question {
     text: string;
     points: number;
     choices?: Choice[];
+    answer?: string;
     lastModification: string;
 }

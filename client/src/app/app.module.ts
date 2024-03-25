@@ -33,6 +33,7 @@ import { SortHistoryPipe } from './pipes/sort-history.pipe';
 import { SortPlayersPipe } from './pipes/sort-players.pipe';
 import { MultipleChoiceAreaComponent } from './components/multiple-choice-area/multiple-choice-area.component';
 import { LongAnswerAreaComponent } from './components/long-answer-area/long-answer-area.component';
+import { SortAnswersPipe } from './pipes/sort-answers.pipe';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -68,6 +69,7 @@ import { LongAnswerAreaComponent } from './components/long-answer-area/long-answ
         SortPlayersPipe,
         MultipleChoiceAreaComponent,
         LongAnswerAreaComponent,
+        SortAnswersPipe,
     ],
     imports: [
         AppMaterialModule,

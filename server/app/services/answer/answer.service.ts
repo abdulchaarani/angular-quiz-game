@@ -13,7 +13,6 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { LongAnswer } from '@app/answer/answer';
 import { LongAnswerInfo } from '@common/interfaces/long-answer-info';
 import { AnswerCorrectness } from '@common/constants/answer-correctness';
-import { GradesInfo } from '@common/interfaces/grades-info';
 
 @Injectable()
 export class AnswerService {

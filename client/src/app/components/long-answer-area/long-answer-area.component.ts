@@ -60,7 +60,7 @@ export class LongAnswerAreaComponent implements OnInit, OnDestroy {
     }
 
     handleGrading() {
-        this.gradingComplete = this.playersAnswers.every((answer) => answer.score);
+        this.gradingComplete = this.playersAnswers.every((answer) => answer.score !== undefined);
     }
 
     sendGrades() {

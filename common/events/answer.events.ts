@@ -4,6 +4,7 @@ export enum AnswerEvents {
     SubmitAnswer = 'submitAnswer',
     UpdateFreeAnswer = 'updateFreeAnswer',
     Grades = 'grades',
+    GradeAnswers = 'gradeAnswers',
     Bonus = 'bonus',
     Feedback = 'feedback',
     EndGame = 'endGame',

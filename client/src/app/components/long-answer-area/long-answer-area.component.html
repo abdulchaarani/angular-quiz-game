@@ -24,9 +24,9 @@
             <mat-card-content> {{ player.answer }} </mat-card-content>
         </mat-card>
         <mat-button-toggle-group name="answerValue" [(ngModel)]="player.score" (change)="handleGrading()">
-            <mat-button-toggle value="0" class="wrong-answer">0</mat-button-toggle>
-            <mat-button-toggle value="50" class="ok-answer">50</mat-button-toggle>
-            <mat-button-toggle value="100" class="good-answer">100</mat-button-toggle>
+            <mat-button-toggle [value]="answerOptions.WRONG" class="wrong-answer">{{ answerOptions.WRONG }}</mat-button-toggle>
+            <mat-button-toggle [value]="answerOptions.OK" class="ok-answer">{{ answerOptions.OK }}</mat-button-toggle>
+            <mat-button-toggle [value]="answerOptions.GOOD" class="good-answer">{{ answerOptions.GOOD }}</mat-button-toggle>
         </mat-button-toggle-group>
     </div>
 

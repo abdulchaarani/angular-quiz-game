@@ -13,6 +13,7 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { LongAnswer } from '@app/answer/answer';
 import { LongAnswerInfo } from '@common/interfaces/long-answer-info';
 import { AnswerCorrectness } from '@common/constants/answer-correctness';
+import { GradesInfo } from '@common/interfaces/grades-info';
 
 @Injectable()
 export class AnswerService {
@@ -156,6 +157,12 @@ export class AnswerService {
     private gradeAnswers(roomCode: string) {
         const players: Player[] = this.playerService.getPlayers(roomCode);
 
+        if (this.getRoom(roomCode).isTestRoom) {
+            const testAnswer: LongAnswerInfo[] = [{ username: players[0].username, answer: '', score: '100' }];
+            this.updateScore(roomCode, testAnswer);
+            return;
+        }
+
         const playerAnswers = players.map((player: Player) => {
             const answer: string = (player.answer as LongAnswer).answer;
             const username: string = player.username;
@@ -164,7 +171,7 @@ export class AnswerService {
         });
 
         const matchRoom = this.getRoom(roomCode);
-        matchRoom.hostSocket.emit('gradeAnswers', playerAnswers);
+        matchRoom.hostSocket.emit(AnswerEvents.GradeAnswers, playerAnswers);
     }
 
     private getQuestionType(roomCode: string) {

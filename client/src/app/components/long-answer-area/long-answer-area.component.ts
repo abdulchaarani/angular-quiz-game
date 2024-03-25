@@ -7,6 +7,7 @@ import { FREE_ANSWER_MAX_LENGTH } from '@common/constants/match-constants';
 import { QuestionContextService } from '@app/services/question-context/question-context.service';
 import { LongAnswerInfo } from '@common/interfaces/long-answer-info';
 import { GradesInfo } from '@common/interfaces/grades-info';
+import { AnswerCorrectness } from '@common/constants/answer-correctness';
 
 @Component({
     selector: 'app-long-answer-area',
@@ -37,6 +38,10 @@ export class LongAnswerAreaComponent implements OnInit, OnDestroy {
 
     get username() {
         return this.matchRoomService.getUsername();
+    }
+
+    get answerOptions(): typeof AnswerCorrectness {
+        return AnswerCorrectness;
     }
 
     ngOnInit(): void {

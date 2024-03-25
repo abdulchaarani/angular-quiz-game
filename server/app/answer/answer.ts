@@ -50,6 +50,7 @@ export class LongAnswer extends Answer {
         this.answer = choice;
     }
 
+    // TODO: polymorph?
     isCorrectAnswer() {
         return true;
     }

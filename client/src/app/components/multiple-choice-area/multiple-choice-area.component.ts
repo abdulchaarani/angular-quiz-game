@@ -89,7 +89,7 @@ export class MultipleChoiceAreaComponent implements OnInit, OnDestroy {
 
     private subscribeToFeedback() {
         const feedbackChangeSubscription = this.answerService.feedback$.subscribe((feedback) => {
-            if (feedback.correctAnswer) {
+            if (feedback && feedback.correctAnswer) {
                 this.correctAnswers = feedback.correctAnswer;
                 this.showFeedback = true;
             }

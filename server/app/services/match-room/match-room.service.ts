@@ -149,7 +149,7 @@ export class MatchRoomService {
             server.in(matchRoomCode).emit(MatchEvents.GameOver, matchRoom.isTestRoom);
             return;
         }
-        const nextQuestion = matchRoom.game.questions[matchRoom.currentQuestionIndex];
+        const nextQuestion = this.getCurrentQuestion(matchRoomCode);
         matchRoom.currentQuestionAnswer = this.filterCorrectChoices(nextQuestion);
         this.resetPlayerAnswers(matchRoom);
         this.removeIsCorrectField(nextQuestion);
@@ -177,6 +177,12 @@ export class MatchRoomService {
     getGameDuration(matchRoomCode: string) {
         return this.getRoom(matchRoomCode).game.duration;
     }
+
+    getCurrentQuestion(matchRoomCode: string) {
+        const matchRoom: MatchRoom = this.getRoom(matchRoomCode);
+        return matchRoom.game.questions[matchRoom.currentQuestionIndex];
+    }
+
     private filterCorrectChoices(question: Question) {
         const correctChoices = [];
         question.choices.forEach((choice) => {

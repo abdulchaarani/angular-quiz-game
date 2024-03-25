@@ -27,10 +27,11 @@ export class AnswerService {
     @OnEvent(ExpiredTimerEvents.QuestionTimerExpired)
     onQuestionTimerExpired(roomCode: string) {
         this.autoSubmitAnswers(roomCode);
-        this.gradeAnswers(roomCode);
-        // this.calculateScore(roomCode);
-        // this.sendFeedback(roomCode);
-        // this.finaliseRound(roomCode);
+
+        // TODO: Look into way to remove question type comparision here
+        const questionType = this.getQuestionType(roomCode);
+        if (questionType === 'QCM') this.calculateScore(roomCode);
+        else this.gradeAnswers(roomCode);
     }
     // permit more paramters to make method reusable
     // eslint-disable-next-line max-params
@@ -64,7 +65,7 @@ export class AnswerService {
         const currentQuestionPoints = this.getCurrentQuestionValue(roomCode);
         grades.forEach((grade) => {
             const player = this.playerService.getPlayerByUsername(roomCode, grade.username);
-            player.score += currentQuestionPoints + grade.score / MULTIPLICATION_FACTOR;
+            player.score += currentQuestionPoints * (grade.score / MULTIPLICATION_FACTOR);
         });
         this.sendFeedback(roomCode);
     }
@@ -113,6 +114,7 @@ export class AnswerService {
 
         if ((fastestTime && !this.getRoom(roomCode).isTestRoom) || this.getRoom(roomCode).isTestRoom)
             this.computeFastestPlayerBonus(currentQuestionPoints, fastestTime, correctPlayers);
+        this.sendFeedback(roomCode);
     }
 
     private computeFastestPlayerBonus(points: number, fastestTime: number, correctPlayers: Player[]) {
@@ -155,5 +157,9 @@ export class AnswerService {
 
         const matchRoom = this.getRoom(roomCode);
         matchRoom.hostSocket.emit('gradeAnswers', playerAnswers);
+    }
+
+    private getQuestionType(roomCode: string) {
+        return this.matchRoomService.getCurrentQuestion(roomCode).type;
     }
 }

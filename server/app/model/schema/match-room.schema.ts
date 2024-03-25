@@ -11,6 +11,7 @@ export interface MatchRoom {
     isPlaying: boolean;
     game: Game;
     gameLength: number;
+    questionDuration: number;
     currentQuestionIndex: number;
     currentQuestionAnswer: string[];
     currentChoiceTracker: ChoiceTracker;

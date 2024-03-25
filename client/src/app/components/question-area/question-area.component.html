@@ -13,7 +13,6 @@
             >
                 <h1 id="score">SCORE : {{ playerScore }}</h1>
                 <div>
-                    <h1>SHOULD APPEAR?</h1>
                     <h1 class="points" *ngIf="!answerCorrectness" class="wrong-answer">😔 Mauvaise Réponse 😔</h1>
                     <h1 class="points" *ngIf="answerCorrectness === answerOptions.OK" class="ok-answer">
                         🆗 Réponse partielle! Vous avez obtenu {{ this.currentQuestion.points / 2 }} points 🆗

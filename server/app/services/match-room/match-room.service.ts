@@ -7,7 +7,7 @@ import { Game } from '@app/model/database/game';
 import { Question } from '@app/model/database/question';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { TimeService } from '@app/services/time/time.service';
-import { COOLDOWN_TIME, COUNTDOWN_TIME, FACTOR, MAXIMUM_CODE_LENGTH } from '@common/constants/match-constants';
+import { COOLDOWN_TIME, COUNTDOWN_TIME, FACTOR, MAXIMUM_CODE_LENGTH, LONG_ANSWER_TIME } from '@common/constants/match-constants';
 import { MatchEvents } from '@common/events/match.events';
 import { GameInfo } from '@common/interfaces/game-info';
 import { Injectable } from '@nestjs/common';
@@ -53,6 +53,7 @@ export class MatchRoomService {
             isPlaying: isTestPage,
             game: selectedGame,
             gameLength: selectedGame.questions.length,
+            questionDuration: 0,
             currentQuestionIndex: 0,
             currentQuestionAnswer: [],
             currentChoiceTracker: new ChoiceTracker(),
@@ -126,7 +127,8 @@ export class MatchRoomService {
         const firstQuestion = matchRoom.game.questions[0];
         const gameDuration: number = matchRoom.game.duration;
         const isTestRoom = matchRoom.isTestRoom;
-        this.resetPlayerAnswers(matchRoom);
+        this.resetPlayersAnswer(matchRoom);
+        this.setQuestionDuration(matchRoom);
 
         matchRoom.currentQuestionAnswer = this.filterCorrectChoices(firstQuestion);
         this.removeIsCorrectField(firstQuestion);
@@ -134,7 +136,7 @@ export class MatchRoomService {
             matchRoom.hostSocket.send(MatchEvents.CurrentAnswers, matchRoom.currentQuestionAnswer);
         }
         server.in(matchRoomCode).emit(MatchEvents.BeginQuiz, { firstQuestion, gameDuration, isTestRoom });
-        this.timeService.startTimer(server, matchRoomCode, this.getGameDuration(matchRoomCode), ExpiredTimerEvents.QuestionTimerExpired);
+        this.timeService.startTimer(server, matchRoomCode, matchRoom.questionDuration, ExpiredTimerEvents.QuestionTimerExpired);
     }
 
     startNextQuestionCooldown(server: Server, matchRoomCode: string): void {
@@ -151,11 +153,12 @@ export class MatchRoomService {
         }
         const nextQuestion = this.getCurrentQuestion(matchRoomCode);
         matchRoom.currentQuestionAnswer = this.filterCorrectChoices(nextQuestion);
-        this.resetPlayerAnswers(matchRoom);
+        this.resetPlayersAnswer(matchRoom);
+        this.setQuestionDuration(matchRoom);
         this.removeIsCorrectField(nextQuestion);
         server.in(matchRoomCode).emit(MatchEvents.NextQuestion, nextQuestion);
         matchRoom.hostSocket.send(MatchEvents.CurrentAnswers, matchRoom.currentQuestionAnswer);
-        this.timeService.startTimer(server, matchRoomCode, this.getGameDuration(matchRoomCode), ExpiredTimerEvents.QuestionTimerExpired);
+        this.timeService.startTimer(server, matchRoomCode, matchRoom.questionDuration, ExpiredTimerEvents.QuestionTimerExpired);
     }
 
     incrementCurrentQuestionIndex(matchRoomCode: string) {
@@ -197,10 +200,23 @@ export class MatchRoomService {
         question.choices.forEach((choice: Choice) => delete choice.isCorrect);
     }
 
-    private resetPlayerAnswers(matchRoom: MatchRoom) {
+    // TODO: export behaviour to strategy?
+    private resetPlayersAnswer(matchRoom: MatchRoom) {
         matchRoom.players.forEach((player) => {
-            if (matchRoom.game.questions[matchRoom.currentQuestionIndex].type === 'QCM') player.answer = new MultipleChoiceAnswer();
-            else player.answer = new LongAnswer();
+            if (matchRoom.game.questions[matchRoom.currentQuestionIndex].type === 'QCM') {
+                player.answer = new MultipleChoiceAnswer();
+                matchRoom.questionDuration = this.getGameDuration(matchRoom.code);
+            } else {
+                player.answer = new LongAnswer();
+                matchRoom.questionDuration = LONG_ANSWER_TIME;
+            }
         });
+    }
+
+    // TODO: export behaviour to strategy?
+    private setQuestionDuration(matchRoom: MatchRoom) {
+        if (matchRoom.game.questions[matchRoom.currentQuestionIndex].type === 'QCM')
+            matchRoom.questionDuration = this.getGameDuration(matchRoom.code);
+        else matchRoom.questionDuration = LONG_ANSWER_TIME;
     }
 }

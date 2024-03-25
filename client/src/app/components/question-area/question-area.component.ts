@@ -142,7 +142,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
         this.showFeedback = true;
         this.isNextQuestionButton = true;
 
-        if (this.context !== 'hostView') {
+        if (feedback) {
             this.isSelectionEnabled = false;
             if (this.playerScore < feedback.score) {
                 this.isRightAnswer = true;
@@ -216,6 +216,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
         this.answerService.onFeedback();
         this.answerService.onBonusPoints();
         this.answerService.onEndGame();
+        this.answerService.onGradeAnswers();
         this.matchRoomService.onGameOver();
         this.matchRoomService.onRouteToResultsPage();
     }

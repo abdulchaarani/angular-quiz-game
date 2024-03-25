@@ -10,6 +10,8 @@ import { BONUS_FACTOR } from '@common/constants/match-constants';
 import { Feedback } from '@common/interfaces/feedback';
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
+import { LongAnswer } from '@app/answer/answer';
+import { LongAnswerInfo } from '@common/interfaces/long-answer-info';
 
 @Injectable()
 export class AnswerService {
@@ -25,6 +27,7 @@ export class AnswerService {
     @OnEvent(ExpiredTimerEvents.QuestionTimerExpired)
     onQuestionTimerExpired(roomCode: string) {
         this.autoSubmitAnswers(roomCode);
+        this.gradeAnswers(roomCode);
         this.calculateScore(roomCode);
         this.sendFeedback(roomCode);
         this.finaliseRound(roomCode);
@@ -122,11 +125,25 @@ export class AnswerService {
 
         const matchRoom = this.getRoom(roomCode);
         matchRoom.hostSocket.emit(AnswerEvents.Feedback);
-        if (matchRoom.gameLength === 1 + matchRoom.currentQuestionIndex) matchRoom.hostSocket.emit('endGame');
+        if (matchRoom.gameLength === 1 + matchRoom.currentQuestionIndex) matchRoom.hostSocket.emit(AnswerEvents.EndGame);
     }
     private finaliseRound(roomCode: string) {
         this.histogramService.saveHistogram(roomCode);
         this.getRoom(roomCode).submittedPlayers = 0;
         this.matchRoomService.incrementCurrentQuestionIndex(roomCode);
+    }
+
+    private gradeAnswers(roomCode: string) {
+        const players: Player[] = this.playerService.getPlayers(roomCode);
+
+        const playerAnswers = players.map((player: Player) => {
+            const answer: string = (player.answer as LongAnswer).answer;
+            const username: string = player.username;
+            const longAnswerInfo: LongAnswerInfo = { username, answer };
+            return longAnswerInfo;
+        });
+
+        const matchRoom = this.getRoom(roomCode);
+        matchRoom.hostSocket.emit('gradeAnswers', playerAnswers);
     }
 }

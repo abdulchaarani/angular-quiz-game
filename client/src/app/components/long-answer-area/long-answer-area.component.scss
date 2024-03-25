@@ -18,6 +18,32 @@
     padding: 10px;
 }
 
+.grading-area {
+    width: 60vw;
+}
+
+.answer-card {
+    width: 90%;
+}
+
+.player-answer {
+    display: flex;
+}
+
+.mat-button-toggle-group .mat-button-toggle.wrong-answer.mat-button-toggle-checked {
+    background-color: #f34663;
+    color: white;
+}
+
+.mat-button-toggle-group .mat-button-toggle.ok-answer.mat-button-toggle-checked {
+    background-color: #f0e15c;
+}
+
+.mat-button-toggle-group .mat-button-toggle.good-answer.mat-button-toggle-checked {
+    background-color: #75e96c;
+    color: white;
+}
+
 // right/wrong
 // ::ng-deep .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__leading,
 // ::ng-deep .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__notch,

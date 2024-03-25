@@ -12,6 +12,7 @@ import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { LongAnswer } from '@app/answer/answer';
 import { LongAnswerInfo } from '@common/interfaces/long-answer-info';
+import { AnswerCorrectness } from '@common/constants/answer-correctness';
 
 @Injectable()
 export class AnswerService {
@@ -30,8 +31,11 @@ export class AnswerService {
 
         // TODO: Look into way to remove question type comparision here
         const questionType = this.getQuestionType(roomCode);
-        if (questionType === 'QCM') this.calculateScore(roomCode);
-        else this.gradeAnswers(roomCode);
+        if (questionType === 'QRL') this.gradeAnswers(roomCode);
+        else {
+            this.calculateScore(roomCode);
+            this.sendFeedback(roomCode);
+        }
     }
     // permit more paramters to make method reusable
     // eslint-disable-next-line max-params
@@ -64,8 +68,10 @@ export class AnswerService {
     updateScore(roomCode: string, grades: LongAnswerInfo[]) {
         const currentQuestionPoints = this.getCurrentQuestionValue(roomCode);
         grades.forEach((grade) => {
+            const score = parseInt(grade.score, 10);
             const player = this.playerService.getPlayerByUsername(roomCode, grade.username);
-            player.score += currentQuestionPoints * (grade.score / MULTIPLICATION_FACTOR);
+            player.answerCorrectness = score;
+            player.score += currentQuestionPoints * (score / MULTIPLICATION_FACTOR);
         });
         this.sendFeedback(roomCode);
     }
@@ -105,6 +111,7 @@ export class AnswerService {
         const correctAnswer: string[] = this.getRoom(roomCode).currentQuestionAnswer;
         players.forEach((player) => {
             if (player.answer.isCorrectAnswer(correctAnswer)) {
+                player.answerCorrectness = AnswerCorrectness.GOOD;
                 player.score += currentQuestionPoints;
                 correctPlayers.push(player);
                 if ((!fastestTime || player.answer.timestamp < fastestTime) && player.answer.timestamp !== Infinity)
@@ -114,23 +121,24 @@ export class AnswerService {
 
         if ((fastestTime && !this.getRoom(roomCode).isTestRoom) || this.getRoom(roomCode).isTestRoom)
             this.computeFastestPlayerBonus(currentQuestionPoints, fastestTime, correctPlayers);
-        this.sendFeedback(roomCode);
     }
 
     private computeFastestPlayerBonus(points: number, fastestTime: number, correctPlayers: Player[]) {
         const fastestPlayers = correctPlayers.filter((player) => player.answer.timestamp === fastestTime);
-        if (fastestPlayers.length >= 0) return;
+        if (fastestPlayers.length !== 1) return;
         const fastestPlayer = fastestPlayers[0];
         const bonus = points * BONUS_FACTOR;
         fastestPlayer.score += bonus;
         fastestPlayer.bonusCount++;
         fastestPlayer.socket.emit(AnswerEvents.Bonus, bonus);
     }
+
     private sendFeedback(roomCode: string, correctAnswer?: string[]) {
         const players: Player[] = this.playerService.getPlayers(roomCode);
         players.forEach((player: Player) => {
-            const feedback: Feedback = { score: player.score, correctAnswer };
+            const feedback: Feedback = { score: player.score, answerCorrectness: player.answerCorrectness, correctAnswer };
             player.socket.emit(AnswerEvents.Feedback, feedback);
+            player.answerCorrectness = AnswerCorrectness.WRONG;
         });
 
         const matchRoom = this.getRoom(roomCode);

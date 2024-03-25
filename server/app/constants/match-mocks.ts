@@ -4,6 +4,7 @@ import { Player } from '@app/model/schema/player.schema';
 import { PlayerState } from '@common/constants/player-states';
 import { getMockGame } from './game-mocks';
 import { MultipleChoiceAnswer } from '@app/answer/answer';
+import { AnswerCorrectness } from '@common/constants/answer-correctness';
 
 const MOCK_USER_INFO = { roomCode: '', username: '' };
 const MOCK_MESSAGE = { text: 'Text', author: '', date: new Date() };
@@ -12,6 +13,7 @@ const MOCK_PLAYER: Player = {
     username: '',
     answer: new MultipleChoiceAnswer(),
     score: 0,
+    answerCorrectness: AnswerCorrectness.WRONG,
     bonusCount: 0,
     isPlaying: true,
     socket: undefined,

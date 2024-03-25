@@ -1,5 +1,6 @@
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { MatchStatus, WarningMessage } from '@app/constants/feedback-messages';
+import { MatchContext } from '@app/constants/states';
 import { CanDeactivateType } from '@app/interfaces/can-component-deactivate';
 import { Question } from '@app/interfaces/question';
 import { AnswerService } from '@app/services/answer/answer.service';
@@ -7,6 +8,7 @@ import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { QuestionContextService } from '@app/services/question-context/question-context.service';
 import { TimeService } from '@app/services/time/time.service';
+import { AnswerCorrectness } from '@common/constants/answer-correctness';
 import { Feedback } from '@common/interfaces/feedback';
 import { Subject, Subscription } from 'rxjs';
 @Component({
@@ -21,11 +23,13 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
     showFeedback: boolean;
     playerScore: number = 0;
     bonus: number;
-    context: 'testPage' | 'hostView' | 'playerView';
+    context: MatchContext;
     isHostPlaying: boolean = true;
     isFirstQuestion: boolean = true;
     isCooldown: boolean = false;
     isRightAnswer: boolean = false;
+    answerCorrectness: AnswerCorrectness = AnswerCorrectness.WRONG;
+    answerStyle: string = '';
     isNextQuestionButton: boolean = false;
     isLastQuestion: boolean = false;
     isQuitting: boolean = false;
@@ -58,6 +62,14 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
         return this.matchRoomService.players;
     }
 
+    get answerOptions(): typeof AnswerCorrectness {
+        return AnswerCorrectness;
+    }
+
+    get contextOptions(): typeof MatchContext {
+        return MatchContext;
+    }
+
     @HostListener('document:keydown', ['$event'])
     handleKeyboardEvent(event: KeyboardEvent) {
         if (document?.activeElement?.id === 'chat-input') return;
@@ -72,7 +84,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
         if (this.isQuitting) return true;
         if (!this.isHostPlaying) return true;
         if (this.matchRoomService.isResults) return true;
-        if (this.questionContextService.getContext() === 'testPage') {
+        if (this.questionContextService.getContext() === MatchContext.TestPage) {
             this.quitGame();
             return true;
         }
@@ -124,7 +136,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
         this.showFeedback = false;
         this.isSelectionEnabled = true;
         this.bonus = 0;
-        this.isRightAnswer = false;
+        this.answerCorrectness = AnswerCorrectness.WRONG;
         this.isCooldown = false;
         this.isQuitting = false;
     }
@@ -144,14 +156,12 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
 
         if (feedback) {
             this.isSelectionEnabled = false;
-            if (this.playerScore < feedback.score) {
-                this.isRightAnswer = true;
-            }
+            this.answerCorrectness = feedback.answerCorrectness;
             this.playerScore = feedback.score;
             // TODO: À revoir si chaque client renvoi son data...
             this.matchRoomService.sendPlayersData(this.matchRoomCode);
 
-            if (this.context === 'testPage') {
+            if (this.context === MatchContext.TestPage) {
                 this.nextQuestion();
             }
         }
@@ -189,7 +199,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
     private subscribeToCooldown() {
         const displayCoolDownSubscription = this.matchRoomService.displayCooldown$.subscribe((isCooldown) => {
             this.isCooldown = isCooldown;
-            if (this.isCooldown && this.context !== 'testPage') {
+            if (this.isCooldown && this.context !== MatchContext.TestPage) {
                 this.currentQuestion.text = MatchStatus.PREPARE;
             }
         });

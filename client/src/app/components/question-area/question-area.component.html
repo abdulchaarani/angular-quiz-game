@@ -6,18 +6,27 @@
         <div id="question-timer-area">
             <div
                 id="score-feedback-area"
-                *ngIf="(showFeedback && context === 'playerView' && !isCooldown) || (showFeedback && context === 'testPage'); else elseBlock"
+                *ngIf="
+                    (showFeedback && context === contextOptions.PlayerView && !isCooldown) || (showFeedback && context === contextOptions.TestPage);
+                    else elseBlock
+                "
             >
                 <h1 id="score">SCORE : {{ playerScore }}</h1>
-                <div *ngIf="isRightAnswer">
-                    <h1 class="points" id="right-answer">👏 Bonne Réponse! Vous avez obtenu {{ currentQuestion.points }} points 👏</h1>
-                    <h1 class="points" id="right-answer" *ngIf="bonus > 0">✨ Vous avez obtenu un bonus de {{ bonus }} points!✨</h1>
+                <div>
+                    <h1>SHOULD APPEAR?</h1>
+                    <h1 class="points" *ngIf="!answerCorrectness" class="wrong-answer">😔 Mauvaise Réponse 😔</h1>
+                    <h1 class="points" *ngIf="answerCorrectness === answerOptions.OK" class="ok-answer">
+                        🆗 Réponse partielle! Vous avez obtenu {{ this.currentQuestion.points / 2 }} points 🆗
+                    </h1>
+                    <h1 class="points" *ngIf="answerCorrectness === answerOptions.GOOD" class="good-answer">
+                        👏 Bonne Réponse! Vous avez obtenu {{ this.currentQuestion.points }} points 👏
+                    </h1>
+                    <h1 class="points" class="good-answer" *ngIf="bonus > 0">✨ Vous avez obtenu un bonus de {{ bonus }} points!✨</h1>
                 </div>
-                <h1 class="points" id="wrong-answer" *ngIf="!isRightAnswer">😔 Mauvaise Réponse 😔</h1>
             </div>
 
             <ng-template #elseBlock>
-                <div id="score-area" *ngIf="context !== 'hostView'">
+                <div id="score-area" *ngIf="context !== contextOptions.HostView">
                     <h1 id="score">
                         SCORE :
                         {{ playerScore }}
@@ -54,7 +63,7 @@
             [currentQuestion]="currentQuestion"
         ></app-long-answer-area>
 
-        <div id="host-area" *ngIf="context === 'hostView'">
+        <div id="host-area" *ngIf="context === contextOptions.HostView">
             <div id="buttons-container">
                 <button mat-raised-button *ngIf="isLastQuestion" (click)="routeToResultsPage()">Présenter les résultats finaux</button>
                 <button mat-raised-button color="primary" (click)="nextQuestion()" *ngIf="isNextQuestionButton && !isLastQuestion">
@@ -62,9 +71,9 @@
                 </button>
             </div>
         </div>
-        <div id="submit-button-container" *ngIf="context !== 'hostView'">
+        <div id="submit-button-container" *ngIf="context !== contextOptions.HostView">
             <button mat-raised-button color="primary" id="submit-button" *ngIf="isSelectionEnabled" (click)="submitAnswers()">SOUMETTRE</button>
         </div>
     </div>
 </div>
-<app-players-list [players]="this.players" *ngIf="context !== 'testPage'"></app-players-list>
+<app-players-list [players]="this.players" *ngIf="context !== contextOptions.TestPage"></app-players-list>

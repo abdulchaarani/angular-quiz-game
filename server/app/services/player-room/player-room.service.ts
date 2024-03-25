@@ -7,6 +7,7 @@ import { MatchEvents } from '@common/events/match.events';
 import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import { MultipleChoiceAnswer } from '@app/answer/answer';
+import { AnswerCorrectness } from '@common/constants/answer-correctness';
 
 const INDEX_NOT_FOUND = -1;
 const HOST_USERNAME = 'ORGANISATEUR';
@@ -37,6 +38,7 @@ export class PlayerRoomService {
             username: newUsername,
             answer: new MultipleChoiceAnswer(),
             score: 0,
+            answerCorrectness: AnswerCorrectness.WRONG,
             bonusCount: 0,
             isPlaying: true,
             socket: playerSocket,

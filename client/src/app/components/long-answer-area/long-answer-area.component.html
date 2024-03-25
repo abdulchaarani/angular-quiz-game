@@ -18,8 +18,9 @@
 </div>
 
 <div class="grading-area" *ngIf="questionContextService.getContext() === 'hostView' && gradeAnswers">
-    <div *ngFor="let player of playersAnswers" class="player-answer">
+    <div *ngFor="let player of playersAnswers | sortAnswers" class="player-answer">
         <mat-card class="answer-card">
+            <mat-card-title> {{ player.username }} </mat-card-title>
             <mat-card-content> {{ player.answer }} </mat-card-content>
         </mat-card>
         <mat-button-toggle-group name="answerValue" [(ngModel)]="player.score" (change)="handleGrading()">
@@ -28,4 +29,6 @@
             <mat-button-toggle value="100" class="good-answer">100</mat-button-toggle>
         </mat-button-toggle-group>
     </div>
+
+    <button mat-raised-button color="primary" id="submit-button" [disabled]="!gradingComplete" (click)="sendGrades()">SOUMETTRE CORRECTION</button>
 </div>

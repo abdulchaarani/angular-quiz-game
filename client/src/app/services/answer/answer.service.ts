@@ -6,6 +6,7 @@ import { UserInfo } from '@common/interfaces/user-info';
 import { Observable, Subject } from 'rxjs';
 import { AnswerEvents } from '@common/events/answer.events';
 import { LongAnswerInfo } from '@common/interfaces/long-answer-info';
+import { GradesInfo } from '@common/interfaces/grades-info';
 
 @Injectable({
     providedIn: 'root',
@@ -70,6 +71,10 @@ export class AnswerService {
         this.socketService.on('gradeAnswers', (answers: LongAnswerInfo[]) => {
             this.playersLongAnswers.next(answers);
         });
+    }
+
+    sendGrades(gradesInfo: GradesInfo) {
+        this.socketService.send(AnswerEvents.Grades, gradesInfo);
     }
 
     private initialiseAnwserSubjects() {

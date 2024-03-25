@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 import { FREE_ANSWER_MAX_LENGTH } from '@common/constants/match-constants';
 import { QuestionContextService } from '@app/services/question-context/question-context.service';
 import { LongAnswerInfo } from '@common/interfaces/long-answer-info';
+import { GradesInfo } from '@common/interfaces/grades-info';
 
 @Component({
     selector: 'app-long-answer-area',
@@ -55,7 +56,12 @@ export class LongAnswerAreaComponent implements OnInit, OnDestroy {
 
     handleGrading() {
         this.gradingComplete = this.playersAnswers.every((answer) => answer.score);
-        if (this.gradingComplete) console.log('grading complete');
+    }
+
+    sendGrades() {
+        const gradesInfo: GradesInfo = { matchRoomCode: this.matchRoomCode, grades: this.playersAnswers };
+        this.answerService.sendGrades(gradesInfo);
+        this.gradeAnswers = false;
     }
 
     private subscribeToCurrentQuestion() {

@@ -4,6 +4,7 @@ import { PlayerState } from '@common/constants/player-states';
 import { AnswerEvents } from '@common/events/answer.events';
 import { ChoiceInfo } from '@common/interfaces/choice-info';
 import { UserInfo } from '@common/interfaces/user-info';
+import { GradesInfo } from '@common/interfaces/grades-info';
 import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 @WebSocketGateway({ cors: true })
@@ -35,5 +36,10 @@ export class AnswerGateway {
     @SubscribeMessage(AnswerEvents.UpdateFreeAnswer)
     updateAnswer(@ConnectedSocket() socket: Socket, @MessageBody() choice: ChoiceInfo) {
         this.answerService.updateFreeAnswer(choice.choice, choice.userInfo.username, choice.userInfo.roomCode);
+    }
+
+    @SubscribeMessage(AnswerEvents.Grades)
+    updateScore(@ConnectedSocket() socket: Socket, @MessageBody() gradesInfo: GradesInfo) {
+        this.answerService.updateScore(gradesInfo.matchRoomCode, gradesInfo.grades);
     }
 }

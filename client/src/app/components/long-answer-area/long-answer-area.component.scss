@@ -20,6 +20,9 @@
 
 .grading-area {
     width: 60vw;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
 .answer-card {
@@ -42,6 +45,16 @@
 .mat-button-toggle-group .mat-button-toggle.good-answer.mat-button-toggle-checked {
     background-color: #75e96c;
     color: white;
+}
+
+#submit-button-container {
+    position: absolute;
+    top: 90vh;
+    align-self: center;
+}
+
+#submit-button {
+    padding: 1rem 2rem;
 }
 
 // right/wrong

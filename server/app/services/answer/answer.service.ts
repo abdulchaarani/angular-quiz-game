@@ -6,7 +6,7 @@ import { HistogramService } from '@app/services/histogram/histogram.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
 import { TimeService } from '@app/services/time/time.service';
-import { BONUS_FACTOR } from '@common/constants/match-constants';
+import { BONUS_FACTOR, MULTIPLICATION_FACTOR } from '@common/constants/match-constants';
 import { Feedback } from '@common/interfaces/feedback';
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
@@ -28,9 +28,9 @@ export class AnswerService {
     onQuestionTimerExpired(roomCode: string) {
         this.autoSubmitAnswers(roomCode);
         this.gradeAnswers(roomCode);
-        this.calculateScore(roomCode);
-        this.sendFeedback(roomCode);
-        this.finaliseRound(roomCode);
+        // this.calculateScore(roomCode);
+        // this.sendFeedback(roomCode);
+        // this.finaliseRound(roomCode);
     }
     // permit more paramters to make method reusable
     // eslint-disable-next-line max-params
@@ -58,6 +58,15 @@ export class AnswerService {
         matchRoom.submittedPlayers++;
 
         this.handleFinalAnswerSubmitted(matchRoom);
+    }
+
+    updateScore(roomCode: string, grades: LongAnswerInfo[]) {
+        const currentQuestionPoints = this.getCurrentQuestionValue(roomCode);
+        grades.forEach((grade) => {
+            const player = this.playerService.getPlayerByUsername(roomCode, grade.username);
+            player.score += currentQuestionPoints + grade.score / MULTIPLICATION_FACTOR;
+        });
+        this.sendFeedback(roomCode);
     }
 
     private getRoom(roomCode: string) {
@@ -108,15 +117,14 @@ export class AnswerService {
 
     private computeFastestPlayerBonus(points: number, fastestTime: number, correctPlayers: Player[]) {
         const fastestPlayers = correctPlayers.filter((player) => player.answer.timestamp === fastestTime);
-        if (fastestPlayers.length === 0 || fastestPlayers.length > 1) return;
+        if (fastestPlayers.length >= 0) return;
         const fastestPlayer = fastestPlayers[0];
         const bonus = points * BONUS_FACTOR;
         fastestPlayer.score += bonus;
         fastestPlayer.bonusCount++;
         fastestPlayer.socket.emit(AnswerEvents.Bonus, bonus);
     }
-    private sendFeedback(roomCode: string) {
-        const correctAnswer: string[] = this.getRoom(roomCode).currentQuestionAnswer;
+    private sendFeedback(roomCode: string, correctAnswer?: string[]) {
         const players: Player[] = this.playerService.getPlayers(roomCode);
         players.forEach((player: Player) => {
             const feedback: Feedback = { score: player.score, correctAnswer };
@@ -126,7 +134,9 @@ export class AnswerService {
         const matchRoom = this.getRoom(roomCode);
         matchRoom.hostSocket.emit(AnswerEvents.Feedback);
         if (matchRoom.gameLength === 1 + matchRoom.currentQuestionIndex) matchRoom.hostSocket.emit(AnswerEvents.EndGame);
+        this.finaliseRound(roomCode);
     }
+
     private finaliseRound(roomCode: string) {
         this.histogramService.saveHistogram(roomCode);
         this.getRoom(roomCode).submittedPlayers = 0;

@@ -5,6 +5,7 @@ import { PlayerState } from '@common/constants/player-states';
 import { getMockGame } from './game-mocks';
 import { MultipleChoiceAnswer } from '@app/answer/answer';
 import { AnswerCorrectness } from '@common/constants/answer-correctness';
+import { getMockQuestion } from './question-mocks';
 
 const MOCK_USER_INFO = { roomCode: '', username: '' };
 const MOCK_MESSAGE = { text: 'Text', author: '', date: new Date() };
@@ -26,6 +27,7 @@ const MOCK_MATCH_ROOM: MatchRoom = {
     game: getMockGame(),
     gameLength: 1,
     questionDuration: 60,
+    currentQuestion: getMockQuestion(),
     currentQuestionIndex: 0,
     currentQuestionAnswer: [],
     currentChoiceTracker: new ChoiceTracker(),
@@ -47,6 +49,7 @@ const MOCK_TEST_MATCH_ROOM: MatchRoom = {
     game: getMockGame(),
     gameLength: 1,
     questionDuration: 60,
+    currentQuestion: getMockQuestion(),
     currentQuestionIndex: 0,
     currentQuestionAnswer: [],
     currentChoiceTracker: new ChoiceTracker(),
@@ -68,6 +71,7 @@ const MOCK_PLAYER_ROOM: MatchRoom = {
     game: getMockGame(),
     gameLength: 1,
     questionDuration: 60,
+    currentQuestion: getMockQuestion(),
     currentQuestionIndex: 0,
     currentQuestionAnswer: [],
     currentChoiceTracker: new ChoiceTracker(),

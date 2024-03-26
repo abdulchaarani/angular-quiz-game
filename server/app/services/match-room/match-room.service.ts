@@ -6,6 +6,7 @@ import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
 import { Question } from '@app/model/database/question';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
+import { QuestionStrategyService } from '@app/question-strategy/question-strategy.service';
 import { TimeService } from '@app/services/time/time.service';
 import { COOLDOWN_TIME, COUNTDOWN_TIME, FACTOR, MAXIMUM_CODE_LENGTH, LONG_ANSWER_TIME } from '@common/constants/match-constants';
 import { MatchEvents } from '@common/events/match.events';
@@ -18,7 +19,10 @@ export class MatchRoomService {
     matchRooms: MatchRoom[];
     backgroundHostSocket: Socket;
 
-    constructor(private readonly timeService: TimeService) {
+    constructor(
+        private readonly timeService: TimeService,
+        private readonly questionStrategyService: QuestionStrategyService,
+    ) {
         this.matchRooms = [];
     }
 
@@ -54,6 +58,7 @@ export class MatchRoomService {
             game: selectedGame,
             gameLength: selectedGame.questions.length,
             questionDuration: 0,
+            currentQuestion: selectedGame.questions[0],
             currentQuestionIndex: 0,
             currentQuestionAnswer: [],
             currentChoiceTracker: new ChoiceTracker(),
@@ -129,6 +134,7 @@ export class MatchRoomService {
         const isTestRoom = matchRoom.isTestRoom;
         this.resetPlayersAnswer(matchRoom);
         this.setQuestionDuration(matchRoom);
+        this.setQuestionStrategy(matchRoom);
 
         matchRoom.currentQuestionAnswer = this.filterCorrectChoices(firstQuestion);
         this.removeIsCorrectField(firstQuestion);
@@ -152,9 +158,12 @@ export class MatchRoomService {
             return;
         }
         const nextQuestion = this.getCurrentQuestion(matchRoomCode);
+        matchRoom.currentQuestion = nextQuestion;
         matchRoom.currentQuestionAnswer = this.filterCorrectChoices(nextQuestion);
         this.resetPlayersAnswer(matchRoom);
         this.setQuestionDuration(matchRoom);
+        this.setQuestionStrategy(matchRoom);
+
         this.removeIsCorrectField(nextQuestion);
         server.in(matchRoomCode).emit(MatchEvents.NextQuestion, nextQuestion);
         matchRoom.hostSocket.send(MatchEvents.CurrentAnswers, matchRoom.currentQuestionAnswer);
@@ -218,5 +227,10 @@ export class MatchRoomService {
         if (matchRoom.game.questions[matchRoom.currentQuestionIndex].type === 'QCM')
             matchRoom.questionDuration = this.getGameDuration(matchRoom.code);
         else matchRoom.questionDuration = LONG_ANSWER_TIME;
+    }
+
+    private setQuestionStrategy(matchRoom: MatchRoom) {
+        if (matchRoom.game.questions[matchRoom.currentQuestionIndex].type === 'QCM') this.questionStrategyService.setMultipleChoiceStrategy();
+        else this.questionStrategyService.setLongAnswerStrategy();
     }
 }

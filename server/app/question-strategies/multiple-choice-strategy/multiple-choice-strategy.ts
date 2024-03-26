@@ -6,10 +6,10 @@ import { BONUS_FACTOR } from '@common/constants/match-constants';
 import { AnswerEvents } from '@common/events/answer.events';
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { Strategy } from '@app/question-strategies/strategy';
+import { QuestionStrategy } from '@app/question-strategies/question-strategy';
 
 @Injectable()
-export class MultipleChoiceStrategy implements Strategy {
+export class MultipleChoiceStrategy implements QuestionStrategy {
     constructor(private readonly eventEmitter: EventEmitter2) {}
 
     gradeAnswers(matchRoom: MatchRoom, players: Player[]): void {

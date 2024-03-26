@@ -7,10 +7,10 @@ import { AnswerEvents } from '@common/events/answer.events';
 import { LongAnswerInfo } from '@common/interfaces/long-answer-info';
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { Strategy } from '@app/question-strategies/strategy';
+import { QuestionStrategy } from '@app/question-strategies/question-strategy';
 
 @Injectable()
-export class LongAnswerStrategy implements Strategy {
+export class LongAnswerStrategy implements QuestionStrategy {
     constructor(private readonly eventEmitter: EventEmitter2) {}
 
     gradeAnswers(matchRoom: MatchRoom, players: Player[]): void {

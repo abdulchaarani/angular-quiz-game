@@ -6,7 +6,7 @@ import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
 import { Question } from '@app/model/database/question';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
-import { QuestionStrategyService } from '@app/question-strategy/question-strategy.service';
+import { QuestionStrategyContext } from '@app/services/question-strategy-context/question-strategy.service';
 import { TimeService } from '@app/services/time/time.service';
 import { COOLDOWN_TIME, COUNTDOWN_TIME, FACTOR, MAXIMUM_CODE_LENGTH, LONG_ANSWER_TIME } from '@common/constants/match-constants';
 import { MatchEvents } from '@common/events/match.events';
@@ -21,7 +21,7 @@ export class MatchRoomService {
 
     constructor(
         private readonly timeService: TimeService,
-        private readonly questionStrategyService: QuestionStrategyService,
+        private readonly questionStrategyService: QuestionStrategyContext,
     ) {
         this.matchRooms = [];
     }
@@ -132,8 +132,6 @@ export class MatchRoomService {
         const firstQuestion = matchRoom.game.questions[0];
         const gameDuration: number = matchRoom.game.duration;
         const isTestRoom = matchRoom.isTestRoom;
-        this.resetPlayersAnswer(matchRoom);
-        this.setQuestionDuration(matchRoom);
         this.setQuestionStrategy(matchRoom);
 
         matchRoom.currentQuestionAnswer = this.filterCorrectChoices(firstQuestion);
@@ -160,8 +158,6 @@ export class MatchRoomService {
         const nextQuestion = this.getCurrentQuestion(matchRoomCode);
         matchRoom.currentQuestion = nextQuestion;
         matchRoom.currentQuestionAnswer = this.filterCorrectChoices(nextQuestion);
-        this.resetPlayersAnswer(matchRoom);
-        this.setQuestionDuration(matchRoom);
         this.setQuestionStrategy(matchRoom);
 
         this.removeIsCorrectField(nextQuestion);
@@ -209,28 +205,21 @@ export class MatchRoomService {
         question.choices.forEach((choice: Choice) => delete choice.isCorrect);
     }
 
-    // TODO: export behaviour to strategy?
-    private resetPlayersAnswer(matchRoom: MatchRoom) {
-        matchRoom.players.forEach((player) => {
-            if (matchRoom.game.questions[matchRoom.currentQuestionIndex].type === 'QCM') {
-                player.answer = new MultipleChoiceAnswer();
-                matchRoom.questionDuration = this.getGameDuration(matchRoom.code);
-            } else {
-                player.answer = new LongAnswer();
-                matchRoom.questionDuration = LONG_ANSWER_TIME;
-            }
-        });
-    }
-
-    // TODO: export behaviour to strategy?
-    private setQuestionDuration(matchRoom: MatchRoom) {
-        if (matchRoom.game.questions[matchRoom.currentQuestionIndex].type === 'QCM')
-            matchRoom.questionDuration = this.getGameDuration(matchRoom.code);
-        else matchRoom.questionDuration = LONG_ANSWER_TIME;
-    }
-
     private setQuestionStrategy(matchRoom: MatchRoom) {
-        if (matchRoom.game.questions[matchRoom.currentQuestionIndex].type === 'QCM') this.questionStrategyService.setMultipleChoiceStrategy();
-        else this.questionStrategyService.setLongAnswerStrategy();
+        const currentQuestionType = matchRoom.currentQuestion.type;
+
+        switch (currentQuestionType) {
+            case 'QCM':
+                this.questionStrategyService.setMultipleChoiceStrategy();
+                matchRoom.players.forEach((player) => (player.answer = new MultipleChoiceAnswer()));
+                matchRoom.questionDuration = this.getGameDuration(matchRoom.code);
+                break;
+
+            case 'QRL':
+                this.questionStrategyService.setLongAnswerStrategy();
+                matchRoom.players.forEach((player) => (player.answer = new LongAnswer()));
+                matchRoom.questionDuration = LONG_ANSWER_TIME;
+                break;
+        }
     }
 }

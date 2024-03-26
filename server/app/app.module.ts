@@ -27,8 +27,9 @@ import { HistoryItem, historyItemSchema } from './model/database/history-item';
 import { HistoryService } from './services/history/history.service';
 import { MatchRoomService } from './services/match-room/match-room.service';
 import { PlayerRoomService } from './services/player-room/player-room.service';
-import { QuestionStrategyService } from './question-strategy/question-strategy.service';
-import { LongAnswerStrategy, MultipleChoiceStrategy } from './strategy/strategy';
+import { QuestionStrategyContext } from './services/question-strategy-context/question-strategy.service';
+import { LongAnswerStrategy } from '@app/question-strategies/long-answer-strategy/long-answer-strategy';
+import { MultipleChoiceStrategy } from '@app/question-strategies/multiple-choice-strategy/multiple-choice-strategy';
 @Module({
     imports: [
         ConfigModule.forRoot({ isGlobal: true }),
@@ -63,7 +64,7 @@ import { LongAnswerStrategy, MultipleChoiceStrategy } from './strategy/strategy'
         HistogramService,
         ChatGateway,
         HistoryService,
-        QuestionStrategyService,
+        QuestionStrategyContext,
         MultipleChoiceStrategy,
         LongAnswerStrategy,
     ],

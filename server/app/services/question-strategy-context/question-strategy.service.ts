@@ -1,12 +1,14 @@
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Player } from '@app/model/schema/player.schema';
-import { LongAnswerStrategy, MultipleChoiceStrategy, Strategy } from '@app/strategy/strategy';
+import { LongAnswerStrategy } from '@app/question-strategies/long-answer-strategy/long-answer-strategy';
+import { MultipleChoiceStrategy } from '@app/question-strategies/multiple-choice-strategy/multiple-choice-strategy';
+import { Strategy } from '@app/question-strategies/strategy';
 import { LongAnswerInfo } from '@common/interfaces/long-answer-info';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class QuestionStrategyService {
-    private strategy: Strategy;
+export class QuestionStrategyContext {
+    private questionStrategy: Strategy;
 
     constructor(
         private readonly multipleChoiceStrategy: MultipleChoiceStrategy,
@@ -16,18 +18,18 @@ export class QuestionStrategyService {
     }
 
     setMultipleChoiceStrategy() {
-        this.strategy = this.multipleChoiceStrategy;
+        this.questionStrategy = this.multipleChoiceStrategy;
     }
 
     setLongAnswerStrategy() {
-        this.strategy = this.longAnswerStrategy;
+        this.questionStrategy = this.longAnswerStrategy;
     }
 
     gradeAnswers(matchRoom: MatchRoom, players: Player[]) {
-        this.strategy.gradeAnswers(matchRoom, players);
+        this.questionStrategy.gradeAnswers(matchRoom, players);
     }
 
     calculateScore(matchRoom: MatchRoom, players: Player[], grades?: LongAnswerInfo[]) {
-        this.strategy.calculateScore(matchRoom, players, grades);
+        this.questionStrategy.calculateScore(matchRoom, players, grades);
     }
 }

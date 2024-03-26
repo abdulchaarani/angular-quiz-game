@@ -7,6 +7,7 @@ import { AnswerEvents } from '@common/events/answer.events';
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { QuestionStrategy } from '@app/question-strategies/question-strategy';
+import { MultipleChoiceAnswer } from '@app/answer/answer';
 
 @Injectable()
 export class MultipleChoiceStrategy implements QuestionStrategy {
@@ -23,7 +24,7 @@ export class MultipleChoiceStrategy implements QuestionStrategy {
         let fastestTime: number;
         const correctAnswer: string[] = matchRoom.currentQuestionAnswer;
         players.forEach((player) => {
-            if (player.answer.isCorrectAnswer(correctAnswer)) {
+            if (this.isCorrectAnswer(player.answer as MultipleChoiceAnswer, correctAnswer)) {
                 player.answerCorrectness = AnswerCorrectness.GOOD;
                 player.score += currentQuestionPoints;
                 correctPlayers.push(player);
@@ -34,6 +35,19 @@ export class MultipleChoiceStrategy implements QuestionStrategy {
 
         if ((fastestTime && !matchRoom.isTestRoom) || matchRoom.isTestRoom)
             this.computeFastestPlayerBonus(currentQuestionPoints, fastestTime, correctPlayers);
+    }
+
+    private isCorrectAnswer(playerAnswer: MultipleChoiceAnswer, correctAnswer: string[]) {
+        const playerChoices = this.filterSelectedChoices(playerAnswer);
+        return playerChoices.sort().toString() === correctAnswer.sort().toString();
+    }
+
+    private filterSelectedChoices(playerAnswer: MultipleChoiceAnswer) {
+        const selectedChoices: string[] = [];
+        for (const [choice, selection] of playerAnswer.selectedChoices) {
+            if (selection) selectedChoices.push(choice);
+        }
+        return selectedChoices;
     }
 
     private computeFastestPlayerBonus(points: number, fastestTime: number, correctPlayers: Player[]) {

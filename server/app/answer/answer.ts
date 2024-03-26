@@ -8,7 +8,6 @@ export abstract class Answer {
         this.timestamp = undefined;
     }
 
-    abstract isCorrectAnswer(correctAnswer: string[]): boolean;
     abstract updateChoice(choice: string, selection: boolean): void;
 }
 
@@ -23,19 +22,6 @@ export class MultipleChoiceAnswer extends Answer {
     updateChoice(choice: string, selection?: boolean): void {
         this.selectedChoices.set(choice, selection);
     }
-
-    isCorrectAnswer(correctAnswer: string[]) {
-        const playerChoices = this.filterSelectedChoices();
-        return playerChoices.sort().toString() === correctAnswer.sort().toString();
-    }
-
-    private filterSelectedChoices() {
-        const selectedChoices: string[] = [];
-        for (const [choice, selection] of this.selectedChoices) {
-            if (selection) selectedChoices.push(choice);
-        }
-        return selectedChoices;
-    }
 }
 
 export class LongAnswer extends Answer {
@@ -48,10 +34,5 @@ export class LongAnswer extends Answer {
 
     updateChoice(choice: string): void {
         this.answer = choice;
-    }
-
-    // TODO: polymorph?
-    isCorrectAnswer() {
-        return true;
     }
 }

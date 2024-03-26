@@ -38,9 +38,10 @@ export class AnswerService {
     @OnEvent(GradingEvents.GradingComplete)
     onGradingCompleteEvent(roomCode: string) {
         this.sendFeedback(roomCode);
+        this.finaliseRound(roomCode);
     }
 
-    // permit more paramters to make method reusable
+    // permit more parameters to make method reusable
     // eslint-disable-next-line max-params
     updateChoice(choice: string, selection: boolean, username: string, roomCode: string) {
         const player: Player = this.playerService.getPlayerByUsername(roomCode, username);
@@ -99,12 +100,11 @@ export class AnswerService {
         const matchRoom = this.getRoom(roomCode);
         matchRoom.hostSocket.emit(AnswerEvents.Feedback);
         if (matchRoom.gameLength === 1 + matchRoom.currentQuestionIndex) matchRoom.hostSocket.emit(AnswerEvents.EndGame);
-        this.finaliseRound(roomCode);
     }
 
     private finaliseRound(roomCode: string) {
         this.histogramService.saveHistogram(roomCode);
-        this.getRoom(roomCode).submittedPlayers = 0;
+        this.matchRoomService.resetPlayerSubmissionCount(roomCode);
         this.matchRoomService.incrementCurrentQuestionIndex(roomCode);
     }
 }

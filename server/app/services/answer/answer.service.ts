@@ -13,9 +13,7 @@ import { LongAnswerInfo } from '@common/interfaces/long-answer-info';
 import { AnswerCorrectness } from '@common/constants/answer-correctness';
 import { QuestionStrategyContext } from '@app/services/question-strategy-context/question-strategy.service';
 import { GradingEvents } from '@app/constants/grading-events';
-import { TimerDurationEvents } from '@app/constants/timer-events';
-import { HISTOGRAM_UPDATE_TIME_SECONDS, HISTOGRAM_UPDATE_TIME_MS } from '@common/constants/match-constants';
-import { LongAnswerHistogram } from '@common/interfaces/histogram';
+
 @Injectable()
 export class AnswerService {
     // Allow more constructor parameters to decouple services
@@ -25,7 +23,7 @@ export class AnswerService {
         private readonly playerService: PlayerRoomService,
         private readonly timeService: TimeService,
         private readonly histogramService: HistogramService,
-        private readonly questionStrategyService: QuestionStrategyContext,
+        private readonly questionStrategyContext: QuestionStrategyContext,
     ) {}
 
     @OnEvent(ExpiredTimerEvents.QuestionTimerExpired)
@@ -34,29 +32,13 @@ export class AnswerService {
         const matchRoom = this.getRoom(roomCode);
 
         this.autoSubmitAnswers(roomCode);
-        this.questionStrategyService.gradeAnswers(matchRoom, players);
+        this.questionStrategyContext.gradeAnswers(matchRoom, players);
     }
 
     @OnEvent(GradingEvents.GradingComplete)
     onGradingCompleteEvent(roomCode: string) {
         this.sendFeedback(roomCode);
         this.finaliseRound(roomCode);
-    }
-
-    @OnEvent(TimerDurationEvents.Timer)
-    onTimerTick(roomCode: string, currentTimer: number) {
-        if (this.questionStrategyService.getQuestionStrategy() !== 'QRL') return;
-        if (currentTimer % HISTOGRAM_UPDATE_TIME_SECONDS === 0) {
-            // do smth
-            const players: Player[] = this.playerService.getPlayers(roomCode);
-            const time = Date.now() - HISTOGRAM_UPDATE_TIME_MS;
-            const longAnswerHistogram = players.reduce((currentHistogram: LongAnswerHistogram, player) => {
-                currentHistogram.playerCount++;
-                if (player.answer.timestamp >= time) currentHistogram.activePlayers++;
-                return currentHistogram;
-            }, {} as LongAnswerHistogram);
-            longAnswerHistogram.inactivePlayers = longAnswerHistogram.playerCount - longAnswerHistogram.activePlayers;
-        }
     }
 
     // permit more parameters to make method reusable
@@ -74,7 +56,7 @@ export class AnswerService {
     calculateScore(roomCode: string, grades?: LongAnswerInfo[]) {
         const players: Player[] = this.playerService.getPlayers(roomCode);
         const matchRoom = this.getRoom(roomCode);
-        this.questionStrategyService.calculateScore(matchRoom, players, grades);
+        this.questionStrategyContext.calculateScore(matchRoom, players, grades);
     }
 
     submitAnswer(username: string, roomCode: string) {

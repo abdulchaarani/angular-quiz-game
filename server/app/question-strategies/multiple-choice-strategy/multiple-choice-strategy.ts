@@ -10,10 +10,10 @@ import { QuestionStrategy } from '@app/question-strategies/question-strategy';
 import { MultipleChoiceAnswer } from '@app/answer/answer';
 
 @Injectable()
-export class MultipleChoiceStrategy implements QuestionStrategy {
-    type = 'QCM';
-
-    constructor(private readonly eventEmitter: EventEmitter2) {}
+export class MultipleChoiceStrategy extends QuestionStrategy {
+    constructor(private readonly eventEmitter: EventEmitter2) {
+        super('QCM');
+    }
 
     gradeAnswers(matchRoom: MatchRoom, players: Player[]): void {
         this.calculateScore(matchRoom, players);
@@ -37,6 +37,12 @@ export class MultipleChoiceStrategy implements QuestionStrategy {
 
         if ((fastestTime && !matchRoom.isTestRoom) || matchRoom.isTestRoom)
             this.computeFastestPlayerBonus(currentQuestionPoints, fastestTime, correctPlayers);
+    }
+
+    updateHistogram(matchRoom: MatchRoom, choice: string, selection: boolean): void {
+        const choiceTracker = matchRoom.currentChoiceTracker;
+        if (selection) choiceTracker.incrementCount(choice);
+        else choiceTracker.decrementCount(choice);
     }
 
     private isCorrectAnswer(playerAnswer: MultipleChoiceAnswer, correctAnswer: string[]) {

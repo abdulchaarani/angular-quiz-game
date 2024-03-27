@@ -49,6 +49,12 @@ export class QuestionStrategyContext {
         this.questionStrategy.calculateScore(matchRoom, players, grades);
     }
 
+    // permit any type of args to allow method overloading in concrete classes
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    updateHistogram(...args: any): void {
+        this.questionStrategy.updateHistogram(args);
+    }
+
     private setMultipleChoiceStrategy() {
         this.questionStrategy = this.multipleChoiceStrategy;
     }

@@ -2,18 +2,19 @@ import { LongAnswer } from '@app/answer/answer';
 import { GradingEvents } from '@app/constants/grading-events';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Player } from '@app/model/schema/player.schema';
-import { MULTIPLICATION_FACTOR } from '@common/constants/match-constants';
+import { HISTOGRAM_UPDATE_TIME_MS, MULTIPLICATION_FACTOR } from '@common/constants/match-constants';
 import { AnswerEvents } from '@common/events/answer.events';
 import { LongAnswerInfo } from '@common/interfaces/long-answer-info';
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { QuestionStrategy } from '@app/question-strategies/question-strategy';
+import { LongAnswerHistogram } from '@common/interfaces/histogram';
 
 @Injectable()
-export class LongAnswerStrategy implements QuestionStrategy {
-    type = 'QRL';
-
-    constructor(private readonly eventEmitter: EventEmitter2) {}
+export class LongAnswerStrategy extends QuestionStrategy {
+    constructor(private readonly eventEmitter: EventEmitter2) {
+        super('QRL');
+    }
 
     gradeAnswers(matchRoom: MatchRoom, players: Player[]): void {
         this.prepareAnswersForGrading(matchRoom, players);
@@ -28,6 +29,16 @@ export class LongAnswerStrategy implements QuestionStrategy {
             currentPlayer.score += currentQuestionPoints * (score / MULTIPLICATION_FACTOR);
         });
         this.eventEmitter.emit(GradingEvents.GradingComplete, matchRoom.code);
+    }
+
+    updateHistogram(players: Player[]) {
+        const time = Date.now() - HISTOGRAM_UPDATE_TIME_MS;
+        const longAnswerHistogram = players.reduce((currentHistogram: LongAnswerHistogram, player) => {
+            currentHistogram.playerCount++;
+            if (player.answer.timestamp >= time) currentHistogram.activePlayers++;
+            return currentHistogram;
+        }, {} as LongAnswerHistogram);
+        longAnswerHistogram.inactivePlayers = longAnswerHistogram.playerCount - longAnswerHistogram.activePlayers;
     }
 
     private prepareAnswersForGrading(matchRoom: MatchRoom, players: Player[]) {

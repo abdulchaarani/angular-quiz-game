@@ -46,7 +46,7 @@ export class LongAnswerStrategy extends QuestionStrategy {
         };
 
         const longAnswerHistogram = players.reduce((currentHistogram: PlayerCountHistogram, player) => {
-            currentHistogram.playerCount++;
+            if (player.isPlaying) currentHistogram.playerCount++;
             if (player.answer.timestamp >= time) currentHistogram.activePlayers++;
             return currentHistogram;
         }, emptyHistogram);

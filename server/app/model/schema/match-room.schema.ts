@@ -16,7 +16,7 @@ export interface MatchRoom {
     currentQuestion: Question;
     currentQuestionIndex: number;
     currentQuestionAnswer: string[];
-    currentChoiceTracker: ChoiceTracker;
+    choiceTracker: ChoiceTracker;
     matchHistograms: Histogram[];
     bannedUsernames: string[];
     players: Player[];

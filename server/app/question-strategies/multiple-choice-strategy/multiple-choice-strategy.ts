@@ -42,7 +42,7 @@ export class MultipleChoiceStrategy extends QuestionStrategy {
     }
 
     buildHistogram(matchRoom: MatchRoom, choice: string, selection: boolean): MultipleChoiceHistogram {
-        const choiceTracker = matchRoom.currentChoiceTracker;
+        const choiceTracker = matchRoom.choiceTracker;
         if (selection) choiceTracker.incrementCount(choice);
         else choiceTracker.decrementCount(choice);
         return this.convertToHistogram(choiceTracker);
@@ -72,6 +72,6 @@ export class MultipleChoiceStrategy extends QuestionStrategy {
     }
 
     private convertToHistogram(choiceTracker: ChoiceTracker): MultipleChoiceHistogram {
-        return { question: choiceTracker.question, choiceTallies: Object.values(choiceTracker.choices) };
+        return { question: choiceTracker.question, choiceTallies: Object.values(choiceTracker.items) };
     }
 }

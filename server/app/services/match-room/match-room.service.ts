@@ -60,7 +60,7 @@ export class MatchRoomService {
             currentQuestion: selectedGame.questions[0],
             currentQuestionIndex: 0,
             currentQuestionAnswer: [],
-            currentChoiceTracker: new ChoiceTracker(),
+            choiceTracker: new ChoiceTracker(),
             matchHistograms: [],
             bannedUsernames: [],
             players: [],

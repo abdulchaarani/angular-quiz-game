@@ -115,7 +115,7 @@ describe('MatchRoomService', () => {
             gameLength: 1,
             currentQuestionIndex: 0,
             currentQuestionAnswer: [],
-            currentChoiceTracker: new ChoiceTracker(),
+            choiceTracker: new ChoiceTracker(),
             matchHistograms: [],
             bannedUsernames: [],
             players: [],

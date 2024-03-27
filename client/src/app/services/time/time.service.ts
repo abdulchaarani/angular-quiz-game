@@ -61,7 +61,6 @@ export class TimeService {
     }
 
     computeTimerProgress(): number {
-        console.log((this.time / this.duration) * MULTIPLICATION_FACTOR);
         return (this.time / this.duration) * MULTIPLICATION_FACTOR;
     }
 }

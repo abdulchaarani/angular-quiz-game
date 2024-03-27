@@ -65,7 +65,6 @@ export class TimeService {
         this.eventEmitter.emit(onTimerExpiredEvent, roomId);
     }
 
-    // TODO : Change to toggle
     pauseTimer(server: Server, roomId: string) {
         if (this.pauses.get(roomId)) {
             this.startInterval(server, roomId, this.counters.get(roomId), ExpiredTimerEvents.CountdownTimerExpired);

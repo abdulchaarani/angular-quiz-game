@@ -44,7 +44,7 @@ export class TimeService {
     }
 
     pauseTimer(roomCode: string): void {
-        this.socketService.send(TimerEvents.PauseTimer, { roomCode });
+        this.socketService.send(TimerEvents.PauseTimer, roomCode);
     }
 
     handleTimer(): void {

@@ -9,11 +9,14 @@ import { Server } from 'socket.io';
 export class TimeService {
     private tick: number;
     private intervals: Map<string, NodeJS.Timeout>;
+    // TODO : Rename to smt more elegant
+    private pauses: Map<string, boolean>;
     private counters: Map<string, number>;
 
     constructor(private readonly eventEmitter: EventEmitter2) {
         this.counters = new Map();
         this.intervals = new Map();
+        this.pauses = new Map();
         this.tick = 1000;
     }
 
@@ -24,11 +27,12 @@ export class TimeService {
     // passing event allows decoupling of timer service
     // eslint-disable-next-line max-params
     startTimer(server: Server, roomId: string, startValue: number, onTimerExpiredEvent: ExpiredTimerEvents) {
-        if (this.intervals.has(roomId)) return;
+        if (this.intervals.has(roomId) && !this.pauses.get(roomId)) return;
         let timerInfo: TimerInfo = { currentTime: startValue, duration: startValue };
         server.in(roomId).emit(TimerEvents.Timer, timerInfo);
 
         this.counters.set(roomId, startValue - 1);
+        this.pauses.set(roomId, false);
 
         this.intervals.set(
             roomId,
@@ -49,6 +53,13 @@ export class TimeService {
         this.terminateTimer(roomId);
         server.to(roomId).emit(TimerEvents.StopTimer);
         this.eventEmitter.emit(onTimerExpiredEvent, roomId);
+    }
+
+    pauseTimer(server: Server, roomId: string) {
+        this.pauses.set(roomId, true);
+        clearInterval(this.intervals.get(roomId));
+
+        server.to(roomId).emit(TimerEvents.PauseTimer);
     }
 
     terminateTimer(roomId: string) {

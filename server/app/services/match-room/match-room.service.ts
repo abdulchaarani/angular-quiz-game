@@ -8,6 +8,7 @@ import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { TimeService } from '@app/services/time/time.service';
 import { COOLDOWN_TIME, COUNTDOWN_TIME, FACTOR, MAXIMUM_CODE_LENGTH } from '@common/constants/match-constants';
 import { MatchEvents } from '@common/events/match.events';
+import { TimerEvents } from '@common/events/timer.events';
 import { GameInfo } from '@common/interfaces/game-info';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
@@ -109,6 +110,10 @@ export class MatchRoomService {
         this.matchRooms[roomIndex].startTime = new Date();
 
         this.timeService.startTimer(server, matchRoomCode, COUNTDOWN_TIME, ExpiredTimerEvents.CountdownTimerExpired);
+    }
+
+    pauseMatchTimer(server: Server, matchRoomCode: string) {
+        this.timeService.pauseTimer(server, matchRoomCode);
     }
 
     markGameAsPlaying(matchRoomCode: string): void {

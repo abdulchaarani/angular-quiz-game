@@ -43,6 +43,10 @@ export class TimeService {
         this.socketService.send(TimerEvents.StopTimer, { roomCode });
     }
 
+    pauseTimer(roomCode: string): void {
+        this.socketService.send(TimerEvents.PauseTimer, { roomCode });
+    }
+
     handleTimer(): void {
         this.socketService.on(TimerEvents.Timer, (timerInfo: TimerInfo) => {
             this.counter = timerInfo.currentTime;

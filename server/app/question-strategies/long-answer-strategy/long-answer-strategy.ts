@@ -11,6 +11,8 @@ import { QuestionStrategy } from '@app/question-strategies/question-strategy';
 
 @Injectable()
 export class LongAnswerStrategy implements QuestionStrategy {
+    type = 'QRL';
+
     constructor(private readonly eventEmitter: EventEmitter2) {}
 
     gradeAnswers(matchRoom: MatchRoom, players: Player[]): void {

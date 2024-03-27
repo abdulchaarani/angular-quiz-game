@@ -19,6 +19,10 @@ export class QuestionStrategyContext {
         this.setMultipleChoiceStrategy();
     }
 
+    getQuestionStrategy(): string {
+        return this.questionStrategy.type;
+    }
+
     setQuestionStrategy(matchRoom: MatchRoom) {
         const currentQuestionType = matchRoom.currentQuestion.type;
 

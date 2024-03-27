@@ -13,7 +13,9 @@ import { LongAnswerInfo } from '@common/interfaces/long-answer-info';
 import { AnswerCorrectness } from '@common/constants/answer-correctness';
 import { QuestionStrategyContext } from '@app/services/question-strategy-context/question-strategy.service';
 import { GradingEvents } from '@app/constants/grading-events';
-
+import { TimerDurationEvents } from '@app/constants/timer-events';
+import { HISTOGRAM_UPDATE_TIME_SECONDS, HISTOGRAM_UPDATE_TIME_MS } from '@common/constants/match-constants';
+import { LongAnswerHistogram } from '@common/interfaces/histogram';
 @Injectable()
 export class AnswerService {
     // Allow more constructor parameters to decouple services
@@ -41,12 +43,30 @@ export class AnswerService {
         this.finaliseRound(roomCode);
     }
 
+    @OnEvent(TimerDurationEvents.Timer)
+    onTimerTick(roomCode: string, currentTimer: number) {
+        if (this.questionStrategyService.getQuestionStrategy() !== 'QRL') return;
+        if (currentTimer % HISTOGRAM_UPDATE_TIME_SECONDS === 0) {
+            // do smth
+            const players: Player[] = this.playerService.getPlayers(roomCode);
+            const time = Date.now() - HISTOGRAM_UPDATE_TIME_MS;
+            const longAnswerHistogram = players.reduce((currentHistogram: LongAnswerHistogram, player) => {
+                currentHistogram.playerCount++;
+                if (player.answer.timestamp >= time) currentHistogram.activePlayers++;
+                return currentHistogram;
+            }, {} as LongAnswerHistogram);
+            longAnswerHistogram.inactivePlayers = longAnswerHistogram.playerCount - longAnswerHistogram.activePlayers;
+        }
+    }
+
     // permit more parameters to make method reusable
     // eslint-disable-next-line max-params
     updateChoice(choice: string, selection: boolean, username: string, roomCode: string) {
         const player: Player = this.playerService.getPlayerByUsername(roomCode, username);
         if (!player.answer.isSubmitted) {
             player.answer.updateChoice(choice, selection);
+            player.answer.timestamp = Date.now();
+            // TODO: move prolly
             this.histogramService.updateHistogram(choice, selection, roomCode);
         }
     }
@@ -62,7 +82,6 @@ export class AnswerService {
         const matchRoom = this.getRoom(roomCode);
 
         player.answer.isSubmitted = true;
-        player.answer.timestamp = Date.now();
         matchRoom.submittedPlayers++;
 
         this.handleFinalAnswerSubmitted(matchRoom);

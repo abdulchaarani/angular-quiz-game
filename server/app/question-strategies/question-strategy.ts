@@ -3,6 +3,7 @@ import { Player } from '@app/model/schema/player.schema';
 import { LongAnswerInfo } from '@common/interfaces/long-answer-info';
 
 export interface QuestionStrategy {
+    type: string;
     gradeAnswers(matchRoom: MatchRoom, players: Player[]): void;
     calculateScore(matchRoom: MatchRoom, players: Player[], grades?: LongAnswerInfo[]): void;
 }

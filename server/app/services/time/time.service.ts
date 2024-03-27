@@ -1,4 +1,5 @@
 import { ExpiredTimerEvents } from '@app/constants/expired-timer-events';
+import { TimerDurationEvents } from '@app/constants/timer-events';
 import { TimerEvents } from '@common/events/timer.events';
 import { TimerInfo } from '@common/interfaces/timer-info';
 import { Injectable } from '@nestjs/common';
@@ -37,6 +38,7 @@ export class TimeService {
                 if (currentTime >= 0) {
                     timerInfo = { currentTime, duration: startValue };
                     server.in(roomId).emit(TimerEvents.Timer, timerInfo);
+                    this.eventEmitter.emit(TimerDurationEvents.Timer, roomId, timerInfo);
                     this.counters.set(roomId, currentTime - 1);
                 } else {
                     this.expireTimer(roomId, server, onTimerExpiredEvent);

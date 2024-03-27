@@ -11,6 +11,8 @@ import { MultipleChoiceAnswer } from '@app/answer/answer';
 
 @Injectable()
 export class MultipleChoiceStrategy implements QuestionStrategy {
+    type = 'QCM';
+
     constructor(private readonly eventEmitter: EventEmitter2) {}
 
     gradeAnswers(matchRoom: MatchRoom, players: Player[]): void {

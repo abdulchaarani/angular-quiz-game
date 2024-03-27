@@ -35,7 +35,7 @@ export class TimeService {
             setInterval(() => {
                 const currentTime = this.counters.get(roomId);
                 if (currentTime >= 0) {
-                    timerInfo = { currentTime, duration: startValue };
+                    timerInfo = { currentTime, duration: this.durations.get(roomId) };
                     server.in(roomId).emit(TimerEvents.Timer, timerInfo);
                     this.counters.set(roomId, currentTime - 1);
                 } else {

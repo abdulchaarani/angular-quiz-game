@@ -111,13 +111,11 @@ export class MatchGateway implements OnGatewayDisconnect {
     nextQuestion(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
         this.playerRoomService.setStateForAll(roomCode, PlayerState.noInteraction);
         this.matchRoomService.startNextQuestionCooldown(this.server, roomCode);
-        console.log(roomCode);
     }
 
     @SubscribeMessage(TimerEvents.PauseTimer)
     pauseTimer(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
         this.matchRoomService.pauseMatchTimer(this.server, roomCode);
-        console.log(roomCode);
     }
 
     @OnEvent(ExpiredTimerEvents.CountdownTimerExpired)

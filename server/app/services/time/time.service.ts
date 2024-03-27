@@ -12,10 +12,12 @@ export class TimeService {
     // TODO : Rename to smt more elegant
     private pauses: Map<string, boolean>;
     private counters: Map<string, number>;
+    private durations: Map<string, number>;
 
     constructor(private readonly eventEmitter: EventEmitter2) {
         this.counters = new Map();
         this.intervals = new Map();
+        this.durations = new Map();
         this.pauses = new Map();
         this.tick = 1000;
     }
@@ -26,14 +28,8 @@ export class TimeService {
 
     // passing event allows decoupling of timer service
     // eslint-disable-next-line max-params
-    startTimer(server: Server, roomId: string, startValue: number, onTimerExpiredEvent: ExpiredTimerEvents) {
-        if (this.intervals.has(roomId) && !this.pauses.get(roomId)) return;
-        let timerInfo: TimerInfo = { currentTime: startValue, duration: startValue };
-        server.in(roomId).emit(TimerEvents.Timer, timerInfo);
-
-        this.counters.set(roomId, startValue - 1);
-        this.pauses.set(roomId, false);
-
+    startInterval(server: Server, roomId: string, startValue: number, onTimerExpiredEvent: ExpiredTimerEvents) {
+        let timerInfo: TimerInfo = { currentTime: startValue, duration: this.durations.get(roomId) };
         this.intervals.set(
             roomId,
             setInterval(() => {
@@ -49,17 +45,36 @@ export class TimeService {
         );
     }
 
+    // passing event allows decoupling of timer service
+    // eslint-disable-next-line max-params
+    startTimer(server: Server, roomId: string, startValue: number, onTimerExpiredEvent: ExpiredTimerEvents) {
+        if (this.intervals.has(roomId) && !this.pauses.get(roomId)) return;
+        const timerInfo: TimerInfo = { currentTime: startValue, duration: startValue };
+        server.in(roomId).emit(TimerEvents.Timer, timerInfo);
+
+        this.durations.set(roomId, startValue);
+        this.counters.set(roomId, startValue - 1);
+        this.pauses.set(roomId, false);
+
+        this.startInterval(server, roomId, startValue, onTimerExpiredEvent);
+    }
+
     expireTimer(roomId: string, server: Server, onTimerExpiredEvent: ExpiredTimerEvents) {
         this.terminateTimer(roomId);
         server.to(roomId).emit(TimerEvents.StopTimer);
         this.eventEmitter.emit(onTimerExpiredEvent, roomId);
     }
 
+    // TODO : Change to toggle
     pauseTimer(server: Server, roomId: string) {
-        this.pauses.set(roomId, true);
-        clearInterval(this.intervals.get(roomId));
-
-        server.to(roomId).emit(TimerEvents.PauseTimer);
+        if (this.pauses.get(roomId)) {
+            this.startInterval(server, roomId, this.counters.get(roomId), ExpiredTimerEvents.CountdownTimerExpired);
+            this.pauses.set(roomId, false);
+        } else {
+            this.pauses.set(roomId, true);
+            clearInterval(this.intervals.get(roomId));
+            server.to(roomId).emit(TimerEvents.PauseTimer);
+        }
     }
 
     terminateTimer(roomId: string) {

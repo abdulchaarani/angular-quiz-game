@@ -17,7 +17,6 @@ export class AnswerGateway {
     ) {}
 
     @SubscribeMessage(AnswerEvents.SelectChoice)
-    @SubscribeMessage(AnswerEvents.UpdateFreeAnswer)
     selectChoice(@ConnectedSocket() socket: Socket, @MessageBody() choice: ChoiceInfo) {
         this.answerService.updateChoice(choice.choice, true, choice.userInfo.username, choice.userInfo.roomCode);
         this.playerRoomService.setState(socket.id, PlayerState.firstInteraction);
@@ -37,5 +36,11 @@ export class AnswerGateway {
     @SubscribeMessage(AnswerEvents.Grades)
     calculateScore(@ConnectedSocket() socket: Socket, @MessageBody() gradesInfo: GradesInfo) {
         this.answerService.calculateScore(gradesInfo.matchRoomCode, gradesInfo.grades);
+    }
+
+    @SubscribeMessage(AnswerEvents.UpdateLongAnswer)
+    updateLongAnswer(@ConnectedSocket() socket: Socket, @MessageBody() choice: ChoiceInfo) {
+        this.answerService.updateChoice(choice.choice, true, choice.userInfo.username, choice.userInfo.roomCode);
+        this.playerRoomService.setState(socket.id, PlayerState.firstInteraction);
     }
 }

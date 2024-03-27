@@ -48,7 +48,7 @@ describe('HistogramService', () => {
         matchRoomService.getRoom.returns(mockMatchRoom);
 
         jest.spyOn(matchRoomService, 'getRoom').mockReturnValue(mockMatchRoom);
-        histogramService.updateHistogram(choice, selection, MOCK_ROOM_CODE);
+        histogramService.buildHistogram(choice, selection, MOCK_ROOM_CODE);
         expect(incrementCountSpy).toHaveBeenCalledWith(choice);
         expect(matchRoomService.getRoom).toHaveBeenCalledWith(MOCK_ROOM_CODE);
         expect(matchRoomService.getRoom(MOCK_ROOM_CODE).currentChoiceTracker.incrementCount).toHaveBeenCalledWith(choice);
@@ -62,7 +62,7 @@ describe('HistogramService', () => {
         const choiceTracker = mockMatchRoom.currentChoiceTracker;
         const decrementSpy = jest.spyOn(choiceTracker, 'decrementCount');
         jest.spyOn(matchRoomService, 'getRoom').mockReturnValue(mockMatchRoom);
-        histogramService.updateHistogram(choice, selection, MOCK_ROOM_CODE);
+        histogramService.buildHistogram(choice, selection, MOCK_ROOM_CODE);
         expect(decrementSpy).toHaveBeenCalledWith(choice);
         expect(matchRoomService.getRoom).toHaveBeenCalledWith(MOCK_ROOM_CODE);
         expect(matchRoomService.getRoom(MOCK_ROOM_CODE).currentChoiceTracker.decrementCount).toHaveBeenCalledWith(choice);

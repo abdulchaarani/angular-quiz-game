@@ -1,7 +1,7 @@
-// permit any type of args to allow method overloading in concrete classes
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Player } from '@app/model/schema/player.schema';
+import { Histogram } from '@common/interfaces/histogram';
+import { LongAnswerInfo } from '@common/interfaces/long-answer-info';
 export abstract class QuestionStrategy {
     type: string;
 
@@ -10,6 +10,6 @@ export abstract class QuestionStrategy {
     }
 
     abstract gradeAnswers(matchRoom: MatchRoom, players: Player[]): void;
-    abstract calculateScore(...args: any[]): void;
-    abstract updateHistogram(...args: any[]): void;
+    abstract calculateScore(matchRoom: MatchRoom, players: Player[], grades?: LongAnswerInfo[]): void;
+    abstract buildHistogram(matchRoom: MatchRoom, choice?: string, selection?: boolean): Histogram;
 }

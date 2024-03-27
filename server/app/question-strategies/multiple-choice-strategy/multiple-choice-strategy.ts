@@ -8,6 +8,8 @@ import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { QuestionStrategy } from '@app/question-strategies/question-strategy';
 import { MultipleChoiceAnswer } from '@app/answer/answer';
+import { ChoiceTracker } from '@app/model/choice-tracker/choice-tracker';
+import { MultipleChoiceHistogram } from '@common/interfaces/histogram';
 
 @Injectable()
 export class MultipleChoiceStrategy extends QuestionStrategy {
@@ -39,10 +41,11 @@ export class MultipleChoiceStrategy extends QuestionStrategy {
             this.computeFastestPlayerBonus(currentQuestionPoints, fastestTime, correctPlayers);
     }
 
-    updateHistogram(matchRoom: MatchRoom, choice: string, selection: boolean): void {
+    buildHistogram(matchRoom: MatchRoom, choice: string, selection: boolean): MultipleChoiceHistogram {
         const choiceTracker = matchRoom.currentChoiceTracker;
         if (selection) choiceTracker.incrementCount(choice);
         else choiceTracker.decrementCount(choice);
+        return this.convertToHistogram(choiceTracker);
     }
 
     private isCorrectAnswer(playerAnswer: MultipleChoiceAnswer, correctAnswer: string[]) {
@@ -66,5 +69,9 @@ export class MultipleChoiceStrategy extends QuestionStrategy {
         fastestPlayer.score += bonus;
         fastestPlayer.bonusCount++;
         fastestPlayer.socket.emit(AnswerEvents.Bonus, bonus);
+    }
+
+    private convertToHistogram(choiceTracker: ChoiceTracker): MultipleChoiceHistogram {
+        return { question: choiceTracker.question, choiceTallies: Object.values(choiceTracker.choices) };
     }
 }

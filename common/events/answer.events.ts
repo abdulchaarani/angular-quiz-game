@@ -2,7 +2,7 @@ export enum AnswerEvents {
     SelectChoice = 'selectChoice',
     DeselectChoice = 'deselectChoice',
     SubmitAnswer = 'submitAnswer',
-    UpdateFreeAnswer = 'updateFreeAnswer',
+    UpdateLongAnswer = 'updateLongAnswer',
     Grades = 'grades',
     GradeAnswers = 'gradeAnswers',
     Bonus = 'bonus',

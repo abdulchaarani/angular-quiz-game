@@ -44,12 +44,12 @@ export class AnswerService {
     // permit more parameters to make method reusable
     // eslint-disable-next-line max-params
     updateChoice(choice: string, selection: boolean, username: string, roomCode: string) {
+        const matchRoom = this.matchRoomService.getRoom(roomCode);
         const player: Player = this.playerService.getPlayerByUsername(roomCode, username);
         if (!player.answer.isSubmitted) {
             player.answer.updateChoice(choice, selection);
             player.answer.timestamp = Date.now();
-            // TODO: move prolly
-            this.histogramService.updateHistogram(choice, selection, roomCode);
+            this.histogramService.buildHistogram(matchRoom, choice, selection);
         }
     }
 
@@ -104,7 +104,6 @@ export class AnswerService {
     }
 
     private finaliseRound(roomCode: string) {
-        this.histogramService.saveHistogram(roomCode);
         this.matchRoomService.resetPlayerSubmissionCount(roomCode);
         this.matchRoomService.incrementCurrentQuestionIndex(roomCode);
     }

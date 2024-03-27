@@ -1,5 +1,8 @@
 import { Choice } from './choice';
 
-export interface ChoiceTally extends Choice {
+export interface Tally {
     tally: number;
 }
+export interface ChoiceTally extends Choice, Tally {}
+
+export interface GradeTally extends Tally {}

@@ -7,8 +7,14 @@ export interface Histogram {
 export interface MultipleChoiceHistogram extends Histogram {
     choiceTallies: ChoiceTally[];
 }
-export interface LongAnswerHistogram extends Histogram {
+export interface PlayerCountHistogram extends Histogram {
     playerCount: number;
     activePlayers: number;
     inactivePlayers: number;
+}
+
+export interface GradesHistogram extends Histogram {
+    wrongAnswerCount: number;
+    okAnswerCount: number;
+    goodAnswerCount: number;
 }

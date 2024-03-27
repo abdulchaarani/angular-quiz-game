@@ -8,7 +8,7 @@ import { LongAnswerInfo } from '@common/interfaces/long-answer-info';
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { QuestionStrategy } from '@app/question-strategies/question-strategy';
-import { LongAnswerHistogram } from '@common/interfaces/histogram';
+import { PlayerCountHistogram } from '@common/interfaces/histogram';
 
 @Injectable()
 export class LongAnswerStrategy extends QuestionStrategy {
@@ -22,8 +22,11 @@ export class LongAnswerStrategy extends QuestionStrategy {
 
     calculateScore(matchRoom: MatchRoom, players: Player[], grades: LongAnswerInfo[]) {
         const currentQuestionPoints = matchRoom.currentQuestion.points;
+        const gradeTally: Map<number, number> = new Map();
         grades.forEach((grade) => {
             const score = parseInt(grade.score, 10);
+            gradeTally.set(score, gradeTally.get(score) + 1);
+
             const currentPlayer = players.find((player) => player.username === grade.username);
             currentPlayer.answerCorrectness = score;
             currentPlayer.score += currentQuestionPoints * (score / MULTIPLICATION_FACTOR);
@@ -31,14 +34,25 @@ export class LongAnswerStrategy extends QuestionStrategy {
         this.eventEmitter.emit(GradingEvents.GradingComplete, matchRoom.code);
     }
 
-    updateHistogram(players: Player[]) {
+    buildHistogram(matchRoom: MatchRoom): PlayerCountHistogram {
+        const players = matchRoom.players;
         const time = Date.now() - HISTOGRAM_UPDATE_TIME_MS;
-        const longAnswerHistogram = players.reduce((currentHistogram: LongAnswerHistogram, player) => {
+
+        const emptyHistogram = {
+            question: matchRoom.currentQuestion.text,
+            playerCount: 0,
+            activePlayers: 0,
+            inactivePlayers: 0,
+        };
+
+        const longAnswerHistogram = players.reduce((currentHistogram: PlayerCountHistogram, player) => {
             currentHistogram.playerCount++;
             if (player.answer.timestamp >= time) currentHistogram.activePlayers++;
             return currentHistogram;
-        }, {} as LongAnswerHistogram);
+        }, emptyHistogram);
+
         longAnswerHistogram.inactivePlayers = longAnswerHistogram.playerCount - longAnswerHistogram.activePlayers;
+        return longAnswerHistogram;
     }
 
     private prepareAnswersForGrading(matchRoom: MatchRoom, players: Player[]) {

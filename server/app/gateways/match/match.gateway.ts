@@ -115,7 +115,7 @@ export class MatchGateway implements OnGatewayDisconnect {
     @OnEvent(ExpiredTimerEvents.CountdownTimerExpired)
     onCountdownTimerExpired(matchRoomCode: string) {
         this.matchRoomService.sendFirstQuestion(this.server, matchRoomCode);
-        this.histogramService.sendHistogram(matchRoomCode);
+        this.histogramService.sendEmptyHistogram(matchRoomCode);
     }
 
     @OnEvent(ExpiredTimerEvents.CooldownTimerExpired)
@@ -123,7 +123,7 @@ export class MatchGateway implements OnGatewayDisconnect {
         this.matchRoomService.sendNextQuestion(this.server, matchRoomCode);
         if (!this.isTestRoom(matchRoomCode)) {
             this.histogramService.resetChoiceTracker(matchRoomCode);
-            this.histogramService.sendHistogram(matchRoomCode);
+            this.histogramService.sendEmptyHistogram(matchRoomCode);
         }
     }
 

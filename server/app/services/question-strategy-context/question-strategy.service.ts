@@ -5,6 +5,7 @@ import { LongAnswerStrategy } from '@app/question-strategies/long-answer-strateg
 import { MultipleChoiceStrategy } from '@app/question-strategies/multiple-choice-strategy/multiple-choice-strategy';
 import { QuestionStrategy } from '@app/question-strategies/question-strategy';
 import { LONG_ANSWER_TIME } from '@common/constants/match-constants';
+import { Histogram } from '@common/interfaces/histogram';
 import { LongAnswerInfo } from '@common/interfaces/long-answer-info';
 import { Injectable } from '@nestjs/common';
 
@@ -49,10 +50,8 @@ export class QuestionStrategyContext {
         this.questionStrategy.calculateScore(matchRoom, players, grades);
     }
 
-    // permit any type of args to allow method overloading in concrete classes
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    updateHistogram(...args: any): void {
-        this.questionStrategy.updateHistogram(args);
+    buildHistogram(matchRoom: MatchRoom, choice?: string, selection?: boolean): Histogram {
+        return this.questionStrategy.buildHistogram(matchRoom, choice, selection);
     }
 
     private setMultipleChoiceStrategy() {

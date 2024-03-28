@@ -22,5 +22,6 @@ export interface MatchRoom {
     messages: Message[];
     hostSocket: Socket;
     isTestRoom: boolean;
+    isRandomMode: boolean;
     startTime: Date;
 }

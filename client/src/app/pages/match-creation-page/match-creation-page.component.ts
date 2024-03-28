@@ -16,6 +16,7 @@ export class MatchCreationPageComponent implements OnInit {
     games: Game[] = [];
     selectedGame: Game;
     gameIsValid: boolean;
+    MatchContext = MatchContext;
 
     // Services are required to decouple logic
     // eslint-disable-next-line max-params
@@ -88,9 +89,8 @@ export class MatchCreationPageComponent implements OnInit {
         }
     }
 
-    createMatch(testGame: boolean): void {
-        if (testGame) this.questionContextService.setContext(MatchContext.TestPage);
-        else this.questionContextService.setContext(MatchContext.HostView);
+    createMatch(context: MatchContext): void {
+        this.questionContextService.setContext(context);
         this.reloadSelectedGame();
     }
 }

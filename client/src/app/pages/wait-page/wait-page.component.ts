@@ -70,8 +70,9 @@ export class WaitPageComponent implements OnInit, OnDestroy {
         this.subscribeToStartMatch();
         this.subscribeToBanishment();
 
+        console.log(this.questionContextService.getContext());
+
         if (this.isHost) {
-            this.questionContextService.setContext(MatchContext.HostView);
             this.gameTitle = this.currentGame.title;
         } else {
             this.questionContextService.setContext(MatchContext.PlayerView);
@@ -86,6 +87,15 @@ export class WaitPageComponent implements OnInit, OnDestroy {
 
     toggleLock() {
         this.matchRoomService.toggleLock();
+    }
+
+    isStartMatchButtonEnabled() {
+        if (this.matchRoomService.players.length === 0) {
+            return false;
+        } else if (this.questionContextService.getContext() === MatchContext.RandomMode && !this.isLocked) {
+            return false;
+        }
+        return true;
     }
 
     banPlayerUsername(username: string) {

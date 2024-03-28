@@ -123,6 +123,7 @@ describe('MatchRoomService', () => {
             submittedPlayers: 0,
             messages: [],
             isTestRoom: false,
+            isRandomMode: false,
             startTime: new Date(),
         };
 

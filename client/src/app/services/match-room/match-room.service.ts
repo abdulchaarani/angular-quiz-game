@@ -6,7 +6,6 @@ import { Question } from '@app/interfaces/question';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 import { HOST_USERNAME } from '@common/constants/match-constants';
-import { PlayerState } from '@common/constants/player-states';
 import { MatchEvents } from '@common/events/match.events';
 import { UserInfo } from '@common/interfaces/user-info';
 import { BehaviorSubject } from 'rxjs';
@@ -80,12 +79,12 @@ export class MatchRoomService {
         this.socketService.disconnect();
     }
 
-    createRoom(gameId: string, isTestRoom: boolean = false) {
-        this.socketService.send(MatchEvents.CreateRoom, { gameId, isTestPage: isTestRoom }, (res: { code: string }) => {
+    createRoom(gameId: string, isTestRoom: boolean = false, isRandomMode: boolean = false) {
+        this.socketService.send(MatchEvents.CreateRoom, { gameId, isTestPage: isTestRoom, isRandomMode: isRandomMode }, (res: { code: string }) => {
             this.matchRoomCode = res.code;
             this.username = HOST_USERNAME;
             if (isTestRoom) {
-                this.players = [{ username: this.username, score: 0, bonusCount: 0, isPlaying: true, state: PlayerState.default }];
+                // this.players = [{ username: this.username, score: 0, bonusCount: 0, isPlaying: true, state: PlayerState.default }];
                 this.router.navigateByUrl('/play-test');
             } else this.router.navigateByUrl('/match-room');
         });

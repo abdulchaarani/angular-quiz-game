@@ -1,5 +1,6 @@
 import { Component, HostListener, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { MatchStatus, WarningMessage } from '@app/constants/feedback-messages';
+import { MatchContext } from '@app/constants/states';
 import { CanDeactivateType } from '@app/interfaces/can-component-deactivate';
 import { Choice } from '@app/interfaces/choice';
 import { Question } from '@app/interfaces/question';
@@ -25,7 +26,8 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
     showFeedback: boolean;
     playerScore: number = 0;
     bonus: number;
-    context: 'testPage' | 'hostView' | 'playerView';
+    context: MatchContext;
+    matchContext = MatchContext;
     correctAnswers: string[];
     isHostPlaying: boolean = true;
     isFirstQuestion: boolean = true;
@@ -89,7 +91,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         if (this.isQuitting) return true;
         if (!this.isHostPlaying) return true;
         if (this.matchRoomService.isResults) return true;
-        if (this.questionContextService.getContext() === 'testPage') {
+        if (this.questionContextService.getContext() === MatchContext.TestPage) {
             this.quitGame();
             return true;
         }
@@ -149,12 +151,12 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         if (this.isSelectionEnabled) {
             if (!this.selectedAnswers.includes(choice)) {
                 this.selectedAnswers.push(choice);
-                if (this.context !== 'hostView') {
+                if (this.context !== MatchContext.HostView) {
                     this.answerService.selectChoice(choice.text, { username: this.username, roomCode: this.matchRoomCode });
                 }
             } else {
                 this.selectedAnswers = this.selectedAnswers.filter((answer) => answer !== choice);
-                if (this.context !== 'hostView') {
+                if (this.context !== MatchContext.HostView) {
                     this.answerService.deselectChoice(choice.text, { username: this.username, roomCode: this.matchRoomCode });
                 }
             }
@@ -205,7 +207,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
             this.playerScore = feedback.score;
             this.matchRoomService.sendPlayersData(this.matchRoomCode);
             this.showFeedback = true;
-            if (this.context === 'testPage') {
+            if (this.context === MatchContext.TestPage) {
                 this.nextQuestion();
             }
         }
@@ -261,7 +263,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
     private subscribeToCooldown() {
         const displayCoolDownSubscription = this.matchRoomService.displayCooldown$.subscribe((isCooldown) => {
             this.isCooldown = isCooldown;
-            if (this.isCooldown && this.context !== 'testPage') {
+            if (this.isCooldown && this.context !== MatchContext.TestPage) {
                 this.currentQuestion.text = MatchStatus.PREPARE;
             }
         });

@@ -10,6 +10,7 @@ import { PlayerRoomService } from '@app/services/player-room/player-room.service
 import { HOST_USERNAME } from '@common/constants/match-constants';
 import { PlayerState } from '@common/constants/player-states';
 import { MatchEvents } from '@common/events/match.events';
+import { HistogramEvents } from '@common/events/histogram.events';
 import { UserInfo } from '@common/interfaces/user-info';
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
@@ -66,11 +67,13 @@ export class MatchGateway implements OnGatewayDisconnect {
         return { code: newMatchRoom.code };
     }
 
+    // TODO: rename event and function?
     @SubscribeMessage(MatchEvents.RouteToResultsPage)
     routeToResultsPage(@ConnectedSocket() socket: Socket, @MessageBody() matchRoomCode: string) {
         this.playerRoomService.setStateForAll(matchRoomCode, PlayerState.default);
         this.server.to(matchRoomCode).emit(MatchEvents.RouteToResultsPage);
         this.emitHistogramHistory(matchRoomCode);
+        this.matchRoomService.declareWinner(matchRoomCode);
         this.historyService.createHistoryItem(this.matchRoomService.getRoom(matchRoomCode));
     }
 
@@ -166,7 +169,7 @@ export class MatchGateway implements OnGatewayDisconnect {
 
     private emitHistogramHistory(matchRoomCode: string) {
         const histograms = this.histogramService.sendHistogramHistory(matchRoomCode);
-        this.server.to(matchRoomCode).emit(MatchEvents.HistogramHistory, histograms);
+        this.server.to(matchRoomCode).emit(HistogramEvents.HistogramHistory, histograms);
     }
 
     private isRoomEmpty(room: MatchRoom) {

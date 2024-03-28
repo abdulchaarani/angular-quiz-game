@@ -5,6 +5,7 @@ import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
 import { Question } from '@app/model/database/question';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
+import { Player } from '@app/model/schema/player.schema';
 import { QuestionStrategyContext } from '@app/services/question-strategy-context/question-strategy.service';
 import { TimeService } from '@app/services/time/time.service';
 import { COOLDOWN_TIME, COUNTDOWN_TIME, FACTOR, MAXIMUM_CODE_LENGTH } from '@common/constants/match-constants';
@@ -188,6 +189,14 @@ export class MatchRoomService {
     getCurrentQuestion(matchRoomCode: string) {
         const matchRoom: MatchRoom = this.getRoom(matchRoomCode);
         return matchRoom.game.questions[matchRoom.currentQuestionIndex];
+    }
+
+    declareWinner(matchRoomCode: string) {
+        const players: Player[] = this.getRoom(matchRoomCode).players;
+        const playingPlayers = players.filter((player) => player.isPlaying);
+        const maxScore = Math.max(...playingPlayers.map((player) => player.score));
+        const playersWithMaxScore = playingPlayers.filter((player) => player.score === maxScore);
+        playersWithMaxScore.forEach((player) => player.socket.emit('winner'));
     }
 
     private filterCorrectChoices(question: Question) {

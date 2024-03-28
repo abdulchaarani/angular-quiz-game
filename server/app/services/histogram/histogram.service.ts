@@ -7,6 +7,8 @@ import { QuestionStrategyContext } from '@app/services/question-strategy-context
 import { HISTOGRAM_UPDATE_TIME_SECONDS } from '@common/constants/match-constants';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { TimerInfo } from '@common/interfaces/timer-info';
+import { HistogramEvents } from '@common/events/histogram.events';
+
 @Injectable()
 export class HistogramService {
     constructor(
@@ -37,7 +39,7 @@ export class HistogramService {
         const matchRoom = this.matchRoomService.getRoom(matchRoomCode);
         const histograms: Histogram[] = matchRoom.matchHistograms;
 
-        matchRoom.hostSocket.emit('histogramHistory', histograms);
+        matchRoom.hostSocket.emit(HistogramEvents.HistogramHistory, histograms);
         return histograms;
     }
 
@@ -48,12 +50,12 @@ export class HistogramService {
     }
 
     sendHistogram(histogram: Histogram, matchRoom: MatchRoom) {
-        matchRoom.hostSocket.emit('currentHistogram', histogram);
+        matchRoom.hostSocket.emit(HistogramEvents.CurrentHistogram, histogram);
     }
 
     sendEmptyHistogram(roomCode: string) {
         const matchRoom = this.matchRoomService.getRoom(roomCode);
         const histogram: Histogram = this.questionStrategyContext.buildHistogram(matchRoom);
-        matchRoom.hostSocket.emit('currentHistogram', histogram);
+        matchRoom.hostSocket.emit(HistogramEvents.CurrentHistogram, histogram);
     }
 }

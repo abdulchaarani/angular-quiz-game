@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { MultipleChoiceHistogram } from '@common/interfaces/histogram';
 import { Observable, Subject } from 'rxjs';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
+import { HistogramEvents } from '@common/events/histogram.events';
 @Injectable({
     providedIn: 'root',
 })
@@ -17,13 +18,13 @@ export class HistogramService {
     }
 
     onCurrentHistogram() {
-        this.socketService.on('currentHistogram', (data: MultipleChoiceHistogram) => {
+        this.socketService.on(HistogramEvents.CurrentHistogram, (data: MultipleChoiceHistogram) => {
             this.currentHistogramSource.next(data);
         });
     }
 
     onHistogramHistory() {
-        this.socketService.on('histogramHistory', (data: MultipleChoiceHistogram[]) => {
+        this.socketService.on(HistogramEvents.HistogramHistory, (data: MultipleChoiceHistogram[]) => {
             this.histogramHistorySource.next(data);
         });
     }

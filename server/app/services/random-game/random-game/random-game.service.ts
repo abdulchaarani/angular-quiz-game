@@ -12,10 +12,21 @@ export class RandomGameService {
     constructor(
         private readonly questionService: QuestionService,
         private gameCreationService: GameCreationService,
-    ) {}
+    ) {
+        this.initializeService();
+    }
 
-    async getAllQuestions() {
-        this.allBankQuestions = [...(await this.questionService.getAllQuestions())];
+    async initializeService() {
+        await this.fetchAllQuestions();
+    }
+
+    async fetchAllQuestions() {
+        try {
+            const questions = await this.questionService.getAllQuestions();
+            this.allBankQuestions = questions;
+        } catch (error) {
+            console.error('Failed to fetch questions:', error);
+        }
     }
 
     isRandomGameAvailable(): boolean {
@@ -38,18 +49,18 @@ export class RandomGameService {
     }
 
     generateRandomGame(): Game {
+        const questions: Question[] = this.getRandomQuestions();
         const game: Game = {
             id: '',
             title: 'mode aléatoire',
             description: 'mode aléatoire',
             duration: 20,
             isVisible: true,
-            questions: this.getRandomQuestions(),
+            questions: questions,
             lastModification: new Date(),
         };
 
         this.randomGame = this.gameCreationService.generateId(game);
-
         return this.randomGame;
     }
 }

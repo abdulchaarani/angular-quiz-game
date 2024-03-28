@@ -48,9 +48,15 @@ export class MatchGateway implements OnGatewayDisconnect {
 
     @SubscribeMessage(MatchEvents.CreateRoom)
     createRoom(@ConnectedSocket() socket: Socket, @MessageBody() data: { gameId: string; isTestPage: boolean; isRandomMode: boolean }) {
-        const selectedGame: Game = this.matchBackupService.getBackupGame(data.gameId);
+        let selectedGame: Game = {} as Game;
+        if (!data.isRandomMode) {
+            selectedGame = this.matchBackupService.getBackupGame(data.gameId);
+        } else {
+            selectedGame = this.matchBackupService.getBackupRandomGame();
+            console.log(selectedGame);
+        }
         const newMatchRoom: MatchRoom = this.matchRoomService.addRoom(selectedGame, socket, data.isTestPage, data.isRandomMode);
-        this.histogramService.resetChoiceTracker(newMatchRoom.code);
+        // this.histogramService.resetChoiceTracker(newMatchRoom.code);
         if (data.isTestPage || data.isRandomMode) {
             const playerInfo = { roomCode: newMatchRoom.code, username: HOST_USERNAME };
             socket.join(newMatchRoom.code);

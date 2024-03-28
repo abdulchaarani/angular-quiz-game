@@ -27,6 +27,7 @@ import { HistoryItem, historyItemSchema } from './model/database/history-item';
 import { HistoryService } from './services/history/history.service';
 import { MatchRoomService } from './services/match-room/match-room.service';
 import { PlayerRoomService } from './services/player-room/player-room.service';
+import { RandomGameService } from './services/random-game/random-game/random-game.service';
 @Module({
     imports: [
         ConfigModule.forRoot({ isGlobal: true }),
@@ -61,6 +62,7 @@ import { PlayerRoomService } from './services/player-room/player-room.service';
         HistogramService,
         ChatGateway,
         HistoryService,
+        RandomGameService,
     ],
 })
 export class AppModule {}

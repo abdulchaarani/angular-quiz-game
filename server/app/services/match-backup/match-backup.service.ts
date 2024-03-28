@@ -5,11 +5,15 @@ import { Question } from '@app/model/database/question';
 import { GameService } from '@app/services/game/game.service';
 import { Injectable } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
+import { RandomGameService } from '../random-game/random-game/random-game.service';
 
 @Injectable()
 export class MatchBackupService {
     backupGames: Game[];
-    constructor(private readonly gameService: GameService) {
+    constructor(
+        private readonly gameService: GameService,
+        private readonly randomGameService: RandomGameService,
+    ) {
         this.backupGames = [];
     }
 
@@ -32,6 +36,10 @@ export class MatchBackupService {
         return this.backupGames.find((currentGame) => {
             return currentGame.id === gameId;
         });
+    }
+
+    getBackupRandomGame(): Game {
+        return this.randomGameService.generateRandomGame();
     }
 
     getBackupQuestion(gameId: string, questionId: string): Question {

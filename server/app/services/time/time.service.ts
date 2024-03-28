@@ -5,6 +5,8 @@ import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Server } from 'socket.io';
 
+const PANIC_TICK = 250;
+
 @Injectable()
 export class TimeService {
     private tick: number;
@@ -28,8 +30,15 @@ export class TimeService {
 
     // passing event allows decoupling of timer service
     // eslint-disable-next-line max-params
-    startInterval(server: Server, roomId: string, startValue: number, onTimerExpiredEvent: ExpiredTimerEvents) {
+    startInterval(server: Server, roomId: string, startValue: number, onTimerExpiredEvent: ExpiredTimerEvents, isPanicking: boolean = false) {
         let timerInfo: TimerInfo = { currentTime: startValue, duration: this.durations.get(roomId) };
+        let tick: number;
+        // TODO : Find better solution later
+        if (isPanicking) {
+            tick = PANIC_TICK;
+        } else {
+            tick = this.tick;
+        }
         this.intervals.set(
             roomId,
             setInterval(() => {
@@ -41,7 +50,7 @@ export class TimeService {
                 } else {
                     this.expireTimer(roomId, server, onTimerExpiredEvent);
                 }
-            }, this.tick),
+            }, tick),
         );
     }
 
@@ -57,6 +66,12 @@ export class TimeService {
         this.pauses.set(roomId, false);
 
         this.startInterval(server, roomId, startValue, onTimerExpiredEvent);
+    }
+
+    panicTimer(server: Server, roomId: string) {
+        clearInterval(this.intervals.get(roomId));
+        this.startInterval(server, roomId, this.counters.get(roomId), ExpiredTimerEvents.QuestionTimerExpired, true);
+        server.to(roomId).emit(TimerEvents.PanicTimer);
     }
 
     expireTimer(roomId: string, server: Server, onTimerExpiredEvent: ExpiredTimerEvents) {

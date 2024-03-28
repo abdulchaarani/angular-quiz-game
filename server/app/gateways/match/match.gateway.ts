@@ -118,6 +118,11 @@ export class MatchGateway implements OnGatewayDisconnect {
         this.matchRoomService.pauseMatchTimer(this.server, roomCode);
     }
 
+    @SubscribeMessage(TimerEvents.PanicTimer)
+    panicTimer(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
+        this.matchRoomService.panicMatchTimer(this.server, roomCode);
+    }
+
     @OnEvent(ExpiredTimerEvents.CountdownTimerExpired)
     onCountdownTimerExpired(matchRoomCode: string) {
         this.matchRoomService.sendFirstQuestion(this.server, matchRoomCode);

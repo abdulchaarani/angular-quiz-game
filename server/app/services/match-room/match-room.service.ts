@@ -115,6 +115,10 @@ export class MatchRoomService {
         this.timeService.pauseTimer(server, matchRoomCode);
     }
 
+    panicMatchTimer(server: Server, matchRoomCode: string) {
+        this.timeService.panicTimer(server, matchRoomCode);
+    }
+
     markGameAsPlaying(matchRoomCode: string): void {
         const matchRoom: MatchRoom = this.getRoom(matchRoomCode);
         matchRoom.isPlaying = true;

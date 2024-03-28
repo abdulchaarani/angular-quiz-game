@@ -47,6 +47,10 @@ export class TimeService {
         this.socketService.send(TimerEvents.PauseTimer, roomCode);
     }
 
+    panicTimer(roomCode: string): void {
+        this.socketService.send(TimerEvents.PanicTimer, roomCode);
+    }
+
     handleTimer(): void {
         this.socketService.on(TimerEvents.Timer, (timerInfo: TimerInfo) => {
             this.counter = timerInfo.currentTime;

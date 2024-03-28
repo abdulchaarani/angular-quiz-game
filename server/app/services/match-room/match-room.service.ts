@@ -145,7 +145,7 @@ export class MatchRoomService {
     sendNextQuestion(server: Server, matchRoomCode: string): void {
         const matchRoom: MatchRoom = this.getRoom(matchRoomCode);
         if (matchRoom.currentQuestionIndex === matchRoom.gameLength) {
-            server.in(matchRoomCode).emit(MatchEvents.GameOver, matchRoom.isTestRoom);
+            server.in(matchRoomCode).emit(MatchEvents.GameOver, { isTestRoom: matchRoom.isTestRoom, isRandomMode: matchRoom.isRandomMode });
             return;
         }
         const nextQuestion = matchRoom.game.questions[matchRoom.currentQuestionIndex];
@@ -169,7 +169,6 @@ export class MatchRoomService {
         if (!room) {
             return false;
         }
-
         return (room.isLocked && room.players.length > 0 && !room.isRandomMode) || (room.isLocked && room.isRandomMode);
     }
 

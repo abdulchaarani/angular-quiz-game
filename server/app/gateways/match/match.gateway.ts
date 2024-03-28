@@ -42,7 +42,7 @@ export class MatchGateway implements OnGatewayDisconnect {
         } else {
             socket.join(data.roomCode);
             const newPlayer = this.playerRoomService.addPlayer(socket, data.roomCode, data.username);
-            return { code: data.roomCode, username: newPlayer.username };
+            return { code: data.roomCode, username: newPlayer.username, isRandomMode: this.matchRoomService.getRoom(data.roomCode).isRandomMode };
         }
     }
 
@@ -177,6 +177,6 @@ export class MatchGateway implements OnGatewayDisconnect {
 
     private isTestRoom(matchRoomCode: string) {
         const matchRoom = this.matchRoomService.getRoom(matchRoomCode);
-        return matchRoom.hostSocket === matchRoom.players[0].socket;
+        return matchRoom.isTestRoom && !matchRoom.isRandomMode;
     }
 }

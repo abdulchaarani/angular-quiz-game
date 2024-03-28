@@ -113,7 +113,6 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         this.resetStateForNewQuestion();
 
         this.context = this.questionContextService.getContext();
-
         if (this.isFirstQuestion) {
             this.currentQuestion = this.getHistoryState().question;
             this.gameDuration = this.getHistoryState().duration;
@@ -207,7 +206,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
             this.playerScore = feedback.score;
             this.matchRoomService.sendPlayersData(this.matchRoomCode);
             this.showFeedback = true;
-            if (this.context === MatchContext.TestPage) {
+            if (this.context === MatchContext.TestPage || this.context === MatchContext.RandomMode) {
                 this.nextQuestion();
             }
         }
@@ -263,7 +262,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
     private subscribeToCooldown() {
         const displayCoolDownSubscription = this.matchRoomService.displayCooldown$.subscribe((isCooldown) => {
             this.isCooldown = isCooldown;
-            if (this.isCooldown && this.context !== MatchContext.TestPage) {
+            if (this.isCooldown && !this.isLastQuestion) {
                 this.currentQuestion.text = MatchStatus.PREPARE;
             }
         });

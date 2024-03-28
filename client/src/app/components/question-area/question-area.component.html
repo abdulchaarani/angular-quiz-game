@@ -7,7 +7,8 @@
             <div
                 id="score-feedback-area"
                 *ngIf="
-                    (showFeedback && context === matchContext.PlayerView && !isCooldown) || (showFeedback && context === matchContext.TestPage);
+                    (showFeedback && context === matchContext.PlayerView && !isCooldown) ||
+                        (showFeedback && (context === matchContext.TestPage || context === matchContext.RandomMode));
                     else elseBlock
                 "
             >
@@ -70,7 +71,10 @@
                 </button>
             </div>
         </div>
-        <div id="submit-button-container" *ngIf="context === matchContext.TestPage || context === matchContext.PlayerView">
+        <div
+            id="submit-button-container"
+            *ngIf="context === matchContext.PlayerView || this.context === matchContext.TestPage || this.context === matchContext.RandomMode"
+        >
             <button mat-raised-button color="primary" id="submit-button" *ngIf="isSelectionEnabled" (click)="submitAnswers()">SOUMETTRE</button>
         </div>
     </div>

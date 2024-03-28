@@ -3,7 +3,12 @@ html {
     height: 100%;
     margin: 0;
 }
-
+.clickable-item {
+    cursor: pointer;
+}
+.clickable-item:hover {
+    background-color: #dddddd;
+}
 #match-creation-page {
     display: flex;
     height: 100vh;
@@ -19,6 +24,19 @@ html {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     padding: 20px;
+}
+
+#game-card {
+    box-shadow: 2px 0 2.5px 0 10px;
+    border-radius: 5pt;
+}
+
+#game-card-content {
+    margin-left: 8px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    justify-content: space-between;
+    align-items: center;
 }
 
 #game-list-container {
@@ -57,4 +75,9 @@ button {
 
 app-game-list-item {
     padding: 1px;
+}
+
+::-webkit-scrollbar {
+    display: none;
+    scrollbar-width: thin;
 }

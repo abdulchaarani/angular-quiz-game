@@ -2,10 +2,12 @@ import { HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { MatchContext } from '@app/constants/states';
 import { Game } from '@app/interfaces/game';
+import { Question } from '@app/interfaces/question';
 import { GameService } from '@app/services/game/game.service';
 import { MatchService } from '@app/services/match/match.service';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { QuestionContextService } from '@app/services/question-context/question-context.service';
+import { QuestionService } from '@app/services/question/question.service';
 
 @Component({
     selector: 'app-match-creation-page',
@@ -17,6 +19,8 @@ export class MatchCreationPageComponent implements OnInit {
     selectedGame: Game;
     gameIsValid: boolean;
     MatchContext = MatchContext;
+    isRandomGame: boolean;
+    bankQuestionLen: number = 0;
 
     // Services are required to decouple logic
     // eslint-disable-next-line max-params
@@ -25,19 +29,49 @@ export class MatchCreationPageComponent implements OnInit {
         private readonly notificationService: NotificationService,
         private readonly matchService: MatchService,
         private readonly questionContextService: QuestionContextService,
+        private readonly questionService: QuestionService,
     ) {
         this.gameIsValid = false;
+        this.isRandomGame = false;
     }
 
     ngOnInit(): void {
         this.reloadAllGames();
+        this.reloadRandomGame();
     }
 
     reloadAllGames(): void {
         this.matchService.getAllGames().subscribe((data: Game[]) => (this.games = data));
     }
 
+    loadRandomGame(): void {
+        this.reloadRandomGame();
+        this.isRandomGame = true;
+        this.selectedGame = {
+            id: '',
+            title: 'Mode aléatoire',
+            description: 'SURPRISE',
+            duration: 20,
+            isVisible: true,
+            questions: [],
+            lastModification: '',
+        };
+        this.matchService.currentGame = this.selectedGame;
+        this.gameIsValid = true;
+    }
+
+    reloadRandomGame(): void {
+        this.questionService.getAllQuestions().subscribe({
+            next: (data: Question[]) => (this.bankQuestionLen = [...data].length),
+        });
+        if (this.bankQuestionLen < 5) {
+            this.notificationService.displayErrorMessage("Il n'y a pas assez de questions pour un jeu aléatoire");
+            return;
+        }
+    }
+
     loadSelectedGame(selectedGame: Game): void {
+        this.isRandomGame = false;
         this.gameService.getGameById(selectedGame.id).subscribe({
             next: (data: Game) => {
                 this.selectedGame = data;
@@ -51,6 +85,7 @@ export class MatchCreationPageComponent implements OnInit {
     }
 
     reloadSelectedGame(): void {
+        this.isRandomGame = false;
         this.gameService.getGameById(this.selectedGame.id).subscribe({
             next: (data: Game) => {
                 this.selectedGame = data;
@@ -91,6 +126,10 @@ export class MatchCreationPageComponent implements OnInit {
 
     createMatch(context: MatchContext): void {
         this.questionContextService.setContext(context);
-        this.reloadSelectedGame();
+        if (!this.isRandomGame) this.reloadSelectedGame();
+        else {
+            this.reloadRandomGame();
+            this.matchService.createMatch();
+        }
     }
 }

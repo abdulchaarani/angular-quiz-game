@@ -84,7 +84,7 @@ export class MatchRoomService {
     }
 
     createRoom(gameId: string, isTestRoom: boolean = false, isRandomMode: boolean = false) {
-        this.socketService.send(MatchEvents.CreateRoom, { gameId, isTestPage: isTestRoom, isRandomMode: isRandomMode }, (res: { code: string }) => {
+        this.socketService.send(MatchEvents.CreateRoom, { gameId, isTestPage: isTestRoom, isRandomMode }, (res: { code: string }) => {
             this.matchRoomCode = res.code;
             this.username = HOST_USERNAME;
             if (isTestRoom) {
@@ -169,6 +169,7 @@ export class MatchRoomService {
     }
 
     onGameOver() {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         this.socketService.on(MatchEvents.GameOver, (data: any) => {
             const { isTestRoom, isRandomMode } = data;
             if (isTestRoom && !isRandomMode) {

@@ -8,14 +8,15 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SnackBarError } from '@app/constants/feedback-messages';
 import { getMockGame } from '@app/constants/game-mocks';
 import { MatDialogMock } from '@app/constants/mat-dialog-mock';
+import { MatchContext } from '@app/constants/states';
 import { Game } from '@app/interfaces/game';
 import { GameService } from '@app/services/game/game.service';
 import { MatchService } from '@app/services/match/match.service';
 import { NotificationService } from '@app/services/notification/notification.service';
+import { QuestionContextService } from '@app/services/question-context/question-context.service';
 import { of, throwError } from 'rxjs';
 import { MatchCreationPageComponent } from './match-creation-page.component';
 import SpyObj = jasmine.SpyObj;
-import { QuestionContextService } from '@app/services/question-context/question-context.service';
 
 describe('MatchCreationPageComponent', () => {
     let component: MatchCreationPageComponent;
@@ -199,13 +200,13 @@ describe('MatchCreationPageComponent', () => {
 
     it('createMatch() should create a playing match', () => {
         const reloadSpy = spyOn(component, 'reloadSelectedGame');
-        component.createMatch(false);
+        component.createMatch(MatchContext.HostView);
         expect(reloadSpy).toHaveBeenCalled();
     });
 
     it('createMatch() should create a test match if testGame is set to true', () => {
         const reloadSpy = spyOn(component, 'reloadSelectedGame');
-        component.createMatch(true);
+        component.createMatch(MatchContext.TestPage);
         expect(reloadSpy).toHaveBeenCalled();
         expect(questionContextSpy.setContext).toHaveBeenCalled();
     });

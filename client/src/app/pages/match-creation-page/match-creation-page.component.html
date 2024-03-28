@@ -3,6 +3,12 @@
     <div id="game-list-container">
         <h2>Liste des jeux</h2>
         <cdk-virtual-scroll-viewport class="virtual-scroll" itemSize="50">
+            <mat-card id="game-card">
+                <mat-card-content id="game-card-content" [ngClass]="'clickable-item'" (click)="loadRandomGame()">
+                    <p id="game-title">Mode Aléatoire</p>
+                </mat-card-content>
+            </mat-card>
+
             <app-game-list-item
                 *cdkVirtualFor="let game of games"
                 [game]="game"
@@ -22,7 +28,7 @@
                     <strong>Temps alloué : </strong>
                     <span id="game-time-duration">{{ selectedGame.duration }} secondes</span>
                 </div>
-                <div class="list">
+                <div class="list" *ngIf="!isRandomGame">
                     <strong>Liste des questions : </strong>
                     <span id="game-questions" *ngFor="let question of selectedGame.questions; let i = index"
                         >{{ i + 1 }}. {{ question.text }}<br
@@ -36,9 +42,13 @@
         </cdk-virtual-scroll-viewport>
 
         <div id="buttons-container">
-            <button mat-raised-button color="primary" (click)="createMatch(MatchContext.TestPage)" *ngIf="gameIsValid">Tester jeu</button>
+            <button mat-raised-button color="primary" (click)="createMatch(MatchContext.TestPage)" *ngIf="gameIsValid && !isRandomGame">
+                Tester jeu
+            </button>
             <button mat-raised-button color="primary" (click)="createMatch(MatchContext.HostView)" *ngIf="gameIsValid">Jouer jeu</button>
-            <button mat-raised-button color="primary" (click)="createMatch(MatchContext.RandomMode)" *ngIf="gameIsValid">Mode Aléatoire</button>
+            <button mat-raised-button color="primary" (click)="createMatch(MatchContext.RandomMode)" *ngIf="gameIsValid && isRandomGame">
+                Mode Aléatoire
+            </button>
         </div>
     </div>
 </div>

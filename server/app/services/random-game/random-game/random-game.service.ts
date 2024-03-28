@@ -7,6 +7,7 @@ import { Injectable } from '@nestjs/common';
 @Injectable()
 export class RandomGameService {
     MINIMUM_QUESTIONS: number = 5;
+    DURATION: number = 20;
     allBankQuestions: Question[] = [];
     randomGame: Game;
     constructor(
@@ -54,12 +55,11 @@ export class RandomGameService {
             id: '',
             title: 'mode aléatoire',
             description: 'mode aléatoire',
-            duration: 20,
+            duration: this.DURATION,
             isVisible: true,
             questions: questions,
             lastModification: new Date(),
         };
-
         this.randomGame = this.gameCreationService.generateId(game);
         return this.randomGame;
     }

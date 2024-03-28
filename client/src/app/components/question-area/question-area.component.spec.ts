@@ -352,7 +352,7 @@ describe('QuestionAreaComponent', () => {
         const choice: Choice = { text: 'London', isCorrect: false };
         component.isSelectionEnabled = true;
         component.selectedAnswers = [];
-        component.context = 'testPage';
+        component.context = MatchContext.TestPage;
 
         component.selectChoice(choice);
 
@@ -363,7 +363,7 @@ describe('QuestionAreaComponent', () => {
         const choice: Choice = { text: 'London', isCorrect: false };
         component.isSelectionEnabled = true;
         component.selectedAnswers = [choice];
-        component.context = 'testPage';
+        component.context = MatchContext.TestPage;
 
         component.selectChoice(choice);
 
@@ -432,7 +432,7 @@ describe('QuestionAreaComponent', () => {
         };
 
         component.playerScore = 10;
-        component.context = 'testPage';
+        component.context = MatchContext.TestPage;
 
         spyOn(component, 'nextQuestion');
 
@@ -511,7 +511,7 @@ describe('QuestionAreaComponent', () => {
 
     it('subscribeToCooldown() should set the displayed text to Match Prepare if context is not testPage ', () => {
         component.isCooldown = false;
-        component.context = 'playerView';
+        component.context = MatchContext.PlayerView;
         component['subscribeToCooldown']();
         booleanSubject.next(true);
         expect(component.currentQuestion.text).toEqual(MatchStatus.PREPARE);
@@ -519,7 +519,7 @@ describe('QuestionAreaComponent', () => {
 
     it('subscribeToCooldown() should not set the displayed text to Match Prepare if context is testPage ', () => {
         component.isCooldown = false;
-        component.context = 'testPage';
+        component.context = MatchContext.TestPage;
         component['subscribeToCooldown']();
         booleanSubject.next(true);
         expect(component.currentQuestion.text).not.toEqual(MatchStatus.PREPARE);

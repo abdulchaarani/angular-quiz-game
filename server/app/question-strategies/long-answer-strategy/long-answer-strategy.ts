@@ -8,7 +8,11 @@ import { LongAnswerInfo } from '@common/interfaces/long-answer-info';
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { QuestionStrategy } from '@app/question-strategies/question-strategy';
-import { PlayerCountHistogram } from '@common/interfaces/histogram';
+import { GradesHistogram, PlayerCountHistogram } from '@common/interfaces/histogram';
+import { GradeTracker } from '@app/model/choice-tracker/choice-tracker';
+import { AnswerCorrectness } from '@common/constants/answer-correctness';
+import { isInt } from 'class-validator';
+import { Grade } from '@common/interfaces/choice-tally';
 
 @Injectable()
 export class LongAnswerStrategy extends QuestionStrategy {
@@ -22,24 +26,30 @@ export class LongAnswerStrategy extends QuestionStrategy {
 
     calculateScore(matchRoom: MatchRoom, players: Player[], grades: LongAnswerInfo[]) {
         const currentQuestionPoints = matchRoom.currentQuestion.points;
-        const gradeTally: Map<number, number> = new Map();
+        const gradeTracker = new GradeTracker(matchRoom.currentQuestion.text, this.getPossibleGrades());
         grades.forEach((grade) => {
             const score = parseInt(grade.score, 10);
-            gradeTally.set(score, gradeTally.get(score) + 1);
+            gradeTracker.incrementCount(grade.score);
 
             const currentPlayer = players.find((player) => player.username === grade.username);
             currentPlayer.answerCorrectness = score;
             currentPlayer.score += currentQuestionPoints * (score / MULTIPLICATION_FACTOR);
         });
         this.eventEmitter.emit(GradingEvents.GradingComplete, matchRoom.code);
+        this.buildGradesHistogram(matchRoom, gradeTracker);
     }
 
     buildHistogram(matchRoom: MatchRoom): PlayerCountHistogram {
+        return this.buildPlayerCountHistogram(matchRoom);
+    }
+
+    buildPlayerCountHistogram(matchRoom: MatchRoom): PlayerCountHistogram {
         const players = matchRoom.players;
         const time = Date.now() - HISTOGRAM_UPDATE_TIME_MS;
 
         const emptyHistogram = {
             question: matchRoom.currentQuestion.text,
+            type: 'QRL',
             playerCount: 0,
             activePlayers: 0,
             inactivePlayers: 0,
@@ -53,6 +63,11 @@ export class LongAnswerStrategy extends QuestionStrategy {
 
         longAnswerHistogram.inactivePlayers = longAnswerHistogram.playerCount - longAnswerHistogram.activePlayers;
         return longAnswerHistogram;
+    }
+
+    private buildGradesHistogram(matchRoom: MatchRoom, gradeTracker: GradeTracker): void {
+        const gradesHistogram: GradesHistogram = { question: gradeTracker.question, type: 'QRL', gradeTallies: Object.values(gradeTracker.items) };
+        matchRoom.matchHistograms[matchRoom.currentQuestionIndex] = gradesHistogram;
     }
 
     private prepareAnswersForGrading(matchRoom: MatchRoom, players: Player[]) {
@@ -70,5 +85,13 @@ export class LongAnswerStrategy extends QuestionStrategy {
         });
 
         matchRoom.hostSocket.emit(AnswerEvents.GradeAnswers, playerAnswers);
+    }
+
+    private getPossibleGrades() {
+        const possibleGrades: Grade[] = [];
+        Object.values(AnswerCorrectness).filter((value) => {
+            if (isInt(value)) possibleGrades.push({ score: String(value) });
+        });
+        return possibleGrades;
     }
 }

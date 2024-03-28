@@ -1,7 +1,8 @@
-import { ChoiceTally } from './choice-tally';
+import { ChoiceTally, GradeTally } from './choice-tally';
 
 export interface Histogram {
     question: string;
+    type: string;
 }
 
 export interface MultipleChoiceHistogram extends Histogram {
@@ -14,7 +15,5 @@ export interface PlayerCountHistogram extends Histogram {
 }
 
 export interface GradesHistogram extends Histogram {
-    wrongAnswerCount: number;
-    okAnswerCount: number;
-    goodAnswerCount: number;
+    gradeTallies: GradeTally[];
 }

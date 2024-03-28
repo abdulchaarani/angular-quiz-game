@@ -72,6 +72,6 @@ export class MultipleChoiceStrategy extends QuestionStrategy {
     }
 
     private convertToHistogram(choiceTracker: ChoiceTracker): MultipleChoiceHistogram {
-        return { question: choiceTracker.question, choiceTallies: Object.values(choiceTracker.items) };
+        return { question: choiceTracker.question, type: 'QCM', choiceTallies: Object.values(choiceTracker.items) };
     }
 }

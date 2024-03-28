@@ -90,7 +90,9 @@ export class AnswerService {
         });
     }
 
-    private sendFeedback(roomCode: string, correctAnswer?: string[]) {
+    private sendFeedback(roomCode: string) {
+        const matchRoom = this.getRoom(roomCode);
+        const correctAnswer = matchRoom.currentQuestionAnswer;
         const players: Player[] = this.playerService.getPlayers(roomCode);
         players.forEach((player: Player) => {
             const feedback: Feedback = { score: player.score, answerCorrectness: player.answerCorrectness, correctAnswer };
@@ -98,7 +100,6 @@ export class AnswerService {
             player.answerCorrectness = AnswerCorrectness.WRONG;
         });
 
-        const matchRoom = this.getRoom(roomCode);
         matchRoom.hostSocket.emit(AnswerEvents.Feedback);
         if (matchRoom.gameLength === 1 + matchRoom.currentQuestionIndex) matchRoom.hostSocket.emit(AnswerEvents.EndGame);
     }

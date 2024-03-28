@@ -43,9 +43,9 @@ export class AnswerService {
         this.socketService.send(AnswerEvents.SubmitAnswer, userInfo);
     }
 
-    updateFreeAnswer(answer: string, userInfo: UserInfo) {
+    updateLongAnswer(answer: string, userInfo: UserInfo) {
         const choiceInfo: ChoiceInfo = { choice: answer, userInfo };
-        this.socketService.send(AnswerEvents.UpdateFreeAnswer, choiceInfo);
+        this.socketService.send(AnswerEvents.UpdateLongAnswer, choiceInfo);
     }
 
     onFeedback() {

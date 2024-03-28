@@ -3,7 +3,7 @@ import { PageEvent } from '@angular/material/paginator';
 import { Player } from '@app/interfaces/player';
 import { HistogramService } from '@app/services/histogram/histogram.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
-import { Histogram } from '@common/interfaces/histogram';
+import { MultipleChoiceHistogram } from '@common/interfaces/histogram';
 import { Subscription } from 'rxjs/internal/Subscription';
 @Component({
     selector: 'app-results-page',
@@ -15,7 +15,7 @@ export class ResultsPageComponent implements OnInit, OnDestroy {
     pageEvent: PageEvent;
     players: Player[] = [];
     currentQuestionIndex: number = 0;
-    histogramsGame: Histogram[] = [];
+    histogramsGame: MultipleChoiceHistogram[] = [];
     private histogramSubscriptions: Subscription[] = [];
     constructor(
         private readonly matchRoomService: MatchRoomService,
@@ -43,7 +43,7 @@ export class ResultsPageComponent implements OnInit, OnDestroy {
     }
 
     private subscribeToHistogramHistory() {
-        const histogramHistorySubscription = this.histogramService.histogramHistory$.subscribe((histograms: Histogram[]) => {
+        const histogramHistorySubscription = this.histogramService.histogramHistory$.subscribe((histograms: MultipleChoiceHistogram[]) => {
             this.histogramsGame = histograms;
         });
         this.histogramSubscriptions.push(histogramHistorySubscription);

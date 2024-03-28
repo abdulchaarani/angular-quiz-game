@@ -55,7 +55,7 @@ export class LongAnswerAreaComponent implements OnInit, OnDestroy {
 
     updateAnswer(): void {
         if (this.isSelectionEnabled) {
-            this.answerService.updateFreeAnswer(this.currentAnswer, { username: this.username, roomCode: this.matchRoomCode });
+            this.answerService.updateLongAnswer(this.currentAnswer, { username: this.username, roomCode: this.matchRoomCode });
         }
     }
 

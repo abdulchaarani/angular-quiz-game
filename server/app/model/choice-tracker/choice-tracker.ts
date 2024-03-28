@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
 import { Choice } from '@app/model/database/choice';
-import { ChoiceTally, GradeTally, Tally } from '@common/interfaces/choice-tally';
+import { ChoiceTally, Grade, GradeTally, Tally } from '@common/interfaces/choice-tally';
 
 class Tracker<T extends Tally> {
     question: string = '';
@@ -30,10 +30,15 @@ export class ChoiceTracker extends Tracker<ChoiceTally> {
 }
 
 export class GradeTracker extends Tracker<GradeTally> {
-    resetGradeTracker(questionText: string, possibleGrades: string[]): void {
+    constructor(questionText: string, possibleGrades: Grade[]) {
+        super();
+        this.resetGradeTracker(questionText, possibleGrades);
+    }
+
+    resetGradeTracker(questionText: string, possibleGrades: Grade[]): void {
         super.resetTracker(questionText);
         possibleGrades.forEach((grade) => {
-            this.items[grade].tally = 0;
+            this.items[grade.score] = { score: grade.score, tally: 0 };
         });
     }
 }

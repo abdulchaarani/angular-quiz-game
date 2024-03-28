@@ -8,6 +8,7 @@ import { Injectable } from '@nestjs/common';
 export class RandomGameService {
     MINIMUM_QUESTIONS: number = 5;
     allBankQuestions: Question[] = [];
+    randomGame: Game;
     constructor(
         private readonly questionService: QuestionService,
         private gameCreationService: GameCreationService,
@@ -37,25 +38,18 @@ export class RandomGameService {
     }
 
     generateRandomGame(): Game {
-        // const randomQuestions: Question[] = this.getRandomQuestions();
-        // const randomGame: Game= {
+        const game: Game = {
+            id: '',
+            title: 'mode aléatoire',
+            description: 'mode aléatoire',
+            duration: 20,
+            isVisible: true,
+            questions: this.getRandomQuestions(),
+            lastModification: new Date(),
+        };
 
-        //     id = this.gameCreationService.generateId(),
+        this.randomGame = this.gameCreationService.generateId(game);
 
-        //     title,
-
-        //     description,
-
-        //     lastModification,
-
-        //     duration,
-
-        //     isVisibl,
-
-        //     questions
-        // }
-        // return randomGame;
-
-        return {} as Game;
+        return this.randomGame;
     }
 }

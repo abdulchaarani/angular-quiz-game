@@ -11,7 +11,7 @@ const PANIC_TICK = 250;
 export class TimeService {
     private tick: number;
     private intervals: Map<string, NodeJS.Timeout>;
-    // TODO : Rename to smt more elegant
+    // TODO : Rename to smt more elegant + find solution with less maps...
     private pauses: Map<string, boolean>;
     private counters: Map<string, number>;
     private durations: Map<string, number>;

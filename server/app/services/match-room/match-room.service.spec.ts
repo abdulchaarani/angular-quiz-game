@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ExpiredTimerEvents } from '@app/constants/expired-timer-events';
@@ -14,6 +15,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { Socket } from 'socket.io';
 import { MatchRoomService } from './match-room.service';
+import { FAKE_ROOM_ID } from '@app/constants/time-mocks';
 
 const MAXIMUM_CODE_LENGTH = 4;
 const MOCK_YEAR = 2024;
@@ -346,5 +348,17 @@ describe('MatchRoomService', () => {
         service.matchRooms[0].game.title = 'game1';
         const currentGameDuration = service['getGameTitle'](MOCK_ROOM_CODE);
         expect(currentGameDuration).toEqual('game1');
+    });
+
+
+    // TODO : Getting same error as timeService service.to tests. Probably a mock error 
+    it('should call pauseTimer from timeService when pauseMatchTimer() is called', () => {
+        service.pauseMatchTimer(mockServer, FAKE_ROOM_ID);
+        expect(timeService.pauseTimer).toHaveBeenCalled();
+    });
+
+    it('should call panicTimer from timeService when panicMatchTimer() is called', () => {
+        service.panicMatchTimer(mockServer, FAKE_ROOM_ID);
+        expect(timeService.panicTimer).toHaveBeenCalled();
     });
 });

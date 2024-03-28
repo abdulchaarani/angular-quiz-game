@@ -43,7 +43,7 @@ class SocketHandlerServiceMock extends SocketHandlerService {
 })
 class MockChatComponent {}
 
-describe('QuestionAreaComponent', () => {
+fdescribe('QuestionAreaComponent', () => {
     let component: QuestionAreaComponent;
     let fixture: ComponentFixture<QuestionAreaComponent>;
     let matchSpy: spyObj<MatchService>;

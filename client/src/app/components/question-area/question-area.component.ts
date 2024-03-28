@@ -262,7 +262,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
     private subscribeToCooldown() {
         const displayCoolDownSubscription = this.matchRoomService.displayCooldown$.subscribe((isCooldown) => {
             this.isCooldown = isCooldown;
-            if (this.isCooldown && !this.isLastQuestion) {
+            if (this.isCooldown && !this.isLastQuestion && this.context !== MatchContext.TestPage && this.context !== MatchContext.RandomMode) {
                 this.currentQuestion.text = MatchStatus.PREPARE;
             }
         });

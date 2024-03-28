@@ -35,9 +35,9 @@ export class TimeService {
         let tick: number;
         // TODO : Find better solution later
         if (isPanicking) {
-            tick = PANIC_TICK;
+            this.tick = PANIC_TICK;
         } else {
-            tick = this.tick;
+            this.tick = 1000;
         }
         this.intervals.set(
             roomId,

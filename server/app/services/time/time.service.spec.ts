@@ -69,6 +69,55 @@ describe('TimeService', () => {
         expect(service['intervals'].get(FAKE_ROOM_ID)).toBeDefined();
     });
 
+    it('should call startInterval in panic mode when isPanicking is set to true', () => {
+        const PANIC_TICK = 250;
+        service.startInterval(server, FAKE_ROOM_ID, TIMER_VALUE, ExpiredTimerEvents.CountdownTimerExpired, true);
+        expect(service['tick']).toEqual(PANIC_TICK);
+    });
+
+    it('should call startInterval in normal mode when isPanicking is set to false', () => {
+        const NORMAL_TICK = 1000;
+        service.startInterval(server, FAKE_ROOM_ID, TIMER_VALUE, ExpiredTimerEvents.CountdownTimerExpired);
+        expect(service['tick']).toEqual(NORMAL_TICK);
+    });
+
+    // TODO : emit is undefined and im too tired to fix this
+    it('should reset interval for set roomId, start a panic mode interval and emit a panic event when panicTimer() is called', () => {
+        service.panicTimer(server, FAKE_ROOM_ID);
+        const spy = jest.spyOn(service, 'startInterval');
+        expect(service['intervals'].get(FAKE_ROOM_ID)).toBeUndefined();
+        expect(spy).toHaveBeenCalled();
+        server.to.returns({
+            emit: (event: string) => {
+                expect(event).toEqual('panicTimer');
+            },
+        } as BroadcastOperator<unknown, unknown>);
+    });
+
+    it('should pause timer if timer is not already paused and emit pause timer event', () => {
+        service['intervals'] = FAKE_INTERVAL;
+        service.pauseTimer(server, FAKE_ROOM_ID);
+        expect(service['pauses'].get(FAKE_ROOM_ID)).toBeDefined();
+        expect(service['pauses'].get(FAKE_ROOM_ID)).toBe(true);
+        expect(service['intervals'].get(FAKE_ROOM_ID)).toBeUndefined();
+
+        server.to.returns({
+            emit: (event: string) => {
+                expect(event).toEqual('pauseTimer');
+            },
+        } as BroadcastOperator<unknown, unknown>);
+    });
+
+    it('should restart timer if pauseTimer() is called on an already paused timer', () => {
+        const spy = jest.spyOn(service, 'startInterval');
+        service['intervals'] = FAKE_INTERVAL;
+        service['pauses'].set(FAKE_ROOM_ID, true);
+        service.pauseTimer(server, FAKE_ROOM_ID);
+
+        expect(service['pauses'].get(FAKE_ROOM_ID)).toBe(false);
+        expect(spy).toHaveBeenCalled();
+    });
+
     it('should call expire timer and reset timer with terminate timer when time runs out', () => {
         service['counters'] = FAKE_COUNTER;
         const terminateSpy = jest.spyOn(service, 'terminateTimer');

@@ -11,6 +11,7 @@ import { MatchBackupService } from '@app/services/match-backup/match-backup.serv
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
 import { TimeService } from '@app/services/time/time.service';
+import { PlayerState } from '@common/constants/player-states';
 import { MatchEvents } from '@common/events/match.events';
 import { Histogram } from '@common/interfaces/histogram';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -105,6 +106,7 @@ describe('MatchGateway', () => {
 
     it('routeToResultsPage() should emit a routing event to a room, save history and call emitHistogramHistory', () => {
         const spy = jest.spyOn<any, any>(gateway, 'emitHistogramHistory').mockReturnThis();
+        const stateSpy = jest.spyOn(playerRoomSpy, 'setStateForAll').mockReturnThis();
         const spyHistory = jest.spyOn(historySpy, 'createHistoryItem').mockReturnThis();
         server.to.returns({
             emit: (event: string) => {
@@ -114,6 +116,7 @@ describe('MatchGateway', () => {
         gateway.routeToResultsPage(socket, MOCK_ROOM_CODE);
         expect(spy).toHaveBeenCalled();
         expect(spyHistory).toHaveBeenCalled();
+        expect(stateSpy).toHaveBeenCalledWith(MOCK_ROOM_CODE, PlayerState.default);
     });
 
     it('emitHistogramHistory() should emit a list of histograms to a given room', () => {
@@ -291,16 +294,20 @@ describe('MatchGateway', () => {
     it('startMatch() should delegate starting match to match room service', () => {
         const markGameSpy = jest.spyOn(matchRoomSpy, 'markGameAsPlaying');
         const startSpy = jest.spyOn(matchRoomSpy, 'startMatch').mockReturnThis();
+        const stateSpy = jest.spyOn(playerRoomSpy, 'setStateForAll').mockReturnThis();
         gateway.startMatch(socket, MOCK_ROOM_CODE);
         expect(startSpy).toHaveBeenCalledWith(socket, server, MOCK_ROOM_CODE);
         expect(markGameSpy).toHaveBeenCalled();
+        expect(stateSpy).toHaveBeenCalledWith(MOCK_ROOM_CODE, PlayerState.noInteraction);
     });
 
     it('nextQuestion() should delegate starting next question to match room service', () => {
         const nextSpy = jest.spyOn(matchRoomSpy, 'startNextQuestionCooldown').mockReturnThis();
         stub(socket, 'rooms').value(new Set([MOCK_ROOM_CODE]));
+        const stateSpy = jest.spyOn(playerRoomSpy, 'setStateForAll').mockReturnThis();
         gateway.nextQuestion(socket, MOCK_ROOM_CODE);
         expect(nextSpy).toHaveBeenCalledWith(server, MOCK_ROOM_CODE);
+        expect(stateSpy).toHaveBeenCalledWith(MOCK_ROOM_CODE, PlayerState.noInteraction);
     });
 
     it('onCountdownTimerExpired() should call helper functions when CountdownTimerExpired event is emitted', () => {

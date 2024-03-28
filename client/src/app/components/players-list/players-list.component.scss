@@ -12,6 +12,14 @@ h2 {
     margin-left: 1rem;
 }
 
+#sort-options {
+    margin: 1rem;
+    width: 15vw;
+    display: flex;
+    flex-direction: row;
+    gap: 0.5vw;
+}
+
 .player-card {
     width: 15vw;
     margin: 1rem;
@@ -33,4 +41,24 @@ h2 {
     flex-direction: row;
     align-items: center;
     gap: 0.5rem;
+}
+
+.no-interaction {
+    color: rgb(211, 31, 64);
+}
+
+.first-interaction {
+    color: rgb(228, 189, 18);
+}
+
+.final-answer {
+    color: rgb(21, 143, 33);
+}
+
+.exit {
+    color: #000;
+}
+
+.default {
+    color: rgb(0, 0, 0, 0.5);
 }

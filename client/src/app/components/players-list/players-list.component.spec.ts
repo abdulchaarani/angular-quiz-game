@@ -1,8 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Player } from '@app/interfaces/player';
 import { SortByScorePipe } from '@app/pipes/sort-by-score.pipe';
+import { SortPlayersPipe } from '@app/pipes/sort-players.pipe';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayersListComponent } from './players-list.component';
-import { Player } from '@app/interfaces/player';
 
 describe('PlayersListComponent', () => {
     let component: PlayersListComponent;
@@ -10,10 +11,10 @@ describe('PlayersListComponent', () => {
     let matchRoomSpy: jasmine.SpyObj<MatchRoomService>;
 
     beforeEach(() => {
-        matchRoomSpy = jasmine.createSpyObj(MatchRoomService, ['gameOver']);
+        matchRoomSpy = jasmine.createSpyObj(MatchRoomService, ['gameOver', 'getUsername']);
         matchRoomSpy.players = [];
         TestBed.configureTestingModule({
-            declarations: [PlayersListComponent, SortByScorePipe],
+            declarations: [PlayersListComponent, SortByScorePipe, SortPlayersPipe],
             providers: [{ provide: MatchRoomService, useValue: matchRoomSpy }],
         });
         fixture = TestBed.createComponent(PlayersListComponent);

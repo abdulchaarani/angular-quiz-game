@@ -6,6 +6,7 @@ import { MOCK_CHOICES, getMockGame } from '@app/constants/game-mocks';
 import { INVALID_CODE, LOCKED_ROOM } from '@app/constants/match-login-errors';
 import { MOCK_MATCH_ROOM, MOCK_PLAYER, MOCK_PLAYER_ROOM, MOCK_ROOM_CODE } from '@app/constants/match-mocks';
 import { getMockQuestion } from '@app/constants/question-mocks';
+import { FAKE_ROOM_ID } from '@app/constants/time-mocks';
 import { ChoiceTracker } from '@app/model/choice-tracker/choice-tracker';
 import { PlayerInfo } from '@app/model/schema/answer.schema';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
@@ -15,7 +16,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { Socket } from 'socket.io';
 import { MatchRoomService } from './match-room.service';
-import { FAKE_ROOM_ID } from '@app/constants/time-mocks';
 
 const MAXIMUM_CODE_LENGTH = 4;
 const MOCK_YEAR = 2024;
@@ -44,6 +44,7 @@ describe('MatchRoomService', () => {
         emitMock = jest.fn();
         mockServer = {
             in: jest.fn().mockReturnValueOnce({ emit: emitMock }),
+            to: jest.fn().mockReturnValueOnce({ emit: emitMock }),
         };
 
         mockSocket = {
@@ -350,15 +351,16 @@ describe('MatchRoomService', () => {
         expect(currentGameDuration).toEqual('game1');
     });
 
-
-    // TODO : Getting same error as timeService service.to tests. Probably a mock error 
+    // TODO : Getting same error as timeService service.to tests. Probably a mock error
     it('should call pauseTimer from timeService when pauseMatchTimer() is called', () => {
+        const spy = jest.spyOn(timeService, 'pauseTimer').mockReturnThis();
         service.pauseMatchTimer(mockServer, FAKE_ROOM_ID);
-        expect(timeService.pauseTimer).toHaveBeenCalled();
+        expect(spy).toHaveBeenCalled();
     });
 
     it('should call panicTimer from timeService when panicMatchTimer() is called', () => {
+        const spy = jest.spyOn(timeService, 'panicTimer').mockReturnThis();
         service.panicMatchTimer(mockServer, FAKE_ROOM_ID);
-        expect(timeService.panicTimer).toHaveBeenCalled();
+        expect(spy).toHaveBeenCalled();
     });
 });

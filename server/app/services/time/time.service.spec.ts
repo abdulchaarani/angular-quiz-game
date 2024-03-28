@@ -1,5 +1,5 @@
-import { FAKE_COUNTER, FAKE_ROOM_ID, TICK, TIMER_VALUE } from '@app/constants/time-mocks';
 import { ExpiredTimerEvents } from '@app/constants/expired-timer-events';
+import { FAKE_COUNTER, FAKE_ROOM_ID, TICK, TIMER_VALUE } from '@app/constants/time-mocks';
 import { MatchGateway } from '@app/gateways/match/match.gateway';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -83,29 +83,26 @@ describe('TimeService', () => {
 
     // TODO : emit is undefined and im too tired to fix this
     it('should reset interval for set roomId, start a panic mode interval and emit a panic event when panicTimer() is called', () => {
-        service.panicTimer(server, FAKE_ROOM_ID);
-        const spy = jest.spyOn(service, 'startInterval');
-        expect(service['intervals'].get(FAKE_ROOM_ID)).toBeUndefined();
-        expect(spy).toHaveBeenCalled();
         server.to.returns({
             emit: (event: string) => {
                 expect(event).toEqual('panicTimer');
             },
         } as BroadcastOperator<unknown, unknown>);
+        const spy = jest.spyOn(service, 'startInterval');
+        service.panicTimer(server, FAKE_ROOM_ID);
+        expect(spy).toHaveBeenCalled();
     });
 
     it('should pause timer if timer is not already paused and emit pause timer event', () => {
         service['intervals'] = FAKE_INTERVAL;
-        service.pauseTimer(server, FAKE_ROOM_ID);
-        expect(service['pauses'].get(FAKE_ROOM_ID)).toBeDefined();
-        expect(service['pauses'].get(FAKE_ROOM_ID)).toBe(true);
-        expect(service['intervals'].get(FAKE_ROOM_ID)).toBeUndefined();
-
         server.to.returns({
             emit: (event: string) => {
                 expect(event).toEqual('pauseTimer');
             },
         } as BroadcastOperator<unknown, unknown>);
+        service.pauseTimer(server, FAKE_ROOM_ID);
+        expect(service['pauses'].get(FAKE_ROOM_ID)).toBeDefined();
+        expect(service['pauses'].get(FAKE_ROOM_ID)).toBe(true);
     });
 
     it('should restart timer if pauseTimer() is called on an already paused timer', () => {

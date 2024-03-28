@@ -43,7 +43,7 @@ class SocketHandlerServiceMock extends SocketHandlerService {
 })
 class MockChatComponent {}
 
-fdescribe('QuestionAreaComponent', () => {
+describe('QuestionAreaComponent', () => {
     let component: QuestionAreaComponent;
     let fixture: ComponentFixture<QuestionAreaComponent>;
     let matchSpy: spyObj<MatchService>;
@@ -425,7 +425,7 @@ fdescribe('QuestionAreaComponent', () => {
         expect(matchRoomSpy.onRouteToResultsPage).toHaveBeenCalled();
     });
 
-    it('should call handleFeedback when feedback is received', () => {
+    it('should call handleFeedback when feedback is received and the context is TestPage', () => {
         const feedback = {
             correctAnswer: ['Paris'],
             score: 20,
@@ -433,6 +433,28 @@ fdescribe('QuestionAreaComponent', () => {
 
         component.playerScore = 10;
         component.context = MatchContext.TestPage;
+
+        spyOn(component, 'nextQuestion');
+
+        component['handleFeedback'](feedback);
+
+        expect(component.isSelectionEnabled).toBeFalse();
+        expect(component.correctAnswers).toEqual(feedback.correctAnswer);
+        expect(component.isRightAnswer).toBeTrue();
+        expect(component.playerScore).toBe(feedback.score);
+        expect(matchRoomSpy.sendPlayersData).toHaveBeenCalledWith(component.matchRoomCode);
+        expect(component.showFeedback).toBeTrue();
+        expect(component.nextQuestion).toHaveBeenCalled();
+    });
+
+    it('should call handleFeedback when feedback is received and the context is RandomMode', () => {
+        const feedback = {
+            correctAnswer: ['Paris'],
+            score: 20,
+        };
+
+        component.playerScore = 10;
+        component.context = MatchContext.RandomMode;
 
         spyOn(component, 'nextQuestion');
 
@@ -456,7 +478,7 @@ fdescribe('QuestionAreaComponent', () => {
         expect(component.ngOnChanges).toHaveBeenCalled();
     });
 
-    it('subscribeToFeedback() should add a subscription to feedback and delegate feedbacnk change to handleFeedback() ', () => {
+    it('subscribeToFeedback() should add a subscription to feedback and delegate feedback change to handleFeedback() ', () => {
         component.showFeedback = false;
         component.isNextQuestionButton = false;
 

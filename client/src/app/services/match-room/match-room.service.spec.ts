@@ -136,7 +136,7 @@ describe('MatchRoomService', () => {
         // Any is required to simulate Function type in tests
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const sendSpy = spyOn(socketSpy, 'send').and.callFake((event, data, cb: (param: any) => any) => {
-            cb({ code: 'mockReturnedCode', username: 'mockReturnedUsername' });
+            cb({ code: 'mockReturnedCode', username: 'mockReturnedUsername', isRandomMode: true });
         });
         const sendPlayersSpy = spyOn(service, 'sendPlayersData');
         service.joinRoom('mockSentCode', 'mockSentUsername');
@@ -260,12 +260,25 @@ describe('MatchRoomService', () => {
         // Any is required to simulate Function type in tests
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
-            cb({ isTestRoom: true, isGameOver: false });
+            cb({ isTestRoom: true, isRandomMode: false });
         });
         service.onGameOver();
         socketHelper.peerSideEmit('gameOver', true);
         expect(onSpy).toHaveBeenCalled();
         expect(router.navigateByUrl).toHaveBeenCalledWith('/host');
+    });
+
+    it('onGameOver() should route to resuts page in random mode', () => {
+        // Any is required to simulate Function type in tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
+            cb({ isTestRoom: true, isRandomMode: true });
+        });
+        spyOn(service, 'routeToResultsPage');
+        service.onGameOver();
+        socketHelper.peerSideEmit('gameOver', true);
+        expect(onSpy).toHaveBeenCalled();
+        expect(service.routeToResultsPage).toHaveBeenCalled();
     });
 
     it('onGameOver() should not navigate to /host when not in test room', () => {

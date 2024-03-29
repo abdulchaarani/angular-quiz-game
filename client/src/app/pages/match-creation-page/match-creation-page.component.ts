@@ -147,6 +147,7 @@ export class MatchCreationPageComponent implements OnInit {
 
     createMatch(context: MatchContext): void {
         this.questionContextService.setContext(context);
+        if (context === MatchContext.RandomMode) this.isRandomGame = true;
         if (!this.isRandomGame) this.reloadSelectedGame();
         else {
             this.revalidateRandomGame();

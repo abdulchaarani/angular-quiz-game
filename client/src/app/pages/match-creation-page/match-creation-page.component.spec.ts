@@ -2,6 +2,7 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
 import { HttpResponse } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed, fakeAsync, flush, tick } from '@angular/core/testing';
+import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBarRef, TextOnlySnackBar } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -44,12 +45,12 @@ describe('MatchCreationPageComponent', () => {
     matchServiceSpy.validateChoices.and.returnValue(of(mockHttpResponse));
 
     beforeEach(() => {
-        notificationSpy = jasmine.createSpyObj('NotificationService', ['displayErrorMessageAction', 'openSnackBar']);
+        notificationSpy = jasmine.createSpyObj('NotificationService', ['displayErrorMessageAction', 'openSnackBar', 'displayErrorMessage']);
         questionContextSpy = jasmine.createSpyObj('QuestionContextService', ['setContext']);
 
         TestBed.configureTestingModule({
             declarations: [MatchCreationPageComponent],
-            imports: [HttpClientTestingModule, BrowserAnimationsModule, ScrollingModule],
+            imports: [HttpClientTestingModule, BrowserAnimationsModule, ScrollingModule, MatCardModule],
             providers: [
                 GameService,
                 { provide: NotificationService, useValue: notificationSpy },
@@ -91,6 +92,16 @@ describe('MatchCreationPageComponent', () => {
         expect(invisibleGame.isVisible).toBeFalsy();
         flush();
     }));
+
+    it('should reload a random game', () => {
+        const spy = spyOn(component, 'reloadRandomGame');
+        component.loadRandomGame();
+        expect(spy).toHaveBeenCalled();
+        expect(component.isRandomGame).toBeTruthy();
+        expect(component.selectedGame).toBeDefined();
+        expect(matchServiceSpy.currentGame).toEqual(component.selectedGame);
+        expect(component.gameIsValid).toBeTruthy();
+    });
 
     it('should load a visible selected game', fakeAsync(() => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -204,10 +215,10 @@ describe('MatchCreationPageComponent', () => {
         expect(reloadSpy).toHaveBeenCalled();
     });
 
-    it('createMatch() should create a test match if testGame is set to true', () => {
-        const reloadSpy = spyOn(component, 'reloadSelectedGame');
-        component.createMatch(MatchContext.TestPage);
+    it('createMatch() should create a random match', () => {
+        const reloadSpy = spyOn(component, 'reloadRandomGame');
+        component.createMatch(MatchContext.RandomMode);
         expect(reloadSpy).toHaveBeenCalled();
-        expect(questionContextSpy.setContext).toHaveBeenCalled();
+        expect(matchServiceSpy.createMatch).toHaveBeenCalled();
     });
 });

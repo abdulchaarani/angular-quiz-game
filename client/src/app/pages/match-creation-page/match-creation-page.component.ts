@@ -36,8 +36,8 @@ export class MatchCreationPageComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        this.getQuestionBankLength();
         this.reloadAllGames();
-        this.reloadRandomGame();
     }
 
     reloadAllGames(): void {
@@ -45,28 +45,49 @@ export class MatchCreationPageComponent implements OnInit {
     }
 
     loadRandomGame(): void {
-        this.reloadRandomGame();
-        this.isRandomGame = true;
-        this.selectedGame = {
-            id: '',
-            title: 'Mode aléatoire',
-            description: 'SURPRISE',
-            duration: 20,
-            isVisible: true,
-            questions: [],
-            lastModification: '',
-        };
-        this.matchService.currentGame = this.selectedGame;
-        this.gameIsValid = true;
+        const isValidRandomGame = this.isValidRandomGame();
+        if (isValidRandomGame) {
+            this.selectedGame = {
+                id: '',
+                title: 'Mode aléatoire',
+                description: 'SURPRISE',
+                duration: 20,
+                isVisible: true,
+                questions: [],
+                lastModification: '',
+            };
+        }
     }
 
-    reloadRandomGame(): void {
+    getQuestionBankLength(): void {
         this.questionService.getAllQuestions().subscribe({
             next: (data: Question[]) => (this.bankQuestionLen = [...data].length),
         });
+        console.log(this.bankQuestionLen);
+    }
+
+    isValidRandomGame(): boolean {
+        this.getQuestionBankLength();
         if (this.bankQuestionLen < 5) {
             this.notificationService.displayErrorMessage("Il n'y a pas assez de questions pour un jeu aléatoire");
-            return;
+            this.isRandomGame = false;
+            this.gameIsValid = false;
+            return false;
+        }
+        this.isRandomGame = true;
+        this.gameIsValid = true;
+
+        return true;
+    }
+
+    revalidateRandomGame(): void {
+        let isValidRandomGame = this.isValidRandomGame();
+
+        if (isValidRandomGame && this.isRandomGame && this.gameIsValid) {
+            this.matchService.currentGame = this.selectedGame;
+            this.matchService.createMatch();
+        } else {
+            this.notificationService.displayErrorMessage("Il n'y a pas assez de questions pour un jeu aléatoire");
         }
     }
 
@@ -128,8 +149,7 @@ export class MatchCreationPageComponent implements OnInit {
         this.questionContextService.setContext(context);
         if (!this.isRandomGame) this.reloadSelectedGame();
         else {
-            this.reloadRandomGame();
-            this.matchService.createMatch();
+            this.revalidateRandomGame();
         }
     }
 }

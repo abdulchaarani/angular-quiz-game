@@ -63,7 +63,6 @@ export class MatchCreationPageComponent implements OnInit {
         this.questionService.getAllQuestions().subscribe({
             next: (data: Question[]) => (this.bankQuestionLen = [...data].length),
         });
-        console.log(this.bankQuestionLen);
     }
 
     isValidRandomGame(): boolean {
@@ -147,7 +146,6 @@ export class MatchCreationPageComponent implements OnInit {
 
     createMatch(context: MatchContext): void {
         this.questionContextService.setContext(context);
-        if (context === MatchContext.RandomMode) this.isRandomGame = true;
         if (!this.isRandomGame) this.reloadSelectedGame();
         else {
             this.revalidateRandomGame();

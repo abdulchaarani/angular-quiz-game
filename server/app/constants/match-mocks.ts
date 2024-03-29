@@ -13,6 +13,7 @@ const MOCK_PLAYER: Player = {
     score: 0,
     bonusCount: 0,
     isPlaying: true,
+    isChatActive: true,
     socket: undefined,
     state: PlayerState.default,
 };

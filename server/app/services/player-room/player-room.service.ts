@@ -2,13 +2,13 @@ import { BANNED_USERNAME, HOST_CONFLICT, USED_USERNAME } from '@app/constants/ma
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Player } from '@app/model/schema/player.schema';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
+import { HOST_USERNAME } from '@common/constants/match-constants';
 import { PlayerState } from '@common/constants/player-states';
 import { MatchEvents } from '@common/events/match.events';
 import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
 
 const INDEX_NOT_FOUND = -1;
-const HOST_USERNAME = 'ORGANISATEUR';
 
 @Injectable()
 export class PlayerRoomService {
@@ -38,6 +38,7 @@ export class PlayerRoomService {
             score: 0,
             bonusCount: 0,
             isPlaying: true,
+            isChatActive: true,
             socket: playerSocket,
             state: PlayerState.default,
         };
@@ -104,6 +105,28 @@ export class PlayerRoomService {
             room.bannedUsernames.push(username.toUpperCase());
         }
     }
+
+    toggleChatStateForPlayer(matchRoomCode: string, username: string) {
+        const roomIndex = this.matchRoomService.getRoomIndex(matchRoomCode);
+        const playerIndex = this.matchRoomService.getRoom(matchRoomCode).players.findIndex((player: Player) => {
+            return player.username === username;
+        });
+
+        if (roomIndex !== INDEX_NOT_FOUND && playerIndex !== INDEX_NOT_FOUND) {
+            this.matchRoomService.matchRooms[roomIndex].players[playerIndex].isChatActive = !this.matchRoomService.matchRooms[roomIndex].players[playerIndex].isChatActive;
+        }
+    }
+
+    // deactivateChatForPlayer(matchRoomCode: string, username: string) {
+    //     const roomIndex = this.matchRoomService.getRoomIndex(matchRoomCode);
+    //     const playerIndex = this.matchRoomService.getRoom(matchRoomCode).players.findIndex((player: Player) => {
+    //         return player.username === username;
+    //     });
+
+    //     if (roomIndex !== INDEX_NOT_FOUND && playerIndex !== INDEX_NOT_FOUND) {
+    //         this.matchRoomService.matchRooms[roomIndex].players[playerIndex].isChatActive = false;
+    //     }
+    // }
 
     isBannedUsername(matchRoomCode: string, username: string): boolean {
         const bannedUsernames = this.getBannedUsernames(matchRoomCode);

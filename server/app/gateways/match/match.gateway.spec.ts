@@ -331,7 +331,7 @@ describe('MatchGateway', () => {
     it('onCooldownTimerExpired() should call helper functions when CooldownTimerExpired event is emitted', () => {
         const sendNextQuestionSpy = jest.spyOn(matchRoomSpy, 'sendNextQuestion').mockReturnThis();
         const histogramResetSpy = jest.spyOn(histogramSpy, 'resetChoiceTracker').mockReturnThis();
-        const hisotramSendSpy = jest.spyOn(histogramSpy, 'sendHistogram').mockReturnThis();
+        const histogramSendSpy = jest.spyOn(histogramSpy, 'sendHistogram').mockReturnThis();
         jest.spyOn<any, any>(gateway, 'isTestRoom').mockReturnValue(false);
         eventEmitter.addListener(ExpiredTimerEvents.CooldownTimerExpired, gateway.onCountdownTimerExpired);
         expect(eventEmitter.hasListeners(ExpiredTimerEvents.CooldownTimerExpired)).toBe(true);
@@ -339,7 +339,7 @@ describe('MatchGateway', () => {
         gateway.onCooldownTimerExpired(MOCK_ROOM_CODE);
         expect(sendNextQuestionSpy).toHaveBeenCalledWith(server, MOCK_ROOM_CODE);
         expect(histogramResetSpy).toHaveBeenCalledWith(MOCK_ROOM_CODE);
-        expect(hisotramSendSpy).toHaveBeenCalledWith(MOCK_ROOM_CODE);
+        expect(histogramSendSpy).toHaveBeenCalledWith(MOCK_ROOM_CODE);
 
         eventEmitter.removeListener(ExpiredTimerEvents.CooldownTimerExpired, gateway.onCountdownTimerExpired);
     });
@@ -351,5 +351,17 @@ describe('MatchGateway', () => {
         jest.spyOn(matchRoomSpy, 'getRoom').mockReturnValue(mockRoom);
         const isTestPage = gateway['isTestRoom'](MOCK_ROOM_CODE);
         expect(isTestPage).toBe(true);
+    });
+
+    it('should call matchRoomService.pauseMatchTimer when pauseTimer message is detected', () => {
+        const spy = jest.spyOn(matchRoomSpy, 'pauseMatchTimer');
+        gateway.pauseTimer(socket, MOCK_ROOM_CODE);
+        expect(spy).toHaveBeenCalled();
+    });
+
+    it('should call matchRoomService.panicMatchTimer when panicTimer message is detected', () => {
+        const spy = jest.spyOn(matchRoomSpy, 'panicMatchTimer');
+        gateway.panicTimer(socket, MOCK_ROOM_CODE);
+        expect(spy).toHaveBeenCalled();
     });
 });

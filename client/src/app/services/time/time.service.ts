@@ -9,6 +9,7 @@ import { TimerEvents } from '@common/events/timer.events';
     providedIn: 'root',
 })
 export class TimeService {
+    isPanicking: boolean;
     private counter: number;
     private initialValue: number;
     private timerFinished: BehaviorSubject<boolean>;
@@ -16,6 +17,7 @@ export class TimeService {
     constructor(private readonly socketService: SocketHandlerService) {
         this.counter = 0;
         this.initialValue = 0;
+        this.isPanicking = false;
         this.timerFinished = new BehaviorSubject<boolean>(false);
     }
 
@@ -43,6 +45,15 @@ export class TimeService {
         this.socketService.send(TimerEvents.StopTimer, { roomCode });
     }
 
+    pauseTimer(roomCode: string): void {
+        this.socketService.send(TimerEvents.PauseTimer, roomCode);
+    }
+
+    panicTimer(roomCode: string): void {
+        this.isPanicking = true;
+        this.socketService.send(TimerEvents.PanicTimer, roomCode);
+    }
+
     handleTimer(): void {
         this.socketService.on(TimerEvents.Timer, (timerInfo: TimerInfo) => {
             this.counter = timerInfo.currentTime;
@@ -53,6 +64,7 @@ export class TimeService {
     handleStopTimer(): void {
         this.socketService.on(TimerEvents.StopTimer, () => {
             this.timerFinished.next(true);
+            this.isPanicking = false;
         });
     }
 

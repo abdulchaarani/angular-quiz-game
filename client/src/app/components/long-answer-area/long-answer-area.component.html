@@ -1,49 +1,56 @@
-<div class="answer-area" *ngIf="questionContextService.getContext() !== 'hostView'">
-    <form class="long-answer-form text-form">
-        <mat-form-field class="text-form" appearance="outline">
-            <mat-label class="text-label">Réponse</mat-label>
-            <textarea
-                class="text-input"
-                matInput
-                #message
-                [attr.maxlength]="answerMaxLength"
-                [(ngModel)]="currentAnswer"
-                name="answer"
-                [disabled]="!isSelectionEnabled"
-                (input)="updateAnswer()"
-            ></textarea>
-            <mat-hint align="end">{{ message.value.length }} / {{ answerMaxLength }}</mat-hint>
-        </mat-form-field>
-    </form>
-</div>
-
-<div class="grading-area" *ngIf="questionContextService.getContext() === 'hostView' && gradeAnswers">
-    <div class="grading-prompt">
-        <h1>Veuillez noter les réponses des joueurs!</h1>
-    </div>
-    <div *ngFor="let player of playersAnswers | sortAnswers" class="player-answer">
-        <mat-card class="answer-card">
-            <mat-card-title class="player-username"> {{ player.username }} </mat-card-title>
-            <mat-card-content class="player-answer"> {{ player.answer }} </mat-card-content>
-        </mat-card>
-        <mat-button-toggle-group name="answerValue" [(ngModel)]="player.score" (change)="handleGrading()">
-            <mat-button-toggle [value]="answerOptions.WRONG" class="wrong-answer toggle">
-                <p>
-                    {{ answerOptions.WRONG }}
-                </p>
-            </mat-button-toggle>
-            <mat-button-toggle [value]="answerOptions.OK" class="ok-answer toggle">
-                <p>
-                    {{ answerOptions.OK }}
-                </p>
-            </mat-button-toggle>
-            <mat-button-toggle [value]="answerOptions.GOOD" class="good-answer toggle">
-                <p>
-                    {{ answerOptions.GOOD }}
-                </p>
-            </mat-button-toggle>
-        </mat-button-toggle-group>
+<div id="main-container">
+    <div class="answer-area" *ngIf="questionContextService.getContext() !== 'hostView'">
+        <form class="long-answer-form">
+            <mat-form-field class="text-form" appearance="outline">
+                <mat-label class="text-label">Réponse</mat-label>
+                <textarea
+                    class="text-input"
+                    matInput
+                    #message
+                    [attr.maxlength]="answerMaxLength"
+                    [(ngModel)]="currentAnswer"
+                    name="answer"
+                    [disabled]="!isSelectionEnabled"
+                    (input)="updateAnswer()"
+                ></textarea>
+                <mat-hint align="end">{{ message.value.length }} / {{ answerMaxLength }}</mat-hint>
+            </mat-form-field>
+        </form>
     </div>
 
-    <button mat-raised-button color="primary" id="submit-button" [disabled]="!gradingComplete" (click)="sendGrades()">SOUMETTRE CORRECTION</button>
+    <div class="grading-area" *ngIf="questionContextService.getContext() === 'hostView' && gradeAnswers">
+        <div class="grading-prompt">
+            <h1>Veuillez noter les réponses des joueurs!</h1>
+        </div>
+        <div *ngFor="let player of playersAnswers | sortAnswers" class="player-answer">
+            <mat-card class="answer-card">
+                <div>
+                    <mat-card-title class="player-username"> {{ player.username }} </mat-card-title>
+                    <mat-card-content class="player-answer"> {{ player.answer }} </mat-card-content>
+                </div>
+                <div class="score">
+                    <mat-slider min="0" max="100" step="50" discrete="thumbLabel">
+                        <input matSliderThumb [(ngModel)]="player.score" (change)="handleGrading()" />
+                    </mat-slider>
+                    <p>{{ player.score }} %</p>
+                </div>
+            </mat-card>
+            <!-- TODO: Remove if not used anymore
+            <mat-button-toggle-group name="answerValue" [(ngModel)]="player.score" (change)="handleGrading()">
+                <mat-button-toggle [value]="answerOptions.WRONG" class="wrong-answer toggle">
+                    <p>{{ answerOptions.WRONG }}%</p>
+                </mat-button-toggle>
+                <mat-button-toggle [value]="answerOptions.OK" class="ok-answer toggle">
+                    <p>{{ answerOptions.OK }}%</p>
+                </mat-button-toggle>
+                <mat-button-toggle [value]="answerOptions.GOOD" class="good-answer toggle">
+                    <p>{{ answerOptions.GOOD }}%</p>
+                </mat-button-toggle>
+            </mat-button-toggle-group>-->
+        </div>
+
+        <button mat-raised-button color="primary" id="submit-button" [disabled]="!gradingComplete" (click)="sendGrades()">
+            SOUMETTRE CORRECTION
+        </button>
+    </div>
 </div>

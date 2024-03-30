@@ -70,8 +70,14 @@ describe('TimeService', () => {
     });
 
     it('should call startInterval in panic mode when isPanicking is set to true', () => {
+        server.to.returns({
+            emit: (event: string) => {
+                expect(event).toEqual('panicTimer');
+            },
+        } as BroadcastOperator<unknown, unknown>);
+
         const PANIC_TICK = 250;
-        service.startInterval(server, FAKE_ROOM_ID, TIMER_VALUE, ExpiredTimerEvents.CountdownTimerExpired, true);
+        service.panicTimer(server, FAKE_ROOM_ID);
         expect(service['tick']).toEqual(PANIC_TICK);
     });
 

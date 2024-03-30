@@ -30,15 +30,8 @@ export class TimeService {
 
     // passing event allows decoupling of timer service
     // eslint-disable-next-line max-params
-    startInterval(server: Server, roomId: string, startValue: number, onTimerExpiredEvent: ExpiredTimerEvents, isPanicking: boolean = false) {
+    startInterval(server: Server, roomId: string, startValue: number, onTimerExpiredEvent: ExpiredTimerEvents) {
         let timerInfo: TimerInfo = { currentTime: startValue, duration: this.durations.get(roomId) };
-        let tick: number;
-        // TODO : Find better solution later
-        if (isPanicking) {
-            this.tick = PANIC_TICK;
-        } else {
-            this.tick = 1000;
-        }
         this.intervals.set(
             roomId,
             setInterval(() => {
@@ -50,7 +43,7 @@ export class TimeService {
                 } else {
                     this.expireTimer(roomId, server, onTimerExpiredEvent);
                 }
-            }, tick),
+            }, this.tick),
         );
     }
 
@@ -59,6 +52,7 @@ export class TimeService {
     startTimer(server: Server, roomId: string, startValue: number, onTimerExpiredEvent: ExpiredTimerEvents) {
         if (this.intervals.has(roomId) && !this.pauses.get(roomId)) return;
         const timerInfo: TimerInfo = { currentTime: startValue, duration: startValue };
+        this.tick = 1000;
         server.in(roomId).emit(TimerEvents.Timer, timerInfo);
 
         this.durations.set(roomId, startValue);
@@ -70,7 +64,8 @@ export class TimeService {
 
     panicTimer(server: Server, roomId: string) {
         clearInterval(this.intervals.get(roomId));
-        this.startInterval(server, roomId, this.counters.get(roomId), ExpiredTimerEvents.QuestionTimerExpired, true);
+        this.tick = 250;
+        this.startInterval(server, roomId, this.counters.get(roomId), ExpiredTimerEvents.QuestionTimerExpired);
         server.to(roomId).emit(TimerEvents.PanicTimer);
     }
 

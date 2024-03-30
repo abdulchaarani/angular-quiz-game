@@ -70,14 +70,11 @@
     color: white;
 }
 
-#submit-button-container {
-    position: absolute;
-    top: 90vh;
-    align-self: center;
-}
-
 #submit-button {
-    padding: 1rem 2rem;
+    width: 15vw;
+    padding: 2rem;
+    font-size: 1rem;
+    align-self: center;
 }
 
 .player-username {

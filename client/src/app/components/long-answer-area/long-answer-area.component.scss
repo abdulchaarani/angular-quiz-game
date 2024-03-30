@@ -4,6 +4,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    max-width: 50vw;
 }
 
 .answer-area {
@@ -54,6 +55,13 @@
     display: flex;
     justify-content: center;
     color: #4758b8;
+}
+
+.mat-button-toggle-group .mat-button-toggle {
+    text-align: center;
+}
+.mat-button-toggle-group .mat-button-toggle p {
+    font-size: 0.9rem;
 }
 
 .mat-button-toggle-group .mat-button-toggle.wrong-answer.mat-button-toggle-checked {

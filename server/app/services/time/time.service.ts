@@ -5,8 +5,6 @@ import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Server } from 'socket.io';
 
-const PANIC_TICK = 250;
-
 @Injectable()
 export class TimeService {
     private tick: number;

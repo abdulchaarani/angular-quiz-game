@@ -3,7 +3,7 @@ import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { Histogram } from '@common/interfaces/histogram';
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { QuestionStrategyContext } from '@app/services/question-strategy-context/question-strategy.service';
+import { QuestionStrategyContext } from '@app/services/question-strategy-context/question-strategy-context.service';
 import { HISTOGRAM_UPDATE_TIME_SECONDS } from '@common/constants/match-constants';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { TimerInfo } from '@common/interfaces/timer-info';

@@ -11,7 +11,7 @@ import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { LongAnswerInfo } from '@common/interfaces/long-answer-info';
 import { AnswerCorrectness } from '@common/constants/answer-correctness';
-import { QuestionStrategyContext } from '@app/services/question-strategy-context/question-strategy.service';
+import { QuestionStrategyContext } from '@app/services/question-strategy-context/question-strategy-context.service';
 import { GradingEvents } from '@app/constants/grading-events';
 
 @Injectable()

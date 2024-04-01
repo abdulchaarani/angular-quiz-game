@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { QuestionStrategyContext } from './question-strategy.service';
+import { QuestionStrategyContext } from './question-strategy-context.service';
 
 describe('QuestionStrategyService', () => {
     let service: QuestionStrategyContext;

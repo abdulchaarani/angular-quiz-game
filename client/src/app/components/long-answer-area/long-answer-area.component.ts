@@ -22,7 +22,6 @@ export class LongAnswerAreaComponent implements OnInit, OnDestroy {
     currentAnswer: string = '';
     gradeAnswers: boolean = false;
     playersAnswers: LongAnswerInfo[] = [];
-    gradingComplete: boolean = false;
 
     private eventSubscriptions: Subscription[];
 
@@ -57,10 +56,6 @@ export class LongAnswerAreaComponent implements OnInit, OnDestroy {
         if (this.isSelectionEnabled) {
             this.answerService.updateLongAnswer(this.currentAnswer, { username: this.username, roomCode: this.matchRoomCode });
         }
-    }
-
-    handleGrading() {
-        this.gradingComplete = this.playersAnswers.every((answer) => answer.score !== undefined);
     }
 
     sendGrades() {

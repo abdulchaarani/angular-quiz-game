@@ -29,28 +29,14 @@
                     <mat-card-content class="player-answer"> {{ player.answer }} </mat-card-content>
                 </div>
                 <div class="score">
-                    <mat-slider min="0" max="100" step="50" discrete="thumbLabel">
-                        <input matSliderThumb [(ngModel)]="player.score" (change)="handleGrading()" />
+                    <mat-slider min="{{ answerOptions.WRONG }}" max="{{ answerOptions.GOOD }}" step="{{ answerOptions.OK }}" discrete="thumbLabel">
+                        <input matSliderThumb [(ngModel)]="player.score" />
                     </mat-slider>
                     <p>{{ player.score }} %</p>
                 </div>
             </mat-card>
-            <!-- TODO: Remove if not used anymore
-            <mat-button-toggle-group name="answerValue" [(ngModel)]="player.score" (change)="handleGrading()">
-                <mat-button-toggle [value]="answerOptions.WRONG" class="wrong-answer toggle">
-                    <p>{{ answerOptions.WRONG }}%</p>
-                </mat-button-toggle>
-                <mat-button-toggle [value]="answerOptions.OK" class="ok-answer toggle">
-                    <p>{{ answerOptions.OK }}%</p>
-                </mat-button-toggle>
-                <mat-button-toggle [value]="answerOptions.GOOD" class="good-answer toggle">
-                    <p>{{ answerOptions.GOOD }}%</p>
-                </mat-button-toggle>
-            </mat-button-toggle-group>-->
         </div>
 
-        <button mat-raised-button color="primary" id="submit-button" [disabled]="!gradingComplete" (click)="sendGrades()">
-            SOUMETTRE CORRECTION
-        </button>
+        <button mat-raised-button color="primary" id="submit-button" (click)="sendGrades()">SOUMETTRE CORRECTION</button>
     </div>
 </div>

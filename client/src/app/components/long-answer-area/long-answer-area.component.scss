@@ -43,7 +43,7 @@
 .answer-card {
     width: 100%;
     padding: 2rem;
-    overflow-y: scroll;
+    overflow-y: auto;
     display: grid;
     grid-template-columns: 3fr 1fr;
 }
@@ -68,7 +68,9 @@
 
 .mat-button-toggle-group .mat-button-toggle {
     text-align: center;
+    height: 100%;
 }
+
 .mat-button-toggle-group .mat-button-toggle p {
     font-size: 0.9rem;
 }

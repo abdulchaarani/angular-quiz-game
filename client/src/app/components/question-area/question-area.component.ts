@@ -220,12 +220,20 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
         this.eventSubscriptions.push(hostPlayingSubscription);
     }
 
+    private subscribeToTimesUp() {
+        const timesUpSubscription = this.answerService.isTimesUp$.subscribe((isTimesUp) => {
+            if (isTimesUp) this.isSelectionEnabled = false;
+        });
+        this.eventSubscriptions.push(timesUpSubscription);
+    }
+
     private listenToGameEvents() {
         this.timeService.handleTimer();
         this.timeService.handleStopTimer();
         this.answerService.onFeedback();
         this.answerService.onBonusPoints();
         this.answerService.onEndGame();
+        this.answerService.onTimesUp();
         this.answerService.onGradeAnswers();
         this.matchRoomService.onGameOver();
         this.matchRoomService.onRouteToResultsPage();
@@ -235,6 +243,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
         this.subscribeToHostPlaying();
         this.subscribeToFeedback();
         this.subscribeToCurrentQuestion();
+        this.subscribeToTimesUp();
         this.subscribeToBonus();
         this.subscribeToCooldown();
         this.subscribeToGameEnd();

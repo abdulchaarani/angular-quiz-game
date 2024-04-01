@@ -18,11 +18,13 @@ export class AnswerService {
     endGame$: Observable<boolean>;
     playersLongAnswers$: Observable<LongAnswerInfo[]>;
     playersAnswers: LongAnswerInfo[];
+    isTimesUp$: Observable<boolean>;
 
     private isFeedbackSource: Subject<boolean>;
     private feedbackSource: Subject<Feedback>;
     private bonusPointsSubject: Subject<number>;
     private endGameSubject: Subject<boolean>;
+    private isTimesUp: Subject<boolean>;
     private playersLongAnswers = new Subject<LongAnswerInfo[]>();
 
     constructor(public socketService: SocketHandlerService) {
@@ -67,10 +69,15 @@ export class AnswerService {
         });
     }
 
-    // ack
     onGradeAnswers() {
-        this.socketService.on('gradeAnswers', (answers: LongAnswerInfo[]) => {
+        this.socketService.on(AnswerEvents.GradeAnswers, (answers: LongAnswerInfo[]) => {
             this.playersLongAnswers.next(answers);
+        });
+    }
+
+    onTimesUp() {
+        this.socketService.on(AnswerEvents.TimesUp, () => {
+            this.isTimesUp.next(true);
         });
     }
 
@@ -84,10 +91,12 @@ export class AnswerService {
         this.isFeedbackSource = new Subject<boolean>();
         this.endGameSubject = new Subject<boolean>();
         this.playersLongAnswers = new Subject<LongAnswerInfo[]>();
+        this.isTimesUp = new Subject<boolean>();
         this.feedback$ = this.feedbackSource.asObservable();
         this.bonusPoints$ = this.bonusPointsSubject.asObservable();
         this.isFeedback$ = this.isFeedbackSource.asObservable();
         this.endGame$ = this.endGameSubject.asObservable();
         this.playersLongAnswers$ = this.playersLongAnswers.asObservable();
+        this.isTimesUp$ = this.isTimesUp.asObservable();
     }
 }

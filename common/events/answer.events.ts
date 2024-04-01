@@ -3,6 +3,7 @@ export enum AnswerEvents {
     DeselectChoice = 'deselectChoice',
     SubmitAnswer = 'submitAnswer',
     UpdateLongAnswer = 'updateLongAnswer',
+    TimesUp = 'timesUp',
     Grades = 'grades',
     GradeAnswers = 'gradeAnswers',
     Bonus = 'bonus',

@@ -17,7 +17,7 @@
             </mat-form-field>
         </form>
     </div>
-
+    <!-- <cdk-virtual-scroll-viewport class="virtual-scroll" itemSize="50"> -->
     <div class="grading-area" *ngIf="questionContextService.getContext() === 'hostView' && gradeAnswers">
         <div class="grading-prompt">
             <h1>Veuillez noter les réponses des joueurs!</h1>
@@ -39,4 +39,5 @@
 
         <button mat-raised-button color="primary" id="submit-button" (click)="sendGrades()">SOUMETTRE CORRECTION</button>
     </div>
+    <!-- </cdk-virtual-scroll-viewport> -->
 </div>

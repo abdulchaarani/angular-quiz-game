@@ -82,9 +82,9 @@ export class LongAnswerStrategy extends QuestionStrategy {
             const username: string = player.username;
             const score = '0';
             const longAnswerInfo: LongAnswerInfo = { username, answer, score };
+            player.socket.emit(AnswerEvents.TimesUp);
             return longAnswerInfo;
         });
-
         matchRoom.hostSocket.emit(AnswerEvents.GradeAnswers, playerAnswers);
     }
 

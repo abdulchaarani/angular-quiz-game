@@ -50,6 +50,9 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
     }
 
     validateChoicesLength(control: AbstractControl): ValidationErrors | null {
+        // TODO: Remove validation if type is QRL
+        if (control.get('type')?.value === 'QRL') return null;
+
         const choices = control.get('choices') as FormArray;
         let hasCorrect = false;
         let hasIncorrect = false;

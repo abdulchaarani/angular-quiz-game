@@ -40,7 +40,7 @@
                 <mat-form-field>
                     <mat-label>Type de Question</mat-label>
                     <mat-select formControlName="type">
-                        <mat-option *ngFor="let type of ['QCM']" [value]="type">{{ type }}</mat-option>
+                        <mat-option *ngFor="let type of ['QCM', 'QRL']" [value]="type">{{ type }}</mat-option>
                     </mat-select>
                 </mat-form-field>
 

@@ -51,7 +51,7 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
     }
 
     validateChoicesLength(control: AbstractControl): ValidationErrors | null {
-        if (control.get('type')?.value === 'QRL') return null;
+        if (control.get('type')?.value !== 'QCM') return null;
 
         const choices = control.get('choices') as FormArray;
         let hasCorrect = false;

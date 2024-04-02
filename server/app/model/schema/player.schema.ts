@@ -7,6 +7,7 @@ export interface Player {
     score: number;
     bonusCount: number;
     isPlaying: boolean;
+    isChatActive: boolean;
     socket: Socket;
     state: string;
 }

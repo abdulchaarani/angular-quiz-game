@@ -4,18 +4,22 @@ import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 import { MessageInfo } from '@common/interfaces/message-info';
 import { ChatEvents } from '@common/events/chat.events';
+//import { Player } from '@app/interfaces/player';
 
 @Injectable({
     providedIn: 'root',
 })
+
+
 export class ChatService {
     constructor(
         public socketHandler: SocketHandlerService,
-        readonly matchRoomService: MatchRoomService,
+        readonly matchRoomService: MatchRoomService, //readonly playerRoomService PlayerRoomService,
     ) {}
 
     sendMessage(roomCode: string, message: Message): void {
         const messageInfo: MessageInfo = { roomCode, message };
+        //if(this.matchRoomService.players)
         this.socketHandler.send(ChatEvents.RoomMessage, messageInfo);
     }
 
@@ -38,5 +42,10 @@ export class ChatService {
         this.socketHandler.on(ChatEvents.NewMessage, (messageInfo: MessageInfo) => {
             this.matchRoomService.messages.push(messageInfo.message);
         });
+    }
+
+    toggleChatState(playerUsername: string) {
+        this.socketHandler.send('change-chat-state', this.matchRoomService.getUsername());
+        console.log(playerUsername);
     }
 }

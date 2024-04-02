@@ -85,10 +85,15 @@ export class MatchRoomService {
             this.matchRoomCode = res.code;
             this.username = HOST_USERNAME;
             if (isTestRoom) {
-                this.players = [{ username: this.username, score: 0, bonusCount: 0, isPlaying: true, state: PlayerState.default }];
+                this.players = [{ username: this.username, score: 0, bonusCount: 0, isPlaying: true, isChatActive: true, state: PlayerState.default }];
                 this.router.navigateByUrl('/play-test');
             } else this.router.navigateByUrl('/match-room');
         });
+    }
+
+    getPlayerByUsername(username: string): Player | null {
+        const player = this.players.find(player => player.username === username);
+        return player ? player : null;
     }
 
     joinRoom(roomCode: string, username: string) {

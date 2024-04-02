@@ -76,7 +76,7 @@ describe('QuestionService', () => {
         mockQuestion.lastModification = new Date(pastYear, 1, 1);
         const spyGet = jest.spyOn(service, 'getQuestionByName');
         const spyCreate = jest.spyOn(questionModel, 'create').mockImplementation();
-        const spyValidate = jest.spyOn(gameValidationService, 'findChoicesQuestionErrors').mockReturnValue([]);
+        const spyValidate = jest.spyOn(gameValidationService, 'findQuestionErrors').mockReturnValue([]);
         const createdQuestion = await service.addQuestion({ ...mockQuestion });
         expect(spyGet).toHaveBeenCalled();
         expect(spyCreate).toHaveBeenCalled();
@@ -87,7 +87,7 @@ describe('QuestionService', () => {
     });
     it('addQuestion() should fail if mongo query failed', async () => {
         const spyGet = jest.spyOn(service, 'getQuestionByName');
-        const spyValidate = jest.spyOn(gameValidationService, 'findChoicesQuestionErrors').mockReturnValue([]);
+        const spyValidate = jest.spyOn(gameValidationService, 'findQuestionErrors').mockReturnValue([]);
         const spyCreate = jest.spyOn(questionModel, 'create').mockImplementation(async () => Promise.reject(''));
         const mockQuestion = new Question();
         await service.addQuestion({ ...mockQuestion }).catch((error) => {
@@ -109,7 +109,7 @@ describe('QuestionService', () => {
     });
     it('addQuestion() should fail if the question is invalid', async () => {
         const mockErrorMessages = ['mock'];
-        const spyValidate = jest.spyOn(gameValidationService, 'findChoicesQuestionErrors').mockReturnValue(mockErrorMessages);
+        const spyValidate = jest.spyOn(gameValidationService, 'findQuestionErrors').mockReturnValue(mockErrorMessages);
         const mockQuestion = new Question();
         await service.addQuestion(mockQuestion).catch((error) => {
             expect(error).toBe(`${ERROR_INVALID_QUESTION}\nmock`);
@@ -120,7 +120,7 @@ describe('QuestionService', () => {
         const mockQuestion = new Question();
         const pastYear = 2020;
         mockQuestion.lastModification = new Date(pastYear, 1, 1);
-        const spyValidate = jest.spyOn(gameValidationService, 'findChoicesQuestionErrors').mockReturnValue([]);
+        const spyValidate = jest.spyOn(gameValidationService, 'findQuestionErrors').mockReturnValue([]);
         const spyUpdate = jest.spyOn(questionModel, 'updateOne');
         const spyGet = jest.spyOn(service, 'getQuestionById').mockResolvedValue(mockQuestion);
         const updatedQuestion = await service.updateQuestion({ ...mockQuestion });
@@ -139,7 +139,7 @@ describe('QuestionService', () => {
     });
     it('updateQuestion() should fail if the question is invalid', async () => {
         const mockErrorMessages = ['mock'];
-        const spyValidate = jest.spyOn(gameValidationService, 'findChoicesQuestionErrors').mockReturnValue(mockErrorMessages);
+        const spyValidate = jest.spyOn(gameValidationService, 'findQuestionErrors').mockReturnValue(mockErrorMessages);
         const spyGet = jest.spyOn(service, 'getQuestionById').mockResolvedValue(new Question());
         await service.updateQuestion(new Question()).catch((error) => {
             expect(error).toBe(`${ERROR_INVALID_QUESTION}\nmock`);
@@ -149,7 +149,7 @@ describe('QuestionService', () => {
     });
     it('updateQuestion() should fail if mongo query fails', async () => {
         const spyUpdate = jest.spyOn(questionModel, 'updateOne').mockRejectedValue('');
-        const spyValidate = jest.spyOn(gameValidationService, 'findChoicesQuestionErrors').mockReturnValue([]);
+        const spyValidate = jest.spyOn(gameValidationService, 'findQuestionErrors').mockReturnValue([]);
         const spyGet = jest.spyOn(service, 'getQuestionById').mockResolvedValue(new Question());
         await service.updateQuestion(new Question()).catch((error) => {
             expect(error).toBe(`${ERROR_DEFAULT} `);
@@ -183,14 +183,14 @@ describe('QuestionService', () => {
     });
 
     it('validateNewQuestion() should return true if the question is valid (does not have any error messages)', async () => {
-        const spyValidate = jest.spyOn(gameValidationService, 'findChoicesQuestionErrors').mockReturnValue([]);
+        const spyValidate = jest.spyOn(gameValidationService, 'findQuestionErrors').mockReturnValue([]);
         const mockQuestion = new Question();
         expect(service.validateNewQuestion(mockQuestion)).toBeTruthy();
         expect(spyValidate).toHaveBeenCalledWith(mockQuestion);
     });
     it('validateNewQuestion should return the error messages if question is invalid', async () => {
         const mockErrorMessages = ['mock', 'message'];
-        const spyValidate = jest.spyOn(gameValidationService, 'findChoicesQuestionErrors').mockReturnValue(mockErrorMessages);
+        const spyValidate = jest.spyOn(gameValidationService, 'findQuestionErrors').mockReturnValue(mockErrorMessages);
         const mockQuestion = new Question();
         await service.validateNewQuestion(mockQuestion).catch((error) => {
             expect(error).toBe(`${ERROR_INVALID_QUESTION}\nmock\nmessage`);

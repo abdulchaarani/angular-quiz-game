@@ -10,7 +10,7 @@ export class SortByScorePipe implements PipeTransform {
     transform(players: Player[]): Player[] {
         return players.sort((firstPlayer: Player, secondPlayer: Player) => {
             const scoreComparison = secondPlayer.score - firstPlayer.score;
-            const nameComparison = firstPlayer.username.toUpperCase() > secondPlayer.username.toUpperCase() ? 1 : ALTERNATIVE_OPTION;
+            const nameComparison = firstPlayer.username > secondPlayer.username ? 1 : ALTERNATIVE_OPTION;
             return scoreComparison !== 0 ? scoreComparison : nameComparison;
         });
     }

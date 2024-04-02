@@ -47,7 +47,8 @@
                 </h2>
             </div>
         </div>
-        <div *ngIf="!isCooldown">
+
+        <div class="choice-container" *ngIf="!isCooldown">
             <app-multiple-choice-area
                 *ngIf="currentQuestion.type === 'QCM'"
                 class="choice-area"

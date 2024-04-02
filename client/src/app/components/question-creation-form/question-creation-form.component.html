@@ -5,7 +5,6 @@
             <input class="question-input" matInput formControlName="text" placeholder="Texte de la question" />
         </mat-form-field>
         <div class="question-properties">
-            <div *ngIf="questionForm.get('type')?.value !== 'QCM'" class="empty-container"></div>
             <div cdkDropList (cdkDropListDropped)="dropChoice($event)" *ngIf="questionForm.get('type')?.value === 'QCM'">
                 <div formArrayName="choices" class="choices-container" *ngFor="let text of choices.controls; let i = index">
                     <div class="choice-container" cdkDrag>

@@ -52,7 +52,7 @@ export class QuestionService {
                 return Promise.reject(`${ERROR_QUESTION_NOT_FOUND}`);
             }
             question.lastModification = new Date();
-            const errorMessages = this.validation.findChoicesQuestionErrors(question);
+            const errorMessages = this.validation.findQuestionErrors(question);
             if (errorMessages.length !== 0) {
                 return Promise.reject(`${ERROR_INVALID_QUESTION}\n${errorMessages.join('\n')}`);
             }
@@ -77,7 +77,7 @@ export class QuestionService {
     }
 
     async validateNewQuestion(question: CreateQuestionDto): Promise<boolean> {
-        const errorMessages = this.validation.findChoicesQuestionErrors(question);
+        const errorMessages = this.validation.findQuestionErrors(question);
         if (errorMessages.length !== 0) {
             return Promise.reject(`${ERROR_INVALID_QUESTION}\n${errorMessages.join('\n')}`);
         }

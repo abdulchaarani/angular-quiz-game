@@ -49,6 +49,11 @@
                         <mat-option *ngFor="let point of [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]" [value]="point">{{ point }}</mat-option>
                     </mat-select>
                 </mat-form-field>
+                <!-- <div *ngIf="createNewQuestionToBankButton">
+                    <mat-slide-toggle color="primary" [disabled]="!questionForm.valid" (click)="onSubmitQuestionBank()">
+                        Ajouter à la banque de questions
+                    </mat-slide-toggle>
+                </div> -->
                 <div>
                     <button
                         *ngIf="this.isActiveSubmit()"

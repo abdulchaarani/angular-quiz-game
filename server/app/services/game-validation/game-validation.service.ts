@@ -23,7 +23,6 @@ import {
 import { QuestionTypes } from '@app/constants/question-types';
 import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
-import { Question } from '@app/model/database/question';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question-dto';
 import { Injectable } from '@nestjs/common';
 
@@ -115,16 +114,17 @@ export class GameValidationService {
             errorMessages.push(ERROR_QUESTIONS_NUMBER);
         }
         game.questions.forEach((question: CreateQuestionDto, index: number) => {
-            const questionErrorMessages = this.findQuestionErrors(question);
+            let questionErrorMessages: string[];
+            if (question.type === QuestionTypes.CHOICE) {
+                questionErrorMessages = this.findChoicesQuestionErrors(question);
+            } else {
+                questionErrorMessages = this.findGeneralQuestionErrors(question);
+            }
             if (questionErrorMessages.length !== 0) {
                 errorMessages.push(`La question ${index + 1} est invalide:`);
                 questionErrorMessages.forEach((message: string) => errorMessages.push(message));
             }
         });
         return errorMessages;
-    }
-
-    findQuestionErrors(question: Question): string[] {
-        return question.type === QuestionTypes.CHOICE ? this.findChoicesQuestionErrors(question) : this.findGeneralQuestionErrors(question);
     }
 }

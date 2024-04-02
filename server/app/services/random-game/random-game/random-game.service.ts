@@ -1,3 +1,4 @@
+import { DURATION, MINIMUM_QUESTIONS } from '@app/constants/random-game-constants';
 import { Game } from '@app/model/database/game';
 import { Question } from '@app/model/database/question';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
@@ -6,8 +7,6 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class RandomGameService {
-    MINIMUM_QUESTIONS: number = 5;
-    DURATION: number = 20;
     allBankQuestions: Question[] = [];
     randomGame: Game;
     constructor(
@@ -31,13 +30,13 @@ export class RandomGameService {
     }
 
     isRandomGameAvailable(): boolean {
-        return this.allBankQuestions.length >= this.MINIMUM_QUESTIONS;
+        return this.allBankQuestions.length >= MINIMUM_QUESTIONS;
     }
 
     getRandomQuestions(): Question[] {
         if (this.isRandomGameAvailable()) {
             const randomQuestions: Question[] = [];
-            while (randomQuestions.length < this.MINIMUM_QUESTIONS) {
+            while (randomQuestions.length < MINIMUM_QUESTIONS) {
                 const randomIndex: number = Math.floor(Math.random() * this.allBankQuestions.length);
                 const randomQuestion: Question = this.allBankQuestions[randomIndex];
                 if (!randomQuestions.includes(randomQuestion)) {
@@ -55,9 +54,9 @@ export class RandomGameService {
             id: '',
             title: 'mode aléatoire',
             description: 'mode aléatoire',
-            duration: this.DURATION,
+            duration: DURATION,
             isVisible: true,
-            questions: questions,
+            questions,
             lastModification: new Date(),
         };
         this.randomGame = this.gameCreationService.generateId(game);

@@ -50,6 +50,7 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
     }
 
     validateChoicesLength(control: AbstractControl): ValidationErrors | null {
+        // TODO: Remove validation if type is QRL
         if (control.get('type')?.value === 'QRL') return null;
 
         const choices = control.get('choices') as FormArray;
@@ -98,9 +99,6 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
     onSubmit() {
         if (this.questionForm.valid) {
             const newQuestion: Question = this.questionForm.value;
-            if (newQuestion.type === 'QRL') {
-                newQuestion.choices = [];
-            }
             newQuestion.lastModification = new Date().toLocaleString();
             if (this.modificationState === ManagementState.BankModify) {
                 this.modifyQuestionEvent.emit(newQuestion);
@@ -170,12 +168,12 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
                 type: ['QCM'],
                 choices: this.formBuilder.array([
                     this.formBuilder.group({
-                        text: [''],
-                        isCorrect: [true],
+                        text: ['', Validators.required],
+                        isCorrect: [true, Validators.required],
                     }),
                     this.formBuilder.group({
-                        text: [''],
-                        isCorrect: [false],
+                        text: ['', Validators.required],
+                        isCorrect: [false, Validators.required],
                     }),
                 ]),
             },

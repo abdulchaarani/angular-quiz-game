@@ -167,17 +167,6 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
                 text: ['', Validators.required],
                 points: ['', Validators.required],
                 type: [''],
-
-                choices: this.formBuilder.array([
-                    this.formBuilder.group({
-                        text: ['', Validators.required],
-                        isCorrect: [true, Validators.required],
-                    }),
-                    this.formBuilder.group({
-                        text: ['', Validators.required],
-                        isCorrect: [false, Validators.required],
-                    }),
-                ]),
             },
             { validators: this.validateChoicesLength },
         );

@@ -196,9 +196,7 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
                         }),
                     ]),
                 );
-                this.questionForm.removeControl('answer');
             } else if (type === 'QRL') {
-                this.questionForm.addControl('answer', this.formBuilder.control('', Validators.required));
                 this.questionForm.removeControl('choices');
             }
         });

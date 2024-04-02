@@ -4,7 +4,6 @@ import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Valida
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MAX_CHOICES, MIN_CHOICES, SNACK_BAR_DISPLAY_TIME } from '@app/constants/question-creation';
-import { QuestionTypes } from '@app/constants/question-types';
 import { ManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
 export interface DialogManagement {
@@ -168,49 +167,20 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
             {
                 text: ['', Validators.required],
                 points: ['', Validators.required],
-                type: [''],
+                type: ['QCM'],
+                choices: this.formBuilder.array([
+                    this.formBuilder.group({
+                        text: [''],
+                        isCorrect: [true],
+                    }),
+                    this.formBuilder.group({
+                        text: [''],
+                        isCorrect: [false],
+                    }),
+                ]),
             },
             { validators: this.validateChoicesLength },
         );
-        this.questionForm.get('type')?.valueChanges.subscribe((type: string) => {
-            if (type === QuestionTypes.CHOICE) {
-                this.questionForm.addControl(
-                    'choices',
-                    this.formBuilder.array([
-                        this.formBuilder.group({
-                            text: ['', Validators.required],
-                            isCorrect: [true, Validators.required],
-                        }),
-                        this.formBuilder.group({
-                            text: ['', Validators.required],
-                            isCorrect: [false, Validators.required],
-                        }),
-                    ]),
-                );
-            } else if (type === QuestionTypes.LONG) {
-                this.questionForm.removeControl('choices');
-            }
-        });
-
-        this.questionForm.get('type')?.valueChanges.subscribe((type: string) => {
-            if (type === QuestionTypes.CHOICE) {
-                this.questionForm.addControl(
-                    'choices',
-                    this.formBuilder.array([
-                        this.formBuilder.group({
-                            text: ['', Validators.required],
-                            isCorrect: [true, Validators.required],
-                        }),
-                        this.formBuilder.group({
-                            text: ['', Validators.required],
-                            isCorrect: [false, Validators.required],
-                        }),
-                    ]),
-                );
-            } else if (type === QuestionTypes.LONG) {
-                this.questionForm.removeControl('choices');
-            }
-        });
     }
 
     private updateFormValues(): void {

@@ -10,7 +10,7 @@ export class FilterByQuestionTypePipe implements PipeTransform {
         if (filter === QuestionTypes.CHOICE) {
             return questions.filter((question: Question) => question.type === QuestionTypes.CHOICE);
         } else if (filter === QuestionTypes.LONG) {
-            return questions.filter((questions: Question) => questions.type === QuestionTypes.LONG);
+            return questions.filter((question: Question) => question.type === QuestionTypes.LONG);
         }
         return questions;
     }

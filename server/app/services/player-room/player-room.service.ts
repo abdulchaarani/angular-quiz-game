@@ -1,7 +1,9 @@
+import { MultipleChoiceAnswer } from '@app/answer/answer';
 import { BANNED_USERNAME, HOST_CONFLICT, USED_USERNAME } from '@app/constants/match-login-errors';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Player } from '@app/model/schema/player.schema';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
+import { AnswerCorrectness } from '@common/constants/answer-correctness';
 import { PlayerState } from '@common/constants/player-states';
 import { MatchEvents } from '@common/events/match.events';
 import { Injectable } from '@nestjs/common';
@@ -116,7 +118,7 @@ export class PlayerRoomService {
     getUsernameErrors(matchRoomCode: string, username: string): string {
         let errors = '';
         if (this.matchRoomService.getRoom(matchRoomCode).isTestRoom) return errors;
-        if (username.toUpperCase() === HOST_USERNAME) {
+        if (username.trim().toUpperCase() === HOST_USERNAME) {
             errors += HOST_CONFLICT;
         }
         if (this.isBannedUsername(matchRoomCode, username)) {

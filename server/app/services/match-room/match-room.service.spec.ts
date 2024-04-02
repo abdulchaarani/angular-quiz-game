@@ -1,10 +1,12 @@
+/* eslint-disable max-lines */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { ExpiredTimerEvents } from '@app/constants/expired-timer-events';
 import { MOCK_CHOICES, getMockGame } from '@app/constants/game-mocks';
 import { INVALID_CODE, LOCKED_ROOM } from '@app/constants/match-login-errors';
 import { MOCK_MATCH_ROOM, MOCK_PLAYER, MOCK_PLAYER_ROOM, MOCK_ROOM_CODE } from '@app/constants/match-mocks';
 import { getMockQuestion } from '@app/constants/question-mocks';
-import { ExpiredTimerEvents } from '@app/constants/expired-timer-events';
+import { FAKE_ROOM_ID } from '@app/constants/time-mocks';
 import { ChoiceTracker } from '@app/model/choice-tracker/choice-tracker';
 import { PlayerInfo } from '@app/model/schema/answer.schema';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
@@ -16,7 +18,8 @@ import { Socket } from 'socket.io';
 import { MatchRoomService } from './match-room.service';
 
 const MAXIMUM_CODE_LENGTH = 4;
-
+const MOCK_YEAR = 2024;
+const MOCK_DATE = new Date(MOCK_YEAR, 1, 1);
 describe('MatchRoomService', () => {
     let service: MatchRoomService;
     let timeService: TimeService;
@@ -41,6 +44,7 @@ describe('MatchRoomService', () => {
         emitMock = jest.fn();
         mockServer = {
             in: jest.fn().mockReturnValueOnce({ emit: emitMock }),
+            to: jest.fn().mockReturnValueOnce({ emit: emitMock }),
         };
 
         mockSocket = {
@@ -50,6 +54,14 @@ describe('MatchRoomService', () => {
         mockHostSocket = {
             send: jest.fn(),
         };
+    });
+    beforeAll(() => {
+        jest.useFakeTimers();
+        jest.setSystemTime(MOCK_DATE);
+    });
+
+    afterAll(() => {
+        jest.useRealTimers();
     });
 
     it('should be defined', () => {
@@ -114,6 +126,7 @@ describe('MatchRoomService', () => {
             submittedPlayers: 0,
             messages: [],
             isTestRoom: false,
+            startTime: new Date(),
         };
 
         const result = service.addRoom(mockGame, socket);
@@ -226,6 +239,9 @@ describe('MatchRoomService', () => {
     });
 
     it('startMatch() should start match and timer with a 5 seconds countdown', () => {
+        service.matchRooms = [MOCK_MATCH_ROOM];
+        jest.spyOn(service, 'getRoomIndex').mockReturnValue(0);
+
         jest.spyOn<any, any>(service, 'canStartMatch').mockReturnValue(true);
         jest.spyOn<any, any>(service, 'getGameTitle').mockReturnValue('game1');
         service.startMatch(mockSocket, null, MOCK_ROOM_CODE);
@@ -333,5 +349,18 @@ describe('MatchRoomService', () => {
         service.matchRooms[0].game.title = 'game1';
         const currentGameDuration = service['getGameTitle'](MOCK_ROOM_CODE);
         expect(currentGameDuration).toEqual('game1');
+    });
+
+    // TODO : Getting same error as timeService service.to tests. Probably a mock error
+    it('should call pauseTimer from timeService when pauseMatchTimer() is called', () => {
+        const spy = jest.spyOn(timeService, 'pauseTimer').mockReturnThis();
+        service.pauseMatchTimer(mockServer, FAKE_ROOM_ID);
+        expect(spy).toHaveBeenCalled();
+    });
+
+    it('should call panicTimer from timeService when panicMatchTimer() is called', () => {
+        const spy = jest.spyOn(timeService, 'panicTimer').mockReturnThis();
+        service.panicMatchTimer(mockServer, FAKE_ROOM_ID);
+        expect(spy).toHaveBeenCalled();
     });
 });

@@ -15,22 +15,24 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
+import { MatchStatus, WarningMessage } from '@app/constants/feedback-messages';
+import { getMockQuestion } from '@app/constants/question-mocks';
+import { MatchContext } from '@app/constants/states';
 import { Choice } from '@app/interfaces/choice';
+import { Player } from '@app/interfaces/player';
 import { Question } from '@app/interfaces/question';
 import { AnswerService } from '@app/services/answer/answer.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { MatchService } from '@app/services/match/match.service';
+import { NotificationService } from '@app/services/notification/notification.service';
+import { QuestionContextService } from '@app/services/question-context/question-context.service';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
+import { Feedback } from '@common/interfaces/feedback';
+import { BehaviorSubject, Subject, Subscription } from 'rxjs';
 import { Socket } from 'socket.io-client';
 import { QuestionAreaComponent } from './question-area.component';
 import spyObj = jasmine.SpyObj;
-import { BehaviorSubject, Subject, Subscription } from 'rxjs';
-import { MatchStatus, WarningMessage } from '@app/constants/feedback-messages';
-import { getMockQuestion } from '@app/constants/question-mocks';
-import { Feedback } from '@common/interfaces/feedback';
-import { QuestionContextService } from '@app/services/question-context/question-context.service';
-import { NotificationService } from '@app/services/notification/notification.service';
-import { MatchContext } from '@app/constants/states';
+import { TimeService } from '@app/services/time/time.service';
 
 class SocketHandlerServiceMock extends SocketHandlerService {
     override connect() {}
@@ -46,6 +48,7 @@ describe('QuestionAreaComponent', () => {
     let component: QuestionAreaComponent;
     let fixture: ComponentFixture<QuestionAreaComponent>;
     let matchSpy: spyObj<MatchService>;
+    let timerSpy: spyObj<TimeService>;
     let router: spyObj<Router>;
     let socketSpy: SocketHandlerServiceMock;
     let socketHelper: SocketTestHelper;
@@ -96,6 +99,17 @@ describe('QuestionAreaComponent', () => {
             'onGameOver',
             'disconnect',
         ]);
+
+        timerSpy = jasmine.createSpyObj('TimeService', [
+            'startTimer',
+            'stopTimer',
+            'pauseTimer',
+            'panicTimer',
+            'handleTimer',
+            'handleStopTimer',
+            'computeTimerProgress',
+        ]);
+
         socketHelper = new SocketTestHelper();
         socketSpy = new SocketHandlerServiceMock(router);
         socketSpy.socket = socketHelper as unknown as Socket;
@@ -121,6 +135,7 @@ describe('QuestionAreaComponent', () => {
                 { provide: MatchRoomService, useValue: matchRoomSpy },
                 { provide: QuestionContextService, useValue: questionContextSpy },
                 { provide: NotificationService, useValue: notificationServiceSpy },
+                { provide: TimeService, useValue: timerSpy },
             ],
         }).compileComponents();
 
@@ -256,7 +271,7 @@ describe('QuestionAreaComponent', () => {
                 score: 0,
                 bonusCount: 0,
                 isPlaying: true,
-            },
+            } as Player,
         ];
         const players = component.players;
         expect(players).toBeDefined();
@@ -542,5 +557,10 @@ describe('QuestionAreaComponent', () => {
         expect(component.isHostPlaying).toBe(true);
         booleanSubject.next(false);
         expect(component.isHostPlaying).toBe(false);
+    });
+
+    it('should toggle panic timer when togglePanicTimer() is called', () => {
+        component.togglePanicTimer();
+        expect(timerSpy.panicTimer).toHaveBeenCalled();
     });
 });

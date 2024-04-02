@@ -1,6 +1,5 @@
-import { MatchEvents } from '@common/events/match.events';
-import { INVALID_CODE, LOCKED_ROOM } from '@app/constants/match-login-errors';
 import { ExpiredTimerEvents } from '@app/constants/expired-timer-events';
+import { INVALID_CODE, LOCKED_ROOM } from '@app/constants/match-login-errors';
 import { ChoiceTracker } from '@app/model/choice-tracker/choice-tracker';
 import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
@@ -8,6 +7,7 @@ import { Question } from '@app/model/database/question';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { TimeService } from '@app/services/time/time.service';
 import { COOLDOWN_TIME, COUNTDOWN_TIME, FACTOR, MAXIMUM_CODE_LENGTH } from '@common/constants/match-constants';
+import { MatchEvents } from '@common/events/match.events';
 import { GameInfo } from '@common/interfaces/game-info';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
@@ -62,6 +62,7 @@ export class MatchRoomService {
             submittedPlayers: 0,
             messages: [],
             isTestRoom: isTestPage,
+            startTime: new Date(),
         };
 
         this.matchRooms.push(newRoom);
@@ -104,7 +105,18 @@ export class MatchRoomService {
         const gameInfo: GameInfo = { start: true, gameTitle };
         socket.to(matchRoomCode).emit(MatchEvents.MatchStarting, gameInfo);
 
+        const roomIndex = this.getRoomIndex(matchRoomCode);
+        this.matchRooms[roomIndex].startTime = new Date();
+
         this.timeService.startTimer(server, matchRoomCode, COUNTDOWN_TIME, ExpiredTimerEvents.CountdownTimerExpired);
+    }
+
+    pauseMatchTimer(server: Server, matchRoomCode: string) {
+        this.timeService.pauseTimer(server, matchRoomCode);
+    }
+
+    panicMatchTimer(server: Server, matchRoomCode: string) {
+        this.timeService.panicTimer(server, matchRoomCode);
     }
 
     markGameAsPlaying(matchRoomCode: string): void {

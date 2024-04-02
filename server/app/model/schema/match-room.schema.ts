@@ -1,9 +1,9 @@
 import { ChoiceTracker } from '@app/model/choice-tracker/choice-tracker';
 import { Game } from '@app/model/database/game';
+import { Histogram } from '@common/interfaces/histogram';
 import { Socket } from 'socket.io';
 import { Message } from './message.schema';
 import { Player } from './player.schema';
-import { Histogram } from '@common/interfaces/histogram';
 
 export interface MatchRoom {
     code: string;
@@ -22,4 +22,5 @@ export interface MatchRoom {
     messages: Message[];
     hostSocket: Socket;
     isTestRoom: boolean;
+    startTime: Date;
 }

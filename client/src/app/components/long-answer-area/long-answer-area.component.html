@@ -17,12 +17,12 @@
             </mat-form-field>
         </form>
     </div>
-    <cdk-virtual-scroll-viewport itemSize="500">
-        <div class="grading-area" *ngIf="questionContextService.getContext() === 'hostView' && gradeAnswers">
-            <div class="grading-prompt">
-                <h1>Veuillez noter les réponses des joueurs!</h1>
-            </div>
-            <div *ngFor="let player of playersAnswers | sortAnswers" class="player-answer">
+    <div class="grading-area" *ngIf="questionContextService.getContext() === 'hostView' && gradeAnswers">
+        <div class="grading-prompt">
+            <h1>Veuillez noter les réponses des joueurs!</h1>
+        </div>
+        <cdk-virtual-scroll-viewport class="grades-scroll" itemSize="50">
+            <div *cdkVirtualFor="let player of playersAnswers | sortAnswers" class="player-answer">
                 <mat-card class="answer-card">
                     <div>
                         <mat-card-title class="player-username"> {{ player.username }} </mat-card-title>
@@ -41,8 +41,8 @@
                     </div>
                 </mat-card>
             </div>
+        </cdk-virtual-scroll-viewport>
 
-            <button mat-raised-button color="primary" id="submit-button" (click)="sendGrades()">SOUMETTRE CORRECTION</button>
-        </div>
-    </cdk-virtual-scroll-viewport>
+        <button mat-raised-button color="primary" id="submit-button" (click)="sendGrades()">SOUMETTRE CORRECTION</button>
+    </div>
 </div>

@@ -222,6 +222,7 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
         });
 
         const choicesArray = this.questionForm.get('choices') as FormArray;
+        if (!choicesArray) return;
         choicesArray.clear();
         this.question.choices?.forEach((choice) => {
             if (choice.text.trim() !== '') {

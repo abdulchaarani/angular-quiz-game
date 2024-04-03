@@ -3,7 +3,7 @@ import { PageEvent } from '@angular/material/paginator';
 import { Player } from '@app/interfaces/player';
 import { HistogramService } from '@app/services/histogram/histogram.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
-import { MultipleChoiceHistogram } from '@common/interfaces/histogram';
+import { Histogram, MultipleChoiceHistogram } from '@common/interfaces/histogram';
 import { Subscription } from 'rxjs/internal/Subscription';
 @Component({
     selector: 'app-results-page',
@@ -15,12 +15,18 @@ export class ResultsPageComponent implements OnInit, OnDestroy {
     pageEvent: PageEvent;
     players: Player[] = [];
     currentQuestionIndex: number = 0;
-    histogramsGame: MultipleChoiceHistogram[] = [];
+    histogramsGame: Histogram[] = [];
     private histogramSubscriptions: Subscription[] = [];
     constructor(
         private readonly matchRoomService: MatchRoomService,
         private readonly histogramService: HistogramService,
     ) {}
+
+    get currentMultipleChoiceHistogram(): MultipleChoiceHistogram {
+        if (this.histogramsGame[this.currentQuestionIndex].type === 'QCM')
+            return this.histogramsGame[this.currentQuestionIndex] as MultipleChoiceHistogram;
+        return {} as MultipleChoiceHistogram;
+    }
 
     ngOnInit(): void {
         this.players = this.matchRoomService.players;
@@ -43,7 +49,7 @@ export class ResultsPageComponent implements OnInit, OnDestroy {
     }
 
     private subscribeToHistogramHistory() {
-        const histogramHistorySubscription = this.histogramService.histogramHistory$.subscribe((histograms: MultipleChoiceHistogram[]) => {
+        const histogramHistorySubscription = this.histogramService.histogramHistory$.subscribe((histograms: Histogram[]) => {
             this.histogramsGame = histograms;
         });
         this.histogramSubscriptions.push(histogramHistorySubscription);

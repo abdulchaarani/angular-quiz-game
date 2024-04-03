@@ -1,7 +1,7 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { HistogramService } from '@app/services/histogram/histogram.service';
 import { ChoiceTally } from '@common/interfaces/choice-tally';
-import { MultipleChoiceHistogram } from '@common/interfaces/histogram';
+import { Histogram, MultipleChoiceHistogram } from '@common/interfaces/histogram';
 import { AgChartOptions } from 'ag-charts-community';
 import { Subscription } from 'rxjs/internal/Subscription';
 
@@ -22,9 +22,10 @@ export class HistogramComponent implements OnInit, OnChanges, OnDestroy {
     constructor(private readonly histogramService: HistogramService) {}
 
     subscribeToCurrentHistogram() {
-        const currentHistogramSubscription = this.histogramService.currentHistogram$.subscribe((data: MultipleChoiceHistogram) => {
-            this.currentQuestion = data.question;
-            this.choiceTally = data.choiceTallies;
+        const currentHistogramSubscription = this.histogramService.currentHistogram$.subscribe((data: Histogram) => {
+            const multipleChoiceData = data as MultipleChoiceHistogram;
+            this.currentQuestion = multipleChoiceData.question;
+            this.choiceTally = multipleChoiceData.choiceTallies;
             const dataTally = this.setUpData();
             this.setupChart(dataTally);
         });

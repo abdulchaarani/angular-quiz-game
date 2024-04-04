@@ -1,4 +1,4 @@
-import { ChoiceTracker } from '@app/model/choice-tracker/choice-tracker';
+import { ChoiceTracker } from '@app/model/tally-trackers/choice-tracker/choice-tracker';
 import { Game } from '@app/model/database/game';
 import { Question } from '@app/model/database/question';
 import { Histogram } from '@common/interfaces/histogram';

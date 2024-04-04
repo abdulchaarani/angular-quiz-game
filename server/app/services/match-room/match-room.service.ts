@@ -1,6 +1,6 @@
 import { ExpiredTimerEvents } from '@app/constants/expired-timer-events';
 import { INVALID_CODE, LOCKED_ROOM } from '@app/constants/match-login-errors';
-import { ChoiceTracker } from '@app/model/choice-tracker/choice-tracker';
+import { ChoiceTracker } from '@app/model/tally-trackers/choice-tracker/choice-tracker';
 import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
 import { Question } from '@app/model/database/question';

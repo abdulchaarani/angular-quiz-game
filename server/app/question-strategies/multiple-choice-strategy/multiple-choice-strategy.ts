@@ -8,7 +8,7 @@ import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { QuestionStrategy } from '@app/question-strategies/question-strategy';
 import { MultipleChoiceAnswer } from '@app/model/answer-types/multiple-choice-answer/multiple-choice-answer';
-import { ChoiceTracker } from '@app/model/choice-tracker/choice-tracker';
+import { ChoiceTracker } from '@app/model/tally-trackers/choice-tracker/choice-tracker';
 import { MultipleChoiceHistogram } from '@common/interfaces/histogram';
 
 @Injectable()

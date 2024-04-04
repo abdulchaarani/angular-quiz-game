@@ -9,7 +9,7 @@ import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { QuestionStrategy } from '@app/question-strategies/question-strategy';
 import { GradesHistogram, PlayerCountHistogram } from '@common/interfaces/histogram';
-import { GradeTracker } from '@app/model/choice-tracker/choice-tracker';
+import { GradeTracker } from '@app/model/tally-trackers/grade-tracker/grade-tracker';
 import { AnswerCorrectness } from '@common/constants/answer-correctness';
 import { isInt } from 'class-validator';
 import { Grade } from '@common/interfaces/choice-tally';

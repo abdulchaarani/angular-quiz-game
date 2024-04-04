@@ -1,4 +1,4 @@
-import { ChoiceTracker } from '@app/model/choice-tracker/choice-tracker';
+import { ChoiceTracker } from '@app/model/tally-trackers/choice-tracker/choice-tracker';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Player } from '@app/model/schema/player.schema';
 import { PlayerState } from '@common/constants/player-states';

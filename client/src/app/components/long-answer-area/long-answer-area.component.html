@@ -18,8 +18,8 @@
         </form>
     </div>
 
-    <div id="histogram-container" *ngIf="questionContextService.getContext() === 'hostView' && !gradeAnswers">
-        <app-long-answer-histogram *ngIf="!gradingComplete"></app-long-answer-histogram>
+    <div id="histogram-container" *ngIf="questionContextService.getContext() === 'hostView' && !gradeAnswers && !gradingComplete">
+        <app-long-answer-histogram></app-long-answer-histogram>
     </div>
 
     <div class="grading-area" *ngIf="questionContextService.getContext() === 'hostView' && gradeAnswers">

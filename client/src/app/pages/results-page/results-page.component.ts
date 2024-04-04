@@ -27,7 +27,7 @@ export class ResultsPageComponent implements OnInit, OnDestroy {
     }
 
     get currentLongAnswerHistogram(): GradesHistogram {
-        return this.histogramsGame[this.histogramsGame.length - 1] as GradesHistogram;
+        return this.histogramsGame[this.currentQuestionIndex] as GradesHistogram;
     }
 
     isQuestionMultipleChoice(): boolean {

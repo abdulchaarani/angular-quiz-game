@@ -1,16 +1,15 @@
 import { Injectable } from '@angular/core';
-import { MultipleChoiceHistogram } from '@common/interfaces/histogram';
-import { Observable, Subject } from 'rxjs';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
-import { HistogramEvents } from '@common/events/histogram.events';
+import { Histogram } from '@common/interfaces/histogram';
+import { Observable, Subject } from 'rxjs';
 @Injectable({
     providedIn: 'root',
 })
 export class HistogramService {
-    currentHistogram$: Observable<MultipleChoiceHistogram>;
-    histogramHistory$: Observable<MultipleChoiceHistogram[]>;
-    private currentHistogramSource = new Subject<MultipleChoiceHistogram>();
-    private histogramHistorySource = new Subject<MultipleChoiceHistogram[]>();
+    currentHistogram$: Observable<Histogram>;
+    histogramHistory$: Observable<Histogram[]>;
+    private currentHistogramSource = new Subject<Histogram>();
+    private histogramHistorySource = new Subject<Histogram[]>();
 
     constructor(public socketService: SocketHandlerService) {
         this.currentHistogram$ = this.currentHistogramSource.asObservable();
@@ -18,13 +17,13 @@ export class HistogramService {
     }
 
     onCurrentHistogram() {
-        this.socketService.on(HistogramEvents.CurrentHistogram, (data: MultipleChoiceHistogram) => {
+        this.socketService.on('currentHistogram', (data: Histogram) => {
             this.currentHistogramSource.next(data);
         });
     }
 
     onHistogramHistory() {
-        this.socketService.on(HistogramEvents.HistogramHistory, (data: MultipleChoiceHistogram[]) => {
+        this.socketService.on('histogramHistory', (data: Histogram[]) => {
             this.histogramHistorySource.next(data);
         });
     }

@@ -14,17 +14,17 @@ import { Subscription } from 'rxjs';
 export class MultipleChoiceAreaComponent implements OnInit, OnDestroy {
     @Input() isSelectionEnabled: boolean;
     @Input() currentQuestion: Question;
+    @Input() isCooldown: boolean;
     selectedAnswers: Choice[];
     correctAnswers: string[];
     showFeedback: boolean;
-    isCooldown: boolean;
 
     private eventSubscriptions: Subscription[];
 
     constructor(
         public matchRoomService: MatchRoomService,
-        private readonly answerService: AnswerService,
         public questionContextService: QuestionContextService,
+        private readonly answerService: AnswerService,
     ) {}
 
     get matchRoomCode() {
@@ -80,13 +80,6 @@ export class MultipleChoiceAreaComponent implements OnInit, OnDestroy {
         return this.correctAnswers.includes(choice.text);
     }
 
-    private subscribeToCurrentQuestion() {
-        const currentQuestionSubscription = this.matchRoomService.currentQuestion$.subscribe(() => {
-            this.resetStateForNewQuestion();
-        });
-        this.eventSubscriptions.push(currentQuestionSubscription);
-    }
-
     private subscribeToFeedback() {
         const feedbackChangeSubscription = this.answerService.feedback$.subscribe((feedback) => {
             if (feedback && feedback.correctAnswer) {
@@ -98,17 +91,8 @@ export class MultipleChoiceAreaComponent implements OnInit, OnDestroy {
         this.eventSubscriptions.push(feedbackChangeSubscription);
     }
 
-    private subscribeToCooldown() {
-        const displayCoolDownSubscription = this.matchRoomService.displayCooldown$.subscribe((isCooldown) => {
-            this.isCooldown = isCooldown;
-        });
-        this.eventSubscriptions.push(displayCoolDownSubscription);
-    }
-
     private initialiseSubscriptions() {
-        this.subscribeToCurrentQuestion();
         this.subscribeToFeedback();
-        this.subscribeToCooldown();
     }
 
     private resetStateForNewQuestion(): void {

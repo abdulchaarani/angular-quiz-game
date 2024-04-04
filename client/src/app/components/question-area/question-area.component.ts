@@ -130,17 +130,6 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
         this.isNextQuestionButton = false;
     }
 
-    resetStateForNewQuestion(): void {
-        this.eventSubscriptions = [];
-        this.isHostPlaying = true;
-        this.showFeedback = false;
-        this.isSelectionEnabled = true;
-        this.bonus = 0;
-        this.answerCorrectness = AnswerCorrectness.WRONG;
-        this.isCooldown = false;
-        this.isQuitting = false;
-    }
-
     routeToResultsPage() {
         this.matchRoomService.routeToResultsPage();
     }
@@ -247,5 +236,16 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
         this.subscribeToBonus();
         this.subscribeToCooldown();
         this.subscribeToGameEnd();
+    }
+
+    private resetStateForNewQuestion(): void {
+        this.eventSubscriptions = [];
+        this.isHostPlaying = true;
+        this.showFeedback = false;
+        this.isSelectionEnabled = true;
+        this.bonus = 0;
+        this.answerCorrectness = AnswerCorrectness.WRONG;
+        this.isCooldown = false;
+        this.isQuitting = false;
     }
 }

@@ -64,13 +64,6 @@ export class LongAnswerAreaComponent implements OnInit, OnDestroy {
         this.gradeAnswers = false;
     }
 
-    private subscribeToCurrentQuestion() {
-        const currentQuestionSubscription = this.matchRoomService.currentQuestion$.subscribe(() => {
-            this.resetStateForNewQuestion();
-        });
-        this.eventSubscriptions.push(currentQuestionSubscription);
-    }
-
     private subscribeToFeedback() {
         const feedbackChangeSubscription = this.answerService.feedback$.subscribe(() => {
             this.showFeedback = true;
@@ -89,7 +82,6 @@ export class LongAnswerAreaComponent implements OnInit, OnDestroy {
     }
 
     private initialiseSubscriptions() {
-        this.subscribeToCurrentQuestion();
         this.subscribeToFeedback();
         this.subscribeToPlayersAnswers();
     }

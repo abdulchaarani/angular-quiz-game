@@ -48,12 +48,13 @@
             </div>
         </div>
 
-        <div class="choice-container" *ngIf="!isCooldown">
+        <div class="choice-container" *ngIf="!isCooldown || context === contextOptions.TestPage">
             <app-multiple-choice-area
                 *ngIf="currentQuestion.type === 'QCM'"
                 class="choice-area"
                 [isSelectionEnabled]="isSelectionEnabled"
                 [currentQuestion]="currentQuestion"
+                [isCooldown]="isCooldown"
             ></app-multiple-choice-area>
 
             <app-long-answer-area

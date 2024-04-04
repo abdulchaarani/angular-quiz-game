@@ -20,7 +20,6 @@ export class MatchCreationPageComponent implements OnInit {
     gameIsValid: boolean;
     MatchContext = MatchContext;
     isRandomGame: boolean;
-    bankQuestionLen: number = 0;
 
     // Services are required to decouple logic
     // eslint-disable-next-line max-params
@@ -36,7 +35,6 @@ export class MatchCreationPageComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.getQuestionBankLength();
         this.reloadAllGames();
     }
 
@@ -45,29 +43,26 @@ export class MatchCreationPageComponent implements OnInit {
     }
 
     loadRandomGame(): void {
-        const isValidRandomGame = this.isValidRandomGame();
-        if (isValidRandomGame) {
-            this.selectedGame = {
-                id: '',
-                title: 'Mode aléatoire',
-                description: 'SURPRISE',
-                duration: 20,
-                isVisible: true,
-                questions: [],
-                lastModification: '',
-            };
-        }
-    }
-
-    getQuestionBankLength(): void {
         this.questionService.getAllQuestions().subscribe({
-            next: (data: Question[]) => (this.bankQuestionLen = [...data].length),
+            next: (data: Question[]) => {
+                const questionsCount = [...data].length;
+                if (this.hasEnoughRandomQuestions(questionsCount)) {
+                    this.selectedGame = {
+                        id: '',
+                        title: 'Mode aléatoire',
+                        description: 'SURPRISE',
+                        duration: 20,
+                        isVisible: true,
+                        questions: [],
+                        lastModification: '',
+                    };
+                }
+            },
         });
     }
 
-    isValidRandomGame(): boolean {
-        this.getQuestionBankLength();
-        if (this.bankQuestionLen < 5) {
+    hasEnoughRandomQuestions(questionsCount: number): boolean {
+        if (questionsCount < 5) {
             this.notificationService.displayErrorMessage("Il n'y a pas assez de questions pour un jeu aléatoire");
             this.isRandomGame = false;
             this.gameIsValid = false;
@@ -77,17 +72,6 @@ export class MatchCreationPageComponent implements OnInit {
         this.gameIsValid = true;
 
         return true;
-    }
-
-    revalidateRandomGame(): void {
-        let isValidRandomGame = this.isValidRandomGame();
-
-        if (isValidRandomGame && this.isRandomGame && this.gameIsValid) {
-            this.matchService.currentGame = this.selectedGame;
-            this.matchService.createMatch();
-        } else {
-            this.notificationService.displayErrorMessage("Il n'y a pas assez de questions pour un jeu aléatoire");
-        }
     }
 
     loadSelectedGame(selectedGame: Game): void {
@@ -150,5 +134,22 @@ export class MatchCreationPageComponent implements OnInit {
         else {
             this.revalidateRandomGame();
         }
+    }
+
+    revalidateRandomGame() {
+        this.questionService.getAllQuestions().subscribe({
+            next: (data: Question[]) => {
+                const questionsCount = [...data].length;
+
+                const hasEnoughRandomQuestions = this.hasEnoughRandomQuestions(questionsCount);
+
+                if (hasEnoughRandomQuestions && this.isRandomGame && this.gameIsValid) {
+                    this.matchService.currentGame = this.selectedGame;
+                    this.matchService.createMatch();
+                } else {
+                    this.notificationService.displayErrorMessage("Il n'y a pas assez de questions pour un jeu aléatoire");
+                }
+            },
+        });
     }
 }

@@ -13,11 +13,12 @@ import { GradeTracker } from '@app/model/choice-tracker/choice-tracker';
 import { AnswerCorrectness } from '@common/constants/answer-correctness';
 import { isInt } from 'class-validator';
 import { Grade } from '@common/interfaces/choice-tally';
+import { QuestionTypes } from '@app/constants/question-types';
 
 @Injectable()
 export class LongAnswerStrategy extends QuestionStrategy {
     constructor(private readonly eventEmitter: EventEmitter2) {
-        super('QRL');
+        super(QuestionTypes.LONG);
     }
 
     gradeAnswers(matchRoom: MatchRoom, players: Player[]): void {
@@ -49,7 +50,7 @@ export class LongAnswerStrategy extends QuestionStrategy {
 
         const emptyHistogram = {
             question: matchRoom.currentQuestion.text,
-            type: 'QRL',
+            type: QuestionTypes.LONG,
             playerCount: 0,
             activePlayers: 0,
             inactivePlayers: 0,
@@ -66,13 +67,17 @@ export class LongAnswerStrategy extends QuestionStrategy {
     }
 
     private buildGradesHistogram(matchRoom: MatchRoom, gradeTracker: GradeTracker): void {
-        const gradesHistogram: GradesHistogram = { question: gradeTracker.question, type: 'QRL', gradeTallies: Object.values(gradeTracker.items) };
+        const gradesHistogram: GradesHistogram = {
+            question: gradeTracker.question,
+            type: QuestionTypes.LONG,
+            gradeTallies: Object.values(gradeTracker.items),
+        };
         matchRoom.matchHistograms[matchRoom.currentQuestionIndex] = gradesHistogram;
     }
 
     private prepareAnswersForGrading(matchRoom: MatchRoom, players: Player[]) {
         if (matchRoom.isTestRoom) {
-            const testAnswer: LongAnswerInfo[] = [{ username: players[0].username, answer: '', score: '100' }];
+            const testAnswer: LongAnswerInfo[] = [{ username: players[0].username, answer: '', score: AnswerCorrectness.GOOD.toString() }];
             this.calculateScore(matchRoom, players, testAnswer);
             return;
         }

@@ -79,4 +79,4 @@
         </div>
     </div>
 </div>
-<app-players-list [players]="this.players" *ngIf="context === matchContext.PlayerView || context === matchContext.HostView"></app-players-list>
+<app-players-list [players]="this.players" *ngIf="context != matchContext.TestPage"></app-players-list>

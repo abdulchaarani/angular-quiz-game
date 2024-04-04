@@ -1,4 +1,4 @@
-import { Answer } from '@app/model/answer-types/answer/answer';
+import { Answer } from '@app/model/answer-types/abstract-answer/answer';
 
 export class LongAnswer extends Answer {
     answer: string = '';

@@ -31,11 +31,17 @@ export class ResultsPageComponent implements OnInit, OnDestroy {
     }
 
     isQuestionMultipleChoice(): boolean {
-        return this.histogramsGame[this.currentQuestionIndex].type === 'QCM';
+        if (this.histogramsGame[this.currentQuestionIndex]) {
+            return this.histogramsGame[this.currentQuestionIndex].type === 'QCM';
+        }
+        return false;
     }
 
     isQuestionLongAnswer(): boolean {
-        return this.histogramsGame[this.currentQuestionIndex].type === 'QRL';
+        if (this.histogramsGame[this.currentQuestionIndex]) {
+            return this.histogramsGame[this.currentQuestionIndex].type === 'QRL';
+        }
+        return false;
     }
 
     ngOnInit(): void {

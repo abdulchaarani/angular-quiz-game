@@ -35,8 +35,8 @@ export class LongAnswerStrategy extends QuestionStrategy {
             currentPlayer.answerCorrectness = score;
             currentPlayer.score += currentQuestionPoints * (score / MULTIPLICATION_FACTOR);
         });
-        this.eventEmitter.emit(GradingEvents.GradingComplete, matchRoom.code);
         this.buildGradesHistogram(matchRoom, gradeTracker);
+        this.eventEmitter.emit(GradingEvents.GradingComplete, matchRoom.code);
     }
 
     buildHistogram(matchRoom: MatchRoom): PlayerCountHistogram {

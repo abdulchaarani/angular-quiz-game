@@ -1,6 +1,6 @@
 import { GAME_WITH_IS_CORRECT_FIELD, getMockGame } from '@app/constants/game-mocks';
 import { getMockQuestion } from '@app/constants/question-mocks';
-import { QuestionTypes } from '@app/constants/question-types';
+import { QuestionType } from '@app/constants/question-types';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as uuid from 'uuid';
 import { GameCreationService } from './game-creation.service';
@@ -57,7 +57,7 @@ describe('GameCreationService', () => {
 
     it('completeIsCorrectChoice() should return the question if it is of QRL type', () => {
         const mockQuestion = getMockQuestion();
-        mockQuestion.type = QuestionTypes.LONG;
+        mockQuestion.type = QuestionType.LONG;
         expect(service.completeIsCorrectChoice(mockQuestion)).toEqual(mockQuestion);
     });
 

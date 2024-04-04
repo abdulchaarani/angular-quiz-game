@@ -20,7 +20,7 @@ import {
     ERROR_QUESTION_TYPE,
     ERROR_REPEAT_CHOICES,
 } from '@app/constants/game-validation-errors';
-import { QuestionTypes } from '@app/constants/question-types';
+import { QuestionType } from '@app/constants/question-types';
 import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question-dto';
@@ -64,7 +64,7 @@ export class GameValidationService {
         const isValidPointsRange = this.isValidRange(question.points, MIN_POINTS, MAX_POINTS);
         const isValidPointsMultiple = question.points % STEP_POINTS === 0;
         const isValidQuestionName = this.isValidString(question.text);
-        const isCorrectType = question.type === QuestionTypes.CHOICE || question.type === QuestionTypes.LONG;
+        const isCorrectType = question.type === QuestionType.CHOICE || question.type === QuestionType.LONG;
         if (!isValidPointsRange || !isValidPointsMultiple) {
             errorMessages.push(ERROR_POINTS);
         }
@@ -115,7 +115,7 @@ export class GameValidationService {
         }
         game.questions.forEach((question: CreateQuestionDto, index: number) => {
             let questionErrorMessages: string[];
-            if (question.type === QuestionTypes.CHOICE) {
+            if (question.type === QuestionType.CHOICE) {
                 questionErrorMessages = this.findChoicesQuestionErrors(question);
             } else {
                 questionErrorMessages = this.findGeneralQuestionErrors(question);

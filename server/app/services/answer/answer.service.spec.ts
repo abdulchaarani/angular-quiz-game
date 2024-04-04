@@ -99,25 +99,6 @@ describe('AnswerService', () => {
         expect(matchRoomServiceSpy).toHaveBeenCalledWith(MOCK_ROOM_CODE);
     });
 
-    it('isCorrectPlayerAnswer() should return true if player has right answer', () => {
-        matchRoom.currentQuestionAnswer = ['choice1'];
-        const isCorrect = service['isCorrectPlayerAnswer'](matchRoom.players[0], MOCK_ROOM_CODE);
-        expect(isCorrect).toEqual(true);
-    });
-
-    it('isCorrectPlayerAnswer() should return false if player has wrong answer', () => {
-        jest.spyOn<any, any>(service, 'getRoom').mockReturnValue(matchRoom);
-        matchRoom.currentQuestionAnswer = ['choice2'];
-        const isCorrect = service['isCorrectPlayerAnswer'](matchRoom.players[0], MOCK_ROOM_CODE);
-        expect(isCorrect).toEqual(false);
-    });
-
-    it("filterSelectedChoices() should convert the player's answer to an array of choices", () => {
-        const choicesArray = service['filterSelectedChoices'](matchRoom.players[0].answer);
-        expect(choicesArray).toContain('choice1');
-        expect(choicesArray).not.toContain('choice2');
-    });
-
     it("autoSubmitAnswers() should submit every player's answer if not already submitted", () => {
         expect(matchRoom.players[1].answer.isSubmitted).toBe(false);
         expect(matchRoom.players[0].answer.timestamp).toBe(currentDate);
@@ -130,60 +111,6 @@ describe('AnswerService', () => {
     it("getCurrentQuestionValue() should return the current question's points weight", () => {
         const score = service['getCurrentQuestionValue'](MOCK_ROOM_CODE);
         expect(score).toEqual(30);
-    });
-
-    it("calculateScore() should add to the player's score only if they had the correct answer", () => {
-        jest.spyOn<any, any>(service, 'getCurrentQuestionValue').mockReturnValue(30);
-        jest.spyOn<any, any>(playerService, 'getPlayers').mockReturnValue(matchRoom.players);
-        const bonusSpy = jest.spyOn<any, any>(service, 'computeFastestPlayerBonus');
-        const oldScore = matchRoom.players[0].score;
-        matchRoom.currentQuestionAnswer = ['choice1'];
-        service['calculateScore'](MOCK_ROOM_CODE);
-        expect(bonusSpy).toHaveBeenCalled();
-        expect(matchRoom.players[0].score).toEqual(oldScore + 36);
-        expect(matchRoom.players[1].score).toEqual(oldScore);
-    });
-
-    it('calculateScore() should find the fastest responding players', () => {
-        jest.spyOn<any, any>(service, 'getCurrentQuestionValue').mockReturnValue(30);
-        jest.spyOn<any, any>(playerService, 'getPlayers').mockReturnValue(matchRoom.players);
-        const bonusMock = jest.spyOn<any, any>(service, 'computeFastestPlayerBonus');
-        matchRoom.currentQuestionAnswer = ['choice1'];
-        matchRoom.players[1].answer = matchRoom.players[0].answer;
-        service['calculateScore'](MOCK_ROOM_CODE);
-        expect(bonusMock).toHaveBeenCalledWith(30, randomDate, matchRoom.players);
-    });
-
-    it('calculateScore() should add no bonus if no players got the right answer', () => {
-        jest.spyOn<any, any>(service, 'getCurrentQuestionValue').mockReturnValue(30);
-        jest.spyOn<any, any>(playerService, 'getPlayers').mockReturnValue(matchRoom.players);
-        const bonusMock = jest.spyOn<any, any>(service, 'computeFastestPlayerBonus');
-        matchRoom.currentQuestionAnswer = ['impossible'];
-        service['calculateScore'](MOCK_ROOM_CODE);
-        expect(bonusMock).not.toHaveBeenCalled();
-    });
-
-    it('computeFastestPlayerBonus() should add a bonus to the correct player with the fastest time', () => {
-        const oldScore = matchRoom.players[0].score;
-        const oldBonusCount = matchRoom.players[0].bonusCount;
-        const fastestTime = randomDate;
-        const correctPlayers = matchRoom.players;
-        service['computeFastestPlayerBonus'](30, fastestTime, correctPlayers);
-        expect(matchRoom.players[0].score).toEqual(oldScore + BONUS_FACTOR * 30);
-        expect(matchRoom.players[0].bonusCount).toEqual(oldBonusCount + 1);
-        expect(matchRoom.players[1].bonusCount).toEqual(0);
-    });
-
-    it('computeFastestPlayerBonus() should add no bonus if 2 or more players get the right answer at  the same time', () => {
-        const oldScore = matchRoom.players[0].score;
-        const oldBonusCount = matchRoom.players[0].bonusCount;
-        const fastestTime = randomDate;
-        const correctPlayers = matchRoom.players;
-        correctPlayers[1].answer.timestamp = correctPlayers[0].answer.timestamp;
-        service['computeFastestPlayerBonus'](30, fastestTime, correctPlayers);
-        expect(matchRoom.players[0].score).toEqual(oldScore);
-        expect(matchRoom.players[0].bonusCount).toEqual(oldBonusCount);
-        expect(matchRoom.players[1].bonusCount).toEqual(0);
     });
 
     it("sendFeedback() should emit each player's score and the correct answers when timer expires", () => {

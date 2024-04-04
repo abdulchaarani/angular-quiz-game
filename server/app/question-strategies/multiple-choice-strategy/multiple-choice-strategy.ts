@@ -10,11 +10,12 @@ import { QuestionStrategy } from '@app/question-strategies/question-strategy';
 import { MultipleChoiceAnswer } from '@app/model/answer-types/multiple-choice-answer/multiple-choice-answer';
 import { ChoiceTracker } from '@app/model/tally-trackers/choice-tracker/choice-tracker';
 import { MultipleChoiceHistogram } from '@common/interfaces/histogram';
+import { QuestionType } from '@app/constants/question-types';
 
 @Injectable()
 export class MultipleChoiceStrategy extends QuestionStrategy {
     constructor(private readonly eventEmitter: EventEmitter2) {
-        super('QCM');
+        super(QuestionType.CHOICE);
     }
 
     gradeAnswers(matchRoom: MatchRoom, players: Player[]): void {
@@ -72,6 +73,6 @@ export class MultipleChoiceStrategy extends QuestionStrategy {
     }
 
     private convertToHistogram(choiceTracker: ChoiceTracker): MultipleChoiceHistogram {
-        return { question: choiceTracker.question, type: 'QCM', choiceTallies: Object.values(choiceTracker.items) };
+        return { question: choiceTracker.question, type: QuestionType.CHOICE, choiceTallies: Object.values(choiceTracker.items) };
     }
 }

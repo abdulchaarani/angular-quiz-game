@@ -13,12 +13,12 @@ import { GradeTracker } from '@app/model/tally-trackers/grade-tracker/grade-trac
 import { AnswerCorrectness } from '@common/constants/answer-correctness';
 import { isInt } from 'class-validator';
 import { Grade } from '@common/interfaces/choice-tally';
-import { QuestionTypes } from '@app/constants/question-types';
+import { QuestionType } from '@app/constants/question-types';
 
 @Injectable()
 export class LongAnswerStrategy extends QuestionStrategy {
     constructor(private readonly eventEmitter: EventEmitter2) {
-        super(QuestionTypes.LONG);
+        super(QuestionType.LONG);
     }
 
     gradeAnswers(matchRoom: MatchRoom, players: Player[]): void {
@@ -50,7 +50,7 @@ export class LongAnswerStrategy extends QuestionStrategy {
 
         const emptyHistogram = {
             question: matchRoom.currentQuestion.text,
-            type: QuestionTypes.LONG,
+            type: QuestionType.LONG,
             playerCount: 0,
             activePlayers: 0,
             inactivePlayers: 0,
@@ -69,7 +69,7 @@ export class LongAnswerStrategy extends QuestionStrategy {
     private buildGradesHistogram(matchRoom: MatchRoom, gradeTracker: GradeTracker): void {
         const gradesHistogram: GradesHistogram = {
             question: gradeTracker.question,
-            type: QuestionTypes.LONG,
+            type: QuestionType.LONG,
             gradeTallies: Object.values(gradeTracker.items),
         };
         matchRoom.matchHistograms[matchRoom.currentQuestionIndex] = gradesHistogram;
@@ -93,7 +93,7 @@ export class LongAnswerStrategy extends QuestionStrategy {
         matchRoom.hostSocket.emit(AnswerEvents.GradeAnswers, playerAnswers);
     }
 
-    private getPossibleGrades() {
+    private getPossibleGrades(): Grade[] {
         const possibleGrades: Grade[] = [];
         Object.values(AnswerCorrectness).filter((value) => {
             if (isInt(value)) possibleGrades.push({ score: String(value) });

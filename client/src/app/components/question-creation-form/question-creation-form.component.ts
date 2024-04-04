@@ -4,6 +4,7 @@ import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Valida
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MAX_CHOICES, MIN_CHOICES, SNACK_BAR_DISPLAY_TIME } from '@app/constants/question-creation';
+import { QuestionTypes } from '@app/constants/question-types';
 import { ManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
 export interface DialogManagement {
@@ -50,6 +51,8 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
     }
 
     validateChoicesLength(control: AbstractControl): ValidationErrors | null {
+        if (control.get('type')?.value !== 'QCM') return null;
+
         const choices = control.get('choices') as FormArray;
         let hasCorrect = false;
         let hasIncorrect = false;
@@ -96,6 +99,9 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
     onSubmit() {
         if (this.questionForm.valid) {
             const newQuestion: Question = this.questionForm.value;
+            if (newQuestion.type === 'QRL') {
+                newQuestion.choices = [];
+            }
             newQuestion.lastModification = new Date().toLocaleString();
             if (this.modificationState === ManagementState.BankModify) {
                 this.modifyQuestionEvent.emit(newQuestion);
@@ -162,20 +168,49 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
             {
                 text: ['', Validators.required],
                 points: ['', Validators.required],
-                type: ['QCM'],
-                choices: this.formBuilder.array([
-                    this.formBuilder.group({
-                        text: ['', Validators.required],
-                        isCorrect: [true, Validators.required],
-                    }),
-                    this.formBuilder.group({
-                        text: ['', Validators.required],
-                        isCorrect: [false, Validators.required],
-                    }),
-                ]),
+                type: [''],
             },
             { validators: this.validateChoicesLength },
         );
+        this.questionForm.get('type')?.valueChanges.subscribe((type: string) => {
+            if (type === QuestionTypes.CHOICE) {
+                this.questionForm.addControl(
+                    'choices',
+                    this.formBuilder.array([
+                        this.formBuilder.group({
+                            text: ['', Validators.required],
+                            isCorrect: [true, Validators.required],
+                        }),
+                        this.formBuilder.group({
+                            text: ['', Validators.required],
+                            isCorrect: [false, Validators.required],
+                        }),
+                    ]),
+                );
+            } else if (type === QuestionTypes.LONG) {
+                this.questionForm.removeControl('choices');
+            }
+        });
+
+        this.questionForm.get('type')?.valueChanges.subscribe((type: string) => {
+            if (type === QuestionTypes.CHOICE) {
+                this.questionForm.addControl(
+                    'choices',
+                    this.formBuilder.array([
+                        this.formBuilder.group({
+                            text: ['', Validators.required],
+                            isCorrect: [true, Validators.required],
+                        }),
+                        this.formBuilder.group({
+                            text: ['', Validators.required],
+                            isCorrect: [false, Validators.required],
+                        }),
+                    ]),
+                );
+            } else if (type === QuestionTypes.LONG) {
+                this.questionForm.removeControl('choices');
+            }
+        });
     }
 
     private updateFormValues(): void {
@@ -187,6 +222,7 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
         });
 
         const choicesArray = this.questionForm.get('choices') as FormArray;
+        if (!choicesArray) return;
         choicesArray.clear();
         this.question.choices?.forEach((choice) => {
             if (choice.text.trim() !== '') {

@@ -1,7 +1,7 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { HistogramService } from '@app/services/histogram/histogram.service';
 import { GradeTally } from '@common/interfaces/choice-tally';
-import { GradesHistogram, Histogram } from '@common/interfaces/histogram';
+import { GradesHistogram, Histogram, PlayerCountHistogram } from '@common/interfaces/histogram';
 import { AgChartOptions } from 'ag-charts-community';
 import { Subscription } from 'rxjs';
 
@@ -16,16 +16,18 @@ export class LongAnswerHistogramComponent implements OnInit, OnChanges, OnDestro
     currentQuestion: string;
     chartOptions: AgChartOptions = {};
     gradeTally: GradeTally[] = [];
-    histogramsGame: GradesHistogram[] = [];
+    activePlayers: number;
+    inactivePlayers: number;
     private histogramSubscriptions: Subscription[] = [];
 
     constructor(private readonly histogramService: HistogramService) {}
 
     subscribeToCurrentHistogram() {
         const currentHistogramSubscription = this.histogramService.currentHistogram$.subscribe((data: Histogram) => {
-            const longAnswerData = data as GradesHistogram;
+            const longAnswerData = data as PlayerCountHistogram;
             this.currentQuestion = longAnswerData.question;
-            this.gradeTally = longAnswerData.gradeTallies;
+            this.activePlayers = longAnswerData.activePlayers;
+            this.inactivePlayers = longAnswerData.inactivePlayers;
             const dataTally = this.setUpData();
             this.setupChart(dataTally);
         });
@@ -39,8 +41,8 @@ export class LongAnswerHistogramComponent implements OnInit, OnChanges, OnDestro
         } else {
             this.gradeTally = this.currentLongAnswerHistogram.gradeTallies;
             this.currentQuestion = this.currentLongAnswerHistogram.question;
-            const dataTally = this.setUpData();
-            this.setupChart(dataTally);
+            const dataTally = this.setUpResultsPageData();
+            this.setupResultsPageChart(dataTally);
         }
     }
 
@@ -61,6 +63,19 @@ export class LongAnswerHistogramComponent implements OnInit, OnChanges, OnDestro
     }
 
     setUpData() {
+        return [
+            {
+                grade: 'Actif',
+                count: this.activePlayers,
+            },
+            {
+                grade: 'Inactif',
+                count: this.inactivePlayers,
+            },
+        ];
+    }
+
+    setUpResultsPageData() {
         return this.gradeTally.map((tally) => {
             return {
                 grade: tally.score,
@@ -80,7 +95,6 @@ export class LongAnswerHistogramComponent implements OnInit, OnChanges, OnDestro
 
     private formatChart(params: any) {
         let fill;
-        console.log(params);
         switch (params.datum.grade) {
             case '100': {
                 fill = 'green';
@@ -102,6 +116,32 @@ export class LongAnswerHistogramComponent implements OnInit, OnChanges, OnDestro
     }
 
     private setupChart(data: any): void {
+        this.chartOptions = {
+            title: { text: this.currentQuestion },
+            axes: [
+                {
+                    type: 'category',
+                    position: 'bottom',
+                },
+                {
+                    type: 'number',
+                    position: 'left',
+                    title: { text: 'Nombre de joueurs' },
+                },
+            ],
+            data,
+            series: [
+                {
+                    type: 'bar',
+                    xKey: 'grade',
+                    yKey: 'count',
+                    yName: 'Nombre de joueurs',
+                },
+            ],
+        };
+    }
+
+    private setupResultsPageChart(data: any): void {
         this.chartOptions = {
             title: { text: this.currentQuestion },
             axes: [

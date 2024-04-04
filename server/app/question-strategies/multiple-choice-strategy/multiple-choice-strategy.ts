@@ -7,7 +7,7 @@ import { AnswerEvents } from '@common/events/answer.events';
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { QuestionStrategy } from '@app/question-strategies/question-strategy';
-import { MultipleChoiceAnswer } from '@app/answer/answer';
+import { MultipleChoiceAnswer } from '@app/model/answer-types/multiple-choice-answer/multiple-choice-answer';
 import { ChoiceTracker } from '@app/model/choice-tracker/choice-tracker';
 import { MultipleChoiceHistogram } from '@common/interfaces/histogram';
 

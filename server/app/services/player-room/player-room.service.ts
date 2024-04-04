@@ -6,7 +6,7 @@ import { PlayerState } from '@common/constants/player-states';
 import { MatchEvents } from '@common/events/match.events';
 import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
-import { MultipleChoiceAnswer } from '@app/answer/answer';
+import { MultipleChoiceAnswer } from '@app/model/answer-types/multiple-choice-answer/multiple-choice-answer';
 import { AnswerCorrectness } from '@common/constants/answer-correctness';
 
 const INDEX_NOT_FOUND = -1;

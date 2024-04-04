@@ -1,4 +1,4 @@
-import { LongAnswer } from '@app/answer/answer';
+import { LongAnswer } from '@app/model/answer-types/long-answer/long-answer';
 import { GradingEvents } from '@app/constants/grading-events';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Player } from '@app/model/schema/player.schema';

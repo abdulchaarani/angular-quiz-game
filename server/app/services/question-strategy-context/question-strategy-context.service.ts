@@ -1,4 +1,5 @@
-import { LongAnswer, MultipleChoiceAnswer } from '@app/answer/answer';
+import { MultipleChoiceAnswer } from '@app/model/answer-types/multiple-choice-answer/multiple-choice-answer';
+import { LongAnswer } from '@app/model/answer-types/long-answer/long-answer';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Player } from '@app/model/schema/player.schema';
 import { LongAnswerStrategy } from '@app/question-strategies/long-answer-strategy/long-answer-strategy';

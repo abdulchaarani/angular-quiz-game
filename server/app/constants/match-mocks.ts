@@ -3,7 +3,7 @@ import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Player } from '@app/model/schema/player.schema';
 import { PlayerState } from '@common/constants/player-states';
 import { getMockGame } from './game-mocks';
-import { MultipleChoiceAnswer } from '@app/answer/answer';
+import { MultipleChoiceAnswer } from '@app/model/answer-types/multiple-choice-answer/multiple-choice-answer';
 import { AnswerCorrectness } from '@common/constants/answer-correctness';
 import { getMockQuestion } from './question-mocks';
 

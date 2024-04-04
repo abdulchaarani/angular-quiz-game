@@ -1,5 +1,5 @@
-// import { Answer } from '@app/model/schema/answer.schema';
-import { LongAnswer, MultipleChoiceAnswer } from '@app/answer/answer';
+import { LongAnswer } from '@app/model/answer-types/long-answer/long-answer';
+import { MultipleChoiceAnswer } from '@app/model/answer-types/multiple-choice-answer/multiple-choice-answer';
 import { Socket } from 'socket.io';
 import { AnswerCorrectness } from '@common/constants/answer-correctness';
 

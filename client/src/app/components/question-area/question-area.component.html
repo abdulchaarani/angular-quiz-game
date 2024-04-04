@@ -50,7 +50,7 @@
 
         <div class="choice-container" *ngIf="!isCooldown || context === contextOptions.TestPage">
             <app-multiple-choice-area
-                *ngIf="currentQuestion.type === 'QCM'"
+                *ngIf="currentQuestion.type === questionType.QCM"
                 class="choice-area"
                 [isSelectionEnabled]="isSelectionEnabled"
                 [currentQuestion]="currentQuestion"
@@ -58,7 +58,7 @@
             ></app-multiple-choice-area>
 
             <app-long-answer-area
-                *ngIf="currentQuestion.type === 'QRL'"
+                *ngIf="currentQuestion.type === questionType.QRL"
                 class="choice-area"
                 [isSelectionEnabled]="isSelectionEnabled"
                 [currentQuestion]="currentQuestion"

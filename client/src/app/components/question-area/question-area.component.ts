@@ -9,6 +9,7 @@ import { NotificationService } from '@app/services/notification/notification.ser
 import { QuestionContextService } from '@app/services/question-context/question-context.service';
 import { TimeService } from '@app/services/time/time.service';
 import { AnswerCorrectness } from '@common/constants/answer-correctness';
+import { QuestionType } from '@common/constants/question-types';
 import { Feedback } from '@common/interfaces/feedback';
 import { Subject, Subscription } from 'rxjs';
 @Component({
@@ -68,6 +69,10 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
 
     get contextOptions(): typeof MatchContext {
         return MatchContext;
+    }
+
+    get questionType(): typeof QuestionType {
+        return QuestionType;
     }
 
     @HostListener('document:keydown', ['$event'])

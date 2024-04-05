@@ -16,7 +16,6 @@ export class QuestionService {
     ) {}
 
     async getAllQuestions(): Promise<Question[]> {
-        // console.log('getAllQuestions', this.questionModel.find({}));
         return await this.questionModel.find({});
     }
 

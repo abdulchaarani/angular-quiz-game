@@ -53,7 +53,6 @@ export class MatchGateway implements OnGatewayDisconnect {
             selectedGame = this.matchBackupService.getBackupGame(data.gameId);
         } else {
             selectedGame = this.matchBackupService.getBackupRandomGame();
-            console.log(selectedGame);
         }
         const newMatchRoom: MatchRoom = this.matchRoomService.addRoom(selectedGame, socket, data.isTestPage, data.isRandomMode);
         this.histogramService.resetChoiceTracker(newMatchRoom.code);

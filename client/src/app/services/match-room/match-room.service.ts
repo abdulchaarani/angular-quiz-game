@@ -42,6 +42,8 @@ export class MatchRoomService {
     private matchRoomCode: string;
     private username: string;
 
+    // Services are required to decouple logic
+    // eslint-disable-next-line max-params
     constructor(
         public socketService: SocketHandlerService,
         private readonly router: Router,

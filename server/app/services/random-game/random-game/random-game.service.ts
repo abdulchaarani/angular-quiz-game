@@ -52,8 +52,8 @@ export class RandomGameService {
         const questions: Question[] = this.getRandomQuestions();
         const game: Game = {
             id: '',
-            title: 'mode aléatoire',
-            description: 'mode aléatoire',
+            title: 'Mode aléatoire',
+            description: 'Mode aléatoire',
             duration: DURATION,
             isVisible: true,
             questions,

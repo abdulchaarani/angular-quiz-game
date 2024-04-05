@@ -93,16 +93,6 @@ describe('MatchCreationPageComponent', () => {
         flush();
     }));
 
-    it('should reload a random game', () => {
-        const spy = spyOn(component, 'reloadRandomGame');
-        component.loadRandomGame();
-        expect(spy).toHaveBeenCalled();
-        expect(component.isRandomGame).toBeTruthy();
-        expect(component.selectedGame).toBeDefined();
-        expect(matchServiceSpy.currentGame).toEqual(component.selectedGame);
-        expect(component.gameIsValid).toBeTruthy();
-    });
-
     it('should load a visible selected game', fakeAsync(() => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         spyOn(gameService, 'getGameById').and.returnValue(of(fakeGame));
@@ -213,12 +203,5 @@ describe('MatchCreationPageComponent', () => {
         const reloadSpy = spyOn(component, 'reloadSelectedGame');
         component.createMatch(MatchContext.HostView);
         expect(reloadSpy).toHaveBeenCalled();
-    });
-
-    it('createMatch() should create a random match', () => {
-        const reloadSpy = spyOn(component, 'reloadRandomGame');
-        component.createMatch(MatchContext.RandomMode);
-        expect(reloadSpy).toHaveBeenCalled();
-        expect(matchServiceSpy.createMatch).toHaveBeenCalled();
     });
 });

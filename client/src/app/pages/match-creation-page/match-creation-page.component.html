@@ -42,13 +42,13 @@
         </cdk-virtual-scroll-viewport>
 
         <div id="buttons-container">
-            <button mat-raised-button color="primary" (click)="createMatch(MatchContext.TestPage)" *ngIf="gameIsValid && !isRandomGame">
+            <button mat-raised-button color="primary" (click)="createMatch(matchContext.TestPage)" *ngIf="gameIsValid && !isRandomGame">
                 Tester jeu
             </button>
-            <button mat-raised-button color="primary" (click)="createMatch(MatchContext.HostView)" *ngIf="gameIsValid && !isRandomGame">
+            <button mat-raised-button color="primary" (click)="createMatch(matchContext.HostView)" *ngIf="gameIsValid && !isRandomGame">
                 Jouer jeu
             </button>
-            <button mat-raised-button color="primary" (click)="createMatch(MatchContext.RandomMode)" *ngIf="gameIsValid && isRandomGame">
+            <button mat-raised-button color="primary" (click)="createMatch(matchContext.RandomMode)" *ngIf="gameIsValid && isRandomGame">
                 Jouer jeu
             </button>
         </div>

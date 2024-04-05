@@ -1,5 +1,6 @@
 import { HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { RANDOM_MODE_GAME } from '@app/constants/question-creation';
 import { MatchContext } from '@app/constants/states';
 import { Game } from '@app/interfaces/game';
 import { Question } from '@app/interfaces/question';
@@ -8,6 +9,7 @@ import { MatchService } from '@app/services/match/match.service';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { QuestionContextService } from '@app/services/question-context/question-context.service';
 import { QuestionService } from '@app/services/question/question.service';
+import { MINIMUM_QUESTIONS } from '@common/constants/match-constants';
 
 @Component({
     selector: 'app-match-creation-page',
@@ -18,7 +20,7 @@ export class MatchCreationPageComponent implements OnInit {
     games: Game[] = [];
     selectedGame: Game;
     gameIsValid: boolean;
-    MatchContext = MatchContext;
+    matchContext = MatchContext;
     isRandomGame: boolean;
 
     // Services are required to decouple logic
@@ -47,30 +49,19 @@ export class MatchCreationPageComponent implements OnInit {
             next: (data: Question[]) => {
                 const questionsCount = [...data].length;
                 if (this.hasEnoughRandomQuestions(questionsCount)) {
-                    this.selectedGame = {
-                        id: '',
-                        title: 'Mode aléatoire',
-                        description: 'SURPRISE',
-                        duration: 20,
-                        isVisible: true,
-                        questions: [],
-                        lastModification: '',
-                    };
+                    this.selectedGame = RANDOM_MODE_GAME;
                 }
             },
         });
     }
 
     hasEnoughRandomQuestions(questionsCount: number): boolean {
-        if (questionsCount < 5) {
+        if (questionsCount < MINIMUM_QUESTIONS) {
             this.notificationService.displayErrorMessage("Il n'y a pas assez de questions pour un jeu aléatoire");
-            this.isRandomGame = false;
-            this.gameIsValid = false;
+            this.isRandomGame = this.gameIsValid = false;
             return false;
         }
-        this.isRandomGame = true;
-        this.gameIsValid = true;
-
+        this.isRandomGame = this.gameIsValid = true;
         return true;
     }
 

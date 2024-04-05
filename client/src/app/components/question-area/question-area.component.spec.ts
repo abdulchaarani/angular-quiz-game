@@ -32,6 +32,7 @@ import { BehaviorSubject, Subject, Subscription } from 'rxjs';
 import { Socket } from 'socket.io-client';
 import { QuestionAreaComponent } from './question-area.component';
 import spyObj = jasmine.SpyObj;
+import { TimeService } from '@app/services/time/time.service';
 
 class SocketHandlerServiceMock extends SocketHandlerService {
     override connect() {}
@@ -47,6 +48,7 @@ describe('QuestionAreaComponent', () => {
     let component: QuestionAreaComponent;
     let fixture: ComponentFixture<QuestionAreaComponent>;
     let matchSpy: spyObj<MatchService>;
+    let timerSpy: spyObj<TimeService>;
     let router: spyObj<Router>;
     let socketSpy: SocketHandlerServiceMock;
     let socketHelper: SocketTestHelper;
@@ -97,6 +99,17 @@ describe('QuestionAreaComponent', () => {
             'onGameOver',
             'disconnect',
         ]);
+
+        timerSpy = jasmine.createSpyObj('TimeService', [
+            'startTimer',
+            'stopTimer',
+            'pauseTimer',
+            'panicTimer',
+            'handleTimer',
+            'handleStopTimer',
+            'computeTimerProgress',
+        ]);
+
         socketHelper = new SocketTestHelper();
         socketSpy = new SocketHandlerServiceMock(router);
         socketSpy.socket = socketHelper as unknown as Socket;
@@ -122,6 +135,7 @@ describe('QuestionAreaComponent', () => {
                 { provide: MatchRoomService, useValue: matchRoomSpy },
                 { provide: QuestionContextService, useValue: questionContextSpy },
                 { provide: NotificationService, useValue: notificationServiceSpy },
+                { provide: TimeService, useValue: timerSpy },
             ],
         }).compileComponents();
 
@@ -565,5 +579,10 @@ describe('QuestionAreaComponent', () => {
         expect(component.isHostPlaying).toBe(true);
         booleanSubject.next(false);
         expect(component.isHostPlaying).toBe(false);
+    });
+
+    it('should toggle panic timer when togglePanicTimer() is called', () => {
+        component.togglePanicTimer();
+        expect(timerSpy.panicTimer).toHaveBeenCalled();
     });
 });

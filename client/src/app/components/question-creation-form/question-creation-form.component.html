@@ -5,7 +5,8 @@
             <input class="question-input" matInput formControlName="text" placeholder="Texte de la question" />
         </mat-form-field>
         <div class="question-properties">
-            <div cdkDropList (cdkDropListDropped)="dropChoice($event)">
+            <div *ngIf="questionForm.get('type')?.value !== 'QCM'" class="empty-container"></div>
+            <div cdkDropList (cdkDropListDropped)="dropChoice($event)" *ngIf="questionForm.get('type')?.value === 'QCM'">
                 <div formArrayName="choices" class="choices-container" *ngFor="let text of choices.controls; let i = index">
                     <div class="choice-container" cdkDrag>
                         <div class="choice-container" [formGroupName]="i">
@@ -39,7 +40,7 @@
                 <mat-form-field>
                     <mat-label>Type de Question</mat-label>
                     <mat-select formControlName="type">
-                        <mat-option *ngFor="let type of ['QCM']" [value]="type">{{ type }}</mat-option>
+                        <mat-option *ngFor="let type of ['QCM', 'QRL']" [value]="type">{{ type }}</mat-option>
                     </mat-select>
                 </mat-form-field>
 
@@ -49,11 +50,6 @@
                         <mat-option *ngFor="let point of [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]" [value]="point">{{ point }}</mat-option>
                     </mat-select>
                 </mat-form-field>
-                <!-- <div *ngIf="createNewQuestionToBankButton">
-                    <mat-slide-toggle color="primary" [disabled]="!questionForm.valid" (click)="onSubmitQuestionBank()">
-                        Ajouter à la banque de questions
-                    </mat-slide-toggle>
-                </div> -->
                 <div>
                     <button
                         *ngIf="this.isActiveSubmit()"

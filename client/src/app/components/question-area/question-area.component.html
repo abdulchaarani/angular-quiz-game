@@ -2,6 +2,22 @@
 <app-chat></app-chat>
 <div id="main-container">
     <button mat-raised-button id="exit-button" routerLink="/home" (click)="quitGame()">QUITTER</button>
+    <button
+        mat-raised-button
+        id="panic-button"
+        *ngIf="this.time > 10 && !this.timeService.isPanicking && context === 'hostView'"
+        (click)="togglePanicTimer()"
+    >
+        PANIC
+    </button>
+    <button
+        mat-raised-button
+        id="pause-button"
+        *ngIf="!isCooldown && time !== 0 && context === 'hostView'"
+        (click)="this.timeService.pauseTimer(this.matchRoomCode)"
+    >
+        Pause
+    </button>
     <div id="question-area">
         <div id="question-timer-area">
             <div

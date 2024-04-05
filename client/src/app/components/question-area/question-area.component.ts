@@ -196,6 +196,10 @@ export class QuestionAreaComponent implements OnInit, OnDestroy, OnChanges {
         this.matchRoomService.disconnect();
     }
 
+    togglePanicTimer() {
+        this.timeService.panicTimer(this.matchRoomCode);
+    }
+
     private handleFeedback(feedback: Feedback) {
         if (feedback) {
             this.isSelectionEnabled = false;

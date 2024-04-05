@@ -196,7 +196,7 @@ export class MatchRoomService {
         const playingPlayers = players.filter((player) => player.isPlaying);
         const maxScore = Math.max(...playingPlayers.map((player) => player.score));
         const playersWithMaxScore = playingPlayers.filter((player) => player.score === maxScore);
-        playersWithMaxScore.forEach((player) => player.socket.emit('winner'));
+        playersWithMaxScore.forEach((player) => player.socket.emit(MatchEvents.Winner));
     }
 
     private filterCorrectChoices(question: Question) {

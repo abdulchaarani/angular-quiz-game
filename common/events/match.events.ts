@@ -14,6 +14,7 @@ export enum MatchEvents {
     StartCooldown = 'startCooldown',
     CurrentAnswers = 'currentAnswers',
     GameOver = 'gameOver',
+    Winner = 'winner',
     RouteToResultsPage = 'routeToResultsPage',
     HostQuitMatch = 'hostQuitMatch',
     Disconnect = 'disconnect',

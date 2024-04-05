@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ExpiredTimerEvents } from '@app/constants/expired-timer-events';
@@ -14,6 +15,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { Socket } from 'socket.io';
 import { MatchRoomService } from './match-room.service';
+import { QuestionStrategyContext } from '@app/services/question-strategy-context/question-strategy-context.service';
+import { MultipleChoiceStrategy } from '@app/question-strategies/multiple-choice-strategy/multiple-choice-strategy';
+import { LongAnswerStrategy } from '@app/question-strategies/long-answer-strategy/long-answer-strategy';
+import { MatchEvents } from '@common/events/match.events';
 
 const MAXIMUM_CODE_LENGTH = 4;
 const MOCK_YEAR = 2024;
@@ -27,11 +32,12 @@ describe('MatchRoomService', () => {
     let mockSocket;
     let emitMock;
     let mockHostSocket;
+    let matchRoom;
 
     beforeEach(async () => {
         socket = createStubInstance<Socket>(Socket);
         const module: TestingModule = await Test.createTestingModule({
-            providers: [MatchRoomService, TimeService, EventEmitter2],
+            providers: [MatchRoomService, TimeService, EventEmitter2, QuestionStrategyContext, MultipleChoiceStrategy, LongAnswerStrategy],
         }).compile();
 
         service = module.get<MatchRoomService>(MatchRoomService);
@@ -51,6 +57,26 @@ describe('MatchRoomService', () => {
         mockHostSocket = {
             send: jest.fn(),
         };
+
+        matchRoom = { ...MOCK_MATCH_ROOM };
+
+        const player1 = { ...MOCK_PLAYER };
+        player1.score = 100;
+        player1.isPlaying = true;
+        player1.socket = {
+            emit: jest.fn(),
+        } as unknown as Socket;
+
+        const player2 = { ...MOCK_PLAYER };
+        player2.score = 50;
+        player2.isPlaying = true;
+        player2.socket = {
+            emit: jest.fn(),
+        } as unknown as Socket;
+
+        matchRoom.players = [player1, player2];
+        matchRoom.code = MOCK_ROOM_CODE;
+        service.matchRooms[0] = matchRoom;
     });
     beforeAll(() => {
         jest.useFakeTimers();
@@ -82,7 +108,7 @@ describe('MatchRoomService', () => {
     });
 
     it('getRoom() should return undefined if no match room with the corresponding code is found', () => {
-        const foundRoom = service.getRoom(MOCK_ROOM_CODE);
+        const foundRoom = service.getRoom('bad code');
         expect(foundRoom).toEqual(undefined);
     });
 
@@ -113,6 +139,8 @@ describe('MatchRoomService', () => {
             isPlaying: false,
             game: mockGame,
             gameLength: 1,
+            currentQuestion: mockGame.questions[0],
+            questionDuration: 0,
             currentQuestionIndex: 0,
             currentQuestionAnswer: [],
             choiceTracker: new ChoiceTracker(),
@@ -150,11 +178,11 @@ describe('MatchRoomService', () => {
     it('toggleLock() should toggle the isLocked property', () => {
         const lockStates = [true, false];
         lockStates.forEach((lockState: boolean) => {
-            const matchRoom = MOCK_MATCH_ROOM;
-            matchRoom.isLocked = lockState;
-            jest.spyOn(service, 'getRoom').mockReturnValue(matchRoom);
+            const mockMatchRoom = MOCK_MATCH_ROOM;
+            mockMatchRoom.isLocked = lockState;
+            jest.spyOn(service, 'getRoom').mockReturnValue(mockMatchRoom);
             service.toggleLock(MOCK_MATCH_ROOM.code);
-            expect(matchRoom.isLocked).toEqual(!lockState);
+            expect(mockMatchRoom.isLocked).toEqual(!lockState);
         });
     });
 
@@ -262,9 +290,6 @@ describe('MatchRoomService', () => {
     });
 
     it('sendFirstQuestion() should emit the first question along with the game duration', () => {
-        const matchRoom = MOCK_PLAYER_ROOM;
-        matchRoom.code = MOCK_ROOM_CODE;
-        service.matchRooms = [matchRoom];
         matchRoom.hostSocket = mockHostSocket;
         const currentQuestion = matchRoom.game.questions[0];
         const currentAnswers = currentQuestion.choices[0].text;
@@ -279,7 +304,6 @@ describe('MatchRoomService', () => {
     });
 
     it('sendNextQuestion() should emit gameOver if last question', () => {
-        const matchRoom = { ...MOCK_PLAYER_ROOM };
         matchRoom.currentQuestionIndex = 2;
         matchRoom.gameLength = 2;
         matchRoom.isTestRoom = true;
@@ -289,9 +313,6 @@ describe('MatchRoomService', () => {
     });
 
     it('sendNextQuestion() should emit the next question if there are any and start a timer with the game duration as its value', () => {
-        const matchRoom = MOCK_PLAYER_ROOM;
-        matchRoom.code = MOCK_ROOM_CODE;
-        service.matchRooms = [matchRoom];
         matchRoom.currentQuestionIndex = 0;
         matchRoom.hostSocket = mockHostSocket;
         const currentQuestion = matchRoom.game.questions[0];
@@ -301,18 +322,12 @@ describe('MatchRoomService', () => {
     });
 
     it('markGameAsPlaying() should set match room isPlaying to true', () => {
-        const matchRoom = MOCK_MATCH_ROOM;
-        matchRoom.code = MOCK_ROOM_CODE;
-        service.matchRooms = [matchRoom];
         matchRoom.isPlaying = false;
         service.markGameAsPlaying(MOCK_ROOM_CODE);
         expect(matchRoom.isPlaying).toEqual(true);
     });
 
     it('isGamePlaying() should return true if isPlaying is true', () => {
-        const matchRoom = MOCK_MATCH_ROOM;
-        matchRoom.code = MOCK_ROOM_CODE;
-        service.matchRooms = [matchRoom];
         service.markGameAsPlaying(MOCK_ROOM_CODE);
         expect(service.isGamePlaying(MOCK_ROOM_CODE)).toEqual(true);
     });
@@ -335,16 +350,19 @@ describe('MatchRoomService', () => {
         expect(question.choices[1].isCorrect).toBeUndefined();
     });
 
-    it('getGameDuration() should return the current game duration', () => {
-        service.matchRooms = [MOCK_MATCH_ROOM];
-        const currentGameDuration = service['getGameDuration'](MOCK_ROOM_CODE);
-        expect(currentGameDuration).toEqual(getMockGame().duration);
-    });
-
     it('getGameTitle() should return the current game title', () => {
         service.matchRooms = [MOCK_MATCH_ROOM];
         service.matchRooms[0].game.title = 'game1';
         const currentGameDuration = service['getGameTitle'](MOCK_ROOM_CODE);
         expect(currentGameDuration).toEqual('game1');
+    });
+
+    it('declareWinner() should select match winner when only 1 player has the max score', () => {
+        jest.spyOn(service, 'getRoom').mockReturnValue(matchRoom);
+
+        service.declareWinner(matchRoom.code);
+
+        expect(matchRoom.players[0].socket.emit).toHaveBeenCalledWith(MatchEvents.Winner);
+        expect(matchRoom.players[1].socket.emit).not.toHaveBeenCalledWith(MatchEvents.Winner);
     });
 });

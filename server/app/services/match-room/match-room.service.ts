@@ -49,15 +49,17 @@ export class MatchRoomService {
         });
     }
 
+    // allow more parameters to make method more reusable
+    // eslint-disable-next-line max-params
     addRoom(selectedGame: Game, socket: Socket, isTestPage: boolean = false, isRandomMode: boolean = false): MatchRoom {
-        let isLocked: boolean = isTestPage && !isRandomMode;
-        let isPlaying: boolean = isTestPage && !isRandomMode;
+        const isLocked: boolean = isTestPage && !isRandomMode;
+        const isPlaying: boolean = isTestPage && !isRandomMode;
 
         const newRoom: MatchRoom = {
             code: this.generateRoomCode(),
             hostSocket: socket,
-            isLocked: isLocked,
-            isPlaying: isPlaying,
+            isLocked,
+            isPlaying,
             game: selectedGame,
             gameLength: selectedGame.questions.length,
             questionDuration: 0,
@@ -72,7 +74,7 @@ export class MatchRoomService {
             submittedPlayers: 0,
             messages: [],
             isTestRoom: isTestPage || isRandomMode,
-            isRandomMode: isRandomMode,
+            isRandomMode,
             startTime: new Date(),
         };
         this.matchRooms.push(newRoom);

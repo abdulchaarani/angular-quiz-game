@@ -5,7 +5,7 @@ import { Question } from '@app/model/database/question';
 import { GameService } from '@app/services/game/game.service';
 import { Injectable } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
-import { RandomGameService } from '../random-game/random-game/random-game.service';
+import { RandomGameService } from '@app/services/random-game/random-game/random-game.service';
 
 @Injectable()
 export class MatchBackupService {

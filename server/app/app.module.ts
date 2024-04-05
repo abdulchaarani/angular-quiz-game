@@ -66,6 +66,9 @@ import { RandomGameService } from './services/random-game/random-game/random-gam
         ChatGateway,
         HistoryService,
         RandomGameService,
+        QuestionStrategyContext,
+        MultipleChoiceStrategy,
+        LongAnswerStrategy,
     ],
 })
 export class AppModule {}

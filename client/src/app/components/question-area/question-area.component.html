@@ -90,7 +90,10 @@
                 </button>
             </div>
         </div>
-        <div id="submit-button-container" *ngIf="context !== matchContext.HostView || this.context === matchContext.RandomMode">
+        <div
+            id="submit-button-container"
+            *ngIf="context === matchContext.PlayerView || context === matchContext.TestPage || context === matchContext.RandomMode"
+        >
             <button mat-raised-button color="primary" id="submit-button" *ngIf="isSelectionEnabled" (click)="submitAnswers()">SOUMETTRE</button>
         </div>
     </div>

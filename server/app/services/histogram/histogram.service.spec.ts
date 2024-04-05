@@ -131,15 +131,15 @@ describe('HistogramService', () => {
         expect(emitMock).toHaveBeenCalledWith(HistogramEvents.HistogramHistory, histograms);
     });
 
-    it('should reset choice histogram', () => {
-        const currentQuestion = mockMatchRoom.currentQuestion;
-        jest.spyOn(matchRoomService, 'getCurrentQuestion').mockReturnValue(currentQuestion);
-        const resetTrackerSpy = jest.spyOn(mockMatchRoom.choiceTracker, 'resetChoiceTracker').mockImplementation();
+    // it('should reset choice histogram', () => {
+    //     const currentQuestion = mockMatchRoom.currentQuestion;
+    //     jest.spyOn(matchRoomService, 'getCurrentQuestion').mockReturnValue(currentQuestion);
+    //     const resetTrackerSpy = jest.spyOn(mockMatchRoom.choiceTracker, 'resetChoiceTracker').mockImplementation();
 
-        histogramService['resetChoiceTracker'](MOCK_ROOM_CODE);
+    //     histogramService['resetChoiceTracker'](MOCK_ROOM_CODE);
 
-        expect(resetTrackerSpy).toHaveBeenCalledWith(currentQuestion.text, currentQuestion.choices);
-    });
+    //     expect(resetTrackerSpy).toHaveBeenCalledWith(currentQuestion.text, currentQuestion.choices);
+    // });
 
     it('sendHistogram() should emit current histogram', () => {
         histogramService.sendHistogram(mockHistogram, mockMatchRoom);

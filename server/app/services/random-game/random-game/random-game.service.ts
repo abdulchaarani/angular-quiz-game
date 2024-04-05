@@ -1,3 +1,4 @@
+import { QuestionType } from '@app/constants/question-types';
 import { DURATION, MINIMUM_QUESTIONS } from '@app/constants/random-game-constants';
 import { Game } from '@app/model/database/game';
 import { Question } from '@app/model/database/question';
@@ -23,7 +24,7 @@ export class RandomGameService {
     async fetchAllQuestions() {
         try {
             const questions = await this.questionService.getAllQuestions();
-            this.allBankQuestions = questions.filter((question) => question.type === 'QCM');
+            this.allBankQuestions = questions.filter((question) => question.type === QuestionType.CHOICE);
         } catch (error) {
             // TODO: Change to notification
             // eslint-disable-next-line no-console

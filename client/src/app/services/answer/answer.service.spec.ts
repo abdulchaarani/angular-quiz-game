@@ -8,6 +8,7 @@ import { UserInfo } from '@common/interfaces/user-info';
 import { Socket } from 'socket.io-client';
 import { AnswerService } from './answer.service';
 import SpyObj = jasmine.SpyObj;
+import { AnswerCorrectness } from '@common/constants/answer-correctness';
 
 class SocketHandlerServiceMock extends SocketHandlerService {
     // Override connect() is required to not actually connect the socket
@@ -75,7 +76,7 @@ describe('AnswerService', () => {
     });
 
     it('should receive feedback', () => {
-        const feedback: Feedback = { correctAnswer: ['A'], score: 100 };
+        const feedback: Feedback = { correctAnswer: ['A'], answerCorrectness: AnswerCorrectness.GOOD, score: 100 };
 
         // Any is required to simulate Function type in tests
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

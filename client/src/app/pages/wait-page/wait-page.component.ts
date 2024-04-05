@@ -71,10 +71,11 @@ export class WaitPageComponent implements OnInit, OnDestroy {
         this.subscribeToBanishment();
 
         if (this.isHost) {
-            this.questionContextService.setContext(MatchContext.HostView);
             this.gameTitle = this.currentGame.title;
         } else {
-            this.questionContextService.setContext(MatchContext.PlayerView);
+            if (!this.questionContextService.getContext()) {
+                this.questionContextService.setContext(MatchContext.PlayerView);
+            }
             this.subscribeToGameTitle();
         }
     }

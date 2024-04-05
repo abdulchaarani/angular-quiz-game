@@ -1,10 +1,13 @@
-import { Answer } from '@app/model/schema/answer.schema';
+import { LongAnswer } from '@app/model/answer-types/long-answer/long-answer';
+import { MultipleChoiceAnswer } from '@app/model/answer-types/multiple-choice-answer/multiple-choice-answer';
 import { Socket } from 'socket.io';
+import { AnswerCorrectness } from '@common/constants/answer-correctness';
 
 export interface Player {
     username: string;
-    answer: Answer;
+    answer: MultipleChoiceAnswer | LongAnswer;
     score: number;
+    answerCorrectness: AnswerCorrectness;
     bonusCount: number;
     isPlaying: boolean;
     socket: Socket;

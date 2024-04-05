@@ -7,6 +7,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance, stub } from 'sinon';
 import { Server, Socket } from 'socket.io';
 import { AnswerGateway } from './answer.gateway';
+import { GradesInfo } from '@common/interfaces/grades-info';
+import { LongAnswerInfo } from '@common/interfaces/long-answer-info';
 
 describe('AnwserGateway', () => {
     let gateway: AnswerGateway;
@@ -58,5 +60,24 @@ describe('AnwserGateway', () => {
         gateway.submitAnswer(socket, choice.userInfo);
         expect(submitAnswerSpy).toHaveBeenCalledWith(choice.userInfo.username, choice.userInfo.roomCode);
         expect(stateSpy).toHaveBeenCalledWith(socket.id, PlayerState.finalAnswer);
+    });
+
+    it('calculateScore() should delegate calculating the score to answer service', () => {
+        const grades: LongAnswerInfo[] = [{ username: 'player1', answer: 'answer', score: '100' }];
+        const gradesInfo: GradesInfo = { matchRoomCode: MOCK_ROOM_CODE, grades };
+        const calculateScoreSpy = jest.spyOn(answerServiceSpy, 'calculateScore').mockReturnThis();
+        stub(socket, 'rooms').value(new Set([MOCK_ROOM_CODE]));
+        gateway.calculateScore(socket, gradesInfo);
+        expect(calculateScoreSpy).toHaveBeenCalledWith(gradesInfo.matchRoomCode, gradesInfo.grades);
+    });
+
+    it('updateLongAnswer() should delegate updating long answer to answer service', () => {
+        const updateChoiceSpy = jest.spyOn(answerServiceSpy, 'updateChoice').mockReturnThis();
+        const stateSpy = jest.spyOn(playerSpy, 'setState').mockReturnThis();
+
+        stub(socket, 'rooms').value(new Set([MOCK_ROOM_CODE]));
+        gateway.updateLongAnswer(socket, choice);
+        expect(updateChoiceSpy).toHaveBeenCalledWith(choice.choice, true, choice.userInfo.username, choice.userInfo.roomCode);
+        expect(stateSpy).toHaveBeenCalledWith(socket.id, PlayerState.firstInteraction);
     });
 });

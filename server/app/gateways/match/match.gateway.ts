@@ -10,6 +10,7 @@ import { PlayerRoomService } from '@app/services/player-room/player-room.service
 import { HOST_USERNAME } from '@common/constants/match-constants';
 import { PlayerState } from '@common/constants/player-states';
 import { MatchEvents } from '@common/events/match.events';
+import { HistogramEvents } from '@common/events/histogram.events';
 import { TimerEvents } from '@common/events/timer.events';
 import { UserInfo } from '@common/interfaces/user-info';
 import { Injectable } from '@nestjs/common';
@@ -43,22 +44,29 @@ export class MatchGateway implements OnGatewayDisconnect {
         } else {
             socket.join(data.roomCode);
             const newPlayer = this.playerRoomService.addPlayer(socket, data.roomCode, data.username);
-            return { code: data.roomCode, username: newPlayer.username };
+            return { code: data.roomCode, username: newPlayer.username, isRandomMode: this.matchRoomService.getRoom(data.roomCode).isRandomMode };
         }
     }
 
     @SubscribeMessage(MatchEvents.CreateRoom)
-    createRoom(@ConnectedSocket() socket: Socket, @MessageBody() data: { gameId: string; isTestPage: boolean }) {
-        const selectedGame: Game = this.matchBackupService.getBackupGame(data.gameId);
-        const newMatchRoom: MatchRoom = this.matchRoomService.addRoom(selectedGame, socket, data.isTestPage);
+    createRoom(@ConnectedSocket() socket: Socket, @MessageBody() data: { gameId: string; isTestPage: boolean; isRandomMode: boolean }) {
+        let selectedGame: Game = {} as Game;
+        if (!data.isRandomMode) {
+            selectedGame = this.matchBackupService.getBackupGame(data.gameId);
+        } else {
+            selectedGame = this.matchBackupService.getBackupRandomGame();
+        }
+        const newMatchRoom: MatchRoom = this.matchRoomService.addRoom(selectedGame, socket, data.isTestPage, data.isRandomMode);
         this.histogramService.resetChoiceTracker(newMatchRoom.code);
-        if (data.isTestPage) {
+        if (data.isTestPage || data.isRandomMode) {
             const playerInfo = { roomCode: newMatchRoom.code, username: HOST_USERNAME };
             socket.join(newMatchRoom.code);
 
             this.playerRoomService.addPlayer(socket, playerInfo.roomCode, playerInfo.username);
 
-            this.matchRoomService.sendFirstQuestion(this.server, playerInfo.roomCode);
+            if (!newMatchRoom.isRandomMode) {
+                this.matchRoomService.sendFirstQuestion(this.server, playerInfo.roomCode);
+            }
 
             return { code: newMatchRoom.code };
         }
@@ -67,11 +75,13 @@ export class MatchGateway implements OnGatewayDisconnect {
         return { code: newMatchRoom.code };
     }
 
+    // TODO: rename event and function?
     @SubscribeMessage(MatchEvents.RouteToResultsPage)
     routeToResultsPage(@ConnectedSocket() socket: Socket, @MessageBody() matchRoomCode: string) {
         this.playerRoomService.setStateForAll(matchRoomCode, PlayerState.default);
         this.server.to(matchRoomCode).emit(MatchEvents.RouteToResultsPage);
         this.emitHistogramHistory(matchRoomCode);
+        this.matchRoomService.declareWinner(matchRoomCode);
         this.historyService.createHistoryItem(this.matchRoomService.getRoom(matchRoomCode));
     }
 
@@ -126,7 +136,7 @@ export class MatchGateway implements OnGatewayDisconnect {
     @OnEvent(ExpiredTimerEvents.CountdownTimerExpired)
     onCountdownTimerExpired(matchRoomCode: string) {
         this.matchRoomService.sendFirstQuestion(this.server, matchRoomCode);
-        this.histogramService.sendHistogram(matchRoomCode);
+        this.histogramService.sendEmptyHistogram(matchRoomCode);
     }
 
     @OnEvent(ExpiredTimerEvents.CooldownTimerExpired)
@@ -134,15 +144,16 @@ export class MatchGateway implements OnGatewayDisconnect {
         this.matchRoomService.sendNextQuestion(this.server, matchRoomCode);
         if (!this.isTestRoom(matchRoomCode)) {
             this.histogramService.resetChoiceTracker(matchRoomCode);
-            this.histogramService.sendHistogram(matchRoomCode);
+            this.histogramService.sendEmptyHistogram(matchRoomCode);
         }
     }
 
     handleDisconnect(@ConnectedSocket() socket: Socket) {
         const hostRoomCode = this.matchRoomService.getRoomCodeByHostSocket(socket.id);
         const hostRoom = this.matchRoomService.getRoom(hostRoomCode);
+
         // TODO: Improve
-        if (hostRoomCode && hostRoom.currentQuestionIndex !== hostRoom.gameLength) {
+        if (hostRoomCode && hostRoom.currentQuestionIndex !== hostRoom.gameLength && !hostRoom.isRandomMode) {
             this.sendError(hostRoomCode, NO_MORE_HOST);
             this.deleteRoom(hostRoomCode);
             return;
@@ -177,7 +188,7 @@ export class MatchGateway implements OnGatewayDisconnect {
 
     private emitHistogramHistory(matchRoomCode: string) {
         const histograms = this.histogramService.sendHistogramHistory(matchRoomCode);
-        this.server.to(matchRoomCode).emit(MatchEvents.HistogramHistory, histograms);
+        this.server.to(matchRoomCode).emit(HistogramEvents.HistogramHistory, histograms);
     }
 
     private isRoomEmpty(room: MatchRoom) {
@@ -186,6 +197,6 @@ export class MatchGateway implements OnGatewayDisconnect {
 
     private isTestRoom(matchRoomCode: string) {
         const matchRoom = this.matchRoomService.getRoom(matchRoomCode);
-        return matchRoom.hostSocket === matchRoom.players[0].socket;
+        return matchRoom.isTestRoom && !matchRoom.isRandomMode;
     }
 }

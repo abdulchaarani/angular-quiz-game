@@ -1,6 +1,8 @@
 import { Component, Input } from '@angular/core';
+import { MatchContext } from '@app/constants/states';
 import { Player } from '@app/interfaces/player';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
+import { QuestionContextService } from '@app/services/question-context/question-context.service';
 
 @Component({
     selector: 'app-players-list',
@@ -9,5 +11,10 @@ import { MatchRoomService } from '@app/services/match-room/match-room.service';
 })
 export class PlayersListComponent {
     @Input() players: Player[];
-    constructor(readonly matchRoomService: MatchRoomService) {}
+
+    context = MatchContext;
+    constructor(
+        readonly matchRoomService: MatchRoomService,
+        readonly questionContextService: QuestionContextService,
+    ) {}
 }

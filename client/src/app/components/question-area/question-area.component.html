@@ -22,18 +22,27 @@
         <div id="question-timer-area">
             <div
                 id="score-feedback-area"
-                *ngIf="(showFeedback && context === 'playerView' && !isCooldown) || (showFeedback && context === 'testPage'); else elseBlock"
+                *ngIf="
+                    (showFeedback && context === matchContext.PlayerView && !isCooldown) ||
+                        (showFeedback && (context === matchContext.TestPage || context === matchContext.RandomMode));
+                    else elseBlock
+                "
             >
                 <h1 id="score">SCORE : {{ playerScore }}</h1>
-                <div *ngIf="isRightAnswer">
-                    <h1 class="points" id="right-answer">👏 Bonne Réponse! Vous avez obtenu {{ currentQuestion.points }} points 👏</h1>
-                    <h1 class="points" id="right-answer" *ngIf="bonus > 0">✨ Vous avez obtenu un bonus de {{ bonus }} points!✨</h1>
+                <div>
+                    <h1 class="points" *ngIf="!answerCorrectness" class="wrong-answer">😔 Mauvaise Réponse 😔</h1>
+                    <h1 class="points" *ngIf="answerCorrectness === answerOptions.OK" class="ok-answer">
+                        🆗 Réponse partielle! Vous avez obtenu {{ this.currentQuestion.points / 2 }} points 🆗
+                    </h1>
+                    <h1 class="points" *ngIf="answerCorrectness === answerOptions.GOOD" class="good-answer">
+                        👏 Bonne Réponse! Vous avez obtenu {{ this.currentQuestion.points }} points 👏
+                    </h1>
+                    <h1 class="points" class="good-answer" *ngIf="bonus > 0">✨ Vous avez obtenu un bonus de {{ bonus }} points!✨</h1>
                 </div>
-                <h1 class="points" id="wrong-answer" *ngIf="!isRightAnswer">😔 Mauvaise Réponse 😔</h1>
             </div>
 
             <ng-template #elseBlock>
-                <div id="score-area" *ngIf="context !== 'hostView'">
+                <div id="score-area" *ngIf="context !== matchContext.HostView">
                     <h1 id="score">
                         SCORE :
                         {{ playerScore }}
@@ -56,23 +65,24 @@
             </div>
         </div>
 
-        <div id="choice-area" *ngIf="context === 'testPage' || (context === 'playerView' && !isCooldown)">
-            <button
-                mat-raised-button
-                *ngFor="let choice of currentQuestion.choices; let i = index"
-                class="answer"
-                [class.selected]="isSelected(choice) && !showFeedback"
-                [class.correct]="showFeedback && isCorrectAnswer(choice)"
-                [class.incorrect]="showFeedback && !isCorrectAnswer(choice) && isSelected(choice)"
-                (click)="selectChoice(choice)"
-            >
-                <p>{{ i + 1 }}. {{ choice.text }}</p>
-            </button>
+        <div class="choice-container" *ngIf="!isCooldown || context === matchContext.TestPage">
+            <app-multiple-choice-area
+                *ngIf="currentQuestion.type === questionType.QCM"
+                class="choice-area"
+                [isSelectionEnabled]="isSelectionEnabled"
+                [currentQuestion]="currentQuestion"
+                [isCooldown]="isCooldown"
+            ></app-multiple-choice-area>
+
+            <app-long-answer-area
+                *ngIf="currentQuestion.type === questionType.QRL"
+                class="choice-area"
+                [isSelectionEnabled]="isSelectionEnabled"
+                [currentQuestion]="currentQuestion"
+            ></app-long-answer-area>
         </div>
-        <div id="host-area" *ngIf="context === 'hostView'">
-            <div id="histogram-container" *ngIf="!isCooldown">
-                <app-histogram></app-histogram>
-            </div>
+
+        <div id="host-area" *ngIf="context === matchContext.HostView">
             <div id="buttons-container">
                 <button mat-raised-button *ngIf="isLastQuestion" (click)="routeToResultsPage()">Présenter les résultats finaux</button>
                 <button mat-raised-button color="primary" (click)="nextQuestion()" *ngIf="isNextQuestionButton && !isLastQuestion">
@@ -80,9 +90,12 @@
                 </button>
             </div>
         </div>
-        <div id="submit-button-container" *ngIf="context === 'testPage' || context === 'playerView'">
+        <div
+            id="submit-button-container"
+            *ngIf="context === matchContext.PlayerView || context === matchContext.TestPage || context === matchContext.RandomMode"
+        >
             <button mat-raised-button color="primary" id="submit-button" *ngIf="isSelectionEnabled" (click)="submitAnswers()">SOUMETTRE</button>
         </div>
     </div>
 </div>
-<app-players-list [players]="this.players" *ngIf="context === 'hostView'"></app-players-list>
+<app-players-list [players]="this.players" *ngIf="context !== matchContext.TestPage"></app-players-list>

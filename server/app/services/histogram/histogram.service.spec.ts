@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { MOCK_ROOM_CODE } from '@app/constants/chat-mocks';
 import { MOCK_MATCH_ROOM } from '@app/constants/match-mocks';
-import { Choice } from '@app/model/database/choice';
 import { HistogramService } from '@app/services/histogram/histogram.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { Histogram } from '@common/interfaces/histogram';

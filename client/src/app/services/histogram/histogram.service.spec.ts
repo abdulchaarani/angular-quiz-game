@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
-import { Histogram } from '@common/interfaces/histogram';
+import { Histogram, MultipleChoiceHistogram } from '@common/interfaces/histogram';
 import { Socket } from 'socket.io-client';
 import { HistogramService } from './histogram.service';
 import SpyObj = jasmine.SpyObj;
@@ -40,8 +40,9 @@ describe('HistogramService', () => {
     });
 
     it('should call currentHistogram', () => {
-        const histogram: Histogram = {
+        const histogram: MultipleChoiceHistogram = {
             question: 'question',
+            type: 'QCM',
             choiceTallies: [],
         };
         // Any is required to simulate Function type in tests

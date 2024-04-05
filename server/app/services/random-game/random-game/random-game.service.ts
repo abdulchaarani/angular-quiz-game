@@ -23,7 +23,7 @@ export class RandomGameService {
     async fetchAllQuestions() {
         try {
             const questions = await this.questionService.getAllQuestions();
-            this.allBankQuestions = questions;
+            this.allBankQuestions = questions.filter((question) => question.type === 'QCM');
         } catch (error) {
             // TODO: Change to notification
             // eslint-disable-next-line no-console

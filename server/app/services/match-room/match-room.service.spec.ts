@@ -153,6 +153,7 @@ describe('MatchRoomService', () => {
             submittedPlayers: 0,
             messages: [],
             isTestRoom: false,
+            isRandomMode: false,
             startTime: new Date(),
         };
 
@@ -311,7 +312,7 @@ describe('MatchRoomService', () => {
         matchRoom.isTestRoom = true;
         jest.spyOn(service, 'getRoom').mockReturnValue(matchRoom);
         service.sendNextQuestion(mockServer, matchRoom.code);
-        expect(emitMock).toHaveBeenCalledWith('gameOver', true);
+        expect(emitMock).toHaveBeenCalledWith('gameOver', { isRandomMode: false, isTestRoom: true });
     });
 
     it('sendNextQuestion() should emit the next question if there are any and start a timer with the game duration as its value', () => {

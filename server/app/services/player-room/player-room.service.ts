@@ -48,7 +48,6 @@ export class PlayerRoomService {
         const matchRoom = this.matchRoomService.getRoom(matchRoomCode);
         matchRoom.players.push(newPlayer);
         matchRoom.activePlayers++;
-
         return newPlayer;
     }
 

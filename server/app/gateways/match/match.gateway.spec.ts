@@ -67,12 +67,13 @@ describe('MatchGateway', () => {
 
     it('joinRoom() should let the player join if the room code and the username are valid', () => {
         matchRoomSpy.getRoomCodeErrors.returns('');
+        matchRoomSpy.getRoom.returns(MOCK_MATCH_ROOM);
         playerRoomSpy.getUsernameErrors.returns('');
         playerRoomSpy.addPlayer.returns(MOCK_PLAYER);
         const result = gateway.joinRoom(socket, MOCK_USER_INFO);
         expect(socket.join.calledOnce).toBeTruthy();
         expect(playerRoomSpy.addPlayer.calledOnce).toBeTruthy();
-        expect(result).toEqual({ code: MOCK_USER_INFO.roomCode, username: MOCK_PLAYER.username });
+        expect(result).toEqual({ code: MOCK_USER_INFO.roomCode, username: MOCK_PLAYER.username, isRandomMode: false });
     });
 
     it('joinRoom() should not let the player join if the room code or the username are invalid', () => {
@@ -92,14 +93,22 @@ describe('MatchGateway', () => {
 
     it('createRoom() should let the host create a match room and let the host join the new room', () => {
         matchRoomSpy.addRoom.returns(MOCK_MATCH_ROOM);
-        const result = gateway.createRoom(socket, { gameId: MOCK_MATCH_ROOM.game.id, isTestPage: MOCK_MATCH_ROOM.isTestRoom });
+        const result = gateway.createRoom(socket, {
+            gameId: MOCK_MATCH_ROOM.game.id,
+            isTestPage: MOCK_MATCH_ROOM.isTestRoom,
+            isRandomMode: MOCK_MATCH_ROOM.isRandomMode,
+        });
         expect(socket.join.calledOnce).toBeTruthy();
         expect(result).toEqual({ code: MOCK_MATCH_ROOM.code });
     });
 
     it('createRoom() should let host create a testing match room and let host join as the only player in the new room', () => {
         matchRoomSpy.addRoom.returns(MOCK_TEST_MATCH_ROOM);
-        const result = gateway.createRoom(socket, { gameId: MOCK_TEST_MATCH_ROOM.game.id, isTestPage: MOCK_TEST_MATCH_ROOM.isTestRoom });
+        const result = gateway.createRoom(socket, {
+            gameId: MOCK_TEST_MATCH_ROOM.game.id,
+            isTestPage: MOCK_TEST_MATCH_ROOM.isTestRoom,
+            isRandomMode: MOCK_MATCH_ROOM.isRandomMode,
+        });
         expect(socket.join.calledOnce).toBeTruthy();
         expect(result).toEqual({ code: MOCK_TEST_MATCH_ROOM.code });
     });
@@ -344,13 +353,13 @@ describe('MatchGateway', () => {
         eventEmitter.removeListener(ExpiredTimerEvents.CooldownTimerExpired, gateway.onCountdownTimerExpired);
     });
 
-    it('isTestRoom() should return true if context is test page, or false otherwise', () => {
+    it('isTestRoom() should return false if context is not test page', () => {
         const mockRoom = { ...MOCK_PLAYER_ROOM };
         mockRoom.code = MOCK_ROOM_CODE;
         mockRoom.hostSocket = mockRoom.players[0].socket;
         jest.spyOn(matchRoomSpy, 'getRoom').mockReturnValue(mockRoom);
         const isTestPage = gateway['isTestRoom'](MOCK_ROOM_CODE);
-        expect(isTestPage).toBe(true);
+        expect(isTestPage).toBe(false);
     });
 
     it('should call matchRoomService.pauseMatchTimer when pauseTimer message is detected', () => {

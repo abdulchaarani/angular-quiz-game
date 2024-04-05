@@ -366,7 +366,7 @@ describe('QuestionAreaComponent', () => {
         const choice: Choice = { text: 'London', isCorrect: false };
         component.isSelectionEnabled = true;
         component.selectedAnswers = [];
-        component.context = 'testPage';
+        component.context = MatchContext.TestPage;
 
         component.selectChoice(choice);
 
@@ -377,7 +377,7 @@ describe('QuestionAreaComponent', () => {
         const choice: Choice = { text: 'London', isCorrect: false };
         component.isSelectionEnabled = true;
         component.selectedAnswers = [choice];
-        component.context = 'testPage';
+        component.context = MatchContext.TestPage;
 
         component.selectChoice(choice);
 
@@ -439,14 +439,36 @@ describe('QuestionAreaComponent', () => {
         expect(matchRoomSpy.onRouteToResultsPage).toHaveBeenCalled();
     });
 
-    it('should call handleFeedback when feedback is received', () => {
+    it('should call handleFeedback when feedback is received and the context is TestPage', () => {
         const feedback = {
             correctAnswer: ['Paris'],
             score: 20,
         };
 
         component.playerScore = 10;
-        component.context = 'testPage';
+        component.context = MatchContext.TestPage;
+
+        spyOn(component, 'nextQuestion');
+
+        component['handleFeedback'](feedback);
+
+        expect(component.isSelectionEnabled).toBeFalse();
+        expect(component.correctAnswers).toEqual(feedback.correctAnswer);
+        expect(component.isRightAnswer).toBeTrue();
+        expect(component.playerScore).toBe(feedback.score);
+        expect(matchRoomSpy.sendPlayersData).toHaveBeenCalledWith(component.matchRoomCode);
+        expect(component.showFeedback).toBeTrue();
+        expect(component.nextQuestion).toHaveBeenCalled();
+    });
+
+    it('should call handleFeedback when feedback is received and the context is RandomMode', () => {
+        const feedback = {
+            correctAnswer: ['Paris'],
+            score: 20,
+        };
+
+        component.playerScore = 10;
+        component.context = MatchContext.RandomMode;
 
         spyOn(component, 'nextQuestion');
 
@@ -470,7 +492,7 @@ describe('QuestionAreaComponent', () => {
         expect(component.ngOnChanges).toHaveBeenCalled();
     });
 
-    it('subscribeToFeedback() should add a subscription to feedback and delegate feedbacnk change to handleFeedback() ', () => {
+    it('subscribeToFeedback() should add a subscription to feedback and delegate feedback change to handleFeedback() ', () => {
         component.showFeedback = false;
         component.isNextQuestionButton = false;
 
@@ -525,7 +547,7 @@ describe('QuestionAreaComponent', () => {
 
     it('subscribeToCooldown() should set the displayed text to Match Prepare if context is not testPage ', () => {
         component.isCooldown = false;
-        component.context = 'playerView';
+        component.context = MatchContext.PlayerView;
         component['subscribeToCooldown']();
         booleanSubject.next(true);
         expect(component.currentQuestion.text).toEqual(MatchStatus.PREPARE);
@@ -533,7 +555,7 @@ describe('QuestionAreaComponent', () => {
 
     it('subscribeToCooldown() should not set the displayed text to Match Prepare if context is testPage ', () => {
         component.isCooldown = false;
-        component.context = 'testPage';
+        component.context = MatchContext.TestPage;
         component['subscribeToCooldown']();
         booleanSubject.next(true);
         expect(component.currentQuestion.text).not.toEqual(MatchStatus.PREPARE);

@@ -44,12 +44,15 @@ export class MatchRoomService {
         });
     }
 
-    addRoom(selectedGame: Game, socket: Socket, isTestPage: boolean = false): MatchRoom {
+    addRoom(selectedGame: Game, socket: Socket, isTestPage: boolean = false, isRandomMode: boolean = false): MatchRoom {
+        let isLocked: boolean = isTestPage && !isRandomMode;
+        let isPlaying: boolean = isTestPage && !isRandomMode;
+
         const newRoom: MatchRoom = {
             code: this.generateRoomCode(),
             hostSocket: socket,
-            isLocked: isTestPage,
-            isPlaying: isTestPage,
+            isLocked: isLocked,
+            isPlaying: isPlaying,
             game: selectedGame,
             gameLength: selectedGame.questions.length,
             currentQuestionIndex: 0,
@@ -61,10 +64,10 @@ export class MatchRoomService {
             activePlayers: 0,
             submittedPlayers: 0,
             messages: [],
-            isTestRoom: isTestPage,
+            isTestRoom: isTestPage || isRandomMode,
+            isRandomMode: isRandomMode,
             startTime: new Date(),
         };
-
         this.matchRooms.push(newRoom);
         return newRoom;
     }
@@ -150,7 +153,7 @@ export class MatchRoomService {
     sendNextQuestion(server: Server, matchRoomCode: string): void {
         const matchRoom: MatchRoom = this.getRoom(matchRoomCode);
         if (matchRoom.currentQuestionIndex === matchRoom.gameLength) {
-            server.in(matchRoomCode).emit(MatchEvents.GameOver, matchRoom.isTestRoom);
+            server.in(matchRoomCode).emit(MatchEvents.GameOver, { isTestRoom: matchRoom.isTestRoom, isRandomMode: matchRoom.isRandomMode });
             return;
         }
         const nextQuestion = matchRoom.game.questions[matchRoom.currentQuestionIndex];
@@ -174,7 +177,7 @@ export class MatchRoomService {
         if (!room) {
             return false;
         }
-        return room.isLocked && room.players.length > 0;
+        return (room.isLocked && room.players.length > 0 && !room.isRandomMode) || (room.isLocked && room.isRandomMode);
     }
 
     getGameDuration(matchRoomCode: string) {

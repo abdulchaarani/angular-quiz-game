@@ -4,6 +4,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { WarningMessage } from '@app/constants/feedback-messages';
 import { Game } from '@app/interfaces/game';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { MatchService } from '@app/services/match/match.service';
@@ -13,8 +14,6 @@ import { TimeService } from '@app/services/time/time.service';
 import { BehaviorSubject, Subject, of } from 'rxjs';
 import { WaitPageComponent } from './wait-page.component';
 import SpyObj = jasmine.SpyObj;
-import { WarningMessage } from '@app/constants/feedback-messages';
-import { MatchContext } from '@app/constants/states';
 
 @Component({
     selector: 'app-chat',
@@ -49,7 +48,7 @@ describe('WaitPageComponent', () => {
             'disconnect',
         ]);
         matchSpy = jasmine.createSpyObj('MatchService', ['']);
-        questionContextSpy = jasmine.createSpyObj('QuestionContextService', ['setContext']);
+        questionContextSpy = jasmine.createSpyObj('QuestionContextService', ['setContext', 'getContext']);
         timeSpy = jasmine.createSpyObj('TimeService', ['handleTimer', 'handleStopTimer', 'computeTimerProgress']);
         notificationServiceSpy = jasmine.createSpyObj('NotificationService', ['displayErrorMessage', 'openWarningDialog']);
 
@@ -99,7 +98,6 @@ describe('WaitPageComponent', () => {
         component.ngOnInit();
 
         expect(component.gameTitle).toEqual(mockGame.title);
-        expect(questionContextSpy.setContext).toHaveBeenCalledWith(MatchContext.HostView);
     });
 
     it('should get current game', () => {

@@ -45,7 +45,6 @@ export class PlayerRoomService {
         const matchRoom = this.matchRoomService.getRoom(matchRoomCode);
         matchRoom.players.push(newPlayer);
         matchRoom.activePlayers++;
-
         return newPlayer;
     }
 
@@ -116,7 +115,7 @@ export class PlayerRoomService {
     getUsernameErrors(matchRoomCode: string, username: string): string {
         let errors = '';
         if (this.matchRoomService.getRoom(matchRoomCode).isTestRoom) return errors;
-        if (username.toUpperCase() === HOST_USERNAME) {
+        if (username.trim().toUpperCase() === HOST_USERNAME) {
             errors += HOST_CONFLICT;
         }
         if (this.isBannedUsername(matchRoomCode, username)) {

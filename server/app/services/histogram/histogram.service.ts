@@ -31,8 +31,10 @@ export class HistogramService {
 
     resetChoiceTracker(matchRoomCode: string) {
         const matchRoom = this.matchRoomService.getRoom(matchRoomCode);
-        const currentQuestion = matchRoom.game.questions[matchRoom.currentQuestionIndex];
-        matchRoom.currentChoiceTracker.resetChoiceTracker(currentQuestion.text, currentQuestion.choices);
+        if (matchRoom.game.questions.length !== 0) {
+            const currentQuestion = matchRoom.game.questions[matchRoom.currentQuestionIndex];
+            matchRoom.currentChoiceTracker.resetChoiceTracker(currentQuestion.text, currentQuestion.choices);
+        }
     }
 
     sendHistogram(roomCode: string) {

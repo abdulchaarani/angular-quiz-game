@@ -5,7 +5,7 @@ import { PlayerState } from '@common/constants/player-states';
 const ALTERNATIVE_OPTION = -1;
 
 const compareNames = (firstPlayer: Player, secondPlayer: Player): number => {
-    return firstPlayer.username > secondPlayer.username ? 1 : ALTERNATIVE_OPTION;
+    return firstPlayer.username.toUpperCase() > secondPlayer.username.toUpperCase() ? 1 : ALTERNATIVE_OPTION;
 };
 
 @Pipe({

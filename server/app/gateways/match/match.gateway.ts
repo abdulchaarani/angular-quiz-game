@@ -11,6 +11,7 @@ import { HOST_USERNAME } from '@common/constants/match-constants';
 import { PlayerState } from '@common/constants/player-states';
 import { MatchEvents } from '@common/events/match.events';
 import { HistogramEvents } from '@common/events/histogram.events';
+import { TimerEvents } from '@common/events/timer.events';
 import { UserInfo } from '@common/interfaces/user-info';
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
@@ -113,6 +114,16 @@ export class MatchGateway implements OnGatewayDisconnect {
     nextQuestion(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
         this.playerRoomService.setStateForAll(roomCode, PlayerState.noInteraction);
         this.matchRoomService.startNextQuestionCooldown(this.server, roomCode);
+    }
+
+    @SubscribeMessage(TimerEvents.PauseTimer)
+    pauseTimer(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
+        this.matchRoomService.pauseMatchTimer(this.server, roomCode);
+    }
+
+    @SubscribeMessage(TimerEvents.PanicTimer)
+    panicTimer(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
+        this.matchRoomService.panicMatchTimer(this.server, roomCode);
     }
 
     @OnEvent(ExpiredTimerEvents.CountdownTimerExpired)

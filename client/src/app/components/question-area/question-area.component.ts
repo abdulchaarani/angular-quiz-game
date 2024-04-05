@@ -144,6 +144,10 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
         this.matchRoomService.disconnect();
     }
 
+    togglePanicTimer() {
+        this.timeService.panicTimer(this.matchRoomCode);
+    }
+
     private handleFeedback(feedback: Feedback) {
         this.showFeedback = true;
         this.isNextQuestionButton = true;

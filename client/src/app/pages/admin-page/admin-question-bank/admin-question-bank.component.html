@@ -13,10 +13,18 @@
             </mat-card-content>
         </mat-card>
 
+        <div id="sort-questions">
+            <p>Filtrer par:</p>
+            <mat-button-toggle-group #filterType="matButtonToggleGroup" name="filterType" value="">
+                <mat-button-toggle value="">Tout</mat-button-toggle>
+                <mat-button-toggle value="QCM">QCM</mat-button-toggle>
+                <mat-button-toggle value="QRL">QRL</mat-button-toggle>
+            </mat-button-toggle-group>
+        </div>
         <mat-accordion class="list bank-list" multi="false">
             <app-question-list-item
                 class="question bank-question"
-                *ngFor="let question of bankService.questions | sortByLastModification: 'descending'"
+                *ngFor="let question of bankService.questions | sortByLastModification: 'descending' | filterByQuestionType: filterType.value"
                 [question]="question"
                 [isBankQuestion]="true"
                 (deleteQuestionEvent)="deleteQuestion($event)"

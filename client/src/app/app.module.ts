@@ -27,6 +27,7 @@ import { HomePageComponent } from './pages/home-page/home-page.component';
 import { MatchCreationPageComponent } from './pages/match-creation-page/match-creation-page.component';
 import { ResultsPageComponent } from './pages/results-page/results-page.component';
 import { WaitPageComponent } from './pages/wait-page/wait-page.component';
+import { FilterByQuestionTypePipe } from './pipes/filter-by-question-type.pipe';
 import { SortByLastModificationPipe } from './pipes/sort-by-last-modification.pipe';
 import { SortByScorePipe } from './pipes/sort-by-score.pipe';
 import { SortHistoryPipe } from './pipes/sort-history.pipe';
@@ -72,6 +73,7 @@ import { LongAnswerHistogramComponent } from './components/long-answer-histogram
         LongAnswerAreaComponent,
         SortAnswersPipe,
         LongAnswerHistogramComponent,
+        FilterByQuestionTypePipe,
     ],
     imports: [
         AppMaterialModule,

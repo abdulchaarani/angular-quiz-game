@@ -45,7 +45,6 @@ describe('GradeTracker', () => {
         gradeTracker.items['50'].tally = 3;
         gradeTracker.items['100'].tally = 4;
 
-        expect(gradeTracker.items['100']).toBeUndefined();
         gradeTracker.resetGradeTracker('mockQuestion', possibleGrades);
 
         expect(gradeTracker.items['0'].tally).toBe(0);

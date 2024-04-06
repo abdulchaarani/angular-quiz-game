@@ -19,7 +19,6 @@ import { Subscription } from 'rxjs/internal/Subscription';
 export class WaitPageComponent implements OnInit, OnDestroy {
     isLocked: boolean;
     isQuitting: boolean;
-    isBanned: boolean;
     startTimerButton: boolean;
     gameTitle: string;
     isHostPlaying: boolean;
@@ -51,7 +50,7 @@ export class WaitPageComponent implements OnInit, OnDestroy {
     canDeactivate(): CanDeactivateType {
         if (!this.matchRoomService.isHostPlaying) return true;
         if (this.matchRoomService.isWaitOver) return true;
-        if (this.isBanned) return true;
+        if (this.matchRoomService.isBanned) return true;
 
         const deactivateSubject = new Subject<boolean>();
         this.notificationService.openWarningDialog(WarningMessage.QUIT).subscribe((confirm: boolean) => {
@@ -70,7 +69,6 @@ export class WaitPageComponent implements OnInit, OnDestroy {
         this.timeService.handleStopTimer();
 
         this.subscribeToStartMatch();
-        this.subscribeToBanishment();
 
         if (this.isHost) {
             this.gameTitle = this.currentGame.title;
@@ -122,6 +120,7 @@ export class WaitPageComponent implements OnInit, OnDestroy {
         this.isQuitting = false;
         this.startTimerButton = false;
         this.matchRoomService.isHostPlaying = true;
+        this.matchRoomService.isBanned = false;
     }
 
     private subscribeToStartMatch() {
@@ -137,13 +136,5 @@ export class WaitPageComponent implements OnInit, OnDestroy {
         });
 
         this.eventSubscriptions.push(gameTitleSubscription);
-    }
-
-    private subscribeToBanishment() {
-        const banishmentSubscription = this.matchRoomService.isBanned$.subscribe((isBanned) => {
-            this.isBanned = isBanned;
-        });
-
-        this.eventSubscriptions.push(banishmentSubscription);
     }
 }

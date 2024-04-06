@@ -27,17 +27,14 @@ export class MatchRoomService {
     isPlaying: boolean;
     currentQuestion: Question;
     gameDuration: number;
-    isHostPlaying: boolean = true;
-
+    isHostPlaying: boolean;
     startMatch$: Observable<boolean>;
     gameTitle$: Observable<string>;
     displayCooldown$: Observable<boolean>;
-    isBanned$: Observable<boolean>;
 
     private startMatchSource = new Subject<boolean>();
     private gameTitleSource = new Subject<string>();
     private displayCooldownSource = new BehaviorSubject<boolean>(false);
-    private bannedSource = new BehaviorSubject<boolean>(false);
     private matchRoomCode: string;
     private username: string;
 
@@ -219,7 +216,6 @@ export class MatchRoomService {
         this.messages = [];
         this.isResults = false;
         this.isWaitOver = false;
-        this.isBanned = false;
         this.isPlaying = false;
     }
 
@@ -236,7 +232,7 @@ export class MatchRoomService {
 
     onPlayerKick() {
         this.socketService.on(MatchEvents.KickPlayer, () => {
-            this.bannedSource.next(true);
+            this.isBanned = true;
             this.disconnect();
         });
     }
@@ -245,10 +241,8 @@ export class MatchRoomService {
         this.startMatchSource = new Subject<boolean>();
         this.gameTitleSource = new Subject<string>();
         this.displayCooldownSource = new BehaviorSubject<boolean>(false);
-        this.bannedSource = new BehaviorSubject<boolean>(false);
         this.startMatch$ = this.startMatchSource.asObservable();
         this.gameTitle$ = this.gameTitleSource.asObservable();
         this.displayCooldown$ = this.displayCooldownSource.asObservable();
-        this.isBanned$ = this.bannedSource.asObservable();
     }
 }

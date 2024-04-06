@@ -65,6 +65,7 @@ export class QuestionAreaComponent implements OnInit {
         }
     }
 
+    // TODO: export to service?
     canDeactivate(): CanDeactivateType {
         if (!this.matchRoomService.isHostPlaying) return true;
         if (this.matchRoomService.isResults) return true;
@@ -82,10 +83,6 @@ export class QuestionAreaComponent implements OnInit {
             }
         });
         return deactivateSubject;
-    }
-
-    getHistoryState() {
-        return history.state;
     }
 
     ngOnInit(): void {

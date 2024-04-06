@@ -18,7 +18,6 @@ import { Subscription } from 'rxjs/internal/Subscription';
 })
 export class WaitPageComponent implements OnInit, OnDestroy {
     isLocked: boolean;
-    startTimerButton: boolean;
     gameTitle: string;
     isHostPlaying: boolean;
     private eventSubscriptions: Subscription[] = [];
@@ -67,8 +66,6 @@ export class WaitPageComponent implements OnInit, OnDestroy {
         this.timeService.handleTimer();
         this.timeService.handleStopTimer();
 
-        this.subscribeToStartMatch();
-
         if (this.isHost) {
             this.gameTitle = this.currentGame.title;
         } else {
@@ -93,7 +90,6 @@ export class WaitPageComponent implements OnInit, OnDestroy {
     }
 
     prepareStartOfMatch() {
-        this.startTimerButton = true;
         this.matchRoomService.startMatch();
         return this.timeService.timerFinished$;
     }
@@ -116,17 +112,10 @@ export class WaitPageComponent implements OnInit, OnDestroy {
 
     private resetWaitPage() {
         this.isLocked = false;
-        this.startTimerButton = false;
+        this.matchRoomService.isMatchStarted = false;
         this.matchRoomService.isHostPlaying = true;
         this.matchRoomService.isBanned = false;
         this.matchRoomService.isQuitting = false;
-    }
-
-    private subscribeToStartMatch() {
-        const startMatchSubscription = this.matchRoomService.startMatch$.subscribe((startMatch) => {
-            this.startTimerButton = startMatch;
-        });
-        this.eventSubscriptions.push(startMatchSubscription);
     }
 
     private subscribeToGameTitle() {

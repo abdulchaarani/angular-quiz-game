@@ -10,7 +10,6 @@ import { HOST_USERNAME } from '@common/constants/match-constants';
 import { PlayerState } from '@common/constants/player-states';
 import { MatchEvents } from '@common/events/match.events';
 import { UserInfo } from '@common/interfaces/user-info';
-import { BehaviorSubject } from 'rxjs';
 import { Observable } from 'rxjs/internal/Observable';
 import { Subject } from 'rxjs/internal/Subject';
 import { MatchContextService } from '@app/services/question-context/question-context.service';
@@ -22,6 +21,7 @@ import { MatchStatus } from '@app/constants/feedback-messages';
 export class MatchRoomService {
     players: Player[];
     messages: Message[];
+    isMatchStarted: boolean;
     isResults: boolean;
     isWaitOver: boolean;
     isBanned: boolean;
@@ -32,13 +32,9 @@ export class MatchRoomService {
     isCooldown: boolean;
     isQuitting: boolean;
 
-    startMatch$: Observable<boolean>;
     gameTitle$: Observable<string>;
-    displayCooldown$: Observable<boolean>;
 
-    private startMatchSource = new Subject<boolean>();
     private gameTitleSource = new Subject<string>();
-    private displayCooldownSource = new BehaviorSubject<boolean>(false);
 
     private matchRoomCode: string;
     private username: string;
@@ -138,13 +134,14 @@ export class MatchRoomService {
     }
 
     startMatch() {
+        this.isMatchStarted = true;
         this.socketService.send(MatchEvents.StartMatch, this.matchRoomCode);
     }
 
     onMatchStarted() {
         this.socketService.on(MatchEvents.MatchStarting, (data: { start: boolean; gameTitle: string }) => {
             if (data.start) {
-                this.startMatchSource.next(true);
+                this.isMatchStarted = true;
             }
             if (data.gameTitle) {
                 this.gameTitleSource.next(data.gameTitle);
@@ -170,7 +167,6 @@ export class MatchRoomService {
 
     onStartCooldown() {
         this.socketService.on(MatchEvents.StartCooldown, () => {
-            this.displayCooldownSource.next(true);
             this.isCooldown = true;
             const context = this.matchContextService.getContext();
             if (this.isCooldown && context !== MatchContext.TestPage && context !== MatchContext.RandomMode) {
@@ -194,7 +190,7 @@ export class MatchRoomService {
 
     onNextQuestion() {
         this.socketService.on(MatchEvents.NextQuestion, (question: Question) => {
-            this.displayCooldownSource.next(false);
+            this.isCooldown = false;
             this.currentQuestion = question;
         });
     }
@@ -208,7 +204,6 @@ export class MatchRoomService {
     onHostQuit() {
         this.socketService.on(MatchEvents.HostQuitMatch, () => {
             this.isHostPlaying = false;
-            // this.hostPlayingSource.next(false);
         });
     }
 
@@ -249,11 +244,7 @@ export class MatchRoomService {
     }
 
     private initialiseMatchSubjects() {
-        this.startMatchSource = new Subject<boolean>();
         this.gameTitleSource = new Subject<string>();
-        this.displayCooldownSource = new BehaviorSubject<boolean>(false);
-        this.startMatch$ = this.startMatchSource.asObservable();
         this.gameTitle$ = this.gameTitleSource.asObservable();
-        this.displayCooldown$ = this.displayCooldownSource.asObservable();
     }
 }

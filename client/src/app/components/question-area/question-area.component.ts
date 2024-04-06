@@ -67,12 +67,13 @@ export class QuestionAreaComponent implements OnInit {
 
     // TODO: export to service?
     canDeactivate(): CanDeactivateType {
-        if (!this.matchRoomService.isHostPlaying) return true;
         if (this.matchRoomService.isResults) return true;
+        if (this.matchRoomService.isQuitting) return true;
         if (this.matchContextService.getContext() === MatchContext.TestPage) {
+            this.matchRoomService.isQuitting = true;
             this.matchRoomService.disconnect();
-            return true;
         }
+        if (!this.matchRoomService.isHostPlaying) return true;
 
         const deactivateSubject = new Subject<boolean>();
         this.notificationService.openWarningDialog(WarningMessage.QUIT).subscribe((confirm: boolean) => {
@@ -87,14 +88,13 @@ export class QuestionAreaComponent implements OnInit {
 
     ngOnInit(): void {
         this.resetStateForNewQuestion();
+        this.listenToGameEvents();
         // TODO: move score somewhere else?
         this.answerService.playerScore = 0;
         this.context = this.matchContextService.getContext();
         if (this.isFirstQuestion) {
             this.isFirstQuestion = false;
         }
-
-        this.listenToGameEvents();
     }
 
     submitAnswers(): void {
@@ -123,18 +123,9 @@ export class QuestionAreaComponent implements OnInit {
         this.timeService.pauseTimer(this.matchRoomService.getRoomCode());
     }
 
-    // TODO: see if can be moved
     private listenToGameEvents() {
-        this.timeService.handleTimer();
-        this.timeService.handleStopTimer();
-        this.answerService.onFeedback();
-        this.answerService.onBonusPoints();
-        this.answerService.onEndGame();
-        this.answerService.onTimesUp();
-        this.answerService.onGradeAnswers();
-        this.answerService.onNextQuestion();
-        this.matchRoomService.onGameOver();
-        this.matchRoomService.onRouteToResultsPage();
+        this.timeService.listenToTimerEvents();
+        this.answerService.listenToAnswerEvents();
     }
 
     private resetStateForNewQuestion(): void {

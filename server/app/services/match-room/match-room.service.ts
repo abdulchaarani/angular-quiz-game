@@ -95,6 +95,7 @@ export class MatchRoomService {
 
     deleteRoom(matchRoomCode: string): void {
         this.timeService.terminateTimer(matchRoomCode);
+
         this.matchRooms = this.matchRooms.filter((room: MatchRoom) => {
             return room.code !== matchRoomCode;
         });

@@ -19,6 +19,9 @@ export class TimeService {
         this.initialValue = 0;
         this.isPanicking = false;
         this.timerFinished = new BehaviorSubject<boolean>(false);
+        this.listenToTimerEvents();
+        this.handleTimer();
+        this.handleStopTimer();
     }
 
     get time() {
@@ -35,6 +38,11 @@ export class TimeService {
 
     set time(newTime: number) {
         this.counter = newTime;
+    }
+
+    listenToTimerEvents() {
+        this.handleTimer();
+        this.handleStopTimer();
     }
 
     startTimer(roomCode: string, time: number): void {

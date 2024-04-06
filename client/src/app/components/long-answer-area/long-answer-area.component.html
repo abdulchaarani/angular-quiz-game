@@ -11,10 +11,10 @@
                     matInput
                     #message
                     [attr.maxlength]="answerMaxLength"
-                    [(ngModel)]="currentAnswer"
+                    [(ngModel)]="answerService.currentLongAnswer"
                     name="answer"
                     [disabled]="!answerService.isSelectionEnabled"
-                    (input)="updateAnswer()"
+                    (input)="answerService.updateLongAnswer()"
                 ></textarea>
                 <mat-hint align="end">{{ message.value.length }} / {{ answerMaxLength }}</mat-hint>
             </mat-form-field>

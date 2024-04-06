@@ -66,7 +66,7 @@ export class WaitPageComponent implements OnInit, OnDestroy {
         this.timeService.handleStopTimer();
 
         if (this.isHost) {
-            //TODO: is it needed here?
+            // TODO: is it needed here?
             this.matchRoomService.gameTitle = this.currentGame.title;
         } else {
             if (!this.matchContextService.getContext()) {

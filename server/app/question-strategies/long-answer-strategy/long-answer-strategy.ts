@@ -84,7 +84,9 @@ export class LongAnswerStrategy extends QuestionStrategy {
             return;
         }
 
-        const playerAnswers = players.map((player: Player) => {
+        const playingPlayers = players.filter((player) => player.isPlaying);
+
+        const playerAnswers = playingPlayers.map((player: Player) => {
             const answer: string = (player.answer as LongAnswer).answer;
             const username: string = player.username;
             // TODO: unanonymize object

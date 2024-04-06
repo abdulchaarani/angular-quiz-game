@@ -29,12 +29,24 @@ export class AnswerService {
     bonusPoints: number;
     isTimesUp: boolean;
     isEndGame: boolean;
+    currentLongAnswer: string;
 
     constructor(
         public socketService: SocketHandlerService,
         public matchRoomService: MatchRoomService,
         private readonly matchContextService: MatchContextService,
-    ) {}
+    ) {
+        this.listenToAnswerEvents();
+    }
+
+    listenToAnswerEvents() {
+        this.onFeedback();
+        this.onBonusPoints();
+        this.onEndGame();
+        this.onTimesUp();
+        this.onGradeAnswers();
+        this.onNextQuestion();
+    }
 
     resetStateForNewQuestion() {
         this.feedback = {} as Feedback;
@@ -48,6 +60,7 @@ export class AnswerService {
         this.isNextQuestionButton = false;
         this.isTimesUp = false;
         this.isEndGame = false;
+        this.currentLongAnswer = '';
     }
 
     selectChoice(choice: string, userInfo: UserInfo) {
@@ -64,9 +77,10 @@ export class AnswerService {
         this.socketService.send(AnswerEvents.SubmitAnswer, userInfo);
     }
 
-    updateLongAnswer(answer: string) {
+    updateLongAnswer() {
+        if (!this.isSelectionEnabled) return;
         const userInfo = { username: this.matchRoomService.getUsername(), roomCode: this.matchRoomService.getRoomCode() };
-        const choiceInfo: ChoiceInfo = { choice: answer, userInfo };
+        const choiceInfo: ChoiceInfo = { choice: this.currentLongAnswer, userInfo };
         this.socketService.send(AnswerEvents.UpdateLongAnswer, choiceInfo);
     }
 

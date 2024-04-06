@@ -66,6 +66,7 @@ export class MatchGateway implements OnGatewayDisconnect {
 
             if (!newMatchRoom.isRandomMode) {
                 this.matchRoomService.sendFirstQuestion(this.server, playerInfo.roomCode);
+                this.matchRoomService.startMatch(socket, this.server, newMatchRoom.code);
             }
 
             return { code: newMatchRoom.code };

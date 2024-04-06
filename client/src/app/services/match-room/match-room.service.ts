@@ -69,6 +69,8 @@ export class MatchRoomService {
             this.onHostQuit();
             this.onPlayerKick();
             this.handleError();
+            this.onGameOver();
+            this.onRouteToResultsPage();
         }
     }
 
@@ -83,7 +85,6 @@ export class MatchRoomService {
             this.username = HOST_USERNAME;
             if (isTestRoom) {
                 this.players = [{ username: this.username, score: 0, bonusCount: 0, isPlaying: true, state: PlayerState.default }];
-                this.router.navigateByUrl('/play-test');
             } else {
                 this.sendPlayersData(this.matchRoomCode);
                 this.router.navigateByUrl('/match-room');
@@ -149,10 +150,9 @@ export class MatchRoomService {
             this.isWaitOver = true;
             this.currentQuestion = data.firstQuestion;
             this.gameDuration = data.gameDuration;
-            const { firstQuestion, gameDuration, isTestRoom } = data;
-            if (isTestRoom) {
-                this.router.navigate(['/play-test'], { state: { question: firstQuestion, duration: gameDuration } });
-            } else this.router.navigate(['/play-match'], { state: { question: firstQuestion, duration: gameDuration } });
+            const { firstQuestion, gameDuration } = data;
+            // TODO: remove unused state!
+            this.router.navigate(['/play-match'], { state: { question: firstQuestion, duration: gameDuration } });
         });
     }
 

@@ -12,7 +12,6 @@ import { AnswerCorrectness } from '@common/constants/answer-correctness';
 })
 export class LongAnswerAreaComponent implements OnInit {
     answerMaxLength = FREE_ANSWER_MAX_LENGTH;
-    currentAnswer: string = '';
 
     constructor(
         public matchRoomService: MatchRoomService,
@@ -26,11 +25,5 @@ export class LongAnswerAreaComponent implements OnInit {
 
     ngOnInit(): void {
         this.answerService.resetStateForNewQuestion();
-    }
-
-    updateAnswer(): void {
-        if (this.answerService.isSelectionEnabled) {
-            this.answerService.updateLongAnswer(this.currentAnswer);
-        }
     }
 }

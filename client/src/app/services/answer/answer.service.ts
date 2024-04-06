@@ -3,7 +3,6 @@ import { SocketHandlerService } from '@app/services/socket-handler/socket-handle
 import { ChoiceInfo } from '@common/interfaces/choice-info';
 import { Feedback } from '@common/interfaces/feedback';
 import { UserInfo } from '@common/interfaces/user-info';
-import { Observable, Subject } from 'rxjs';
 import { AnswerEvents } from '@common/events/answer.events';
 import { LongAnswerInfo } from '@common/interfaces/long-answer-info';
 import { GradesInfo } from '@common/interfaces/grades-info';
@@ -17,31 +16,25 @@ import { MatchContext } from '@app/constants/states';
     providedIn: 'root',
 })
 export class AnswerService {
-    endGame$: Observable<boolean>;
     playersAnswers: LongAnswerInfo[];
-    isTimesUp$: Observable<boolean>;
-
     feedback: Feedback;
-    gradeAnswers: boolean = false;
-    isGradingComplete: boolean = false;
-    showFeedback: boolean = false;
-    isNextQuestionButton: boolean = false;
-    isSelectionEnabled: boolean = true;
-    correctAnswer: string[] = [];
+    gradeAnswers: boolean;
+    isGradingComplete: boolean;
+    showFeedback: boolean;
+    isNextQuestionButton: boolean;
+    isSelectionEnabled: boolean;
+    correctAnswer: string[];
     answerCorrectness: AnswerCorrectness;
     playerScore: number;
     bonusPoints: number;
     isTimesUp: boolean;
-
-    private endGameSubject: Subject<boolean>;
+    isEndGame: boolean;
 
     constructor(
         public socketService: SocketHandlerService,
         public matchRoomService: MatchRoomService,
         private readonly matchContextService: MatchContextService,
-    ) {
-        this.initialiseAnwserSubjects();
-    }
+    ) {}
 
     resetStateForNewQuestion() {
         this.feedback = {} as Feedback;
@@ -54,6 +47,7 @@ export class AnswerService {
         this.bonusPoints = 0;
         this.isNextQuestionButton = false;
         this.isTimesUp = false;
+        this.isEndGame = false;
     }
 
     selectChoice(choice: string, userInfo: UserInfo) {
@@ -107,7 +101,7 @@ export class AnswerService {
 
     onEndGame() {
         this.socketService.on(AnswerEvents.EndGame, () => {
-            this.endGameSubject.next(true);
+            this.isEndGame = true;
         });
     }
 
@@ -140,10 +134,5 @@ export class AnswerService {
 
     handleGrading(): void {
         this.isGradingComplete = this.playersAnswers.every((answer: LongAnswerInfo) => answer.score !== null);
-    }
-
-    private initialiseAnwserSubjects() {
-        this.endGameSubject = new Subject<boolean>();
-        this.endGame$ = this.endGameSubject.asObservable();
     }
 }

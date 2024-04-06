@@ -26,7 +26,6 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
     isCooldown: boolean = false;
     isRightAnswer: boolean = false;
     answerStyle: string = '';
-    isLastQuestion: boolean = false;
     isQuitting: boolean = false;
 
     private eventSubscriptions: Subscription[];
@@ -158,18 +157,16 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
     private subscribeToCooldown() {
         const displayCoolDownSubscription = this.matchRoomService.displayCooldown$.subscribe((isCooldown) => {
             this.isCooldown = isCooldown;
-            if (this.isCooldown && !this.isLastQuestion && this.context !== MatchContext.TestPage && this.context !== MatchContext.RandomMode) {
+            if (
+                this.isCooldown &&
+                !this.answerService.isEndGame &&
+                this.context !== MatchContext.TestPage &&
+                this.context !== MatchContext.RandomMode
+            ) {
                 this.currentQuestion.text = MatchStatus.PREPARE;
             }
         });
         this.eventSubscriptions.push(displayCoolDownSubscription);
-    }
-
-    private subscribeToGameEnd() {
-        const endGameSubscription = this.answerService.endGame$.subscribe((endGame) => {
-            this.isLastQuestion = endGame;
-        });
-        this.eventSubscriptions.push(endGameSubscription);
     }
 
     private subscribeToHostPlaying() {
@@ -178,6 +175,8 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
         });
         this.eventSubscriptions.push(hostPlayingSubscription);
     }
+
+    // TODO: see if can be moved
     private listenToGameEvents() {
         this.timeService.handleTimer();
         this.timeService.handleStopTimer();
@@ -195,7 +194,6 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
         this.subscribeToHostPlaying();
         this.subscribeToCurrentQuestion();
         this.subscribeToCooldown();
-        this.subscribeToGameEnd();
     }
 
     private resetStateForNewQuestion(): void {

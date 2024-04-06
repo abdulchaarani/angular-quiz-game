@@ -171,6 +171,7 @@ export class MatchRoomService {
     }
 
     onGameOver() {
+        // TODO: put message interface instead of any...
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         this.socketService.on(MatchEvents.GameOver, (data: any) => {
             const { isTestRoom, isRandomMode } = data;

@@ -1,4 +1,4 @@
-<div id="choice-area" *ngIf="matchContextService.getContext() !== 'hostView'">
+<div id="choice-area" *ngIf="matchContextService.getContext() !== contextOptions.HostView">
     <button
         mat-raised-button
         *ngFor="let choice of matchRoomService.currentQuestion.choices; let i = index"
@@ -11,7 +11,6 @@
         <p>{{ i + 1 }}. {{ choice.text }}</p>
     </button>
 </div>
-
-<div id="histogram-container" *ngIf="!matchRoomService.isCooldown && matchContextService.getContext() === 'hostView'">
+<div id="histogram-container" *ngIf="!matchRoomService.isCooldown && matchContextService.getContext() === contextOptions.HostView">
     <app-histogram></app-histogram>
 </div>

@@ -1,4 +1,5 @@
 import { Component, HostListener, OnInit } from '@angular/core';
+import { MatchContext } from '@app/constants/states';
 import { Choice } from '@app/interfaces/choice';
 import { AnswerService } from '@app/services/answer/answer.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
@@ -17,6 +18,10 @@ export class MultipleChoiceAreaComponent implements OnInit {
         public matchContextService: MatchContextService,
         public answerService: AnswerService,
     ) {}
+
+    get contextOptions(): typeof MatchContext {
+        return MatchContext;
+    }
 
     @HostListener('document:keydown', ['$event'])
     handleKeyboardEvent(event: KeyboardEvent) {

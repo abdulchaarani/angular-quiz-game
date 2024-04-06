@@ -126,7 +126,6 @@ export class AnswerService {
         });
     }
 
-    // TODO: put in constructor?
     onNextQuestion() {
         this.socketService.on(MatchEvents.NextQuestion, () => {
             this.resetStateForNewQuestion();

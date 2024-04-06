@@ -1,6 +1,6 @@
-import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { MatchStatus, WarningMessage } from '@app/constants/feedback-messages';
+import { WarningMessage } from '@app/constants/feedback-messages';
 import { MatchContext } from '@app/constants/states';
 import { CanDeactivateType } from '@app/interfaces/can-component-deactivate';
 import { AnswerService } from '@app/services/answer/answer.service';
@@ -10,23 +10,19 @@ import { MatchContextService } from '@app/services/question-context/question-con
 import { TimeService } from '@app/services/time/time.service';
 import { AnswerCorrectness } from '@common/constants/answer-correctness';
 import { QuestionType } from '@common/constants/question-types';
-import { Subject, Subscription } from 'rxjs';
+import { Subject } from 'rxjs';
 @Component({
     selector: 'app-question-area',
     templateUrl: './question-area.component.html',
     styleUrls: ['./question-area.component.scss'],
 })
-export class QuestionAreaComponent implements OnInit, OnDestroy {
+export class QuestionAreaComponent implements OnInit {
     gameDuration: number;
     context: MatchContext;
     matchContext = MatchContext;
     isFirstQuestion: boolean = true;
-    isCooldown: boolean = false;
     isRightAnswer: boolean = false;
     answerStyle: string = '';
-    isQuitting: boolean = false;
-
-    private eventSubscriptions: Subscription[];
 
     // Allow more constructor parameters to decouple services
     // eslint-disable-next-line max-params
@@ -81,7 +77,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
         this.notificationService.openWarningDialog(WarningMessage.QUIT).subscribe((confirm: boolean) => {
             deactivateSubject.next(confirm);
             if (confirm) {
-                this.isQuitting = true;
+                this.matchRoomService.isQuitting = true;
                 this.matchRoomService.disconnect();
             }
         });
@@ -102,11 +98,6 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
         }
 
         this.listenToGameEvents();
-        this.initialiseSubscriptions();
-    }
-
-    ngOnDestroy() {
-        this.eventSubscriptions.forEach((subscription) => subscription.unsubscribe());
     }
 
     submitAnswers(): void {
@@ -135,21 +126,6 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
         this.timeService.pauseTimer(this.matchRoomService.getRoomCode());
     }
 
-    private subscribeToCooldown() {
-        const displayCoolDownSubscription = this.matchRoomService.displayCooldown$.subscribe((isCooldown) => {
-            this.isCooldown = isCooldown;
-            if (
-                this.isCooldown &&
-                !this.answerService.isEndGame &&
-                this.context !== MatchContext.TestPage &&
-                this.context !== MatchContext.RandomMode
-            ) {
-                this.matchRoomService.currentQuestion.text = MatchStatus.PREPARE;
-            }
-        });
-        this.eventSubscriptions.push(displayCoolDownSubscription);
-    }
-
     // TODO: see if can be moved
     private listenToGameEvents() {
         this.timeService.handleTimer();
@@ -164,14 +140,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
         this.matchRoomService.onRouteToResultsPage();
     }
 
-    private initialiseSubscriptions() {
-        this.subscribeToCooldown();
-    }
-
     private resetStateForNewQuestion(): void {
-        this.eventSubscriptions = [];
-        this.isCooldown = false;
-        this.isQuitting = false;
         this.answerService.resetStateForNewQuestion();
     }
 }

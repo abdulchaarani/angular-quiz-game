@@ -77,8 +77,8 @@ export class AnswerService {
             this.showFeedback = true;
             this.isNextQuestionButton = true;
 
-            if (this.feedback.correctAnswer) this.correctAnswer = this.feedback.correctAnswer;
             if (feedback) {
+                if (this.feedback.correctAnswer) this.correctAnswer = this.feedback.correctAnswer;
                 this.isSelectionEnabled = false;
                 this.answerCorrectness = feedback.answerCorrectness;
                 this.playerScore = feedback.score;

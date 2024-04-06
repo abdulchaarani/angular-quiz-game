@@ -10,13 +10,20 @@
     >
         PANIC
     </button>
-    <button mat-raised-button id="pause-button" *ngIf="!isCooldown && time !== 0 && context === 'hostView'" (click)="pauseTimer()">Pause</button>
+    <button
+        mat-raised-button
+        id="pause-button"
+        *ngIf="!this.matchRoomService.isCooldown && time !== 0 && context === 'hostView'"
+        (click)="pauseTimer()"
+    >
+        Pause
+    </button>
     <div id="question-area">
         <div id="question-timer-area">
             <div
                 id="score-feedback-area"
                 *ngIf="
-                    (this.answerService.showFeedback && context === matchContext.PlayerView && !isCooldown) ||
+                    (this.answerService.showFeedback && context === matchContext.PlayerView && !this.matchRoomService.isCooldown) ||
                         (this.answerService.showFeedback && (context === matchContext.TestPage || context === matchContext.RandomMode));
                     else elseBlock
                 "
@@ -49,7 +56,7 @@
                 <div id="question-text-container">
                     <h1>{{ this.currentQuestion!.text }}</h1>
                 </div>
-                <h1 id="points" *ngIf="!this.isCooldown">{{ currentQuestion.points }} points</h1>
+                <h1 id="points" *ngIf="!this.matchRoomService.isCooldown">{{ currentQuestion.points }} points</h1>
             </div>
 
             <div id="timer-area">
@@ -60,21 +67,9 @@
             </div>
         </div>
 
-        <div class="choice-container" *ngIf="!isCooldown || context === matchContext.TestPage">
-            <app-multiple-choice-area
-                *ngIf="currentQuestion.type === questionType.QCM"
-                class="choice-area"
-                [isSelectionEnabled]="this.answerService.isSelectionEnabled"
-                [currentQuestion]="currentQuestion"
-                [isCooldown]="isCooldown"
-            ></app-multiple-choice-area>
-
-            <app-long-answer-area
-                *ngIf="currentQuestion.type === questionType.QRL"
-                class="choice-area"
-                [isSelectionEnabled]="this.answerService.isSelectionEnabled"
-                [currentQuestion]="currentQuestion"
-            ></app-long-answer-area>
+        <div class="choice-container" *ngIf="!this.matchRoomService.isCooldown || context === matchContext.TestPage">
+            <app-multiple-choice-area *ngIf="currentQuestion.type === questionType.QCM" class="choice-area"></app-multiple-choice-area>
+            <app-long-answer-area *ngIf="currentQuestion.type === questionType.QRL" class="choice-area"></app-long-answer-area>
         </div>
 
         <div id="host-area" *ngIf="context === matchContext.HostView">

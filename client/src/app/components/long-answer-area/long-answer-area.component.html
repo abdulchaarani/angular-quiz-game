@@ -1,7 +1,7 @@
 <div id="main-container">
     <div class="answer-area" *ngIf="matchContextService.getContext() !== 'hostView'">
         <div class="grading-prompt">
-            <h1 [class.hidden]="isSelectionEnabled || this.answerService.showFeedback">En attente de correction...</h1>
+            <h1 [class.hidden]="answerService.isSelectionEnabled || this.answerService.showFeedback">En attente de correction...</h1>
         </div>
         <form class="long-answer-form">
             <mat-form-field class="text-form" appearance="outline">
@@ -13,7 +13,7 @@
                     [attr.maxlength]="answerMaxLength"
                     [(ngModel)]="currentAnswer"
                     name="answer"
-                    [disabled]="!isSelectionEnabled"
+                    [disabled]="!answerService.isSelectionEnabled"
                     (input)="updateAnswer()"
                 ></textarea>
                 <mat-hint align="end">{{ message.value.length }} / {{ answerMaxLength }}</mat-hint>

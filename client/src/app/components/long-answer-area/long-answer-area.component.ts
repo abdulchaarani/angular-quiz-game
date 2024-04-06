@@ -1,5 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { Question } from '@app/interfaces/question';
+import { Component, OnInit } from '@angular/core';
 import { AnswerService } from '@app/services/answer/answer.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { FREE_ANSWER_MAX_LENGTH } from '@common/constants/match-constants';
@@ -12,8 +11,6 @@ import { AnswerCorrectness } from '@common/constants/answer-correctness';
     styleUrls: ['./long-answer-area.component.scss'],
 })
 export class LongAnswerAreaComponent implements OnInit {
-    @Input() isSelectionEnabled: boolean;
-    @Input() currentQuestion: Question;
     answerMaxLength = FREE_ANSWER_MAX_LENGTH;
     currentAnswer: string = '';
 
@@ -32,7 +29,7 @@ export class LongAnswerAreaComponent implements OnInit {
     }
 
     updateAnswer(): void {
-        if (this.isSelectionEnabled) {
+        if (this.answerService.isSelectionEnabled) {
             this.answerService.updateLongAnswer(this.currentAnswer);
         }
     }

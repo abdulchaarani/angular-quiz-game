@@ -18,7 +18,6 @@ import { Subscription } from 'rxjs/internal/Subscription';
 })
 export class WaitPageComponent implements OnInit, OnDestroy {
     isLocked: boolean;
-    isQuitting: boolean;
     startTimerButton: boolean;
     gameTitle: string;
     isHostPlaying: boolean;
@@ -48,6 +47,7 @@ export class WaitPageComponent implements OnInit, OnDestroy {
     }
 
     canDeactivate(): CanDeactivateType {
+        if (this.matchRoomService.isQuitting) return true;
         if (!this.matchRoomService.isHostPlaying) return true;
         if (this.matchRoomService.isWaitOver) return true;
         if (this.matchRoomService.isBanned) return true;
@@ -56,7 +56,6 @@ export class WaitPageComponent implements OnInit, OnDestroy {
         this.notificationService.openWarningDialog(WarningMessage.QUIT).subscribe((confirm: boolean) => {
             deactivateSubject.next(confirm);
             if (confirm) {
-                this.isQuitting = true;
                 this.matchRoomService.disconnect();
             }
         });
@@ -117,10 +116,10 @@ export class WaitPageComponent implements OnInit, OnDestroy {
 
     private resetWaitPage() {
         this.isLocked = false;
-        this.isQuitting = false;
         this.startTimerButton = false;
         this.matchRoomService.isHostPlaying = true;
         this.matchRoomService.isBanned = false;
+        this.matchRoomService.isQuitting = false;
     }
 
     private subscribeToStartMatch() {

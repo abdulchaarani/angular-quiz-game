@@ -1,6 +1,5 @@
-import { Component, HostListener, Input, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { Choice } from '@app/interfaces/choice';
-import { Question } from '@app/interfaces/question';
 import { AnswerService } from '@app/services/answer/answer.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { MatchContextService } from '@app/services/question-context/question-context.service';
@@ -11,9 +10,6 @@ import { MatchContextService } from '@app/services/question-context/question-con
     styleUrls: ['./multiple-choice-area.component.scss'],
 })
 export class MultipleChoiceAreaComponent implements OnInit {
-    @Input() isSelectionEnabled: boolean;
-    @Input() currentQuestion: Question;
-    @Input() isCooldown: boolean;
     selectedAnswers: Choice[];
 
     constructor(
@@ -27,11 +23,11 @@ export class MultipleChoiceAreaComponent implements OnInit {
         if (document?.activeElement?.id === 'chat-input') return;
 
         const numKey = parseInt(event.key, 5);
-        if (!numKey || !this.currentQuestion.choices) return;
+        if (!numKey || !this.matchRoomService.currentQuestion.choices) return;
 
-        if (numKey >= 1 && numKey <= this.currentQuestion.choices.length) {
+        if (numKey >= 1 && numKey <= this.matchRoomService.currentQuestion.choices.length) {
             const choiceIndex = numKey - 1;
-            const choice = this.currentQuestion.choices[choiceIndex];
+            const choice = this.matchRoomService.currentQuestion.choices[choiceIndex];
             if (choice) {
                 this.selectChoice(choice);
             }
@@ -43,7 +39,7 @@ export class MultipleChoiceAreaComponent implements OnInit {
     }
 
     selectChoice(choice: Choice): void {
-        if (this.isSelectionEnabled) {
+        if (this.answerService.isSelectionEnabled) {
             if (!this.selectedAnswers.includes(choice)) {
                 this.selectedAnswers.push(choice);
                 this.answerService.selectChoice(choice.text, {

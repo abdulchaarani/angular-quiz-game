@@ -1,17 +1,17 @@
 <div id="choice-area" *ngIf="matchContextService.getContext() !== 'hostView'">
     <button
         mat-raised-button
-        *ngFor="let choice of currentQuestion.choices; let i = index"
+        *ngFor="let choice of matchRoomService.currentQuestion.choices; let i = index"
         class="answer"
-        [class.selected]="isSelected(choice) && !this.answerService.showFeedback"
-        [class.correct]="this.answerService.showFeedback && isCorrectAnswer(choice)"
-        [class.incorrect]="this.answerService.showFeedback && !isCorrectAnswer(choice) && isSelected(choice)"
+        [class.selected]="isSelected(choice) && !answerService.showFeedback"
+        [class.correct]="answerService.showFeedback && isCorrectAnswer(choice)"
+        [class.incorrect]="answerService.showFeedback && !isCorrectAnswer(choice) && isSelected(choice)"
         (click)="selectChoice(choice)"
     >
         <p>{{ i + 1 }}. {{ choice.text }}</p>
     </button>
 </div>
 
-<div id="histogram-container" *ngIf="!isCooldown && matchContextService.getContext() === 'hostView'">
+<div id="histogram-container" *ngIf="!matchRoomService.isCooldown && matchContextService.getContext() === 'hostView'">
     <app-histogram></app-histogram>
 </div>

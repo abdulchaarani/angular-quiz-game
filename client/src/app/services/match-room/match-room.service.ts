@@ -14,6 +14,7 @@ import { BehaviorSubject } from 'rxjs';
 import { Observable } from 'rxjs/internal/Observable';
 import { Subject } from 'rxjs/internal/Subject';
 import { MatchContextService } from '@app/services/question-context/question-context.service';
+import { MatchStatus } from '@app/constants/feedback-messages';
 
 @Injectable({
     providedIn: 'root',
@@ -28,6 +29,9 @@ export class MatchRoomService {
     currentQuestion: Question;
     gameDuration: number;
     isHostPlaying: boolean;
+    isCooldown: boolean;
+    isQuitting: boolean;
+
     startMatch$: Observable<boolean>;
     gameTitle$: Observable<string>;
     displayCooldown$: Observable<boolean>;
@@ -35,6 +39,7 @@ export class MatchRoomService {
     private startMatchSource = new Subject<boolean>();
     private gameTitleSource = new Subject<string>();
     private displayCooldownSource = new BehaviorSubject<boolean>(false);
+
     private matchRoomCode: string;
     private username: string;
 
@@ -166,6 +171,11 @@ export class MatchRoomService {
     onStartCooldown() {
         this.socketService.on(MatchEvents.StartCooldown, () => {
             this.displayCooldownSource.next(true);
+            this.isCooldown = true;
+            const context = this.matchContextService.getContext();
+            if (this.isCooldown && context !== MatchContext.TestPage && context !== MatchContext.RandomMode) {
+                this.currentQuestion.text = MatchStatus.PREPARE;
+            }
         });
     }
 
@@ -217,6 +227,7 @@ export class MatchRoomService {
         this.isResults = false;
         this.isWaitOver = false;
         this.isPlaying = false;
+        this.isCooldown = false;
     }
 
     routeToResultsPage() {

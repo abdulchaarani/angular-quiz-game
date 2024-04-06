@@ -25,10 +25,10 @@ export class MatchRoomService {
     isWaitOver: boolean;
     isBanned: boolean;
     isPlaying: boolean;
+    isHostPlaying: boolean;
 
     startMatch$: Observable<boolean>;
     gameTitle$: Observable<string>;
-    isHostPlaying$: Observable<boolean>;
     currentQuestion$: Observable<Question>;
     displayCooldown$: Observable<boolean>;
     isBanned$: Observable<boolean>;
@@ -36,7 +36,6 @@ export class MatchRoomService {
     private startMatchSource = new Subject<boolean>();
     private gameTitleSource = new Subject<string>();
     private currentQuestionSource = new Subject<Question>();
-    private hostPlayingSource = new BehaviorSubject<boolean>(false);
     private displayCooldownSource = new BehaviorSubject<boolean>(false);
     private bannedSource = new BehaviorSubject<boolean>(false);
     private matchRoomCode: string;
@@ -198,7 +197,7 @@ export class MatchRoomService {
 
     onHostQuit() {
         this.socketService.on(MatchEvents.HostQuitMatch, () => {
-            this.hostPlayingSource.next(false);
+            this.isHostPlaying = false;
         });
     }
 
@@ -242,12 +241,10 @@ export class MatchRoomService {
         this.startMatchSource = new Subject<boolean>();
         this.gameTitleSource = new Subject<string>();
         this.currentQuestionSource = new Subject<Question>();
-        this.hostPlayingSource = new BehaviorSubject<boolean>(true);
         this.displayCooldownSource = new BehaviorSubject<boolean>(false);
         this.bannedSource = new BehaviorSubject<boolean>(false);
         this.startMatch$ = this.startMatchSource.asObservable();
         this.gameTitle$ = this.gameTitleSource.asObservable();
-        this.isHostPlaying$ = this.hostPlayingSource.asObservable();
         this.currentQuestion$ = this.currentQuestionSource.asObservable();
         this.displayCooldown$ = this.displayCooldownSource.asObservable();
         this.isBanned$ = this.bannedSource.asObservable();

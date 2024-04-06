@@ -21,7 +21,6 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
     gameDuration: number;
     context: MatchContext;
     matchContext = MatchContext;
-    isHostPlaying: boolean = true;
     isFirstQuestion: boolean = true;
     isCooldown: boolean = false;
     isRightAnswer: boolean = false;
@@ -80,7 +79,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
 
     canDeactivate(): CanDeactivateType {
         if (this.isQuitting) return true;
-        if (!this.isHostPlaying) return true;
+        if (!this.matchRoomService.isHostPlaying) return true;
         if (this.matchRoomService.isResults) return true;
         if (this.matchContextService.getContext() === MatchContext.TestPage) {
             this.quitGame();
@@ -169,13 +168,6 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
         this.eventSubscriptions.push(displayCoolDownSubscription);
     }
 
-    private subscribeToHostPlaying() {
-        const hostPlayingSubscription = this.matchRoomService.isHostPlaying$.subscribe((isHostPlaying) => {
-            this.isHostPlaying = isHostPlaying;
-        });
-        this.eventSubscriptions.push(hostPlayingSubscription);
-    }
-
     // TODO: see if can be moved
     private listenToGameEvents() {
         this.timeService.handleTimer();
@@ -191,14 +183,12 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
     }
 
     private initialiseSubscriptions() {
-        this.subscribeToHostPlaying();
         this.subscribeToCurrentQuestion();
         this.subscribeToCooldown();
     }
 
     private resetStateForNewQuestion(): void {
         this.eventSubscriptions = [];
-        this.isHostPlaying = true;
         this.isCooldown = false;
         this.isQuitting = false;
         this.answerService.resetStateForNewQuestion();

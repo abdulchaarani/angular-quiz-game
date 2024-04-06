@@ -17,7 +17,6 @@ import { Subscription } from 'rxjs/internal/Subscription';
     styleUrls: ['./wait-page.component.scss'],
 })
 export class WaitPageComponent implements OnInit, OnDestroy {
-    isHostPlaying: boolean;
     isLocked: boolean;
     isQuitting: boolean;
     isBanned: boolean;
@@ -49,7 +48,7 @@ export class WaitPageComponent implements OnInit, OnDestroy {
 
     canDeactivate(): CanDeactivateType {
         if (this.isQuitting) return true;
-        if (!this.isHostPlaying) return true;
+        if (!this.matchRoomService.isHostPlaying) return true;
         if (this.matchRoomService.isWaitOver) return true;
         if (this.isBanned) return true;
 
@@ -66,7 +65,6 @@ export class WaitPageComponent implements OnInit, OnDestroy {
         this.timeService.handleTimer();
         this.timeService.handleStopTimer();
 
-        this.subscribeToHostPlaying();
         this.subscribeToStartMatch();
         this.subscribeToBanishment();
 
@@ -117,17 +115,10 @@ export class WaitPageComponent implements OnInit, OnDestroy {
     }
 
     private resetWaitPage() {
-        this.isHostPlaying = true;
+        this.matchRoomService.isHostPlaying = true;
         this.isLocked = false;
         this.isQuitting = false;
         this.startTimerButton = false;
-    }
-
-    private subscribeToHostPlaying() {
-        const hostPlayingSubscription = this.matchRoomService.isHostPlaying$.subscribe((isHostPlaying) => {
-            this.isHostPlaying = isHostPlaying;
-        });
-        this.eventSubscriptions.push(hostPlayingSubscription);
     }
 
     private subscribeToStartMatch() {

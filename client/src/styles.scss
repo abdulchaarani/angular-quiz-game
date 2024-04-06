@@ -148,6 +148,8 @@ body {
     height: 100vh;
 }
 
-.mat-button-toggle-button {
+.mat-button-toggle-button,
+.toggle {
     height: inherit;
+    width: inherit;
 }

@@ -1,3 +1,29 @@
+$primary-color: (
+    'hue': 231,
+    'max-lightness': 80,
+    'min-lightness': 50,
+    'saturation': 44,
+);
+
+$answer-options-count: 3;
+
+@mixin getGradientColor($index) {
+    $lightnessRange: map-get($primary-color, 'max-lightness') - map-get($primary-color, 'min-lightness');
+    $currentLightness: map-get($primary-color, 'min-lightness') + calc($lightnessRange / $answer-options-count * $index);
+    background-color: hsl(map-get($primary-color, 'hue'), map-get($primary-color, 'saturation') * 1%, $currentLightness * 1%);
+}
+
+:host {
+    .mat-button-toggle-group .mat-button-toggle.mat-button-toggle-checked {
+        @for $i from 0 through ($answer-options-count - 1) {
+            &:nth-child(#{$answer-options-count - $i}) {
+                @include getGradientColor($i);
+                color: white;
+            }
+        }
+    }
+}
+
 #main-container {
     padding: 0 5vw;
     display: flex;
@@ -57,18 +83,17 @@
     grid-template-columns: 3fr 1fr;
     margin-bottom: 3rem;
 }
+.player-answer {
+    height: 100%;
+    display: flex;
+    font-size: 1.25rem;
+}
 
 .score {
     display: flex;
     flex-direction: row;
     gap: 1rem;
     align-items: center;
-}
-
-.player-answer {
-    height: 100%;
-    display: flex;
-    font-size: 1.25rem;
 }
 
 .grading-prompt {
@@ -84,21 +109,12 @@
 }
 
 .mat-button-toggle-group .mat-button-toggle p {
-    font-size: 0.9rem;
+    font-size: 1.25rem;
 }
 
-.mat-button-toggle-group .mat-button-toggle.wrong-answer.mat-button-toggle-checked {
-    background-color: #f34663;
-    color: white;
-}
-
-.mat-button-toggle-group .mat-button-toggle.ok-answer.mat-button-toggle-checked {
-    background-color: #f0e15c;
-}
-
-.mat-button-toggle-group .mat-button-toggle.good-answer.mat-button-toggle-checked {
-    background-color: #75e96c;
-    color: white;
+.mat-button-toggle-group .mat-button-toggle.wrong-answer.mat-button-toggle-button {
+    height: 5rem;
+    width: 5rem;
 }
 
 #submit-button {
@@ -118,5 +134,6 @@
     justify-content: center;
     align-items: center;
     font-size: 1.25rem;
-    width: 33.33%;
+    width: 5rem;
+    height: 5rem;
 }

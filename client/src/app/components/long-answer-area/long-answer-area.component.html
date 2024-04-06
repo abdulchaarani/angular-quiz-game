@@ -34,15 +34,25 @@
                         <mat-card-content class="player-answer"> {{ player.answer }} </mat-card-content>
                     </div>
                     <div class="score">
-                        <mat-slider
-                            min="{{ answerOptions.WRONG }}"
-                            max="{{ answerOptions.GOOD }}"
-                            step="{{ answerOptions.OK }}"
-                            discrete="thumbLabel"
-                        >
-                            <input matSliderThumb [(ngModel)]="player.score" />
-                        </mat-slider>
-                        <p>{{ player.score }} %</p>
+                        <mat-button-toggle-group name="answerValue" [(ngModel)]="player.score" (change)="handleGrading()">
+                            <mat-button-toggle
+                                *ngFor="let answerOption of answerOptions; let i = index"
+                                [value]="answerOption"
+                                class="toggle"
+                                [ngStyle]="{ 'background-color': getGradientColor(i) }"
+                            >
+                                <p>{{ answerOption }}%</p>
+                            </mat-button-toggle>
+                            <!-- <mat-button-toggle [value]="answerOptions.WRONG" class="wrong-answer toggle">
+                                <p>{{ answerOptions.WRONG }}%</p>
+                            </mat-button-toggle>
+                            <mat-button-toggle [value]="answerOptions.OK" class="ok-answer toggle">
+                                <p>{{ answerOptions.OK }}%</p>
+                            </mat-button-toggle>
+                            <mat-button-toggle [value]="answerOptions.GOOD" class="good-answer toggle">
+                                <p>{{ answerOptions.GOOD }}%</p>
+                            </mat-button-toggle> -->
+                        </mat-button-toggle-group>
                     </div>
                 </mat-card>
             </div>

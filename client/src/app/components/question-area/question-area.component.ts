@@ -1,8 +1,8 @@
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { MatchStatus, WarningMessage } from '@app/constants/feedback-messages';
 import { MatchContext } from '@app/constants/states';
 import { CanDeactivateType } from '@app/interfaces/can-component-deactivate';
-import { Question } from '@app/interfaces/question';
 import { AnswerService } from '@app/services/answer/answer.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { NotificationService } from '@app/services/notification/notification.service';
@@ -17,7 +17,6 @@ import { Subject, Subscription } from 'rxjs';
     styleUrls: ['./question-area.component.scss'],
 })
 export class QuestionAreaComponent implements OnInit, OnDestroy {
-    currentQuestion: Question;
     gameDuration: number;
     context: MatchContext;
     matchContext = MatchContext;
@@ -35,6 +34,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
         public matchRoomService: MatchRoomService,
         public timeService: TimeService,
         public answerService: AnswerService,
+        public router: Router,
         private readonly matchContextService: MatchContextService,
         private readonly notificationService: NotificationService,
     ) {}
@@ -43,16 +43,8 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
         return this.timeService.time;
     }
 
-    get matchRoomCode() {
-        return this.matchRoomService.getRoomCode();
-    }
-
-    get username() {
-        return this.matchRoomService.getUsername();
-    }
-
-    get players() {
-        return this.matchRoomService.players;
+    get currentQuestion() {
+        return this.matchRoomService.currentQuestion;
     }
 
     get answerOptions(): typeof AnswerCorrectness {
@@ -78,18 +70,20 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
     }
 
     canDeactivate(): CanDeactivateType {
-        if (this.isQuitting) return true;
         if (!this.matchRoomService.isHostPlaying) return true;
         if (this.matchRoomService.isResults) return true;
         if (this.matchContextService.getContext() === MatchContext.TestPage) {
-            this.quitGame();
+            this.matchRoomService.disconnect();
             return true;
         }
 
         const deactivateSubject = new Subject<boolean>();
         this.notificationService.openWarningDialog(WarningMessage.QUIT).subscribe((confirm: boolean) => {
             deactivateSubject.next(confirm);
-            if (confirm) this.matchRoomService.disconnect();
+            if (confirm) {
+                this.isQuitting = true;
+                this.matchRoomService.disconnect();
+            }
         });
         return deactivateSubject;
     }
@@ -100,12 +94,10 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.resetStateForNewQuestion();
-        // TODO: move somewhere else?
+        // TODO: move score somewhere else?
         this.answerService.playerScore = 0;
         this.context = this.matchContextService.getContext();
         if (this.isFirstQuestion) {
-            this.currentQuestion = this.getHistoryState().question;
-            this.gameDuration = this.getHistoryState().duration;
             this.isFirstQuestion = false;
         }
 
@@ -118,7 +110,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
     }
 
     submitAnswers(): void {
-        this.answerService.submitAnswer({ username: this.username, roomCode: this.matchRoomCode });
+        this.answerService.submitAnswer({ username: this.matchRoomService.getUsername(), roomCode: this.matchRoomService.getRoomCode() });
         this.answerService.isSelectionEnabled = false;
     }
 
@@ -132,25 +124,15 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
     }
 
     quitGame() {
-        this.isQuitting = true;
-        this.matchRoomService.disconnect();
+        this.router.navigateByUrl('/home');
     }
 
     togglePanicTimer() {
-        this.timeService.panicTimer(this.matchRoomCode);
+        this.timeService.panicTimer(this.matchRoomService.getRoomCode());
     }
 
-    private handleQuestionChange(newQuestion: Question) {
-        if (newQuestion) {
-            this.currentQuestion = newQuestion;
-            this.resetStateForNewQuestion();
-        }
-    }
-    private subscribeToCurrentQuestion() {
-        const currentQuestionSubscription = this.matchRoomService.currentQuestion$.subscribe((question) => {
-            this.handleQuestionChange(question);
-        });
-        this.eventSubscriptions.push(currentQuestionSubscription);
+    pauseTimer() {
+        this.timeService.pauseTimer(this.matchRoomService.getRoomCode());
     }
 
     private subscribeToCooldown() {
@@ -162,7 +144,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
                 this.context !== MatchContext.TestPage &&
                 this.context !== MatchContext.RandomMode
             ) {
-                this.currentQuestion.text = MatchStatus.PREPARE;
+                this.matchRoomService.currentQuestion.text = MatchStatus.PREPARE;
             }
         });
         this.eventSubscriptions.push(displayCoolDownSubscription);
@@ -183,7 +165,6 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
     }
 
     private initialiseSubscriptions() {
-        this.subscribeToCurrentQuestion();
         this.subscribeToCooldown();
     }
 

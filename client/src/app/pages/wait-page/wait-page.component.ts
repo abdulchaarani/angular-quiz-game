@@ -22,6 +22,7 @@ export class WaitPageComponent implements OnInit, OnDestroy {
     isBanned: boolean;
     startTimerButton: boolean;
     gameTitle: string;
+    isHostPlaying: boolean;
     private eventSubscriptions: Subscription[] = [];
 
     // permit more class parameters to decouple services
@@ -38,6 +39,7 @@ export class WaitPageComponent implements OnInit, OnDestroy {
     get time() {
         return this.timeService.time;
     }
+
     get isHost() {
         return this.matchRoomService.getUsername() === 'Organisateur';
     }
@@ -47,7 +49,6 @@ export class WaitPageComponent implements OnInit, OnDestroy {
     }
 
     canDeactivate(): CanDeactivateType {
-        if (this.isQuitting) return true;
         if (!this.matchRoomService.isHostPlaying) return true;
         if (this.matchRoomService.isWaitOver) return true;
         if (this.isBanned) return true;
@@ -55,7 +56,10 @@ export class WaitPageComponent implements OnInit, OnDestroy {
         const deactivateSubject = new Subject<boolean>();
         this.notificationService.openWarningDialog(WarningMessage.QUIT).subscribe((confirm: boolean) => {
             deactivateSubject.next(confirm);
-            if (confirm) this.matchRoomService.disconnect();
+            if (confirm) {
+                this.isQuitting = true;
+                this.matchRoomService.disconnect();
+            }
         });
         return deactivateSubject;
     }
@@ -110,15 +114,14 @@ export class WaitPageComponent implements OnInit, OnDestroy {
     }
 
     quitGame() {
-        this.isQuitting = true;
-        this.matchRoomService.disconnect();
+        this.router.navigateByUrl('/home');
     }
 
     private resetWaitPage() {
-        this.matchRoomService.isHostPlaying = true;
         this.isLocked = false;
         this.isQuitting = false;
         this.startTimerButton = false;
+        this.matchRoomService.isHostPlaying = true;
     }
 
     private subscribeToStartMatch() {

@@ -25,17 +25,17 @@ export class MatchRoomService {
     isWaitOver: boolean;
     isBanned: boolean;
     isPlaying: boolean;
-    isHostPlaying: boolean;
+    currentQuestion: Question;
+    gameDuration: number;
+    isHostPlaying: boolean = true;
 
     startMatch$: Observable<boolean>;
     gameTitle$: Observable<string>;
-    currentQuestion$: Observable<Question>;
     displayCooldown$: Observable<boolean>;
     isBanned$: Observable<boolean>;
 
     private startMatchSource = new Subject<boolean>();
     private gameTitleSource = new Subject<string>();
-    private currentQuestionSource = new Subject<Question>();
     private displayCooldownSource = new BehaviorSubject<boolean>(false);
     private bannedSource = new BehaviorSubject<boolean>(false);
     private matchRoomCode: string;
@@ -84,6 +84,7 @@ export class MatchRoomService {
         this.socketService.disconnect();
     }
 
+    // TODO: check duplicate router navigation
     createRoom(gameId: string, isTestRoom: boolean = false, isRandomMode: boolean = false) {
         this.socketService.send(MatchEvents.CreateRoom, { gameId, isTestPage: isTestRoom, isRandomMode }, (res: { code: string }) => {
             this.matchRoomCode = res.code;
@@ -152,6 +153,8 @@ export class MatchRoomService {
     onBeginQuiz() {
         this.socketService.on(MatchEvents.BeginQuiz, (data: { firstQuestion: Question; gameDuration: number; isTestRoom: boolean }) => {
             this.isWaitOver = true;
+            this.currentQuestion = data.firstQuestion;
+            this.gameDuration = data.gameDuration;
             const { firstQuestion, gameDuration, isTestRoom } = data;
             if (isTestRoom) {
                 this.router.navigate(['/play-test'], { state: { question: firstQuestion, duration: gameDuration } });
@@ -185,7 +188,7 @@ export class MatchRoomService {
     onNextQuestion() {
         this.socketService.on(MatchEvents.NextQuestion, (question: Question) => {
             this.displayCooldownSource.next(false);
-            this.currentQuestionSource.next(question);
+            this.currentQuestion = question;
         });
     }
 
@@ -198,6 +201,7 @@ export class MatchRoomService {
     onHostQuit() {
         this.socketService.on(MatchEvents.HostQuitMatch, () => {
             this.isHostPlaying = false;
+            // this.hostPlayingSource.next(false);
         });
     }
 
@@ -240,12 +244,10 @@ export class MatchRoomService {
     private initialiseMatchSubjects() {
         this.startMatchSource = new Subject<boolean>();
         this.gameTitleSource = new Subject<string>();
-        this.currentQuestionSource = new Subject<Question>();
         this.displayCooldownSource = new BehaviorSubject<boolean>(false);
         this.bannedSource = new BehaviorSubject<boolean>(false);
         this.startMatch$ = this.startMatchSource.asObservable();
         this.gameTitle$ = this.gameTitleSource.asObservable();
-        this.currentQuestion$ = this.currentQuestionSource.asObservable();
         this.displayCooldown$ = this.displayCooldownSource.asObservable();
         this.isBanned$ = this.bannedSource.asObservable();
     }

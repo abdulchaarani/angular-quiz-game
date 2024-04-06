@@ -10,14 +10,7 @@
     >
         PANIC
     </button>
-    <button
-        mat-raised-button
-        id="pause-button"
-        *ngIf="!isCooldown && time !== 0 && context === 'hostView'"
-        (click)="this.timeService.pauseTimer(this.matchRoomCode)"
-    >
-        Pause
-    </button>
+    <button mat-raised-button id="pause-button" *ngIf="!isCooldown && time !== 0 && context === 'hostView'" (click)="pauseTimer()">Pause</button>
     <div id="question-area">
         <div id="question-timer-area">
             <div
@@ -107,4 +100,4 @@
         </div>
     </div>
 </div>
-<app-players-list [players]="this.players" *ngIf="context !== matchContext.TestPage"></app-players-list>
+<app-players-list [players]="this.matchRoomService.players" *ngIf="context !== matchContext.TestPage"></app-players-list>

@@ -13,6 +13,7 @@ import { LongAnswerInfo } from '@common/interfaces/long-answer-info';
 import { AnswerCorrectness } from '@common/constants/answer-correctness';
 import { QuestionStrategyContext } from '@app/services/question-strategy-context/question-strategy-context.service';
 import { GradingEvents } from '@app/constants/grading-events';
+import { PlayerEvents } from '@app/constants/player-events';
 
 @Injectable()
 export class AnswerService {
@@ -39,6 +40,11 @@ export class AnswerService {
     onGradingCompleteEvent(roomCode: string) {
         this.sendFeedback(roomCode);
         this.finaliseRound(roomCode);
+    }
+
+    @OnEvent(PlayerEvents.Quit)
+    onPlayerQuit(roomCode: string) {
+        this.handleFinalAnswerSubmitted(this.getRoom(roomCode));
     }
 
     // permit more parameters to make method reusable
@@ -69,15 +75,15 @@ export class AnswerService {
         this.handleFinalAnswerSubmitted(matchRoom);
     }
 
-    private getRoom(roomCode: string) {
-        return this.matchRoomService.getRoom(roomCode);
-    }
-
     private handleFinalAnswerSubmitted(matchRoom: MatchRoom) {
         if (matchRoom.submittedPlayers === matchRoom.activePlayers) {
             this.timeService.terminateTimer(matchRoom.code);
             this.onQuestionTimerExpired(matchRoom.code);
         }
+    }
+
+    private getRoom(roomCode: string) {
+        return this.matchRoomService.getRoom(roomCode);
     }
 
     private autoSubmitAnswers(roomCode: string) {

@@ -14,9 +14,10 @@ import { HistogramEvents } from '@common/events/histogram.events';
 import { TimerEvents } from '@common/events/timer.events';
 import { UserInfo } from '@common/interfaces/user-info';
 import { Injectable } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { ConnectedSocket, MessageBody, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { PlayerEvents } from '@app/constants/player-events';
 
 @WebSocketGateway({ cors: true })
 @Injectable()
@@ -31,6 +32,7 @@ export class MatchGateway implements OnGatewayDisconnect {
         private readonly matchBackupService: MatchBackupService,
         private readonly histogramService: HistogramService,
         private readonly historyService: HistoryService,
+        private readonly eventEmitter: EventEmitter2,
     ) {}
 
     @SubscribeMessage(MatchEvents.JoinRoom)
@@ -152,7 +154,6 @@ export class MatchGateway implements OnGatewayDisconnect {
     handleDisconnect(@ConnectedSocket() socket: Socket) {
         const hostRoomCode = this.matchRoomService.getRoomCodeByHostSocket(socket.id);
         const hostRoom = this.matchRoomService.getRoom(hostRoomCode);
-
         // TODO: Improve
         if (hostRoomCode && hostRoom.currentQuestionIndex !== hostRoom.gameLength && !hostRoom.isRandomMode) {
             this.sendError(hostRoomCode, NO_MORE_HOST);
@@ -163,6 +164,7 @@ export class MatchGateway implements OnGatewayDisconnect {
         if (!roomCode) {
             return;
         }
+        this.eventEmitter.emit(PlayerEvents.Quit, roomCode);
         const room = this.matchRoomService.getRoom(roomCode);
         const isRoomEmpty = this.isRoomEmpty(room);
         if (room.isPlaying && isRoomEmpty && room.currentQuestionIndex !== room.gameLength) {

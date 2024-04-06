@@ -6,7 +6,7 @@ import { Question } from '@app/interfaces/question';
 import { AnswerService } from '@app/services/answer/answer.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { NotificationService } from '@app/services/notification/notification.service';
-import { QuestionContextService } from '@app/services/question-context/question-context.service';
+import { MatchContextService } from '@app/services/question-context/question-context.service';
 import { TimeService } from '@app/services/time/time.service';
 import { AnswerCorrectness } from '@common/constants/answer-correctness';
 import { QuestionType } from '@common/constants/question-types';
@@ -43,7 +43,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
     constructor(
         public matchRoomService: MatchRoomService,
         public timeService: TimeService,
-        private readonly questionContextService: QuestionContextService,
+        private readonly questionContextService: MatchContextService,
         private readonly answerService: AnswerService,
         private readonly notificationService: NotificationService,
     ) {}

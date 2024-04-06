@@ -4,7 +4,7 @@ import { MatchContext } from '@app/constants/states';
 import { Game } from '@app/interfaces/game';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
-import { QuestionContextService } from '@app/services/question-context/question-context.service';
+import { MatchContextService } from '@app/services/question-context/question-context.service';
 import { Subject } from 'rxjs';
 
 @Injectable({
@@ -20,7 +20,7 @@ export class MatchService extends CommunicationService<Game> {
     constructor(
         http: HttpClient,
         private readonly matchRoomService: MatchRoomService,
-        private readonly questionContextService: QuestionContextService,
+        private readonly questionContextService: MatchContextService,
     ) {
         super(http, 'match');
     }

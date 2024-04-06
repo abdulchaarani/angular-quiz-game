@@ -24,7 +24,7 @@ import { AnswerService } from '@app/services/answer/answer.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { MatchService } from '@app/services/match/match.service';
 import { NotificationService } from '@app/services/notification/notification.service';
-import { QuestionContextService } from '@app/services/question-context/question-context.service';
+import { MatchContextService } from '@app/services/question-context/question-context.service';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 import { Feedback } from '@common/interfaces/feedback';
 import { BehaviorSubject, Subject, Subscription } from 'rxjs';
@@ -52,7 +52,7 @@ describe('QuestionAreaComponent', () => {
     let socketSpy: SocketHandlerServiceMock;
     let socketHelper: SocketTestHelper;
     let matchRoomSpy: spyObj<MatchRoomService>;
-    let questionContextSpy: spyObj<QuestionContextService>;
+    let questionContextSpy: spyObj<MatchContextService>;
     let notificationServiceSpy: spyObj<NotificationService>;
     let answerSpy: spyObj<AnswerService>;
     let booleanSubject: BehaviorSubject<boolean>;
@@ -135,7 +135,7 @@ describe('QuestionAreaComponent', () => {
                 { provide: SocketHandlerService, useValue: socketSpy },
                 { provide: AnswerService, useValue: answerSpy },
                 { provide: MatchRoomService, useValue: matchRoomSpy },
-                { provide: QuestionContextService, useValue: questionContextSpy },
+                { provide: MatchContextService, useValue: questionContextSpy },
                 { provide: NotificationService, useValue: notificationServiceSpy },
                 { provide: TimeService, useValue: timerSpy },
             ],

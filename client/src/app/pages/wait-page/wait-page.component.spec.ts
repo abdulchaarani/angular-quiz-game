@@ -9,7 +9,7 @@ import { Game } from '@app/interfaces/game';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { MatchService } from '@app/services/match/match.service';
 import { NotificationService } from '@app/services/notification/notification.service';
-import { QuestionContextService } from '@app/services/question-context/question-context.service';
+import { MatchContextService } from '@app/services/question-context/question-context.service';
 import { TimeService } from '@app/services/time/time.service';
 import { BehaviorSubject, Subject, of } from 'rxjs';
 import { WaitPageComponent } from './wait-page.component';
@@ -27,7 +27,7 @@ describe('WaitPageComponent', () => {
     let matchRoomSpy: SpyObj<MatchRoomService>;
     let matchSpy: SpyObj<MatchService>;
     let timeSpy: SpyObj<TimeService>;
-    let questionContextSpy: SpyObj<QuestionContextService>;
+    let questionContextSpy: SpyObj<MatchContextService>;
     let notificationServiceSpy: SpyObj<NotificationService>;
     let booleanSubject: BehaviorSubject<boolean>;
     let gameTitleSubject: Subject<string>;
@@ -59,7 +59,7 @@ describe('WaitPageComponent', () => {
                 HttpClient,
                 { provide: MatchRoomService, useValue: matchRoomSpy },
                 { provide: MatchService, useValue: matchSpy },
-                { provide: QuestionContextService, useValue: questionContextSpy },
+                { provide: MatchContextService, useValue: questionContextSpy },
                 { provide: TimeService, useValue: timeSpy },
                 { provide: NotificationService, useValue: notificationServiceSpy },
             ],

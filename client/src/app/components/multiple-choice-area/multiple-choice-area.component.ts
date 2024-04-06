@@ -3,7 +3,7 @@ import { Choice } from '@app/interfaces/choice';
 import { Question } from '@app/interfaces/question';
 import { AnswerService } from '@app/services/answer/answer.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
-import { QuestionContextService } from '@app/services/question-context/question-context.service';
+import { MatchContextService } from '@app/services/question-context/question-context.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -23,7 +23,7 @@ export class MultipleChoiceAreaComponent implements OnInit, OnDestroy {
 
     constructor(
         public matchRoomService: MatchRoomService,
-        public questionContextService: QuestionContextService,
+        public questionContextService: MatchContextService,
         private readonly answerService: AnswerService,
     ) {}
 

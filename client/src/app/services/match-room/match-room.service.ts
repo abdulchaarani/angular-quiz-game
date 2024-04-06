@@ -13,7 +13,7 @@ import { UserInfo } from '@common/interfaces/user-info';
 import { BehaviorSubject } from 'rxjs';
 import { Observable } from 'rxjs/internal/Observable';
 import { Subject } from 'rxjs/internal/Subject';
-import { QuestionContextService } from '@app/services/question-context/question-context.service';
+import { MatchContextService } from '@app/services/question-context/question-context.service';
 
 @Injectable({
     providedIn: 'root',
@@ -48,7 +48,7 @@ export class MatchRoomService {
         public socketService: SocketHandlerService,
         private readonly router: Router,
         private readonly notificationService: NotificationService,
-        private readonly questionContextService: QuestionContextService,
+        private readonly questionContextService: MatchContextService,
     ) {}
 
     get socketId() {

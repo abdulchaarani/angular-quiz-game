@@ -3,7 +3,7 @@ import { Question } from '@app/interfaces/question';
 import { AnswerService } from '@app/services/answer/answer.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { FREE_ANSWER_MAX_LENGTH } from '@common/constants/match-constants';
-import { QuestionContextService } from '@app/services/question-context/question-context.service';
+import { MatchContextService } from '@app/services/question-context/question-context.service';
 import { AnswerCorrectness } from '@common/constants/answer-correctness';
 
 @Component({
@@ -19,7 +19,7 @@ export class LongAnswerAreaComponent implements OnInit {
 
     constructor(
         public matchRoomService: MatchRoomService,
-        public questionContextService: QuestionContextService,
+        public questionContextService: MatchContextService,
         public answerService: AnswerService,
     ) {}
 

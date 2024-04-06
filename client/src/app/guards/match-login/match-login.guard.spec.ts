@@ -4,14 +4,14 @@ import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { matchLoginGuard } from './match-login.guard';
 import SpyObj = jasmine.SpyObj;
-import { QuestionContextService } from '@app/services/question-context/question-context.service';
+import { MatchContextService } from '@app/services/question-context/question-context.service';
 import { MatchContext } from '@app/constants/states';
 
 describe('matchLoginGuard', () => {
     let matchRoomSpy: SpyObj<MatchRoomService>;
     let routerSpy: SpyObj<Router>;
     let notificationSpy: SpyObj<NotificationService>;
-    let questionContextSpy: SpyObj<QuestionContextService>;
+    let questionContextSpy: SpyObj<MatchContextService>;
 
     beforeEach(() => {
         matchRoomSpy = jasmine.createSpyObj('MatchRoomService', ['getRoomCode', 'getUsername', 'gameOver']);
@@ -24,7 +24,7 @@ describe('matchLoginGuard', () => {
                 { provide: MatchRoomService, useValue: matchRoomSpy },
                 { provide: Router, useValue: routerSpy },
                 { provide: NotificationService, useValue: notificationSpy },
-                { provide: QuestionContextService, useValue: questionContextSpy },
+                { provide: MatchContextService, useValue: questionContextSpy },
             ],
         });
     });

@@ -6,7 +6,7 @@ import { CanDeactivateType } from '@app/interfaces/can-component-deactivate';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { MatchService } from '@app/services/match/match.service';
 import { NotificationService } from '@app/services/notification/notification.service';
-import { QuestionContextService } from '@app/services/question-context/question-context.service';
+import { MatchContextService } from '@app/services/question-context/question-context.service';
 import { TimeService } from '@app/services/time/time.service';
 import { Subject } from 'rxjs';
 import { Subscription } from 'rxjs/internal/Subscription';
@@ -32,7 +32,7 @@ export class WaitPageComponent implements OnInit, OnDestroy {
         public timeService: TimeService,
         public router: Router,
         public matchService: MatchService,
-        private readonly questionContextService: QuestionContextService,
+        private readonly questionContextService: MatchContextService,
         private readonly notificationService: NotificationService,
     ) {}
 

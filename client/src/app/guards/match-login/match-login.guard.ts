@@ -2,13 +2,13 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { NotificationService } from '@app/services/notification/notification.service';
-import { QuestionContextService } from '@app/services/question-context/question-context.service';
+import { MatchContextService } from '@app/services/question-context/question-context.service';
 
 export const matchLoginGuard = (): boolean => {
     const matchRoomService = inject(MatchRoomService);
     const router = inject(Router);
     const notificationService = inject(NotificationService);
-    const questionContextService = inject(QuestionContextService);
+    const questionContextService = inject(MatchContextService);
 
     if (questionContextService.getContext() === 'testPage' && !matchRoomService.isPlaying) return true;
     if (!matchRoomService.getRoomCode() || !matchRoomService.getUsername() || matchRoomService.isPlaying) {

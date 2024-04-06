@@ -10,8 +10,6 @@ import { HOST_USERNAME } from '@common/constants/match-constants';
 import { PlayerState } from '@common/constants/player-states';
 import { MatchEvents } from '@common/events/match.events';
 import { UserInfo } from '@common/interfaces/user-info';
-import { Observable } from 'rxjs/internal/Observable';
-import { Subject } from 'rxjs/internal/Subject';
 import { MatchContextService } from '@app/services/question-context/question-context.service';
 import { MatchStatus } from '@app/constants/feedback-messages';
 
@@ -26,15 +24,12 @@ export class MatchRoomService {
     isWaitOver: boolean;
     isBanned: boolean;
     isPlaying: boolean;
-    currentQuestion: Question;
+    gameTitle: string;
     gameDuration: number;
+    currentQuestion: Question;
     isHostPlaying: boolean;
     isCooldown: boolean;
     isQuitting: boolean;
-
-    gameTitle$: Observable<string>;
-
-    private gameTitleSource = new Subject<string>();
 
     private matchRoomCode: string;
     private username: string;
@@ -63,7 +58,6 @@ export class MatchRoomService {
     connect() {
         if (!this.socketService.isSocketAlive()) {
             this.resetMatchValues();
-            this.initialiseMatchSubjects();
             this.socketService.connect();
             this.onRedirectAfterDisconnection();
             this.onFetchPlayersData();
@@ -138,13 +132,14 @@ export class MatchRoomService {
         this.socketService.send(MatchEvents.StartMatch, this.matchRoomCode);
     }
 
+    // TODO: better way?
     onMatchStarted() {
         this.socketService.on(MatchEvents.MatchStarting, (data: { start: boolean; gameTitle: string }) => {
             if (data.start) {
-                this.isMatchStarted = true;
+                this.isMatchStarted = data.start;
             }
             if (data.gameTitle) {
-                this.gameTitleSource.next(data.gameTitle);
+                this.gameTitle = data.gameTitle;
             }
         });
     }
@@ -241,10 +236,5 @@ export class MatchRoomService {
             this.isBanned = true;
             this.disconnect();
         });
-    }
-
-    private initialiseMatchSubjects() {
-        this.gameTitleSource = new Subject<string>();
-        this.gameTitle$ = this.gameTitleSource.asObservable();
     }
 }

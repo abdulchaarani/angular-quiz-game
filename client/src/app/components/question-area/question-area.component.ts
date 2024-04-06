@@ -233,6 +233,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
         this.answerService.onEndGame();
         this.answerService.onTimesUp();
         this.answerService.onGradeAnswers();
+        this.answerService.onNextQuestion();
         this.matchRoomService.onGameOver();
         this.matchRoomService.onRouteToResultsPage();
     }

@@ -7,6 +7,8 @@ import { Observable, Subject } from 'rxjs';
 import { AnswerEvents } from '@common/events/answer.events';
 import { LongAnswerInfo } from '@common/interfaces/long-answer-info';
 import { GradesInfo } from '@common/interfaces/grades-info';
+import { MatchRoomService } from '@app/services/match-room/match-room.service';
+import { MatchEvents } from '@common/events/match.events';
 
 @Injectable({
     providedIn: 'root',
@@ -16,19 +18,29 @@ export class AnswerService {
     isFeedback$: Observable<boolean>;
     bonusPoints$: Observable<number>;
     endGame$: Observable<boolean>;
-    playersLongAnswers$: Observable<LongAnswerInfo[]>;
     playersAnswers: LongAnswerInfo[];
     isTimesUp$: Observable<boolean>;
+    gradeAnswers: boolean = false;
+    isGradingComplete: boolean = false;
+    showFeedback: boolean = false;
 
     private isFeedbackSource: Subject<boolean>;
     private feedbackSource: Subject<Feedback>;
     private bonusPointsSubject: Subject<number>;
     private endGameSubject: Subject<boolean>;
     private isTimesUp: Subject<boolean>;
-    private playersLongAnswers = new Subject<LongAnswerInfo[]>();
 
-    constructor(public socketService: SocketHandlerService) {
+    constructor(
+        public socketService: SocketHandlerService,
+        public matchRoomService: MatchRoomService,
+    ) {
         this.initialiseAnwserSubjects();
+    }
+
+    resetStateForNewQuestion() {
+        this.gradeAnswers = false;
+        this.isGradingComplete = false;
+        this.showFeedback = false;
     }
 
     selectChoice(choice: string, userInfo: UserInfo) {
@@ -45,7 +57,8 @@ export class AnswerService {
         this.socketService.send(AnswerEvents.SubmitAnswer, userInfo);
     }
 
-    updateLongAnswer(answer: string, userInfo: UserInfo) {
+    updateLongAnswer(answer: string) {
+        const userInfo = { username: this.matchRoomService.getUsername(), roomCode: this.matchRoomService.getRoomCode() };
         const choiceInfo: ChoiceInfo = { choice: answer, userInfo };
         this.socketService.send(AnswerEvents.UpdateLongAnswer, choiceInfo);
     }
@@ -54,6 +67,7 @@ export class AnswerService {
         this.socketService.on(AnswerEvents.Feedback, (data: Feedback) => {
             this.feedbackSource.next(data);
             this.isFeedbackSource.next(true);
+            this.showFeedback = true;
         });
     }
 
@@ -71,7 +85,15 @@ export class AnswerService {
 
     onGradeAnswers() {
         this.socketService.on(AnswerEvents.GradeAnswers, (answers: LongAnswerInfo[]) => {
-            this.playersLongAnswers.next(answers);
+            this.playersAnswers = answers;
+            this.gradeAnswers = true;
+        });
+    }
+
+    // TODO: put in constructor?
+    onNextQuestion() {
+        this.socketService.on(MatchEvents.NextQuestion, () => {
+            this.resetStateForNewQuestion();
         });
     }
 
@@ -81,8 +103,14 @@ export class AnswerService {
         });
     }
 
-    sendGrades(gradesInfo: GradesInfo) {
+    sendGrades() {
+        this.gradeAnswers = false;
+        const gradesInfo: GradesInfo = { matchRoomCode: this.matchRoomService.getRoomCode(), grades: this.playersAnswers };
         this.socketService.send(AnswerEvents.Grades, gradesInfo);
+    }
+
+    handleGrading(): void {
+        this.isGradingComplete = this.playersAnswers.every((answer: LongAnswerInfo) => answer.score !== null);
     }
 
     private initialiseAnwserSubjects() {
@@ -90,13 +118,11 @@ export class AnswerService {
         this.bonusPointsSubject = new Subject<number>();
         this.isFeedbackSource = new Subject<boolean>();
         this.endGameSubject = new Subject<boolean>();
-        this.playersLongAnswers = new Subject<LongAnswerInfo[]>();
         this.isTimesUp = new Subject<boolean>();
         this.feedback$ = this.feedbackSource.asObservable();
         this.bonusPoints$ = this.bonusPointsSubject.asObservable();
         this.isFeedback$ = this.isFeedbackSource.asObservable();
         this.endGame$ = this.endGameSubject.asObservable();
-        this.playersLongAnswers$ = this.playersLongAnswers.asObservable();
         this.isTimesUp$ = this.isTimesUp.asObservable();
     }
 }

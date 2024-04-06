@@ -85,8 +85,7 @@ export class LongAnswerStrategy extends QuestionStrategy {
         const playerAnswers = players.map((player: Player) => {
             const answer: string = (player.answer as LongAnswer).answer;
             const username: string = player.username;
-            const score = '0';
-            const longAnswerInfo: LongAnswerInfo = { username, answer, score };
+            const longAnswerInfo: LongAnswerInfo = { username, answer };
             player.socket.emit(AnswerEvents.TimesUp);
             return longAnswerInfo;
         });

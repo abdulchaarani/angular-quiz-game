@@ -1,7 +1,7 @@
 <div id="main-container">
     <div class="answer-area" *ngIf="questionContextService.getContext() !== 'hostView'">
-        <div *ngIf="!isSelectionEnabled && !this.answerService.showFeedback" class="grading-prompt">
-            <h1>En attente de correction...</h1>
+        <div class="grading-prompt">
+            <h1 [class.hidden]="isSelectionEnabled || this.answerService.showFeedback">En attente de correction...</h1>
         </div>
         <form class="long-answer-form">
             <mat-form-field class="text-form" appearance="outline">

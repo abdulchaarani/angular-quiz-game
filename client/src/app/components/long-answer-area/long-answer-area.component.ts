@@ -14,7 +14,6 @@ import { AnswerCorrectness } from '@common/constants/answer-correctness';
 export class LongAnswerAreaComponent implements OnInit {
     @Input() isSelectionEnabled: boolean;
     @Input() currentQuestion: Question;
-    showFeedback: boolean = false;
     answerMaxLength = FREE_ANSWER_MAX_LENGTH;
     currentAnswer: string = '';
 
@@ -29,17 +28,12 @@ export class LongAnswerAreaComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.resetStateForNewQuestion();
+        this.answerService.resetStateForNewQuestion();
     }
 
     updateAnswer(): void {
         if (this.isSelectionEnabled) {
             this.answerService.updateLongAnswer(this.currentAnswer);
         }
-    }
-
-    private resetStateForNewQuestion(): void {
-        this.currentAnswer = '';
-        this.answerService.resetStateForNewQuestion();
     }
 }

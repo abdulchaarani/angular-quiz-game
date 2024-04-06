@@ -1,39 +1,26 @@
-import { Component, HostListener, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, HostListener, Input, OnInit } from '@angular/core';
 import { Choice } from '@app/interfaces/choice';
 import { Question } from '@app/interfaces/question';
 import { AnswerService } from '@app/services/answer/answer.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { MatchContextService } from '@app/services/question-context/question-context.service';
-import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-multiple-choice-area',
     templateUrl: './multiple-choice-area.component.html',
     styleUrls: ['./multiple-choice-area.component.scss'],
 })
-export class MultipleChoiceAreaComponent implements OnInit, OnDestroy {
+export class MultipleChoiceAreaComponent implements OnInit {
     @Input() isSelectionEnabled: boolean;
     @Input() currentQuestion: Question;
     @Input() isCooldown: boolean;
     selectedAnswers: Choice[];
-    correctAnswers: string[];
-    showFeedback: boolean;
-
-    private eventSubscriptions: Subscription[];
 
     constructor(
         public matchRoomService: MatchRoomService,
         public matchContextService: MatchContextService,
-        private readonly answerService: AnswerService,
+        public answerService: AnswerService,
     ) {}
-
-    get matchRoomCode() {
-        return this.matchRoomService.getRoomCode();
-    }
-
-    get username() {
-        return this.matchRoomService.getUsername();
-    }
 
     @HostListener('document:keydown', ['$event'])
     handleKeyboardEvent(event: KeyboardEvent) {
@@ -53,21 +40,22 @@ export class MultipleChoiceAreaComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.resetStateForNewQuestion();
-        this.initialiseSubscriptions();
-    }
-
-    ngOnDestroy() {
-        this.eventSubscriptions.forEach((subscription) => subscription.unsubscribe());
     }
 
     selectChoice(choice: Choice): void {
         if (this.isSelectionEnabled) {
             if (!this.selectedAnswers.includes(choice)) {
                 this.selectedAnswers.push(choice);
-                this.answerService.selectChoice(choice.text, { username: this.username, roomCode: this.matchRoomCode });
+                this.answerService.selectChoice(choice.text, {
+                    username: this.matchRoomService.getUsername(),
+                    roomCode: this.matchRoomService.getRoomCode(),
+                });
             } else {
                 this.selectedAnswers = this.selectedAnswers.filter((answer) => answer !== choice);
-                this.answerService.deselectChoice(choice.text, { username: this.username, roomCode: this.matchRoomCode });
+                this.answerService.deselectChoice(choice.text, {
+                    username: this.matchRoomService.getUsername(),
+                    roomCode: this.matchRoomService.getRoomCode(),
+                });
             }
         }
     }
@@ -77,29 +65,11 @@ export class MultipleChoiceAreaComponent implements OnInit, OnDestroy {
     }
 
     isCorrectAnswer(choice: Choice): boolean {
-        return this.correctAnswers.includes(choice.text);
-    }
-
-    private subscribeToFeedback() {
-        const feedbackChangeSubscription = this.answerService.feedback$.subscribe((feedback) => {
-            if (feedback && feedback.correctAnswer) {
-                this.correctAnswers = feedback.correctAnswer;
-                this.showFeedback = true;
-            }
-        });
-
-        this.eventSubscriptions.push(feedbackChangeSubscription);
-    }
-
-    private initialiseSubscriptions() {
-        this.subscribeToFeedback();
+        return this.answerService.correctAnswer.includes(choice.text);
     }
 
     private resetStateForNewQuestion(): void {
         this.selectedAnswers = [];
-        this.eventSubscriptions = [];
-        this.selectedAnswers = [];
-        this.correctAnswers = [];
-        this.showFeedback = false;
+        this.answerService.resetStateForNewQuestion();
     }
 }

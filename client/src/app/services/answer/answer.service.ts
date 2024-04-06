@@ -9,23 +9,29 @@ import { LongAnswerInfo } from '@common/interfaces/long-answer-info';
 import { GradesInfo } from '@common/interfaces/grades-info';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { MatchEvents } from '@common/events/match.events';
+import { AnswerCorrectness } from '@common/constants/answer-correctness';
+import { MatchContextService } from '@app/services/question-context/question-context.service';
+import { MatchContext } from '@app/constants/states';
 
 @Injectable({
     providedIn: 'root',
 })
 export class AnswerService {
-    feedback$: Observable<Feedback>;
-    isFeedback$: Observable<boolean>;
     bonusPoints$: Observable<number>;
     endGame$: Observable<boolean>;
     playersAnswers: LongAnswerInfo[];
     isTimesUp$: Observable<boolean>;
+
+    feedback: Feedback;
     gradeAnswers: boolean = false;
     isGradingComplete: boolean = false;
     showFeedback: boolean = false;
+    isNextQuestionButton: boolean = false;
+    isSelectionEnabled: boolean = true;
+    correctAnswer: string[] = [];
+    answerCorrectness: AnswerCorrectness;
+    playerScore: number;
 
-    private isFeedbackSource: Subject<boolean>;
-    private feedbackSource: Subject<Feedback>;
     private bonusPointsSubject: Subject<number>;
     private endGameSubject: Subject<boolean>;
     private isTimesUp: Subject<boolean>;
@@ -33,14 +39,20 @@ export class AnswerService {
     constructor(
         public socketService: SocketHandlerService,
         public matchRoomService: MatchRoomService,
+        private readonly matchContextService: MatchContextService,
     ) {
         this.initialiseAnwserSubjects();
     }
 
     resetStateForNewQuestion() {
+        this.feedback = {} as Feedback;
+        this.correctAnswer = [];
         this.gradeAnswers = false;
         this.isGradingComplete = false;
         this.showFeedback = false;
+        this.isSelectionEnabled = true;
+        this.answerCorrectness = AnswerCorrectness.WRONG;
+        this.isNextQuestionButton = false;
     }
 
     selectChoice(choice: string, userInfo: UserInfo) {
@@ -64,10 +76,24 @@ export class AnswerService {
     }
 
     onFeedback() {
-        this.socketService.on(AnswerEvents.Feedback, (data: Feedback) => {
-            this.feedbackSource.next(data);
-            this.isFeedbackSource.next(true);
+        this.socketService.on(AnswerEvents.Feedback, (feedback: Feedback) => {
+            this.feedback = feedback;
             this.showFeedback = true;
+            this.isNextQuestionButton = true;
+
+            if (this.feedback.correctAnswer) this.correctAnswer = this.feedback.correctAnswer;
+            if (feedback) {
+                this.isSelectionEnabled = false;
+                this.answerCorrectness = feedback.answerCorrectness;
+                this.playerScore = feedback.score;
+                // TODO: À revoir si chaque client renvoi son data...
+                this.matchRoomService.sendPlayersData(this.matchRoomService.getRoomCode());
+                const context = this.matchContextService.getContext();
+                if (context === MatchContext.TestPage || context === MatchContext.RandomMode) {
+                    this.matchRoomService.nextQuestion();
+                    this.isNextQuestionButton = false;
+                }
+            }
         });
     }
 
@@ -114,14 +140,10 @@ export class AnswerService {
     }
 
     private initialiseAnwserSubjects() {
-        this.feedbackSource = new Subject<Feedback>();
         this.bonusPointsSubject = new Subject<number>();
-        this.isFeedbackSource = new Subject<boolean>();
         this.endGameSubject = new Subject<boolean>();
         this.isTimesUp = new Subject<boolean>();
-        this.feedback$ = this.feedbackSource.asObservable();
         this.bonusPoints$ = this.bonusPointsSubject.asObservable();
-        this.isFeedback$ = this.isFeedbackSource.asObservable();
         this.endGame$ = this.endGameSubject.asObservable();
         this.isTimesUp$ = this.isTimesUp.asObservable();
     }

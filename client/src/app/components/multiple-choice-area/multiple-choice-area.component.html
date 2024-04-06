@@ -3,9 +3,9 @@
         mat-raised-button
         *ngFor="let choice of currentQuestion.choices; let i = index"
         class="answer"
-        [class.selected]="isSelected(choice) && !showFeedback"
-        [class.correct]="showFeedback && isCorrectAnswer(choice)"
-        [class.incorrect]="showFeedback && !isCorrectAnswer(choice) && isSelected(choice)"
+        [class.selected]="isSelected(choice) && !this.answerService.showFeedback"
+        [class.correct]="this.answerService.showFeedback && isCorrectAnswer(choice)"
+        [class.incorrect]="this.answerService.showFeedback && !isCorrectAnswer(choice) && isSelected(choice)"
         (click)="selectChoice(choice)"
     >
         <p>{{ i + 1 }}. {{ choice.text }}</p>

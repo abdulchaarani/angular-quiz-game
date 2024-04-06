@@ -10,7 +10,6 @@ import { MatchContextService } from '@app/services/question-context/question-con
 import { TimeService } from '@app/services/time/time.service';
 import { AnswerCorrectness } from '@common/constants/answer-correctness';
 import { QuestionType } from '@common/constants/question-types';
-import { Feedback } from '@common/interfaces/feedback';
 import { Subject, Subscription } from 'rxjs';
 @Component({
     selector: 'app-question-area',
@@ -20,9 +19,6 @@ import { Subject, Subscription } from 'rxjs';
 export class QuestionAreaComponent implements OnInit, OnDestroy {
     currentQuestion: Question;
     gameDuration: number;
-    isSelectionEnabled: boolean;
-    showFeedback: boolean;
-    playerScore: number = 0;
     bonus: number;
     context: MatchContext;
     matchContext = MatchContext;
@@ -30,9 +26,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
     isFirstQuestion: boolean = true;
     isCooldown: boolean = false;
     isRightAnswer: boolean = false;
-    answerCorrectness: AnswerCorrectness = AnswerCorrectness.WRONG;
     answerStyle: string = '';
-    isNextQuestionButton: boolean = false;
     isLastQuestion: boolean = false;
     isQuitting: boolean = false;
 
@@ -43,8 +37,8 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
     constructor(
         public matchRoomService: MatchRoomService,
         public timeService: TimeService,
+        public answerService: AnswerService,
         private readonly matchContextService: MatchContextService,
-        private readonly answerService: AnswerService,
         private readonly notificationService: NotificationService,
     ) {}
 
@@ -80,7 +74,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
     handleKeyboardEvent(event: KeyboardEvent) {
         if (document?.activeElement?.id === 'chat-input') return;
 
-        if (event.key === 'Enter' && this.isSelectionEnabled) {
+        if (event.key === 'Enter' && this.answerService.isSelectionEnabled) {
             this.submitAnswers();
             return;
         }
@@ -127,12 +121,12 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
 
     submitAnswers(): void {
         this.answerService.submitAnswer({ username: this.username, roomCode: this.matchRoomCode });
-        this.isSelectionEnabled = false;
+        this.answerService.isSelectionEnabled = false;
     }
 
     nextQuestion() {
         this.matchRoomService.nextQuestion();
-        this.isNextQuestionButton = false;
+        this.answerService.isNextQuestionButton = false;
     }
 
     routeToResultsPage() {
@@ -146,30 +140,6 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
 
     togglePanicTimer() {
         this.timeService.panicTimer(this.matchRoomCode);
-    }
-
-    private handleFeedback(feedback: Feedback) {
-        this.showFeedback = true;
-        this.isNextQuestionButton = true;
-
-        if (feedback) {
-            this.isSelectionEnabled = false;
-            this.answerCorrectness = feedback.answerCorrectness;
-            this.playerScore = feedback.score;
-            // TODO: À revoir si chaque client renvoi son data...
-            this.matchRoomService.sendPlayersData(this.matchRoomCode);
-            this.showFeedback = true;
-            if (this.context === MatchContext.TestPage || this.context === MatchContext.RandomMode) {
-                this.nextQuestion();
-            }
-        }
-    }
-
-    private subscribeToFeedback() {
-        const feedbackSubscription = this.answerService.feedback$.subscribe((feedback) => {
-            this.handleFeedback(feedback);
-        });
-        this.eventSubscriptions.push(feedbackSubscription);
     }
 
     private handleQuestionChange(newQuestion: Question) {
@@ -220,7 +190,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
 
     private subscribeToTimesUp() {
         const timesUpSubscription = this.answerService.isTimesUp$.subscribe((isTimesUp) => {
-            if (isTimesUp) this.isSelectionEnabled = false;
+            if (isTimesUp) this.answerService.isSelectionEnabled = false;
         });
         this.eventSubscriptions.push(timesUpSubscription);
     }
@@ -240,7 +210,6 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
 
     private initialiseSubscriptions() {
         this.subscribeToHostPlaying();
-        this.subscribeToFeedback();
         this.subscribeToCurrentQuestion();
         this.subscribeToTimesUp();
         this.subscribeToBonus();
@@ -251,11 +220,9 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
     private resetStateForNewQuestion(): void {
         this.eventSubscriptions = [];
         this.isHostPlaying = true;
-        this.showFeedback = false;
-        this.isSelectionEnabled = true;
         this.bonus = 0;
-        this.answerCorrectness = AnswerCorrectness.WRONG;
         this.isCooldown = false;
         this.isQuitting = false;
+        this.answerService.resetStateForNewQuestion();
     }
 }

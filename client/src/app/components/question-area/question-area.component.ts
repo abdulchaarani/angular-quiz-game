@@ -67,6 +67,13 @@ export class QuestionAreaComponent implements OnInit {
 
     // TODO: export to service?
     canDeactivate(): CanDeactivateType {
+        console.log(
+            this.matchRoomService.isResults,
+            this.matchRoomService.isQuitting,
+            this.matchContextService.getContext() === MatchContext.TestPage,
+            !this.matchRoomService.isHostPlaying,
+        );
+
         if (this.matchRoomService.isResults) return true;
         if (this.matchRoomService.isQuitting) return true;
         if (this.matchContextService.getContext() === MatchContext.TestPage) {
@@ -90,6 +97,7 @@ export class QuestionAreaComponent implements OnInit {
         this.resetStateForNewQuestion();
         this.listenToGameEvents();
         // TODO: move score somewhere else?
+        this.matchRoomService.isQuitting = false;
         this.answerService.playerScore = 0;
         this.context = this.matchContextService.getContext();
         if (this.isFirstQuestion) {

@@ -69,6 +69,7 @@ export class AnswerService {
         const player: Player = this.playerService.getPlayerByUsername(roomCode, username);
         const matchRoom = this.getRoom(roomCode);
 
+        player.answer.timestamp = Date.now();
         player.answer.isSubmitted = true;
         matchRoom.submittedPlayers++;
 
@@ -76,7 +77,9 @@ export class AnswerService {
     }
 
     private handleFinalAnswerSubmitted(matchRoom: MatchRoom) {
-        if (matchRoom.submittedPlayers === matchRoom.activePlayers) {
+        const activePlayers = matchRoom.players.filter((player) => player.isPlaying);
+        const areAllAnswersSubmitted = activePlayers.every((player) => player.answer.isSubmitted);
+        if (areAllAnswersSubmitted) {
             this.timeService.terminateTimer(matchRoom.code);
             this.onQuestionTimerExpired(matchRoom.code);
         }

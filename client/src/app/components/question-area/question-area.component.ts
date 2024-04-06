@@ -43,7 +43,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
     constructor(
         public matchRoomService: MatchRoomService,
         public timeService: TimeService,
-        private readonly questionContextService: MatchContextService,
+        private readonly matchContextService: MatchContextService,
         private readonly answerService: AnswerService,
         private readonly notificationService: NotificationService,
     ) {}
@@ -90,7 +90,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
         if (this.isQuitting) return true;
         if (!this.isHostPlaying) return true;
         if (this.matchRoomService.isResults) return true;
-        if (this.questionContextService.getContext() === MatchContext.TestPage) {
+        if (this.matchContextService.getContext() === MatchContext.TestPage) {
             this.quitGame();
             return true;
         }
@@ -110,7 +110,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.resetStateForNewQuestion();
 
-        this.context = this.questionContextService.getContext();
+        this.context = this.matchContextService.getContext();
         if (this.isFirstQuestion) {
             this.currentQuestion = this.getHistoryState().question;
             this.gameDuration = this.getHistoryState().duration;

@@ -19,7 +19,7 @@ export class LongAnswerAreaComponent implements OnInit {
 
     constructor(
         public matchRoomService: MatchRoomService,
-        public questionContextService: MatchContextService,
+        public matchContextService: MatchContextService,
         public answerService: AnswerService,
     ) {}
 

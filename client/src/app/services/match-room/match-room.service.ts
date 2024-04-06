@@ -48,7 +48,7 @@ export class MatchRoomService {
         public socketService: SocketHandlerService,
         private readonly router: Router,
         private readonly notificationService: NotificationService,
-        private readonly questionContextService: MatchContextService,
+        private readonly matchContextService: MatchContextService,
     ) {}
 
     get socketId() {
@@ -103,7 +103,7 @@ export class MatchRoomService {
         const sentInfo: UserInfo = { roomCode, username };
         this.socketService.send(MatchEvents.JoinRoom, sentInfo, (res: { code: string; username: string; isRandomMode: boolean }) => {
             if (res.isRandomMode) {
-                this.questionContextService.setContext(MatchContext.RandomMode);
+                this.matchContextService.setContext(MatchContext.RandomMode);
             }
             this.matchRoomCode = res.code;
             this.username = res.username;

@@ -1,4 +1,4 @@
-<div id="choice-area" *ngIf="questionContextService.getContext() !== 'hostView'">
+<div id="choice-area" *ngIf="matchContextService.getContext() !== 'hostView'">
     <button
         mat-raised-button
         *ngFor="let choice of currentQuestion.choices; let i = index"
@@ -12,6 +12,6 @@
     </button>
 </div>
 
-<div id="histogram-container" *ngIf="!isCooldown && questionContextService.getContext() === 'hostView'">
+<div id="histogram-container" *ngIf="!isCooldown && matchContextService.getContext() === 'hostView'">
     <app-histogram></app-histogram>
 </div>

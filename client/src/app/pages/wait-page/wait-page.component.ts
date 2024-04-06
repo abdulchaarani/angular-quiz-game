@@ -32,7 +32,7 @@ export class WaitPageComponent implements OnInit, OnDestroy {
         public timeService: TimeService,
         public router: Router,
         public matchService: MatchService,
-        private readonly questionContextService: MatchContextService,
+        private readonly matchContextService: MatchContextService,
         private readonly notificationService: NotificationService,
     ) {}
 
@@ -73,8 +73,8 @@ export class WaitPageComponent implements OnInit, OnDestroy {
         if (this.isHost) {
             this.gameTitle = this.currentGame.title;
         } else {
-            if (!this.questionContextService.getContext()) {
-                this.questionContextService.setContext(MatchContext.PlayerView);
+            if (!this.matchContextService.getContext()) {
+                this.matchContextService.setContext(MatchContext.PlayerView);
             }
             this.subscribeToGameTitle();
         }

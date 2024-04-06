@@ -20,7 +20,7 @@ export class MatchService extends CommunicationService<Game> {
     constructor(
         http: HttpClient,
         private readonly matchRoomService: MatchRoomService,
-        private readonly questionContextService: MatchContextService,
+        private readonly matchContextService: MatchContextService,
     ) {
         super(http, 'match');
     }
@@ -65,8 +65,8 @@ export class MatchService extends CommunicationService<Game> {
     }
 
     createMatch() {
-        const isTestPage = this.questionContextService.getContext() === MatchContext.TestPage;
-        const isRandomMode = this.questionContextService.getContext() === MatchContext.RandomMode;
+        const isTestPage = this.matchContextService.getContext() === MatchContext.TestPage;
+        const isRandomMode = this.matchContextService.getContext() === MatchContext.RandomMode;
         this.matchRoomService.connect();
         this.matchRoomService.createRoom(this.selectedGame.id, isTestPage, isRandomMode);
     }

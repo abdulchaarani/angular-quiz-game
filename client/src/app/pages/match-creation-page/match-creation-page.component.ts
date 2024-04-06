@@ -29,7 +29,7 @@ export class MatchCreationPageComponent implements OnInit {
         private readonly gameService: GameService,
         private readonly notificationService: NotificationService,
         private readonly matchService: MatchService,
-        private readonly questionContextService: MatchContextService,
+        private readonly matchContextService: MatchContextService,
         private readonly questionService: QuestionService,
     ) {
         this.gameIsValid = false;
@@ -120,7 +120,7 @@ export class MatchCreationPageComponent implements OnInit {
     }
 
     createMatch(context: MatchContext): void {
-        this.questionContextService.setContext(context);
+        this.matchContextService.setContext(context);
         if (!this.isRandomGame) this.reloadSelectedGame();
         else {
             this.revalidateRandomGame();

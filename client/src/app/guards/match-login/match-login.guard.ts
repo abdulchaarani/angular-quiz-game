@@ -8,9 +8,9 @@ export const matchLoginGuard = (): boolean => {
     const matchRoomService = inject(MatchRoomService);
     const router = inject(Router);
     const notificationService = inject(NotificationService);
-    const questionContextService = inject(MatchContextService);
+    const matchContextService = inject(MatchContextService);
 
-    if (questionContextService.getContext() === 'testPage' && !matchRoomService.isPlaying) return true;
+    if (matchContextService.getContext() === 'testPage' && !matchRoomService.isPlaying) return true;
     if (!matchRoomService.getRoomCode() || !matchRoomService.getUsername() || matchRoomService.isPlaying) {
         router.navigateByUrl('/home');
         notificationService.displayErrorMessage('Accès refusé: Veillez joindre une partie ou créer une partie.');

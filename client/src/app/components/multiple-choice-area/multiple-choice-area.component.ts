@@ -23,7 +23,7 @@ export class MultipleChoiceAreaComponent implements OnInit, OnDestroy {
 
     constructor(
         public matchRoomService: MatchRoomService,
-        public questionContextService: MatchContextService,
+        public matchContextService: MatchContextService,
         private readonly answerService: AnswerService,
     ) {}
 

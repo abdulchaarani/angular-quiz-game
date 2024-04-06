@@ -1,5 +1,5 @@
 <div id="main-container">
-    <div class="answer-area" *ngIf="questionContextService.getContext() !== 'hostView'">
+    <div class="answer-area" *ngIf="matchContextService.getContext() !== 'hostView'">
         <div class="grading-prompt">
             <h1 [class.hidden]="isSelectionEnabled || this.answerService.showFeedback">En attente de correction...</h1>
         </div>
@@ -23,12 +23,12 @@
 
     <div
         id="histogram-container"
-        *ngIf="questionContextService.getContext() === 'hostView' && !this.answerService.gradeAnswers && !this.answerService.isGradingComplete"
+        *ngIf="matchContextService.getContext() === 'hostView' && !this.answerService.gradeAnswers && !this.answerService.isGradingComplete"
     >
         <app-long-answer-histogram></app-long-answer-histogram>
     </div>
 
-    <div class="grading-area" *ngIf="questionContextService.getContext() === 'hostView' && this.answerService.gradeAnswers">
+    <div class="grading-area" *ngIf="matchContextService.getContext() === 'hostView' && this.answerService.gradeAnswers">
         <div class="grading-prompt">
             <h1>Veuillez noter les réponses des joueurs!</h1>
         </div>

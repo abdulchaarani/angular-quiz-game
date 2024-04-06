@@ -15,6 +15,6 @@ export class PlayersListComponent {
     context = MatchContext;
     constructor(
         readonly matchRoomService: MatchRoomService,
-        readonly questionContextService: MatchContextService,
+        readonly matchContextService: MatchContextService,
     ) {}
 }

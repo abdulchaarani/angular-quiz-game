@@ -22,7 +22,7 @@ export class LongAnswerAreaComponent implements OnInit, OnDestroy {
     currentAnswer: string = '';
     gradeAnswers: boolean = false;
     playersAnswers: LongAnswerInfo[] = [];
-    gradingComplete: boolean = false;
+    isGradingComplete: boolean = false;
 
     private eventSubscriptions: Subscription[];
 
@@ -60,7 +60,7 @@ export class LongAnswerAreaComponent implements OnInit, OnDestroy {
     }
 
     handleGrading(): void {
-        this.gradingComplete = this.playersAnswers.every((answer: LongAnswerInfo) => answer.score !== undefined);
+        this.isGradingComplete = this.playersAnswers.every((answer: LongAnswerInfo) => answer.score !== null);
     }
 
     sendGrades() {

@@ -18,7 +18,7 @@
         </form>
     </div>
 
-    <div id="histogram-container" *ngIf="questionContextService.getContext() === 'hostView' && !gradeAnswers && !gradingComplete">
+    <div id="histogram-container" *ngIf="questionContextService.getContext() === 'hostView' && !gradeAnswers && !isGradingComplete">
         <app-long-answer-histogram></app-long-answer-histogram>
     </div>
 
@@ -44,8 +44,9 @@
             </div>
         </cdk-virtual-scroll-viewport>
 
-        <button mat-raised-button color="primary" id="submit-button" [disabled]="!gradingComplete" (click)="sendGrades()">
-            SOUMETTRE CORRECTION
+        <button mat-raised-button color="primary" id="submit-button" [disabled]="!isGradingComplete" (click)="sendGrades()">
+            <p *ngIf="isGradingComplete">SOUMETTRE CORRECTION</p>
+            <p *ngIf="!isGradingComplete">Il reste des joueurs à évaluer</p>
         </button>
     </div>
 </div>

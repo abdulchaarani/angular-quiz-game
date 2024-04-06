@@ -18,7 +18,7 @@
         </form>
     </div>
 
-    <div id="histogram-container" *ngIf="questionContextService.getContext() === 'hostView' && !gradeAnswers">
+    <div id="histogram-container" *ngIf="questionContextService.getContext() === 'hostView' && !gradeAnswers && !gradingComplete">
         <app-long-answer-histogram></app-long-answer-histogram>
     </div>
 
@@ -35,29 +35,17 @@
                     </div>
                     <div class="score">
                         <mat-button-toggle-group name="answerValue" [(ngModel)]="player.score" (change)="handleGrading()">
-                            <mat-button-toggle
-                                *ngFor="let answerOption of answerOptions; let i = index"
-                                [value]="answerOption"
-                                class="toggle"
-                                [ngStyle]="{ 'background-color': getGradientColor(i) }"
-                            >
+                            <mat-button-toggle *ngFor="let answerOption of answerOptions; let i = index" [value]="answerOption" class="grade-toggle">
                                 <p>{{ answerOption }}%</p>
                             </mat-button-toggle>
-                            <!-- <mat-button-toggle [value]="answerOptions.WRONG" class="wrong-answer toggle">
-                                <p>{{ answerOptions.WRONG }}%</p>
-                            </mat-button-toggle>
-                            <mat-button-toggle [value]="answerOptions.OK" class="ok-answer toggle">
-                                <p>{{ answerOptions.OK }}%</p>
-                            </mat-button-toggle>
-                            <mat-button-toggle [value]="answerOptions.GOOD" class="good-answer toggle">
-                                <p>{{ answerOptions.GOOD }}%</p>
-                            </mat-button-toggle> -->
                         </mat-button-toggle-group>
                     </div>
                 </mat-card>
             </div>
         </cdk-virtual-scroll-viewport>
 
-        <button mat-raised-button color="primary" id="submit-button" (click)="sendGrades()">SOUMETTRE CORRECTION</button>
+        <button mat-raised-button color="primary" id="submit-button" [disabled]="!gradingComplete" (click)="sendGrades()">
+            SOUMETTRE CORRECTION
+        </button>
     </div>
 </div>

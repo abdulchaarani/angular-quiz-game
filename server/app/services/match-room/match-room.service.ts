@@ -78,6 +78,7 @@ export class MatchRoomService {
             startTime: new Date(),
         };
         this.matchRooms.push(newRoom);
+        this.questionStrategyService.setQuestionStrategy(newRoom);
         return newRoom;
     }
 
@@ -95,7 +96,7 @@ export class MatchRoomService {
 
     deleteRoom(matchRoomCode: string): void {
         this.timeService.terminateTimer(matchRoomCode);
-
+        this.questionStrategyService.deleteRoom(matchRoomCode);
         this.matchRooms = this.matchRooms.filter((room: MatchRoom) => {
             return room.code !== matchRoomCode;
         });
@@ -147,7 +148,6 @@ export class MatchRoomService {
         const gameDuration: number = matchRoom.game.duration;
         const isTestRoom = matchRoom.isTestRoom;
         this.questionStrategyService.setQuestionStrategy(matchRoom);
-
         matchRoom.currentQuestionAnswer = this.filterCorrectChoices(firstQuestion);
         this.removeIsCorrectField(firstQuestion);
         if (!isTestRoom) {

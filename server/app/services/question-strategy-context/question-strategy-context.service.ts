@@ -12,17 +12,17 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class QuestionStrategyContext {
-    private questionStrategy: QuestionStrategy;
+    private questionStrategies: Map<string, QuestionStrategy>;
 
     constructor(
         private readonly multipleChoiceStrategy: MultipleChoiceStrategy,
         private readonly longAnswerStrategy: LongAnswerStrategy,
     ) {
-        this.setMultipleChoiceStrategy();
+        this.questionStrategies = new Map<string, QuestionStrategy>();
     }
 
-    getQuestionStrategy(): string {
-        return this.questionStrategy.type;
+    getQuestionStrategy(matchRoomCode: string): string {
+        return this.questionStrategies.get(matchRoomCode).type;
     }
 
     setQuestionStrategy(matchRoom: MatchRoom) {
@@ -30,13 +30,13 @@ export class QuestionStrategyContext {
 
         switch (currentQuestionType) {
             case 'QCM':
-                this.setMultipleChoiceStrategy();
+                this.setMultipleChoiceStrategy(matchRoom.code);
                 matchRoom.players.forEach((player) => (player.answer = new MultipleChoiceAnswer()));
                 matchRoom.questionDuration = matchRoom.game.duration;
                 break;
 
             case 'QRL':
-                this.setLongAnswerStrategy();
+                this.setLongAnswerStrategy(matchRoom.code);
                 matchRoom.players.forEach((player) => (player.answer = new LongAnswer()));
                 matchRoom.questionDuration = LONG_ANSWER_TIME;
                 break;
@@ -44,22 +44,26 @@ export class QuestionStrategyContext {
     }
 
     gradeAnswers(matchRoom: MatchRoom, players: Player[]) {
-        this.questionStrategy.gradeAnswers(matchRoom, players);
+        this.questionStrategies.get(matchRoom.code).gradeAnswers(matchRoom, players);
     }
 
     calculateScore(matchRoom: MatchRoom, players: Player[], grades?: LongAnswerInfo[]) {
-        this.questionStrategy.calculateScore(matchRoom, players, grades);
+        this.questionStrategies.get(matchRoom.code).calculateScore(matchRoom, players, grades);
     }
 
     buildHistogram(matchRoom: MatchRoom, choice?: string, selection?: boolean): Histogram {
-        return this.questionStrategy.buildHistogram(matchRoom, choice, selection);
+        return this.questionStrategies.get(matchRoom.code).buildHistogram(matchRoom, choice, selection);
     }
 
-    private setMultipleChoiceStrategy() {
-        this.questionStrategy = this.multipleChoiceStrategy;
+    deleteRoom(matchRoomCode: string) {
+        this.questionStrategies.delete(matchRoomCode);
     }
 
-    private setLongAnswerStrategy() {
-        this.questionStrategy = this.longAnswerStrategy;
+    private setMultipleChoiceStrategy(matchRoomCode: string) {
+        this.questionStrategies.set(matchRoomCode, this.multipleChoiceStrategy);
+    }
+
+    private setLongAnswerStrategy(matchRoomCode: string) {
+        this.questionStrategies.set(matchRoomCode, this.longAnswerStrategy);
     }
 }

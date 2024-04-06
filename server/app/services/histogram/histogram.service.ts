@@ -18,7 +18,8 @@ export class HistogramService {
 
     @OnEvent(TimerDurationEvents.Timer)
     onTimerTick(roomCode: string, currentTimer: TimerInfo) {
-        if (this.questionStrategyContext.getQuestionStrategy() !== 'QRL') return;
+        if (!this.matchRoomService.isGamePlaying(roomCode)) return;
+        if (this.questionStrategyContext.getQuestionStrategy(roomCode) !== 'QRL') return;
         if (currentTimer.currentTime % HISTOGRAM_UPDATE_TIME_SECONDS === 0) {
             const matchRoom = this.matchRoomService.getRoom(roomCode);
             this.buildHistogram(matchRoom);

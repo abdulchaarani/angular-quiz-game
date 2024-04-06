@@ -37,7 +37,9 @@
                     <h1 class="points" *ngIf="this.answerService.answerCorrectness === answerOptions.GOOD" class="good-answer">
                         👏 Bonne Réponse! Vous avez obtenu {{ this.currentQuestion.points }} points 👏
                     </h1>
-                    <h1 class="points" class="good-answer" *ngIf="bonus > 0">✨ Vous avez obtenu un bonus de {{ bonus }} points!✨</h1>
+                    <h1 class="points" class="good-answer" *ngIf="this.answerService.bonusPoints > 0">
+                        ✨ Vous avez obtenu un bonus de {{ this.answerService.bonusPoints }} points!✨
+                    </h1>
                 </div>
             </div>
 

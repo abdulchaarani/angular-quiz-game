@@ -17,7 +17,6 @@ import { MatchContext } from '@app/constants/states';
     providedIn: 'root',
 })
 export class AnswerService {
-    bonusPoints$: Observable<number>;
     endGame$: Observable<boolean>;
     playersAnswers: LongAnswerInfo[];
     isTimesUp$: Observable<boolean>;
@@ -31,10 +30,10 @@ export class AnswerService {
     correctAnswer: string[] = [];
     answerCorrectness: AnswerCorrectness;
     playerScore: number;
+    bonusPoints: number;
+    isTimesUp: boolean;
 
-    private bonusPointsSubject: Subject<number>;
     private endGameSubject: Subject<boolean>;
-    private isTimesUp: Subject<boolean>;
 
     constructor(
         public socketService: SocketHandlerService,
@@ -52,7 +51,9 @@ export class AnswerService {
         this.showFeedback = false;
         this.isSelectionEnabled = true;
         this.answerCorrectness = AnswerCorrectness.WRONG;
+        this.bonusPoints = 0;
         this.isNextQuestionButton = false;
+        this.isTimesUp = false;
     }
 
     selectChoice(choice: string, userInfo: UserInfo) {
@@ -75,6 +76,7 @@ export class AnswerService {
         this.socketService.send(AnswerEvents.UpdateLongAnswer, choiceInfo);
     }
 
+    // TODO: fragment
     onFeedback() {
         this.socketService.on(AnswerEvents.Feedback, (feedback: Feedback) => {
             this.feedback = feedback;
@@ -98,8 +100,8 @@ export class AnswerService {
     }
 
     onBonusPoints() {
-        this.socketService.on(AnswerEvents.Bonus, (data: number) => {
-            this.bonusPointsSubject.next(data);
+        this.socketService.on(AnswerEvents.Bonus, (bonus: number) => {
+            this.bonusPoints = bonus;
         });
     }
 
@@ -125,7 +127,8 @@ export class AnswerService {
 
     onTimesUp() {
         this.socketService.on(AnswerEvents.TimesUp, () => {
-            this.isTimesUp.next(true);
+            this.isTimesUp = true;
+            this.isSelectionEnabled = false;
         });
     }
 
@@ -140,11 +143,7 @@ export class AnswerService {
     }
 
     private initialiseAnwserSubjects() {
-        this.bonusPointsSubject = new Subject<number>();
         this.endGameSubject = new Subject<boolean>();
-        this.isTimesUp = new Subject<boolean>();
-        this.bonusPoints$ = this.bonusPointsSubject.asObservable();
         this.endGame$ = this.endGameSubject.asObservable();
-        this.isTimesUp$ = this.isTimesUp.asObservable();
     }
 }

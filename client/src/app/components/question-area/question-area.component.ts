@@ -19,7 +19,6 @@ import { Subject, Subscription } from 'rxjs';
 export class QuestionAreaComponent implements OnInit, OnDestroy {
     currentQuestion: Question;
     gameDuration: number;
-    bonus: number;
     context: MatchContext;
     matchContext = MatchContext;
     isHostPlaying: boolean = true;
@@ -103,7 +102,8 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.resetStateForNewQuestion();
-
+        // TODO: move somewhere else?
+        this.answerService.playerScore = 0;
         this.context = this.matchContextService.getContext();
         if (this.isFirstQuestion) {
             this.currentQuestion = this.getHistoryState().question;
@@ -155,15 +155,6 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
         this.eventSubscriptions.push(currentQuestionSubscription);
     }
 
-    private subscribeToBonus() {
-        const bonusPointsSubscription = this.answerService.bonusPoints$.subscribe((bonus) => {
-            if (bonus) {
-                this.bonus = bonus;
-            }
-        });
-        this.eventSubscriptions.push(bonusPointsSubscription);
-    }
-
     private subscribeToCooldown() {
         const displayCoolDownSubscription = this.matchRoomService.displayCooldown$.subscribe((isCooldown) => {
             this.isCooldown = isCooldown;
@@ -187,14 +178,6 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
         });
         this.eventSubscriptions.push(hostPlayingSubscription);
     }
-
-    private subscribeToTimesUp() {
-        const timesUpSubscription = this.answerService.isTimesUp$.subscribe((isTimesUp) => {
-            if (isTimesUp) this.answerService.isSelectionEnabled = false;
-        });
-        this.eventSubscriptions.push(timesUpSubscription);
-    }
-
     private listenToGameEvents() {
         this.timeService.handleTimer();
         this.timeService.handleStopTimer();
@@ -211,8 +194,6 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
     private initialiseSubscriptions() {
         this.subscribeToHostPlaying();
         this.subscribeToCurrentQuestion();
-        this.subscribeToTimesUp();
-        this.subscribeToBonus();
         this.subscribeToCooldown();
         this.subscribeToGameEnd();
     }
@@ -220,7 +201,6 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
     private resetStateForNewQuestion(): void {
         this.eventSubscriptions = [];
         this.isHostPlaying = true;
-        this.bonus = 0;
         this.isCooldown = false;
         this.isQuitting = false;
         this.answerService.resetStateForNewQuestion();

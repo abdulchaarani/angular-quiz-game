@@ -4,7 +4,6 @@ import { AnswerService } from '@app/services/answer/answer.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { Subscription } from 'rxjs';
 import { FREE_ANSWER_MAX_LENGTH } from '@common/constants/match-constants';
-import { PrimaryColor } from '@common/constants/primary-color';
 import { QuestionContextService } from '@app/services/question-context/question-context.service';
 import { LongAnswerInfo } from '@common/interfaces/long-answer-info';
 import { GradesInfo } from '@common/interfaces/grades-info';
@@ -68,13 +67,6 @@ export class LongAnswerAreaComponent implements OnInit, OnDestroy {
         const gradesInfo: GradesInfo = { matchRoomCode: this.matchRoomCode, grades: this.playersAnswers };
         this.answerService.sendGrades(gradesInfo);
         this.gradeAnswers = false;
-    }
-
-    getGradientColor(index: number): string {
-        const answerCount = this.answerOptions.length;
-        const lightnessRange = PrimaryColor.MAX_LIGHTNESS - PrimaryColor.MIN_LIGHTNESS;
-        const currentLightness = PrimaryColor.MIN_LIGHTNESS + (lightnessRange / answerCount) * index;
-        return `hsl(${PrimaryColor.HUE}, ${PrimaryColor.SATURATION}%, ${currentLightness}%);`;
     }
 
     private subscribeToFeedback() {

@@ -1,4 +1,5 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import * as ChartParameters from '@app/constants/chart-parameters';
 import { HistogramService } from '@app/services/histogram/histogram.service';
 import { GradeTally } from '@common/interfaces/choice-tally';
 import { GradesHistogram, Histogram, PlayerCountHistogram } from '@common/interfaces/histogram';
@@ -118,26 +119,9 @@ export class LongAnswerHistogramComponent implements OnInit, OnChanges, OnDestro
     private setupChart(data: any): void {
         this.chartOptions = {
             title: { text: this.currentQuestion },
-            axes: [
-                {
-                    type: 'category',
-                    position: 'bottom',
-                },
-                {
-                    type: 'number',
-                    position: 'left',
-                    title: { text: 'Nombre de joueurs' },
-                },
-            ],
+            axes: ChartParameters.LONG_ANSWER_HISTOGRAM_OPTIONS,
             data,
-            series: [
-                {
-                    type: 'bar',
-                    xKey: 'grade',
-                    yKey: 'count',
-                    yName: 'Nombre de joueurs',
-                },
-            ],
+            series: ChartParameters.LONG_ANSWER_HISTOGRAM_SERIES,
         };
     }
 

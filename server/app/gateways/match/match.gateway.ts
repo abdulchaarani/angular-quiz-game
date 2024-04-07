@@ -1,5 +1,6 @@
 import { ExpiredTimerEvents } from '@app/constants/expired-timer-events';
 import { BAN_PLAYER, NO_MORE_HOST, NO_MORE_PLAYERS } from '@app/constants/match-errors';
+import { PlayerEvents } from '@app/constants/player-events';
 import { Game } from '@app/model/database/game';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { HistogramService } from '@app/services/histogram/histogram.service';
@@ -9,15 +10,14 @@ import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
 import { HOST_USERNAME } from '@common/constants/match-constants';
 import { PlayerState } from '@common/constants/player-states';
-import { MatchEvents } from '@common/events/match.events';
 import { HistogramEvents } from '@common/events/histogram.events';
+import { MatchEvents } from '@common/events/match.events';
 import { TimerEvents } from '@common/events/timer.events';
 import { UserInfo } from '@common/interfaces/user-info';
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { ConnectedSocket, MessageBody, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { PlayerEvents } from '@app/constants/player-events';
 
 @WebSocketGateway({ cors: true })
 @Injectable()
@@ -169,6 +169,42 @@ export class MatchGateway implements OnGatewayDisconnect {
         const isRoomEmpty = this.isRoomEmpty(room);
         if (room.isPlaying && isRoomEmpty && room.currentQuestionIndex !== room.gameLength) {
             this.sendError(roomCode, NO_MORE_PLAYERS);
+            this.deleteRoom(roomCode);
+            return;
+        }
+        this.handleSendPlayersData(roomCode);
+    }
+
+    handleHostDisconnect(@ConnectedSocket() socket: Socket): boolean {
+        const hostRoomCode = this.matchRoomService.getRoomCodeByHostSocket(socket.id);
+        if (!hostRoomCode) return false;
+        const hostRoom = this.matchRoomService.getRoom(hostRoomCode);
+        if (hostRoom.currentQuestionIndex !== hostRoom.gameLength && !hostRoom.isRandomMode) {
+            this.sendError(hostRoomCode, NO_MORE_HOST);
+            this.deleteRoom(hostRoomCode);
+            return true;
+        }
+        if (this.isRoomEmpty(hostRoom)) {
+            this.deleteRoom(hostRoomCode);
+            return true;
+        }
+        return false;
+    }
+
+    handlePlayersDisconnect(@ConnectedSocket() socket: Socket) {
+        const roomCode = this.playerRoomService.deletePlayerBySocket(socket.id);
+        if (!roomCode) {
+            return;
+        }
+        this.eventEmitter.emit(PlayerEvents.Quit, roomCode);
+        const room = this.matchRoomService.getRoom(roomCode);
+        const isRoomEmpty = this.isRoomEmpty(room);
+        if (room.isPlaying && isRoomEmpty && room.currentQuestionIndex !== room.gameLength) {
+            this.sendError(roomCode, NO_MORE_PLAYERS);
+            this.deleteRoom(roomCode);
+            return;
+        }
+        if (isRoomEmpty) {
             this.deleteRoom(roomCode);
             return;
         }

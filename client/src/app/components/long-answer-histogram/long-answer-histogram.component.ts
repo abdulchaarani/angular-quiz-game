@@ -1,4 +1,5 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import * as ChartParameters from '@app/constants/chart-parameters';
 import { HistogramService } from '@app/services/histogram/histogram.service';
 import { GradeTally } from '@common/interfaces/choice-tally';
 import { GradesHistogram, Histogram, PlayerCountHistogram } from '@common/interfaces/histogram';
@@ -97,17 +98,17 @@ export class LongAnswerHistogramComponent implements OnInit, OnChanges, OnDestro
         let fill;
         switch (params.datum.grade) {
             case '100': {
-                fill = 'green';
+                fill = 'darkblue';
 
                 break;
             }
             case '50': {
-                fill = 'yellow';
+                fill = 'blue';
 
                 break;
             }
             case '0': {
-                fill = 'red';
+                fill = 'lightblue';
 
                 break;
             }
@@ -118,52 +119,24 @@ export class LongAnswerHistogramComponent implements OnInit, OnChanges, OnDestro
     private setupChart(data: any): void {
         this.chartOptions = {
             title: { text: this.currentQuestion },
-            axes: [
-                {
-                    type: 'category',
-                    position: 'bottom',
-                },
-                {
-                    type: 'number',
-                    position: 'left',
-                    title: { text: 'Nombre de joueurs' },
-                },
-            ],
+            axes: ChartParameters.LONG_ANSWER_HISTOGRAM_AXES,
             data,
-            series: [
-                {
-                    type: 'bar',
-                    xKey: 'grade',
-                    yKey: 'count',
-                    yName: 'Nombre de joueurs',
-                },
-            ],
+            series: ChartParameters.LONG_ANSWER_HISTOGRAM_SERIES,
         };
     }
 
     private setupResultsPageChart(data: any): void {
         this.chartOptions = {
             title: { text: this.currentQuestion },
-            axes: [
-                {
-                    type: 'category',
-                    position: 'bottom',
-                    title: { text: 'Note sur 100' },
-                },
-                {
-                    type: 'number',
-                    position: 'left',
-                    title: { text: 'Nombre de joueurs' },
-                },
-            ],
+            axes: ChartParameters.LONG_ANSWER_HISTOGRAM_RESULTS_PAGE_AXES,
             data,
             series: [
                 {
-                    type: 'bar',
-                    xKey: 'grade',
-                    xName: 'Note sur 100',
-                    yKey: 'count',
-                    yName: 'Nombre de joueurs',
+                    type: ChartParameters.TYPE_BAR,
+                    xKey: ChartParameters.XKEY_GRADE,
+                    xName: ChartParameters.XNAME_GRADE,
+                    yKey: ChartParameters.YKEY_COUNT,
+                    yName: ChartParameters.YNAME_PLAYERS,
                     tooltip: {
                         enabled: true,
                         renderer: this.renderChart.bind(this),

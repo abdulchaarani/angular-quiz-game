@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { QuestionCreationFormComponent } from '@app/components/question-creation-form/question-creation-form.component';
+import { TEMPLATE_QUESTION } from '@app/constants/question-creation';
 import { ManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
 import { BankService } from '@app/services/bank/bank.service';
@@ -17,13 +18,7 @@ export class AdminQuestionBankComponent implements OnInit {
     @Input() createNewQuestionToBankButton: boolean = false;
 
     response: string = '';
-    newQuestion: Question = {
-        id: 'X',
-        type: 'QCM',
-        text: 'Quelle est la capitale du canada?',
-        points: 20,
-        lastModification: '2024-01-26T14:21:19+00:00',
-    };
+    newQuestion: Question = TEMPLATE_QUESTION;
     dialogState: unknown;
 
     constructor(

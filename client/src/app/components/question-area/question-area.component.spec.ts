@@ -26,16 +26,22 @@ import { MatchService } from '@app/services/match/match.service';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { MatchContextService } from '@app/services/question-context/question-context.service';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
+import { TimeService } from '@app/services/time/time.service';
 import { Feedback } from '@common/interfaces/feedback';
 import { BehaviorSubject, Subject, Subscription } from 'rxjs';
 import { Socket } from 'socket.io-client';
 import { QuestionAreaComponent } from './question-area.component';
 import spyObj = jasmine.SpyObj;
-import { TimeService } from '@app/services/time/time.service';
 
 class SocketHandlerServiceMock extends SocketHandlerService {
     override connect() {}
 }
+
+@Component({
+    selector: 'app-players-list',
+    template: '',
+})
+class MockPlayersListComponent {}
 
 @Component({
     selector: 'app-chat',
@@ -127,7 +133,7 @@ describe('QuestionAreaComponent', () => {
         questionContextSpy = jasmine.createSpyObj('QuestionContextService', ['getContext']);
         notificationServiceSpy = jasmine.createSpyObj('NotificationService', ['openWarningDialog']);
         await TestBed.configureTestingModule({
-            declarations: [QuestionAreaComponent, MockChatComponent],
+            declarations: [QuestionAreaComponent, MockChatComponent, MockPlayersListComponent],
             imports: [RouterTestingModule, HttpClientTestingModule, MatSnackBarModule, MatDialogModule, MatProgressSpinnerModule],
             providers: [
                 HttpClient,

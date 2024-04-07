@@ -10,9 +10,20 @@ import { MatchRoomService } from '@app/services/match-room/match-room.service';
 })
 export class PlayersListComponent {
     @Input() players: Player[];
-    constructor(readonly matchRoomService: MatchRoomService, readonly chatService: ChatService) {}
+    constructor(
+        readonly matchRoomService: MatchRoomService,
+        readonly chatService: ChatService,
+    ) {}
 
     toggleChat(player: Player): void {
         this.chatService.toggleChatState(this.matchRoomService.getRoomCode(), player.username);
     }
-}    
+
+    playerLeftGameMessage() {
+        this.chatService.sendMessage(this.matchRoomService.getRoomCode(), {
+            author: 'Système',
+            text: `Joueur ${this.matchRoomService.getUsername()} a quitté la partie.`,
+            date: new Date(),
+        });
+    }
+}

@@ -42,7 +42,6 @@ export class ChatGateway {
         });
 
         if (roomIndex !== INDEX_NOT_FOUND && playerIndex !== INDEX_NOT_FOUND) {
-            console.log(this.matchRoomService.matchRooms[roomIndex].players[playerIndex].isChatActive);
             this.matchRoomService.matchRooms[roomIndex].players[playerIndex].isChatActive =
                 !this.matchRoomService.matchRooms[roomIndex].players[playerIndex].isChatActive;
         }

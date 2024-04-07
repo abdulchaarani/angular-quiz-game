@@ -181,7 +181,7 @@ describe('LongAnswerHistogramComponent', () => {
             },
         };
         const result = component['formatChart'](params);
-        expect(result).toEqual({ fill: 'red' });
+        expect(result).toEqual({ fill: 'lightblue' });
     });
 
     it('should format chart', () => {
@@ -191,7 +191,7 @@ describe('LongAnswerHistogramComponent', () => {
             },
         };
         const result = component['formatChart'](params);
-        expect(result).toEqual({ fill: 'yellow' });
+        expect(result).toEqual({ fill: 'blue' });
     });
 
     it('should format chart', () => {
@@ -201,7 +201,7 @@ describe('LongAnswerHistogramComponent', () => {
             },
         };
         const result = component['formatChart'](params);
-        expect(result).toEqual({ fill: 'green' });
+        expect(result).toEqual({ fill: 'darkblue' });
     });
 
     it('should setup chart', () => {

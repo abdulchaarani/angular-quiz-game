@@ -6,6 +6,6 @@ export interface MessageInfo {
 }
 
 export interface ChatStateInfo{
-    matchRoomCode: string;
+    roomCode: string;
     playerUsername: string;
 }

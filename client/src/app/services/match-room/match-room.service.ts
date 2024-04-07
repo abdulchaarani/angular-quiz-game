@@ -7,6 +7,7 @@ import { NotificationService } from '@app/services/notification/notification.ser
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 import { HOST_USERNAME } from '@common/constants/match-constants';
 import { PlayerState } from '@common/constants/player-states';
+import { ChatEvents } from '@common/events/chat.events';
 import { MatchEvents } from '@common/events/match.events';
 import { UserInfo } from '@common/interfaces/user-info';
 import { BehaviorSubject } from 'rxjs';
@@ -73,6 +74,8 @@ export class MatchRoomService {
             this.onHostQuit();
             this.onPlayerKick();
             this.handleError();
+            this.onPlayerChatStateToggle();
+            this.handleReactivatedChatNotifications();
         }
     }
 
@@ -85,15 +88,35 @@ export class MatchRoomService {
             this.matchRoomCode = res.code;
             this.username = HOST_USERNAME;
             if (isTestRoom) {
-                this.players = [{ username: this.username, score: 0, bonusCount: 0, isPlaying: true, isChatActive: true, state: PlayerState.default }];
+                this.players = [
+                    { username: this.username, score: 0, bonusCount: 0, isPlaying: true, isChatActive: true, state: PlayerState.default },
+                ];
                 this.router.navigateByUrl('/play-test');
             } else this.router.navigateByUrl('/match-room');
         });
     }
 
     getPlayerByUsername(username: string): Player | null {
-        const player = this.players.find(player => player.username === username);
+        const player = this.players.find((player) => player.username === username);
         return player ? player : null;
+    }
+
+    onPlayerChatStateToggle() {
+        this.socketService.on(ChatEvents.SendBackState, (data: boolean) => {
+            const player = this.getPlayerByUsername(this.username);
+
+            if (player) {
+                console.log(player);
+                player.isChatActive = data;
+            }
+        });
+    }
+
+    activateChatWhenGameIsOver() {
+        const player = this.getPlayerByUsername(this.username);
+        if (player) {
+            player.isChatActive = true;
+        }
     }
 
     joinRoom(roomCode: string, username: string) {
@@ -224,6 +247,12 @@ export class MatchRoomService {
         this.socketService.on(MatchEvents.KickPlayer, () => {
             this.bannedSource.next(true);
             this.disconnect();
+        });
+    }
+
+    handleReactivatedChatNotifications() {
+        this.socketService.on(ChatEvents.ChatReactivated, (notificationMessage: string) => {
+            this.notificationService.displaySuccessMessage(notificationMessage);
         });
     }
 

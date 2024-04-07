@@ -19,10 +19,7 @@ import { Subject } from 'rxjs';
 export class QuestionAreaComponent implements OnInit {
     gameDuration: number;
     context: MatchContext;
-    matchContext = MatchContext;
     isFirstQuestion: boolean = true;
-    isRightAnswer: boolean = false;
-    answerStyle: string = '';
 
     // Allow more constructor parameters to decouple services
     // eslint-disable-next-line max-params
@@ -47,7 +44,7 @@ export class QuestionAreaComponent implements OnInit {
         return AnswerCorrectness;
     }
 
-    get contextOptions(): typeof MatchContext {
+    get matchContext(): typeof MatchContext {
         return MatchContext;
     }
 
@@ -67,18 +64,12 @@ export class QuestionAreaComponent implements OnInit {
 
     // TODO: export to service?
     canDeactivate(): CanDeactivateType {
-        console.log(
-            this.matchRoomService.isResults,
-            this.matchRoomService.isQuitting,
-            this.matchContextService.getContext() === MatchContext.TestPage,
-            !this.matchRoomService.isHostPlaying,
-        );
-
         if (this.matchRoomService.isResults) return true;
         if (this.matchRoomService.isQuitting) return true;
         if (this.matchContextService.getContext() === MatchContext.TestPage) {
             this.matchRoomService.isQuitting = true;
             this.matchRoomService.disconnect();
+            return true;
         }
         if (!this.matchRoomService.isHostPlaying) return true;
 
@@ -107,7 +98,6 @@ export class QuestionAreaComponent implements OnInit {
 
     submitAnswers(): void {
         this.answerService.submitAnswer({ username: this.matchRoomService.getUsername(), roomCode: this.matchRoomService.getRoomCode() });
-        this.answerService.isSelectionEnabled = false;
     }
 
     nextQuestion() {

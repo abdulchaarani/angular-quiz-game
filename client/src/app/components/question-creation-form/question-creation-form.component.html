@@ -15,7 +15,14 @@
                                 <input class="choice-input" matInput formControlName="text" placeholder="Choix de réponse" />
                                 <span matSuffix class="choice-buttons">
                                     <input type="checkbox" formControlName="isCorrect" />
-                                    <button mat-icon-button type="button" (click)="removeChoice(i)" color="accent">
+                                    <button
+                                        mat-icon-button
+                                        type="button"
+                                        (click)="removeChoice(i)"
+                                        color="accent"
+                                        matTooltip="Supprimer le choix"
+                                        matTooltipClass="button-tooltip"
+                                    >
                                         <mat-icon>delete</mat-icon>
                                     </button>
 

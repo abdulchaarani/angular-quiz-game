@@ -1,10 +1,12 @@
 import { ExpiredTimerEvents } from '@app/constants/expired-timer-events';
 import { INVALID_CODE, LOCKED_ROOM } from '@app/constants/match-login-errors';
-import { ChoiceTracker } from '@app/model/choice-tracker/choice-tracker';
+import { ChoiceTracker } from '@app/model/tally-trackers/choice-tracker/choice-tracker';
 import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
 import { Question } from '@app/model/database/question';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
+import { Player } from '@app/model/schema/player.schema';
+import { QuestionStrategyContext } from '@app/services/question-strategy-context/question-strategy-context.service';
 import { TimeService } from '@app/services/time/time.service';
 import { COOLDOWN_TIME, COUNTDOWN_TIME, FACTOR, MAXIMUM_CODE_LENGTH } from '@common/constants/match-constants';
 import { MatchEvents } from '@common/events/match.events';
@@ -17,7 +19,10 @@ export class MatchRoomService {
     matchRooms: MatchRoom[];
     backgroundHostSocket: Socket;
 
-    constructor(private readonly timeService: TimeService) {
+    constructor(
+        private readonly timeService: TimeService,
+        private readonly questionStrategyService: QuestionStrategyContext,
+    ) {
         this.matchRooms = [];
     }
 
@@ -44,20 +49,24 @@ export class MatchRoomService {
         });
     }
 
+    // allow more parameters to make method more reusable
+    // eslint-disable-next-line max-params
     addRoom(selectedGame: Game, socket: Socket, isTestPage: boolean = false, isRandomMode: boolean = false): MatchRoom {
-        let isLocked: boolean = isTestPage && !isRandomMode;
-        let isPlaying: boolean = isTestPage && !isRandomMode;
+        const isLocked: boolean = isTestPage && !isRandomMode;
+        const isPlaying: boolean = isTestPage && !isRandomMode;
 
         const newRoom: MatchRoom = {
             code: this.generateRoomCode(),
             hostSocket: socket,
-            isLocked: isLocked,
-            isPlaying: isPlaying,
+            isLocked,
+            isPlaying,
             game: selectedGame,
             gameLength: selectedGame.questions.length,
+            questionDuration: 0,
+            currentQuestion: selectedGame.questions[0],
             currentQuestionIndex: 0,
             currentQuestionAnswer: [],
-            currentChoiceTracker: new ChoiceTracker(),
+            choiceTracker: new ChoiceTracker(),
             matchHistograms: [],
             bannedUsernames: [],
             players: [],
@@ -65,7 +74,7 @@ export class MatchRoomService {
             submittedPlayers: 0,
             messages: [],
             isTestRoom: isTestPage || isRandomMode,
-            isRandomMode: isRandomMode,
+            isRandomMode,
             startTime: new Date(),
         };
         this.matchRooms.push(newRoom);
@@ -136,13 +145,15 @@ export class MatchRoomService {
         const firstQuestion = matchRoom.game.questions[0];
         const gameDuration: number = matchRoom.game.duration;
         const isTestRoom = matchRoom.isTestRoom;
+        this.questionStrategyService.setQuestionStrategy(matchRoom);
+
         matchRoom.currentQuestionAnswer = this.filterCorrectChoices(firstQuestion);
         this.removeIsCorrectField(firstQuestion);
         if (!isTestRoom) {
             matchRoom.hostSocket.send(MatchEvents.CurrentAnswers, matchRoom.currentQuestionAnswer);
         }
         server.in(matchRoomCode).emit(MatchEvents.BeginQuiz, { firstQuestion, gameDuration, isTestRoom });
-        this.timeService.startTimer(server, matchRoomCode, this.getGameDuration(matchRoomCode), ExpiredTimerEvents.QuestionTimerExpired);
+        this.timeService.startTimer(server, matchRoomCode, matchRoom.questionDuration, ExpiredTimerEvents.QuestionTimerExpired);
     }
 
     startNextQuestionCooldown(server: Server, matchRoomCode: string): void {
@@ -152,16 +163,24 @@ export class MatchRoomService {
 
     sendNextQuestion(server: Server, matchRoomCode: string): void {
         const matchRoom: MatchRoom = this.getRoom(matchRoomCode);
+
         if (matchRoom.currentQuestionIndex === matchRoom.gameLength) {
             server.in(matchRoomCode).emit(MatchEvents.GameOver, { isTestRoom: matchRoom.isTestRoom, isRandomMode: matchRoom.isRandomMode });
             return;
         }
-        const nextQuestion = matchRoom.game.questions[matchRoom.currentQuestionIndex];
+        const nextQuestion = this.getCurrentQuestion(matchRoomCode);
+        matchRoom.currentQuestion = nextQuestion;
         matchRoom.currentQuestionAnswer = this.filterCorrectChoices(nextQuestion);
+        this.questionStrategyService.setQuestionStrategy(matchRoom);
+
         this.removeIsCorrectField(nextQuestion);
         server.in(matchRoomCode).emit(MatchEvents.NextQuestion, nextQuestion);
         matchRoom.hostSocket.send(MatchEvents.CurrentAnswers, matchRoom.currentQuestionAnswer);
-        this.timeService.startTimer(server, matchRoomCode, this.getGameDuration(matchRoomCode), ExpiredTimerEvents.QuestionTimerExpired);
+        this.timeService.startTimer(server, matchRoomCode, matchRoom.questionDuration, ExpiredTimerEvents.QuestionTimerExpired);
+    }
+
+    resetPlayerSubmissionCount(matchRoomCode: string) {
+        this.getRoom(matchRoomCode).submittedPlayers = 0;
     }
 
     incrementCurrentQuestionIndex(matchRoomCode: string) {
@@ -180,9 +199,19 @@ export class MatchRoomService {
         return (room.isLocked && room.players.length > 0 && !room.isRandomMode) || (room.isLocked && room.isRandomMode);
     }
 
-    getGameDuration(matchRoomCode: string) {
-        return this.getRoom(matchRoomCode).game.duration;
+    getCurrentQuestion(matchRoomCode: string) {
+        const matchRoom: MatchRoom = this.getRoom(matchRoomCode);
+        return matchRoom.game.questions[matchRoom.currentQuestionIndex];
     }
+
+    declareWinner(matchRoomCode: string) {
+        const players: Player[] = this.getRoom(matchRoomCode).players;
+        const playingPlayers = players.filter((player) => player.isPlaying);
+        const maxScore = Math.max(...playingPlayers.map((player) => player.score));
+        const playersWithMaxScore = playingPlayers.filter((player) => player.score === maxScore);
+        playersWithMaxScore.forEach((player) => player.socket.emit(MatchEvents.Winner));
+    }
+
     private filterCorrectChoices(question: Question) {
         const correctChoices = [];
         question.choices.forEach((choice) => {

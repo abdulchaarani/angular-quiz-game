@@ -6,6 +6,8 @@ import { PlayerState } from '@common/constants/player-states';
 import { MatchEvents } from '@common/events/match.events';
 import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
+import { MultipleChoiceAnswer } from '@app/model/answer-types/multiple-choice-answer/multiple-choice-answer';
+import { AnswerCorrectness } from '@common/constants/answer-correctness';
 
 const INDEX_NOT_FOUND = -1;
 const HOST_USERNAME = 'ORGANISATEUR';
@@ -34,8 +36,9 @@ export class PlayerRoomService {
 
         const newPlayer: Player = {
             username: newUsername,
-            answer: { selectedChoices: new Map<string, boolean>(), isSubmitted: false },
+            answer: new MultipleChoiceAnswer(),
             score: 0,
+            answerCorrectness: AnswerCorrectness.WRONG,
             bonusCount: 0,
             isPlaying: true,
             socket: playerSocket,

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
+import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 import { Histogram } from '@common/interfaces/histogram';
 import { Observable, Subject } from 'rxjs';
-import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 @Injectable({
     providedIn: 'root',
 })

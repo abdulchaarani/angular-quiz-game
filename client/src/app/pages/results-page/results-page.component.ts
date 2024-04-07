@@ -1,9 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
 import { Player } from '@app/interfaces/player';
+import { ConfettiService } from '@app/services/confetti/confetti.service';
 import { HistogramService } from '@app/services/histogram/histogram.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
-import { Histogram } from '@common/interfaces/histogram';
+import { GradesHistogram, Histogram, MultipleChoiceHistogram } from '@common/interfaces/histogram';
 import { Subscription } from 'rxjs/internal/Subscription';
 @Component({
     selector: 'app-results-page',
@@ -20,12 +21,36 @@ export class ResultsPageComponent implements OnInit, OnDestroy {
     constructor(
         private readonly matchRoomService: MatchRoomService,
         private readonly histogramService: HistogramService,
+        private readonly confettiService: ConfettiService,
     ) {}
+
+    get currentMultipleChoiceHistogram(): MultipleChoiceHistogram {
+        return this.histogramsGame[this.currentQuestionIndex] as MultipleChoiceHistogram;
+    }
+
+    get currentLongAnswerHistogram(): GradesHistogram {
+        return this.histogramsGame[this.currentQuestionIndex] as GradesHistogram;
+    }
+
+    isQuestionMultipleChoice(): boolean {
+        if (this.histogramsGame[this.currentQuestionIndex]) {
+            return this.histogramsGame[this.currentQuestionIndex].type === 'QCM';
+        }
+        return false;
+    }
+
+    isQuestionLongAnswer(): boolean {
+        if (this.histogramsGame[this.currentQuestionIndex]) {
+            return this.histogramsGame[this.currentQuestionIndex].type === 'QRL';
+        }
+        return false;
+    }
 
     ngOnInit(): void {
         this.players = this.matchRoomService.players;
         this.histogramService.onHistogramHistory();
         this.subscribeToHistogramHistory();
+        this.confettiService.getWinner();
     }
 
     ngOnDestroy(): void {

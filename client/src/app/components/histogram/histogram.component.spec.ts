@@ -5,7 +5,7 @@ import { HistogramService } from '@app/services/histogram/histogram.service';
 import { AgChartsAngularModule } from 'ag-charts-angular';
 import { HistogramComponent } from './histogram.component';
 import { Subject, Subscription } from 'rxjs';
-import { Histogram } from '@common/interfaces/histogram';
+import { Histogram, MultipleChoiceHistogram } from '@common/interfaces/histogram';
 import { ChoiceTally } from '@common/interfaces/choice-tally';
 
 describe('HistogramComponent', () => {
@@ -37,7 +37,8 @@ describe('HistogramComponent', () => {
     });
 
     it('subscribeToCurrentHistogram() should add a subscription to currentHistogram and respond when histogram changes ', () => {
-        const mockHistogram: Histogram = {
+        const mockHistogram: MultipleChoiceHistogram = {
+            type: 'QCM',
             question: 'question',
             choiceTallies: [{} as ChoiceTally],
         };
@@ -57,6 +58,7 @@ describe('HistogramComponent', () => {
         component.isResultsPage = true;
         component.currentHistogram = {
             question: 'question',
+            type: 'QCM',
             choiceTallies: [],
         };
         component.ngOnInit();

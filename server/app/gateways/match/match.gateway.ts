@@ -10,6 +10,7 @@ import { PlayerRoomService } from '@app/services/player-room/player-room.service
 import { HOST_USERNAME } from '@common/constants/match-constants';
 import { PlayerState } from '@common/constants/player-states';
 import { MatchEvents } from '@common/events/match.events';
+import { HistogramEvents } from '@common/events/histogram.events';
 import { TimerEvents } from '@common/events/timer.events';
 import { UserInfo } from '@common/interfaces/user-info';
 import { Injectable } from '@nestjs/common';
@@ -74,11 +75,13 @@ export class MatchGateway implements OnGatewayDisconnect {
         return { code: newMatchRoom.code };
     }
 
+    // TODO: rename event and function?
     @SubscribeMessage(MatchEvents.RouteToResultsPage)
     routeToResultsPage(@ConnectedSocket() socket: Socket, @MessageBody() matchRoomCode: string) {
         this.playerRoomService.setStateForAll(matchRoomCode, PlayerState.default);
         this.server.to(matchRoomCode).emit(MatchEvents.RouteToResultsPage);
         this.emitHistogramHistory(matchRoomCode);
+        this.matchRoomService.declareWinner(matchRoomCode);
         this.historyService.createHistoryItem(this.matchRoomService.getRoom(matchRoomCode));
     }
 
@@ -133,7 +136,7 @@ export class MatchGateway implements OnGatewayDisconnect {
     @OnEvent(ExpiredTimerEvents.CountdownTimerExpired)
     onCountdownTimerExpired(matchRoomCode: string) {
         this.matchRoomService.sendFirstQuestion(this.server, matchRoomCode);
-        this.histogramService.sendHistogram(matchRoomCode);
+        this.histogramService.sendEmptyHistogram(matchRoomCode);
     }
 
     @OnEvent(ExpiredTimerEvents.CooldownTimerExpired)
@@ -141,7 +144,7 @@ export class MatchGateway implements OnGatewayDisconnect {
         this.matchRoomService.sendNextQuestion(this.server, matchRoomCode);
         if (!this.isTestRoom(matchRoomCode)) {
             this.histogramService.resetChoiceTracker(matchRoomCode);
-            this.histogramService.sendHistogram(matchRoomCode);
+            this.histogramService.sendEmptyHistogram(matchRoomCode);
         }
     }
 
@@ -185,7 +188,7 @@ export class MatchGateway implements OnGatewayDisconnect {
 
     private emitHistogramHistory(matchRoomCode: string) {
         const histograms = this.histogramService.sendHistogramHistory(matchRoomCode);
-        this.server.to(matchRoomCode).emit(MatchEvents.HistogramHistory, histograms);
+        this.server.to(matchRoomCode).emit(HistogramEvents.HistogramHistory, histograms);
     }
 
     private isRoomEmpty(room: MatchRoom) {

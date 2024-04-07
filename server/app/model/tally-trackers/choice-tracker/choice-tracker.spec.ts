@@ -17,39 +17,39 @@ describe('choiceTracker', () => {
         choiceTracker.incrementCount('choice1');
         choiceTracker.incrementCount('choice2');
 
-        expect(choiceTracker.choices['choice1'].tally).toBe(2);
-        expect(choiceTracker.choices['choice2'].tally).toBe(1);
+        expect(choiceTracker.items['choice1'].tally).toBe(2);
+        expect(choiceTracker.items['choice2'].tally).toBe(1);
     });
 
     it('decrementCount() should decrement the count for the specified key if count is greater than 0', () => {
-        choiceTracker.choices['choice1'].tally = 3;
-        choiceTracker.choices['choice2'].tally = 1;
+        choiceTracker.items['choice1'].tally = 3;
+        choiceTracker.items['choice2'].tally = 1;
 
         choiceTracker.decrementCount('choice1');
         choiceTracker.decrementCount('choice2');
 
-        expect(choiceTracker.choices['choice1'].tally).toBe(2);
-        expect(choiceTracker.choices['choice2'].tally).toBe(0);
+        expect(choiceTracker.items['choice1'].tally).toBe(2);
+        expect(choiceTracker.items['choice2'].tally).toBe(0);
     });
 
     it('decrementCount() should not decrement the count if it is already 0', () => {
-        choiceTracker.choices['choice1'].tally = 0;
+        choiceTracker.items['choice1'].tally = 0;
 
         choiceTracker.decrementCount('choice1');
 
-        expect(choiceTracker.choices['choice1'].tally).toBe(0);
+        expect(choiceTracker.items['choice1'].tally).toBe(0);
     });
 
     it('resetChoiceTracker() should reset all counts to 0 based on provided choices', () => {
-        choiceTracker.choices['choice1'].tally = 2;
-        choiceTracker.choices['choice2'].tally = 3;
+        choiceTracker.items['choice1'].tally = 2;
+        choiceTracker.items['choice2'].tally = 3;
 
-        expect(choiceTracker.choices['choice3']).toBeUndefined();
+        expect(choiceTracker.items['choice3']).toBeUndefined();
         const choices = [{ text: 'choice1' }, { text: 'choice2' }, { text: 'choice3' }];
         choiceTracker.resetChoiceTracker('caca', choices);
 
-        expect(choiceTracker.choices['choice1'].tally).toBe(0);
-        expect(choiceTracker.choices['choice2'].tally).toBe(0);
-        expect(choiceTracker.choices['choice3']).toBeDefined();
+        expect(choiceTracker.items['choice1'].tally).toBe(0);
+        expect(choiceTracker.items['choice2'].tally).toBe(0);
+        expect(choiceTracker.items['choice3']).toBeDefined();
     });
 });

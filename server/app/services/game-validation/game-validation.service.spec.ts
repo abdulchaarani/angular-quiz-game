@@ -20,7 +20,7 @@ import {
     ERROR_REPEAT_CHOICES,
 } from '@app/constants/game-validation-errors';
 import { ALL_FALSE_QUESTION, ALL_TRUE_QUESTION, FOUR_CHOICES_QUESTION, VALID_QUESTION, getMockQuestion } from '@app/constants/question-mocks';
-import { QuestionTypes } from '@app/constants/question-types';
+import { QuestionType } from '@app/constants/question-types';
 import { Test, TestingModule } from '@nestjs/testing';
 import { GameValidationService } from './game-validation.service';
 describe('GameValidationService', () => {
@@ -252,7 +252,7 @@ describe('GameValidationService', () => {
         const spyValidateLongQuestion = jest.spyOn(service, 'findGeneralQuestionErrors').mockImplementation(() => []);
         const mockGame = getMockGame();
         const mockQuestion = getMockQuestion();
-        mockQuestion.type = QuestionTypes.CHOICE;
+        mockQuestion.type = QuestionType.CHOICE;
         mockGame.questions = [mockQuestion];
         expect(service.findGameErrors(mockGame)).toEqual([ERROR_EMPTY_TITLE, ERROR_EMPTY_DESCRIPTION, ERROR_DURATION]);
         expect(spyValidString).toHaveBeenCalledWith(mockGame.title);

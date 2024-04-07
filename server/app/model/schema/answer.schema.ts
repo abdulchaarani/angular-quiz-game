@@ -1,5 +1,6 @@
 export interface Answer {
     selectedChoices: Map<string, boolean>;
+    freeAnswer: string;
     isSubmitted: boolean;
     timestamp?: number;
 }

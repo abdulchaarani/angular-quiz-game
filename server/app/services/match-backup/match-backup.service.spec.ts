@@ -10,7 +10,7 @@ import { MatchBackupService } from '@app/services/match-backup/match-backup.serv
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import * as uuid from 'uuid';
-import { RandomGameService } from '../random-game/random-game/random-game.service';
+import { RandomGameService } from '@app/services/random-game/random-game/random-game.service';
 jest.mock('uuid');
 
 describe('MatchBackupService', () => {

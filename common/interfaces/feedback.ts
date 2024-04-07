@@ -1,4 +1,7 @@
+import { AnswerCorrectness } from '../constants/answer-correctness';
+
 export interface Feedback {
     score: number;
-    correctAnswer: string[];
+    answerCorrectness: AnswerCorrectness;
+    correctAnswer?: string[];
 }

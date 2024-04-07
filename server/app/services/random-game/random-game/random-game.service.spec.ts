@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { Game } from '@app/model/database/game';
 import { Question } from '@app/model/database/question';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';

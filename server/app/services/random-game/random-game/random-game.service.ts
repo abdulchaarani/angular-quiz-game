@@ -25,6 +25,8 @@ export class RandomGameService {
             const questions = await this.questionService.getAllQuestions();
             this.allBankQuestions = questions;
         } catch (error) {
+            // TODO: Change to notification
+            // eslint-disable-next-line no-console
             console.error('Failed to fetch questions:', error);
         }
     }

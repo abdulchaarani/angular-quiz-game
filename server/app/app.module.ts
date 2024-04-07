@@ -27,6 +27,9 @@ import { HistoryItem, historyItemSchema } from './model/database/history-item';
 import { HistoryService } from './services/history/history.service';
 import { MatchRoomService } from './services/match-room/match-room.service';
 import { PlayerRoomService } from './services/player-room/player-room.service';
+import { QuestionStrategyContext } from './services/question-strategy-context/question-strategy-context.service';
+import { LongAnswerStrategy } from '@app/question-strategies/long-answer-strategy/long-answer-strategy';
+import { MultipleChoiceStrategy } from '@app/question-strategies/multiple-choice-strategy/multiple-choice-strategy';
 import { RandomGameService } from './services/random-game/random-game/random-game.service';
 @Module({
     imports: [
@@ -63,6 +66,9 @@ import { RandomGameService } from './services/random-game/random-game/random-gam
         ChatGateway,
         HistoryService,
         RandomGameService,
+        QuestionStrategyContext,
+        MultipleChoiceStrategy,
+        LongAnswerStrategy,
     ],
 })
 export class AppModule {}

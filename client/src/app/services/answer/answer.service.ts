@@ -74,6 +74,7 @@ export class AnswerService {
     }
 
     submitAnswer(userInfo: UserInfo) {
+        this.isSelectionEnabled = false;
         this.socketService.send(AnswerEvents.SubmitAnswer, userInfo);
     }
 

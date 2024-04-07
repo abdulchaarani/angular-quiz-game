@@ -57,7 +57,7 @@ body {
     text-align: center;
 }
 .main-container {
-    padding: 1rem 8rem;
+    padding: 1rem 16rem;
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -152,4 +152,8 @@ body {
 .toggle {
     height: inherit;
     width: inherit;
+}
+
+.spaced {
+    margin-bottom: 1rem;
 }

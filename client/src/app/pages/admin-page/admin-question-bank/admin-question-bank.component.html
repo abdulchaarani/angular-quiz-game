@@ -24,11 +24,15 @@
         <mat-accordion class="list bank-list" multi="false">
             <app-question-list-item
                 class="question bank-question"
-                *ngFor="let question of bankService.questions | sortByLastModification: 'descending' | filterByQuestionType: filterType.value"
+                *ngFor="
+                    let question of bankService.questions | sortByLastModification: 'descending' | filterByQuestionType: filterType.value;
+                    let i = index
+                "
                 [question]="question"
                 [isBankQuestion]="true"
                 (deleteQuestionEvent)="deleteQuestion($event)"
                 (updateQuestionEvent)="updateQuestion($event)"
+                [isExpanded]="i === 0"
             >
                 <div cdkDragHandle></div>
             </app-question-list-item>

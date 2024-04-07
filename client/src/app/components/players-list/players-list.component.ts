@@ -13,8 +13,10 @@ export class PlayersListComponent {
     constructor(readonly matchRoomService: MatchRoomService, readonly chatService: ChatService) {}
 
     toggleChat(player: Player): void {
-        console.log(player.isChatActive );
-        player.isChatActive = !player.isChatActive;
-        this.chatService.toggleChatState(player.username);
+        console.log(player.isChatActive, this.matchRoomService.getRoomCode(), player.username );
+        //player.isChatActive = !player.isChatActive;
+        this.chatService.toggleChatState(this.matchRoomService.getRoomCode(), player.username);
+        
+        this.chatService.onPlayerDeactivated(player.username);
     }
-}
+}    

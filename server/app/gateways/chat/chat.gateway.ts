@@ -5,6 +5,11 @@ import { ChatEvents } from '@common/events/chat.events';
 import { MessageInfo } from '@common/interfaces/message-info';
 import { ChatStateInfo } from '@common/interfaces/message-info';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
+import { MatchRoomService } from '@app/services/match-room/match-room.service';
+import { MatchEvents } from '@common/events/match.events';
+import { CHAT_DEACTIVATED, CHAT_REACTIVATED } from '@app/constants/chat-state-messages';
+
+const INDEX_NOT_FOUND = -1;
 
 @WebSocketGateway({ cors: true })
 export class ChatGateway {
@@ -13,6 +18,7 @@ export class ChatGateway {
     constructor(
         private readonly chatService: ChatService,
         readonly playerRoomService: PlayerRoomService,
+        private readonly matchRoomService: MatchRoomService,
     ) {}
 
     @SubscribeMessage(ChatEvents.RoomMessage)
@@ -28,9 +34,28 @@ export class ChatGateway {
         }
     }
 
-    @SubscribeMessage('change-chat-state')
-    sendMessages(@ConnectedSocket() socket: Socket, @MessageBody() usernameRoomCode: ChatStateInfo) {
-        this.playerRoomService.toggleChatStateForPlayer(usernameRoomCode.matchRoomCode, usernameRoomCode.playerUsername);
+    @SubscribeMessage(ChatEvents.ChangeChatState)
+    changeMessagingState(@ConnectedSocket() socket: Socket, @MessageBody() data: ChatStateInfo) {
+        const roomIndex = this.matchRoomService.getRoomIndex(data.roomCode);
+        const playerIndex = this.matchRoomService.getRoom(data.roomCode)?.players.findIndex((player) => {
+            return player.username === data.playerUsername;
+        });
+
+        if (roomIndex !== INDEX_NOT_FOUND && playerIndex !== INDEX_NOT_FOUND) {
+            console.log(this.matchRoomService.matchRooms[roomIndex].players[playerIndex].isChatActive);
+            this.matchRoomService.matchRooms[roomIndex].players[playerIndex].isChatActive =
+                !this.matchRoomService.matchRooms[roomIndex].players[playerIndex].isChatActive;
+        }
+
+        const player = this.playerRoomService.getPlayerByUsername(data.roomCode, data.playerUsername);
+        this.server.to(data.roomCode).emit(ChatEvents.SendBackState, this.matchRoomService.matchRooms[roomIndex].players[playerIndex].isChatActive);
+
+        // TO DO: maybe write a separate function to manage notifications
+        if (!this.matchRoomService.matchRooms[roomIndex].players[playerIndex].isChatActive) {
+            this.server.in(player.socket.id).emit(MatchEvents.Error, CHAT_DEACTIVATED);
+        } else {
+            this.server.in(player.socket.id).emit(ChatEvents.ChatReactivated, CHAT_REACTIVATED);
+        }
     }
 
     sendMessageToClients(data: MessageInfo) {

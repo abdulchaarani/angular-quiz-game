@@ -4,6 +4,7 @@ import { Message } from '@app/interfaces/message';
 
 import { ChatService } from '@app/services/chat/chat.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
+import { HOST_USERNAME } from '@common/constants/match-constants';
 
 @Component({
     selector: 'app-chat',
@@ -39,7 +40,11 @@ export class ChatComponent implements AfterViewChecked, OnInit, OnDestroy {
                 author: this.matchRoomService.getUsername(),
                 date: new Date(),
             };
-            if (this.matchRoomService.getPlayerByUsername(this.matchRoomService.getUsername())?.isChatActive) {
+
+            if (
+                this.matchRoomService.getPlayerByUsername(this.matchRoomService.getUsername())?.isChatActive ||
+                this.matchRoomService.getUsername() === HOST_USERNAME
+            ) {
                 this.chatService.sendMessage(this.matchRoomService.getRoomCode(), newMessage);
             }
         }

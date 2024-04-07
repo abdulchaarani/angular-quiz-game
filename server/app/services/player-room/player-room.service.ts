@@ -106,28 +106,6 @@ export class PlayerRoomService {
         }
     }
 
-    toggleChatStateForPlayer(matchRoomCode: string, username: string) {
-        const roomIndex = this.matchRoomService.getRoomIndex(matchRoomCode);
-        const playerIndex = this.matchRoomService.getRoom(matchRoomCode).players.findIndex((player: Player) => {
-            return player.username === username;
-        });
-
-        if (roomIndex !== INDEX_NOT_FOUND && playerIndex !== INDEX_NOT_FOUND) {
-            this.matchRoomService.matchRooms[roomIndex].players[playerIndex].isChatActive = !this.matchRoomService.matchRooms[roomIndex].players[playerIndex].isChatActive;
-        }
-    }
-
-    // deactivateChatForPlayer(matchRoomCode: string, username: string) {
-    //     const roomIndex = this.matchRoomService.getRoomIndex(matchRoomCode);
-    //     const playerIndex = this.matchRoomService.getRoom(matchRoomCode).players.findIndex((player: Player) => {
-    //         return player.username === username;
-    //     });
-
-    //     if (roomIndex !== INDEX_NOT_FOUND && playerIndex !== INDEX_NOT_FOUND) {
-    //         this.matchRoomService.matchRooms[roomIndex].players[playerIndex].isChatActive = false;
-    //     }
-    // }
-
     isBannedUsername(matchRoomCode: string, username: string): boolean {
         const bannedUsernames = this.getBannedUsernames(matchRoomCode);
         const usernameIndex = bannedUsernames.findIndex((name: string) => {

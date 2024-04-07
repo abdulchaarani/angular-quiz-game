@@ -24,7 +24,7 @@
                 <p>{{ player.score }} pts</p>
                 <p>({{ player.bonusCount }}✨)</p>
             </div>
-            <mat-slide-toggle [(ngModel)]="player.isChatActive" (change)="toggleChat(player)"></mat-slide-toggle>
+            <mat-slide-toggle [(ngModel)]="player.isChatActive" (click)="toggleChat(player)"></mat-slide-toggle>
         </div>
     </div>
     <div *ngIf="this.matchRoomService.getUsername() !== 'Organisateur'">

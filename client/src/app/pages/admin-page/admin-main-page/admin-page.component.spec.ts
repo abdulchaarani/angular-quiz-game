@@ -14,6 +14,7 @@ import { SortHistoryPipe } from '@app/pipes/sort-history.pipe';
 import { GameService } from '@app/services/game/game.service';
 import { HistoryService } from '@app/services/history/history.service';
 import { NotificationService } from '@app/services/notification/notification.service';
+import { UploadGameService } from '@app/services/upload-game/upload-game.service';
 import { of } from 'rxjs';
 import { AdminPageComponent } from './admin-page.component';
 import SpyObj = jasmine.SpyObj;
@@ -25,6 +26,7 @@ describe('AdminPageComponent', () => {
     let historySpy: SpyObj<HistoryService>;
     let notificationServiceSpy: SpyObj<NotificationService>;
     let dialogMock: SpyObj<MatDialog>;
+    let uploadSpy: SpyObj<UploadGameService>;
 
     beforeEach(waitForAsync(() => {
         dialogMock = jasmine.createSpyObj({
@@ -34,8 +36,9 @@ describe('AdminPageComponent', () => {
         });
         historySpy = jasmine.createSpyObj('HistoryService', ['getHistory', 'deleteHistory']);
         historySpy.historyItems = MOCK_HISTORY;
-        gameSpy = jasmine.createSpyObj('GameService', ['getGames', 'deleteGame', 'onFileSelected', 'uploadGame']);
+        gameSpy = jasmine.createSpyObj('GameService', ['getGames', 'deleteGame', 'uploadGame']);
         notificationServiceSpy = jasmine.createSpyObj('NotificationService', ['displayErrorMessage', 'displaySuccessMessage']);
+        uploadSpy = jasmine.createSpyObj('UploadGameService', ['onFileSelected']);
 
         TestBed.configureTestingModule({
             imports: [MatButtonToggleModule, MatMenuModule, MatDialogModule, MatSnackBarModule, RouterTestingModule, MatIconModule, MatCardModule],
@@ -47,6 +50,7 @@ describe('AdminPageComponent', () => {
                 { provide: GameService, useValue: gameSpy },
                 { provide: NotificationService, useValue: notificationServiceSpy },
                 { provide: HistoryService, useValue: historySpy },
+                { provide: UploadGameService, useValue: uploadSpy },
             ],
         }).compileComponents();
     }));
@@ -80,7 +84,7 @@ describe('AdminPageComponent', () => {
             target: { files: dataTransfer },
         } as unknown as InputEvent;
         component.onFileSelected(mockEvent);
-        expect(gameSpy.onFileSelected).toHaveBeenCalledWith(mockEvent);
+        expect(uploadSpy.onFileSelected).toHaveBeenCalledWith(mockEvent);
     });
 
     it('addGame() should upload the game', () => {

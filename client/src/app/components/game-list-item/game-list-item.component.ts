@@ -19,20 +19,17 @@ export class GameListItemComponent {
     ) {}
 
     toggleGameVisibility() {
-        if (this.isAdminMode) {
-            this.gamesService.toggleGameVisibility(this.game).subscribe();
-        }
+        if (!this.isAdminMode) return;
+        this.gamesService.toggleGameVisibility(this.game).subscribe();
     }
 
     downloadGameAsJson() {
-        if (this.isAdminMode) {
-            this.downloadGameService.downloadGameAsJson(this.game);
-        }
+        if (!this.isAdminMode) return;
+        this.downloadGameService.downloadGameAsJson(this.game);
     }
 
     deleteGame() {
-        if (this.isAdminMode) {
-            this.deleteGameFromList.emit(this.game.id);
-        }
+        if (!this.isAdminMode) return;
+        this.deleteGameFromList.emit(this.game.id);
     }
 }

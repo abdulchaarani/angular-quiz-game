@@ -12,7 +12,7 @@ export class GameController {
     constructor(private readonly gameService: GameService) {}
 
     @Get('/')
-    async allGames(@Res() response: Response) {
+    async getAllGames(@Res() response: Response) {
         try {
             const allGames = await this.gameService.getAllGames();
             response.status(HttpStatus.OK).json(allGames);
@@ -22,7 +22,7 @@ export class GameController {
     }
 
     @Get('/:id')
-    async gameById(@Param('id') id: string, @Res() response: Response) {
+    async getGameById(@Param('id') id: string, @Res() response: Response) {
         try {
             const game = await this.gameService.getGameById(id);
             response.status(HttpStatus.OK).json(game);

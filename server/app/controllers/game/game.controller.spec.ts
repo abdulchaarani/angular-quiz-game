@@ -30,7 +30,7 @@ describe('GamesController', () => {
         expect(controller).toBeDefined();
     });
 
-    it('allGames() should return all games', async () => {
+    it('getAllGames() should return all games', async () => {
         const fakeGames = [new Game(), new Game()];
         gameService.getAllGames.resolves(fakeGames);
         const res = {} as unknown as Response;
@@ -43,10 +43,10 @@ describe('GamesController', () => {
             return res;
         };
 
-        await controller.allGames(res);
+        await controller.getAllGames(res);
     });
 
-    it('allGames() should return NOT_FOUND when service is unable to fetch the games', async () => {
+    it('getAllGames() should return NOT_FOUND when service is unable to fetch the games', async () => {
         gameService.getAllGames.rejects();
         const res = {} as unknown as Response;
         res.status = (code) => {
@@ -55,10 +55,10 @@ describe('GamesController', () => {
         };
         res.send = () => res;
 
-        await controller.allGames(res);
+        await controller.getAllGames(res);
     });
 
-    it('gameById() should return the game with the corresponding ID', async () => {
+    it('getGameById() should return the game with the corresponding ID', async () => {
         const fakeGame = new Game();
         gameService.getGameById.resolves(fakeGame);
 
@@ -72,10 +72,10 @@ describe('GamesController', () => {
             return res;
         };
 
-        await controller.gameById('', res);
+        await controller.getGameById('', res);
     });
 
-    it('gameById() should return NOT_FOUND when service is unable to fetch the game', async () => {
+    it('getGameById() should return NOT_FOUND when service is unable to fetch the game', async () => {
         gameService.getGameById.rejects();
         const res = {} as unknown as Response;
         res.status = (code) => {
@@ -84,7 +84,7 @@ describe('GamesController', () => {
         };
         res.send = () => res;
 
-        await controller.gameById('', res);
+        await controller.getGameById('', res);
     });
 
     it('addGame() should succeed if service is able to add the game', async () => {

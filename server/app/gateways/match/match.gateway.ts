@@ -9,8 +9,8 @@ import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
 import { HOST_USERNAME } from '@common/constants/match-constants';
 import { PlayerState } from '@common/constants/player-states';
-import { MatchEvents } from '@common/events/match.events';
 import { HistogramEvents } from '@common/events/histogram.events';
+import { MatchEvents } from '@common/events/match.events';
 import { TimerEvents } from '@common/events/timer.events';
 import { UserInfo } from '@common/interfaces/user-info';
 import { Injectable } from '@nestjs/common';
@@ -152,14 +152,27 @@ export class MatchGateway implements OnGatewayDisconnect {
     }
 
     handleDisconnect(@ConnectedSocket() socket: Socket) {
+        const isHostDisconnected = this.handleHostDisconnect(socket);
+        if (!isHostDisconnected) this.handlePlayersDisconnect(socket);
+    }
+
+    handleHostDisconnect(@ConnectedSocket() socket: Socket): boolean {
         const hostRoomCode = this.matchRoomService.getRoomCodeByHostSocket(socket.id);
+        if (!hostRoomCode) return false;
         const hostRoom = this.matchRoomService.getRoom(hostRoomCode);
-        // TODO: Improve
-        if (hostRoomCode && hostRoom.currentQuestionIndex !== hostRoom.gameLength && !hostRoom.isRandomMode) {
+        if (hostRoom.currentQuestionIndex !== hostRoom.gameLength && !hostRoom.isRandomMode) {
             this.sendError(hostRoomCode, NO_MORE_HOST);
             this.deleteRoom(hostRoomCode);
-            return;
+            return true;
         }
+        if (this.isRoomEmpty(hostRoom)) {
+            this.deleteRoom(hostRoomCode);
+            return true;
+        }
+        return false;
+    }
+
+    handlePlayersDisconnect(@ConnectedSocket() socket: Socket) {
         const roomCode = this.playerRoomService.deletePlayerBySocket(socket.id);
         if (!roomCode) {
             return;
@@ -169,6 +182,10 @@ export class MatchGateway implements OnGatewayDisconnect {
         const isRoomEmpty = this.isRoomEmpty(room);
         if (room.isPlaying && isRoomEmpty && room.currentQuestionIndex !== room.gameLength) {
             this.sendError(roomCode, NO_MORE_PLAYERS);
+            this.deleteRoom(roomCode);
+            return;
+        }
+        if (isRoomEmpty) {
             this.deleteRoom(roomCode);
             return;
         }

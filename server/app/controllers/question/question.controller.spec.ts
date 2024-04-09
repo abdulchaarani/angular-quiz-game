@@ -30,7 +30,7 @@ describe('QuestionController', () => {
         expect(controller).toBeDefined();
     });
 
-    it('allQuestions() should return all questions', async () => {
+    it('getAllQuestions() should return all questions', async () => {
         const fakeQuestions = [new Question(), new Question()];
         questionService.getAllQuestions.resolves(fakeQuestions);
         const res = {} as unknown as Response;
@@ -43,10 +43,10 @@ describe('QuestionController', () => {
             return res;
         };
 
-        await controller.allQuestions(res);
+        await controller.getAllQuestions(res);
     });
 
-    it('allQuestions() should return NOT FOUND if the service fails', async () => {
+    it('getAllQuestions() should return NOT FOUND if the service fails', async () => {
         questionService.getAllQuestions.rejects('');
         const res = {} as unknown as Response;
         res.status = (code) => {
@@ -54,10 +54,10 @@ describe('QuestionController', () => {
             return res;
         };
         res.send = () => res;
-        await controller.allQuestions(res);
+        await controller.getAllQuestions(res);
     });
 
-    it('questionById() should return the question with the corresponding ID', async () => {
+    it('getQuestionById() should return the question with the corresponding ID', async () => {
         const fakeQuestion = new Question();
         questionService.getQuestionById.resolves(fakeQuestion);
 
@@ -71,10 +71,10 @@ describe('QuestionController', () => {
             return res;
         };
 
-        await controller.questionById('', res);
+        await controller.getQuestionById('', res);
     });
 
-    it('questionById() should return NOT_FOUND when service is unable to fetch the question', async () => {
+    it('getQuestionById() should return NOT_FOUND when service is unable to fetch the question', async () => {
         questionService.getQuestionById.rejects();
         const res = {} as unknown as Response;
         res.status = (code) => {
@@ -83,7 +83,7 @@ describe('QuestionController', () => {
         };
         res.send = () => res;
 
-        await controller.questionById('', res);
+        await controller.getQuestionById('', res);
     });
 
     it('addQuestion() should succeed if service is able to add the question', async () => {

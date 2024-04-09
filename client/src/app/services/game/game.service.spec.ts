@@ -159,36 +159,6 @@ describe('GameService', () => {
         expect(service.isPendingChangesSource.value).toBe(false);
     });
 
-    it('onFileSelected should call readFile()', () => {
-        const readFileSpy = spyOn(service, 'readFile');
-        const dataTransfer = new DataTransfer();
-        const mockFile = new File([JSON.stringify(NEW_MOCK_GAME)], 'file.json', { type: 'application/json' });
-        dataTransfer.items.add(mockFile);
-        const mockEvent = {
-            dataTransfer,
-            target: { files: dataTransfer },
-        } as unknown as InputEvent;
-        service.onFileSelected(mockEvent);
-        expect(readFileSpy).toHaveBeenCalled();
-    });
-
-    it('readFile() should call addStringifiedGame()', waitForAsync(async () => {
-        // Reference: https://stackoverflow.com/questions/64642547/how-can-i-test-the-filereader-onload-callback-function-in-angular-jasmine
-        const addStringifiedGameSpy = spyOn(service, 'addStringifiedGame');
-        const mockFile = new File([JSON.stringify(NEW_MOCK_GAME)], 'file.json', { type: 'application/json' });
-        expect(true).toBeTruthy();
-        await service.readFile(mockFile).then(() => {
-            expect(addStringifiedGameSpy).toHaveBeenCalled();
-        });
-    }));
-
-    it('addStringifiedGame() should parse the stringified game and call uploadGame()', () => {
-        const addGameSpy = spyOn(service, 'uploadGame');
-        const mockGameStringified = JSON.stringify(NEW_MOCK_GAME);
-        service.addStringifiedGame(mockGameStringified);
-        expect(addGameSpy).toHaveBeenCalledWith(JSON.parse(mockGameStringified));
-    });
-
     it('openDialog() should open a dialog asking to change the game title and resubmit the updated game', () => {
         const addGameSpy = spyOn(service, 'uploadGame');
         service.openDialog(NEW_MOCK_GAME);

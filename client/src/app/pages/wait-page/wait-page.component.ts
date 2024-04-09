@@ -62,8 +62,7 @@ export class WaitPageComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.resetWaitPage();
-        this.timeService.handleTimer();
-        this.timeService.handleStopTimer();
+        this.timeService.listenToTimerEvents();
 
         if (this.isHost) {
             // TODO: is it needed here?
@@ -88,17 +87,8 @@ export class WaitPageComponent implements OnInit, OnDestroy {
         this.matchRoomService.banUsername(username);
     }
 
-    prepareStartOfMatch() {
-        this.matchRoomService.startMatch();
-        return this.timeService.timerFinished$;
-    }
-
     startMatch() {
-        this.prepareStartOfMatch().subscribe((finished) => {
-            if (finished) {
-                this.ngOnDestroy();
-            }
-        });
+        this.matchRoomService.startMatch();
     }
 
     nextQuestion() {

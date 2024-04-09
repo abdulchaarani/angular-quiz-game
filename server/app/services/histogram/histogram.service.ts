@@ -39,7 +39,6 @@ export class HistogramService {
     sendHistogramHistory(matchRoomCode: string) {
         const matchRoom = this.matchRoomService.getRoom(matchRoomCode);
         const histograms: Histogram[] = matchRoom.matchHistograms;
-
         matchRoom.hostSocket.emit(HistogramEvents.HistogramHistory, histograms);
         return histograms;
     }

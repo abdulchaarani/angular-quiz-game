@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
-import { BehaviorSubject } from 'rxjs';
 import { TimerInfo } from '@common/interfaces/timer-info';
 import { MULTIPLICATION_FACTOR } from '@common/constants/match-constants';
 import { TimerEvents } from '@common/events/timer.events';
@@ -12,16 +11,11 @@ export class TimeService {
     isPanicking: boolean;
     private counter: number;
     private initialValue: number;
-    private timerFinished: BehaviorSubject<boolean>;
 
     constructor(private readonly socketService: SocketHandlerService) {
         this.counter = 0;
         this.initialValue = 0;
         this.isPanicking = false;
-        this.timerFinished = new BehaviorSubject<boolean>(false);
-        this.listenToTimerEvents();
-        this.handleTimer();
-        this.handleStopTimer();
     }
 
     get time() {
@@ -30,10 +24,6 @@ export class TimeService {
 
     get duration() {
         return this.initialValue;
-    }
-
-    get timerFinished$() {
-        return this.timerFinished.asObservable();
     }
 
     set time(newTime: number) {
@@ -71,7 +61,6 @@ export class TimeService {
 
     handleStopTimer(): void {
         this.socketService.on(TimerEvents.StopTimer, () => {
-            this.timerFinished.next(true);
             this.isPanicking = false;
         });
     }

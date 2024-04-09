@@ -132,6 +132,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
 
     nextQuestion() {
         this.matchRoomService.nextQuestion();
+        // this.isSelectionEnabled = true;
         this.isNextQuestionButton = false;
     }
 

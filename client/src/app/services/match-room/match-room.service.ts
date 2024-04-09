@@ -5,6 +5,7 @@ import { Message } from '@app/interfaces/message';
 import { Player } from '@app/interfaces/player';
 import { Question } from '@app/interfaces/question';
 import { NotificationService } from '@app/services/notification/notification.service';
+import { QuestionContextService } from '@app/services/question-context/question-context.service';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 import { HOST_USERNAME } from '@common/constants/match-constants';
 import { PlayerState } from '@common/constants/player-states';
@@ -13,7 +14,6 @@ import { UserInfo } from '@common/interfaces/user-info';
 import { BehaviorSubject } from 'rxjs';
 import { Observable } from 'rxjs/internal/Observable';
 import { Subject } from 'rxjs/internal/Subject';
-import { QuestionContextService } from '@app/services/question-context/question-context.service';
 
 @Injectable({
     providedIn: 'root',
@@ -160,8 +160,8 @@ export class MatchRoomService {
         });
     }
 
-    nextQuestion() {
-        this.socketService.send(MatchEvents.NextQuestion, this.matchRoomCode);
+    goTonextQuestion() {
+        this.socketService.send(MatchEvents.GoToNextQuestion, this.matchRoomCode);
     }
 
     onStartCooldown() {
@@ -183,7 +183,7 @@ export class MatchRoomService {
     }
 
     onNextQuestion() {
-        this.socketService.on(MatchEvents.NextQuestion, (question: Question) => {
+        this.socketService.on(MatchEvents.GoToNextQuestion, (question: Question) => {
             this.displayCooldownSource.next(false);
             this.currentQuestionSource.next(question);
         });

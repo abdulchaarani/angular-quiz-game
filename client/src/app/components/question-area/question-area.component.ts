@@ -130,9 +130,8 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
         this.isSelectionEnabled = false;
     }
 
-    nextQuestion() {
-        this.matchRoomService.nextQuestion();
-        // this.isSelectionEnabled = true;
+    goTonextQuestion() {
+        this.matchRoomService.goTonextQuestion();
         this.isNextQuestionButton = false;
     }
 
@@ -150,19 +149,17 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
     }
 
     private handleFeedback(feedback: Feedback) {
+        if (!feedback) return;
         this.showFeedback = true;
         this.isNextQuestionButton = true;
-
-        if (feedback) {
-            this.isSelectionEnabled = false;
-            this.answerCorrectness = feedback.answerCorrectness;
-            this.playerScore = feedback.score;
-            // TODO: À revoir si chaque client renvoi son data...
-            this.matchRoomService.sendPlayersData(this.matchRoomCode);
-            this.showFeedback = true;
-            if (this.context === MatchContext.TestPage || this.context === MatchContext.RandomMode) {
-                this.nextQuestion();
-            }
+        this.isSelectionEnabled = false;
+        this.answerCorrectness = feedback.answerCorrectness;
+        this.playerScore = feedback.score;
+        // TODO: À revoir si chaque client renvoi son data...
+        this.matchRoomService.sendPlayersData(this.matchRoomCode);
+        this.showFeedback = true;
+        if (this.context === MatchContext.TestPage || this.context === MatchContext.RandomMode) {
+            this.goTonextQuestion();
         }
     }
 
@@ -174,10 +171,9 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
     }
 
     private handleQuestionChange(newQuestion: Question) {
-        if (newQuestion) {
-            this.currentQuestion = newQuestion;
-            this.resetStateForNewQuestion();
-        }
+        if (!newQuestion) return;
+        this.currentQuestion = newQuestion;
+        this.resetStateForNewQuestion();
     }
     private subscribeToCurrentQuestion() {
         const currentQuestionSubscription = this.matchRoomService.currentQuestion$.subscribe((question) => {
@@ -188,9 +184,8 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
 
     private subscribeToBonus() {
         const bonusPointsSubscription = this.answerService.bonusPoints$.subscribe((bonus) => {
-            if (bonus) {
-                this.bonus = bonus;
-            }
+            if (!bonus) return;
+            this.bonus = bonus;
         });
         this.eventSubscriptions.push(bonusPointsSubscription);
     }
@@ -198,7 +193,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
     private subscribeToCooldown() {
         const displayCoolDownSubscription = this.matchRoomService.displayCooldown$.subscribe((isCooldown) => {
             this.isCooldown = isCooldown;
-            if (this.isCooldown && !this.isLastQuestion && this.context !== MatchContext.TestPage && this.context !== MatchContext.RandomMode) {
+            if (this.isCooldown && !this.isLastQuestion && this.context !== MatchContext.TestPage) {
                 this.currentQuestion.text = MatchStatus.PREPARE;
             }
         });

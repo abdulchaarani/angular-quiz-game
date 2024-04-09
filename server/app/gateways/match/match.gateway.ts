@@ -117,8 +117,8 @@ export class MatchGateway implements OnGatewayDisconnect {
         this.playerRoomService.setStateForAll(roomCode, PlayerState.noInteraction);
     }
 
-    @SubscribeMessage(MatchEvents.NextQuestion)
-    nextQuestion(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
+    @SubscribeMessage(MatchEvents.GoToNextQuestion)
+    goTonextQuestion(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
         this.playerRoomService.setStateForAll(roomCode, PlayerState.noInteraction);
         this.matchRoomService.startNextQuestionCooldown(this.server, roomCode);
     }

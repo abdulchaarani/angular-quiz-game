@@ -1,5 +1,10 @@
 <div id="main-container">
-    <h1>Administration des jeux</h1>
+    <div class="nav">
+        <h1>Administration des jeux</h1>
+        <div class="navigation-buttons">
+            <button mat-raised-button routerLink="/home"><mat-icon>home</mat-icon>Page principale</button>
+        </div>
+    </div>
     <div id="buttons-container">
         <div id="new-game-buttons-container">
             <button mat-raised-button color="primary" routerLink="/admin/games/new/"><mat-icon>add</mat-icon>Créer un nouveau jeu</button>
@@ -10,9 +15,6 @@
                 </button>
             </div>
             <button mat-raised-button color="primary" routerLink="/admin/bank"><mat-icon>question_mark</mat-icon>Banque de questions</button>
-        </div>
-        <div class="navigation-buttons">
-            <button mat-raised-button color="accent" routerLink="/home"><mat-icon>home</mat-icon>Page principale</button>
         </div>
     </div>
     <div class="games-container">

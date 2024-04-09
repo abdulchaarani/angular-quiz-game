@@ -158,3 +158,15 @@ body {
 .spaced {
     margin-bottom: 1rem;
 }
+
+.nav {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0;
+}
+
+.navigation-buttons {
+    margin: 0;
+}

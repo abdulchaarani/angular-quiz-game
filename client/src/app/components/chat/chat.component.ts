@@ -34,18 +34,24 @@ export class ChatComponent implements AfterViewChecked, OnInit, OnDestroy {
     }
 
     sendMessage(messageText: string): void {
-        const isChatActiveForPlayer = this.matchRoomService.getPlayerByUsername(this.matchRoomService.getUsername())?.isChatActive;
-        const isPlayerHost = this.matchRoomService.getUsername() === HOST_USERNAME;
-        if (messageText !== '') { 
+        if (messageText.trim() !== '') {
             const newMessage: Message = {
                 text: messageText,
                 author: this.matchRoomService.getUsername(),
                 date: new Date(),
             };
 
-            if (isChatActiveForPlayer || isPlayerHost) {
+            if (
+                this.matchRoomService.getPlayerByUsername(this.matchRoomService.getUsername())?.isChatActive ||
+                this.matchRoomService.getUsername() === HOST_USERNAME
+            ) {
                 this.chatService.sendMessage(this.matchRoomService.getRoomCode(), newMessage);
-            } else {
+            }
+
+            if (
+                !this.matchRoomService.getPlayerByUsername(this.matchRoomService.getUsername())?.isChatActive &&
+                !(this.matchRoomService.getUsername() === HOST_USERNAME)
+            ) {
                 this.chatService.sendMessage(this.matchRoomService.getRoomCode(), {
                     author: '',
                     text: 'Votre droit de clavardage est désactivé !',

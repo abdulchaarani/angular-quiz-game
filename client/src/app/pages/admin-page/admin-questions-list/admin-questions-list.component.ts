@@ -169,8 +169,6 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
     }
 
     deleteQuestion(questionId: string) {
-        if (this.game.questions.length === 1 || !this.game.id) return;
-
         this.game.questions = this.game.questions.filter((question: Question) => question.id !== questionId);
         this.bankQuestions = this.filterBankQuestions(this.originalBankQuestions, this.game.questions);
         this.setBankMessage();

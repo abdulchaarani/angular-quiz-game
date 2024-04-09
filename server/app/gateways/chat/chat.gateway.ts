@@ -41,16 +41,18 @@ export class ChatGateway {
             return player.username === data.playerUsername;
         });
 
+        let currentPlayerChatState = this.matchRoomService.matchRooms[roomIndex].players[playerIndex].isChatActive;
+
         if (roomIndex !== INDEX_NOT_FOUND && playerIndex !== INDEX_NOT_FOUND) {
-            this.matchRoomService.matchRooms[roomIndex].players[playerIndex].isChatActive =
-                !this.matchRoomService.matchRooms[roomIndex].players[playerIndex].isChatActive;
+            // this.matchRoomService.matchRooms[roomIndex].players[playerIndex].isChatActive =
+            //     !this.matchRoomService.matchRooms[roomIndex].players[playerIndex].isChatActive;
+            currentPlayerChatState = !currentPlayerChatState;
         }
 
         const player = this.playerRoomService.getPlayerByUsername(data.roomCode, data.playerUsername);
-        this.server.to(data.roomCode).emit(ChatEvents.SendBackState, this.matchRoomService.matchRooms[roomIndex].players[playerIndex].isChatActive);
+        this.server.to(data.roomCode).emit(ChatEvents.ReturnCurrentChatState, currentPlayerChatState);
 
-        // TO DO: maybe write a separate function to manage notifications
-        if (!this.matchRoomService.matchRooms[roomIndex].players[playerIndex].isChatActive) {
+        if (!currentPlayerChatState) {
             this.server.in(player.socket.id).emit(MatchEvents.Error, CHAT_DEACTIVATED);
         } else {
             this.server.in(player.socket.id).emit(ChatEvents.ChatReactivated, CHAT_REACTIVATED);

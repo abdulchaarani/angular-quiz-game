@@ -75,7 +75,7 @@ export class MatchRoomService {
             this.onPlayerKick();
             this.handleError();
             this.onPlayerChatStateToggle();
-            this.handleReactivatedChatNotifications();
+            this.handleChatStateNotifications();
         }
     }
 
@@ -102,22 +102,20 @@ export class MatchRoomService {
     }
 
     onPlayerChatStateToggle() {
-        this.socketService.on(ChatEvents.SendBackState, (data: boolean) => {
+        this.socketService.on(ChatEvents.ReturnCurrentChatState, (currentChatState: boolean) => {
             const player = this.getPlayerByUsername(this.username);
-
             if (player) {
-                console.log(player);
-                player.isChatActive = data;
+                player.isChatActive = currentChatState;
             }
         });
     }
 
-    activateChatWhenGameIsOver() {
-        const player = this.getPlayerByUsername(this.username);
-        if (player) {
-            player.isChatActive = true;
-        }
-    }
+    // activateChatWhenGameIsOver() {
+    //     const player = this.getPlayerByUsername(this.username);
+    //     if (player) {
+    //         player.isChatActive = true;
+    //     }
+    // }
 
     joinRoom(roomCode: string, username: string) {
         const sentInfo: UserInfo = { roomCode, username };
@@ -250,7 +248,7 @@ export class MatchRoomService {
         });
     }
 
-    handleReactivatedChatNotifications() {
+    handleChatStateNotifications() {
         this.socketService.on(ChatEvents.ChatReactivated, (notificationMessage: string) => {
             this.notificationService.displaySuccessMessage(notificationMessage);
         });

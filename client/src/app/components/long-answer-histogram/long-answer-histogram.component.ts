@@ -48,7 +48,7 @@ export class LongAnswerHistogramComponent implements OnInit, OnChanges, OnDestro
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes.currentQuestion || changes.currentHistogram) {
+        if (changes.currentQuestion || changes.currentHistogram || changes.currentLongAnswerHistogram) {
             this.resetChart();
             this.ngOnInit();
         }

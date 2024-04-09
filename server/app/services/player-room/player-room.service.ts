@@ -1,8 +1,10 @@
 import { BANNED_USERNAME, HOST_CONFLICT, USED_USERNAME } from '@app/constants/match-login-errors';
+import { MultipleChoiceAnswer } from '@app/model/answer-types/multiple-choice-answer/multiple-choice-answer';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Player } from '@app/model/schema/player.schema';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { HOST_USERNAME } from '@common/constants/match-constants';
+import { AnswerCorrectness } from '@common/constants/answer-correctness';
 import { PlayerState } from '@common/constants/player-states';
 import { MatchEvents } from '@common/events/match.events';
 import { Injectable } from '@nestjs/common';
@@ -34,8 +36,9 @@ export class PlayerRoomService {
 
         const newPlayer: Player = {
             username: newUsername,
-            answer: { selectedChoices: new Map<string, boolean>(), isSubmitted: false },
+            answer: new MultipleChoiceAnswer(),
             score: 0,
+            answerCorrectness: AnswerCorrectness.WRONG,
             bonusCount: 0,
             isPlaying: true,
             isChatActive: true,
@@ -46,7 +49,6 @@ export class PlayerRoomService {
         const matchRoom = this.matchRoomService.getRoom(matchRoomCode);
         matchRoom.players.push(newPlayer);
         matchRoom.activePlayers++;
-
         return newPlayer;
     }
 
@@ -111,13 +113,13 @@ export class PlayerRoomService {
         const usernameIndex = bannedUsernames.findIndex((name: string) => {
             return name.toUpperCase() === username.toUpperCase();
         });
-        return usernameIndex === INDEX_NOT_FOUND ? false : true;
+        return usernameIndex !== INDEX_NOT_FOUND;
     }
 
     getUsernameErrors(matchRoomCode: string, username: string): string {
         let errors = '';
         if (this.matchRoomService.getRoom(matchRoomCode).isTestRoom) return errors;
-        if (username.toUpperCase() === HOST_USERNAME) {
+        if (username.trim().toUpperCase() === HOST_USERNAME) {
             errors += HOST_CONFLICT;
         }
         if (this.isBannedUsername(matchRoomCode, username)) {

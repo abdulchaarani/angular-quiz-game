@@ -33,8 +33,8 @@ export class QuestionService {
         }
         question.id = uuidv4();
         question.lastModification = new Date();
-        const errorMessages = this.validation.findChoicesQuestionErrors(question);
-        if (errorMessages.length !== 0) {
+        const errorMessages = this.validation.findQuestionErrors(question);
+        if (errorMessages.length) {
             return Promise.reject(`${ERROR_INVALID_QUESTION}\n${errorMessages.join('\n')}`);
         }
         try {
@@ -52,8 +52,8 @@ export class QuestionService {
                 return Promise.reject(`${ERROR_QUESTION_NOT_FOUND}`);
             }
             question.lastModification = new Date();
-            const errorMessages = this.validation.findChoicesQuestionErrors(question);
-            if (errorMessages.length !== 0) {
+            const errorMessages = this.validation.findQuestionErrors(question);
+            if (errorMessages.length) {
                 return Promise.reject(`${ERROR_INVALID_QUESTION}\n${errorMessages.join('\n')}`);
             }
             await this.questionModel.updateOne(filterQuery, question);
@@ -77,8 +77,8 @@ export class QuestionService {
     }
 
     async validateNewQuestion(question: CreateQuestionDto): Promise<boolean> {
-        const errorMessages = this.validation.findChoicesQuestionErrors(question);
-        if (errorMessages.length !== 0) {
+        const errorMessages = this.validation.findQuestionErrors(question);
+        if (errorMessages.length) {
             return Promise.reject(`${ERROR_INVALID_QUESTION}\n${errorMessages.join('\n')}`);
         }
         return true;

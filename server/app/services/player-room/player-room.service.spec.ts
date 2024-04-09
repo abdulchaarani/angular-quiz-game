@@ -7,6 +7,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { Socket } from 'socket.io';
 import { PlayerRoomService } from './player-room.service';
+import { MultipleChoiceAnswer } from '@app/model/answer-types/multiple-choice-answer/multiple-choice-answer';
+import { AnswerCorrectness } from '@common/constants/answer-correctness';
 
 describe('PlayerRoomService', () => {
     let emitMock;
@@ -46,7 +48,9 @@ describe('PlayerRoomService', () => {
     it('getPlayersStringified() should return the list of stringified players without socket attribute', () => {
         jest.spyOn(service, 'getPlayers').mockReturnValue([MOCK_PLAYER]);
         const expectedResult =
-            '[{"username":"","answer":{"selectedChoices":{},"isSubmitted":false},"score":0,"bonusCount":0,"isPlaying":true,"state":"default"}]';
+            // disable max lines since cant be split for string comparision
+            // eslint-disable-next-line max-len
+            '[{"username":"","answer":{"isSubmitted":false,"selectedChoices":{}},"score":0,"answerCorrectness":0,"bonusCount":0,"isPlaying":true,"state":"default"}]';
         const result = service.getPlayersStringified('');
         expect(result).toEqual(expectedResult);
     });
@@ -64,8 +68,9 @@ describe('PlayerRoomService', () => {
         const mockUsername = 'mock';
         const expectedResult: Player = {
             username: mockUsername,
-            answer: { selectedChoices: new Map<string, boolean>(), isSubmitted: false },
+            answer: { selectedChoices: new Map<string, boolean>(), isSubmitted: false } as MultipleChoiceAnswer,
             score: 0,
+            answerCorrectness: AnswerCorrectness.WRONG,
             bonusCount: 0,
             isPlaying: true,
             socket,

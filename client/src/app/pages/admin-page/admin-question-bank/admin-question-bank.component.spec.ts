@@ -6,6 +6,7 @@ import { AdminQuestionBankComponent } from './admin-question-bank.component';
 
 import { HttpResponse } from '@angular/common/http';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -14,6 +15,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { QuestionListItemComponent } from '@app/components/question-list-item/question-list-item.component';
 import { getMockQuestion } from '@app/constants/question-mocks';
 import { ManagementState } from '@app/constants/states';
+import { FilterByQuestionTypePipe } from '@app/pipes/filter-by-question-type.pipe';
 import { SortByLastModificationPipe } from '@app/pipes/sort-by-last-modification.pipe';
 import { BankService } from '@app/services/bank/bank.service';
 import { of } from 'rxjs';
@@ -82,8 +84,14 @@ describe('AdminQuestionBankComponent', () => {
         const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['close']);
 
         TestBed.configureTestingModule({
-            declarations: [AdminQuestionBankComponent, SortByLastModificationPipe, QuestionListItemComponent, MockCreateQuestionComponent],
-            imports: [MatExpansionModule, MatIconModule, BrowserAnimationsModule, MatCardModule],
+            declarations: [
+                AdminQuestionBankComponent,
+                SortByLastModificationPipe,
+                QuestionListItemComponent,
+                MockCreateQuestionComponent,
+                FilterByQuestionTypePipe,
+            ],
+            imports: [MatButtonToggleModule, MatExpansionModule, MatIconModule, BrowserAnimationsModule, MatCardModule],
             providers: [
                 { provide: QuestionService, useValue: questionSpy },
                 { provide: BankService, useValue: bankSpy },

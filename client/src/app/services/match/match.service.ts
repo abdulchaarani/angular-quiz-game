@@ -1,10 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { MatchContext } from '@app/constants/states';
 import { Game } from '@app/interfaces/game';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
-import { Subject } from 'rxjs';
 import { QuestionContextService } from '@app/services/question-context/question-context.service';
+import { Subject } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -64,8 +65,9 @@ export class MatchService extends CommunicationService<Game> {
     }
 
     createMatch() {
-        const isTestPage = this.questionContextService.getContext() === 'testPage';
+        const isTestPage = this.questionContextService.getContext() === MatchContext.TestPage;
+        const isRandomMode = this.questionContextService.getContext() === MatchContext.RandomMode;
         this.matchRoomService.connect();
-        this.matchRoomService.createRoom(this.selectedGame.id, isTestPage);
+        this.matchRoomService.createRoom(this.selectedGame.id, isTestPage, isRandomMode);
     }
 }

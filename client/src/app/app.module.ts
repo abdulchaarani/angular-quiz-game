@@ -27,10 +27,15 @@ import { HomePageComponent } from './pages/home-page/home-page.component';
 import { MatchCreationPageComponent } from './pages/match-creation-page/match-creation-page.component';
 import { ResultsPageComponent } from './pages/results-page/results-page.component';
 import { WaitPageComponent } from './pages/wait-page/wait-page.component';
+import { FilterByQuestionTypePipe } from './pipes/filter-by-question-type.pipe';
 import { SortByLastModificationPipe } from './pipes/sort-by-last-modification.pipe';
 import { SortByScorePipe } from './pipes/sort-by-score.pipe';
 import { SortHistoryPipe } from './pipes/sort-history.pipe';
 import { SortPlayersPipe } from './pipes/sort-players.pipe';
+import { MultipleChoiceAreaComponent } from './components/multiple-choice-area/multiple-choice-area.component';
+import { LongAnswerAreaComponent } from './components/long-answer-area/long-answer-area.component';
+import { SortAnswersPipe } from './pipes/sort-answers.pipe';
+import { LongAnswerHistogramComponent } from './components/long-answer-histogram/long-answer-histogram.component';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -64,6 +69,11 @@ import { SortPlayersPipe } from './pipes/sort-players.pipe';
         HistogramComponent,
         SortHistoryPipe,
         SortPlayersPipe,
+        MultipleChoiceAreaComponent,
+        LongAnswerAreaComponent,
+        SortAnswersPipe,
+        LongAnswerHistogramComponent,
+        FilterByQuestionTypePipe,
     ],
     imports: [
         AppMaterialModule,

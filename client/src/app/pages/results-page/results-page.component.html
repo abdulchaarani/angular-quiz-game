@@ -16,11 +16,20 @@
             aria-label="Select page"
         >
         </mat-paginator>
-        <app-histogram
-            *ngIf="this.histogramsGame.length !== 0"
-            [isResultsPage]="true"
-            [currentHistogram]="histogramsGame[currentQuestionIndex]"
-        ></app-histogram>
+        <div *ngIf="isQuestionMultipleChoice()">
+            <app-histogram
+                *ngIf="this.histogramsGame.length !== 0"
+                [isResultsPage]="true"
+                [currentHistogram]="currentMultipleChoiceHistogram"
+            ></app-histogram>
+        </div>
+        <div *ngIf="isQuestionLongAnswer()">
+            <app-long-answer-histogram
+                *ngIf="this.histogramsGame.length !== 0"
+                [isResultsPage]="true"
+                [currentLongAnswerHistogram]="currentLongAnswerHistogram"
+            ></app-long-answer-histogram>
+        </div>
     </div>
 
     <button mat-raised-button id="exit-button" (click)="handleDisconnect()" routerLink="/home">Quitter</button>

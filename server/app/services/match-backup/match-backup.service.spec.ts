@@ -7,6 +7,7 @@ import { Game } from '@app/model/database/game';
 import { Question } from '@app/model/database/question';
 import { GameService } from '@app/services/game/game.service';
 import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
+import { RandomGameService } from '@app/services/random-game/random-game/random-game.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import * as uuid from 'uuid';
@@ -15,11 +16,17 @@ jest.mock('uuid');
 describe('MatchBackupService', () => {
     let service: MatchBackupService;
     let gameService: SinonStubbedInstance<GameService>;
+    let randomGameService: SinonStubbedInstance<RandomGameService>;
 
     beforeEach(async () => {
         gameService = createStubInstance(GameService);
+        randomGameService = createStubInstance(RandomGameService);
         const module: TestingModule = await Test.createTestingModule({
-            providers: [MatchBackupService, { provide: GameService, useValue: gameService }],
+            providers: [
+                MatchBackupService,
+                { provide: GameService, useValue: gameService },
+                { provide: RandomGameService, useValue: randomGameService },
+            ],
         }).compile();
 
         service = module.get<MatchBackupService>(MatchBackupService);
@@ -64,6 +71,12 @@ describe('MatchBackupService', () => {
         expect(game).toEqual(firstMockGame);
         expect(game).not.toEqual(secondMockGame);
         expect(spyFindUsingDB).not.toHaveBeenCalled();
+    });
+
+    it('getBackupRandomGame() should return a generated random game', () => {
+        const spy = jest.spyOn(randomGameService, 'generateRandomGame').mockReturnThis();
+        service.getBackupRandomGame();
+        expect(spy).toHaveBeenCalled();
     });
 
     it('getBackupQuestion() should return the question with the corresponding ID among the backups', () => {

@@ -56,6 +56,11 @@ describe('GameListItemComponent', () => {
         expect(spy).toHaveBeenCalledWith(MOCK_GAME.id);
     });
 
+    it('should do nothing if not in admin mode when trying to delete', () => {
+        component.isAdminMode = false;
+        component.deleteGame();
+    });
+
     it('should display admin buttons if in admin mode', () => {
         component.isAdminMode = true;
         fixture.detectChanges();

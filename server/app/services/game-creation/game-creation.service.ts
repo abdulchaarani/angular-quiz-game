@@ -1,4 +1,4 @@
-import { QuestionTypes } from '@app/constants/question-types';
+import { QuestionType } from '@app/constants/question-types';
 import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
 import { Question } from '@app/model/database/question';
@@ -29,7 +29,7 @@ export class GameCreationService {
     }
 
     completeIsCorrectChoice(question: Question): Question {
-        if (question.type !== QuestionTypes.LONG) {
+        if (question.type !== QuestionType.LONG) {
             question.choices.forEach((choice: Choice) => {
                 if (choice.isCorrect !== true) {
                     choice.isCorrect = false;

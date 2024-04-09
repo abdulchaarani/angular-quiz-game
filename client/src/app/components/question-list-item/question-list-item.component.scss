@@ -1,3 +1,6 @@
+.color-variant {
+    background-color: rgb(247, 246, 255);
+}
 .question-text {
     flex: 1;
     overflow: hidden;
@@ -24,7 +27,16 @@
 .question-options {
     flex: 1;
     display: flex;
+    flex-direction: row;
     justify-content: space-between;
+    align-items: center;
+}
+
+.question-type {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
 }
 
 .question-description {

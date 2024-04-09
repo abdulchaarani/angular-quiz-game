@@ -25,14 +25,6 @@
     justify-content: center;
 }
 
-#histogram-container {
-    align-self: center;
-    position: fixed;
-    top: 40vh;
-    left: 30vw;
-    right: 30vw;
-}
-
 #question {
     color: #fff;
     text-align: center;
@@ -141,14 +133,19 @@ button.answer.selected {
     text-align: center;
 }
 
-#right-answer {
+.good-answer {
     font-size: 1rem;
     color: #4caf50;
 }
 
-#wrong-answer {
+.ok-answer {
     font-size: 1rem;
-    color: #f44336;
+    color: #f6c811;
+}
+
+.wrong-answer {
+    font-size: 1rem;
+    color: #e91b0c;
 }
 
 #buttons-container {
@@ -170,4 +167,9 @@ button.answer.selected {
 ::-webkit-scrollbar {
     display: none;
     scrollbar-width: thin;
+}
+
+.choice-area {
+    position: fixed;
+    top: 55vh;
 }

@@ -9,4 +9,5 @@ export enum MatchContext {
     TestPage = 'testPage',
     HostView = 'hostView',
     PlayerView = 'playerView',
+    RandomMode = 'randomMode',
 }

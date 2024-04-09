@@ -102,18 +102,18 @@ describe('MatchRoomService', () => {
         expect(service.getUsername()).toEqual(mockUsername);
     });
 
-    it('createRoom should send event, update values for matchRoomCode and username, then redirect to match-room if test room', () => {
+    it('createRoom should send event, update values for matchRoomCode and username, then redirect to play-test if test room', () => {
         // Any is required to simulate Function type in tests
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const spy = spyOn(socketSpy, 'send').and.callFake((event, data, cb: (param: any) => any) => {
             cb({ code: 'mock' });
         });
         const mockStringifiedGame = 'mockGame';
-        service.createRoom(mockStringifiedGame, true);
+        service.createRoom(mockStringifiedGame, true, false);
         expect(service['matchRoomCode']).toEqual('mock');
         expect(service['username']).toEqual('Organisateur');
         expect(router.navigateByUrl).toHaveBeenCalledWith('/play-test');
-        expect(spy).toHaveBeenCalledWith('createRoom', { gameId: 'mockGame', isTestPage: true }, jasmine.any(Function));
+        expect(spy).toHaveBeenCalledWith('createRoom', { gameId: 'mockGame', isTestPage: true, isRandomMode: false }, jasmine.any(Function));
     });
 
     it('createRoom should send event, update values for matchRoomCode and username, then redirect to match-room if not test room', () => {
@@ -123,18 +123,20 @@ describe('MatchRoomService', () => {
             cb({ code: 'mock' });
         });
         const mockStringifiedGame = 'mockGame';
-        service.createRoom(mockStringifiedGame);
+        const sendPlayersSpy = spyOn(service, 'sendPlayersData');
+        service.createRoom(mockStringifiedGame, false, false);
         expect(service['matchRoomCode']).toEqual('mock');
         expect(service['username']).toEqual('Organisateur');
         expect(router.navigateByUrl).toHaveBeenCalledWith('/match-room');
-        expect(spy).toHaveBeenCalledWith('createRoom', { gameId: 'mockGame', isTestPage: false }, jasmine.any(Function));
+        expect(spy).toHaveBeenCalledWith('createRoom', { gameId: 'mockGame', isTestPage: false, isRandomMode: false }, jasmine.any(Function));
+        expect(sendPlayersSpy).toHaveBeenCalled();
     });
 
     it('joinRoom() should send a joinRoom event, update values, and then a sendPlayersData event', () => {
         // Any is required to simulate Function type in tests
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const sendSpy = spyOn(socketSpy, 'send').and.callFake((event, data, cb: (param: any) => any) => {
-            cb({ code: 'mockReturnedCode', username: 'mockReturnedUsername' });
+            cb({ code: 'mockReturnedCode', username: 'mockReturnedUsername', isRandomMode: true });
         });
         const sendPlayersSpy = spyOn(service, 'sendPlayersData');
         service.joinRoom('mockSentCode', 'mockSentUsername');
@@ -258,12 +260,25 @@ describe('MatchRoomService', () => {
         // Any is required to simulate Function type in tests
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
-            cb(true);
+            cb({ isTestRoom: true, isRandomMode: false });
         });
         service.onGameOver();
         socketHelper.peerSideEmit('gameOver', true);
         expect(onSpy).toHaveBeenCalled();
         expect(router.navigateByUrl).toHaveBeenCalledWith('/host');
+    });
+
+    it('onGameOver() should route to resuts page in random mode', () => {
+        // Any is required to simulate Function type in tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
+            cb({ isTestRoom: true, isRandomMode: true });
+        });
+        spyOn(service, 'routeToResultsPage');
+        service.onGameOver();
+        socketHelper.peerSideEmit('gameOver', true);
+        expect(onSpy).toHaveBeenCalled();
+        expect(service.routeToResultsPage).toHaveBeenCalled();
     });
 
     it('onGameOver() should not navigate to /host when not in test room', () => {

@@ -16,6 +16,7 @@ import { AgChartsAngularModule } from 'ag-charts-angular';
 import { AgChartOptions } from 'ag-charts-community';
 import { ResultsPageComponent } from './results-page.component';
 import { Subject, Subscription } from 'rxjs';
+import { ConfettiService } from '@app/services/confetti/confetti.service';
 
 @Component({
     // Component is provided by Angular Material; therefore, its selector starts with mat
@@ -73,11 +74,13 @@ describe('ResultsPageComponent', () => {
     let fixture: ComponentFixture<ResultsPageComponent>;
     let matchRoomServiceSpy: jasmine.SpyObj<MatchRoomService>;
     let histogramServiceSpy: jasmine.SpyObj<HistogramService>;
+    let confettiServiceSpy: jasmine.SpyObj<ConfettiService>;
     let histogramSubject: Subject<Histogram[]>;
 
     beforeEach(() => {
         matchRoomServiceSpy = jasmine.createSpyObj('MatchRoomService', ['disconnect', 'gameOver']);
         histogramServiceSpy = jasmine.createSpyObj('HistogramService', ['onHistogramHistory']);
+        confettiServiceSpy = jasmine.createSpyObj('ConfettiService', ['getWinner']);
         TestBed.configureTestingModule({
             declarations: [
                 ResultsPageComponent,
@@ -91,6 +94,7 @@ describe('ResultsPageComponent', () => {
             providers: [
                 { provide: MatchRoomService, useValue: matchRoomServiceSpy },
                 { provide: HistogramService, useValue: histogramServiceSpy },
+                { provide: ConfettiService, useValue: confettiServiceSpy },
             ],
             imports: [MatPaginatorModule, FormsModule, AgChartsAngularModule, MatSnackBarModule, MatDialogModule],
         }).compileComponents();

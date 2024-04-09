@@ -4,6 +4,7 @@ import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Valida
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MAX_CHOICES, MIN_CHOICES, SNACK_BAR_DISPLAY_TIME } from '@app/constants/question-creation';
+import { QuestionTypes } from '@app/constants/question-types';
 import { ManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
 export interface DialogManagement {
@@ -50,11 +51,9 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
     }
 
     validateChoicesLength(control: AbstractControl): ValidationErrors | null {
-        const choices = control.get('choices') as FormArray;
+        if (control.get('type')?.value !== 'QCM') return null;
 
-        if (!choices) {
-            return null;
-        }
+        const choices = control.get('choices') as FormArray;
         let hasCorrect = false;
         let hasIncorrect = false;
 
@@ -100,6 +99,9 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
     onSubmit() {
         if (this.questionForm.valid) {
             const newQuestion: Question = this.questionForm.value;
+            if (newQuestion.type === 'QRL') {
+                newQuestion.choices = [];
+            }
             newQuestion.lastModification = new Date().toLocaleString();
             if (this.modificationState === ManagementState.BankModify) {
                 this.modifyQuestionEvent.emit(newQuestion);
@@ -171,7 +173,7 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
             { validators: this.validateChoicesLength },
         );
         this.questionForm.get('type')?.valueChanges.subscribe((type: string) => {
-            if (type === 'QCM') {
+            if (type === QuestionTypes.CHOICE) {
                 this.questionForm.addControl(
                     'choices',
                     this.formBuilder.array([
@@ -185,7 +187,27 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
                         }),
                     ]),
                 );
-            } else if (type === 'QRL') {
+            } else if (type === QuestionTypes.LONG) {
+                this.questionForm.removeControl('choices');
+            }
+        });
+
+        this.questionForm.get('type')?.valueChanges.subscribe((type: string) => {
+            if (type === QuestionTypes.CHOICE) {
+                this.questionForm.addControl(
+                    'choices',
+                    this.formBuilder.array([
+                        this.formBuilder.group({
+                            text: ['', Validators.required],
+                            isCorrect: [true, Validators.required],
+                        }),
+                        this.formBuilder.group({
+                            text: ['', Validators.required],
+                            isCorrect: [false, Validators.required],
+                        }),
+                    ]),
+                );
+            } else if (type === QuestionTypes.LONG) {
                 this.questionForm.removeControl('choices');
             }
         });
@@ -200,6 +222,7 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
         });
 
         const choicesArray = this.questionForm.get('choices') as FormArray;
+        if (!choicesArray) return;
         choicesArray.clear();
         this.question.choices?.forEach((choice) => {
             if (choice.text.trim() !== '') {
@@ -214,3 +237,9 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
     }
 }
 
+// References:
+// https://stackoverflow.com/questions/49782253/angular-reactive-form
+// https://stackoverflow.com/questions/53362983/angular-reactiveforms-nested-formgroup-within-formarray-no-control-found?rq=3
+// https://stackblitz.com/edit/angular-nested-formarray-dynamic-forms?file=src%2Fapp%2Fapp.component.html
+// https://stackoverflow.com/questions/67834802/template-error-type-abstractcontrol-is-not-assignable-to-type-formcontrol
+// https://stackoverflow.com/questions/39679637/angular-2-form-cannot-find-control-with-path

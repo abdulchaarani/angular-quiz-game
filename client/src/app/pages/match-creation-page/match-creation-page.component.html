@@ -3,8 +3,8 @@
     <div id="game-list-container">
         <h2>Liste des jeux</h2>
         <cdk-virtual-scroll-viewport class="virtual-scroll" itemSize="50">
-            <mat-card id="game-card">
-                <mat-card-content id="game-card-content" [ngClass]="'clickable-item'" (click)="loadRandomGame()">
+            <mat-card id="game-card" [ngClass]="'clickable-item'">
+                <mat-card-content id="game-card-content" (click)="loadRandomGame()">
                     <p id="game-title">Mode Aléatoire</p>
                 </mat-card-content>
             </mat-card>
@@ -49,13 +49,11 @@
 
         <div id="buttons-container">
             <button mat-raised-button color="primary" (click)="createMatch(matchContext.TestPage)" *ngIf="gameIsValid && !isRandomGame">
-                Tester jeu
+                Tester
             </button>
-            <button mat-raised-button color="primary" (click)="createMatch(matchContext.HostView)" *ngIf="gameIsValid && !isRandomGame">
-                Jouer jeu
-            </button>
+            <button mat-raised-button color="primary" (click)="createMatch(matchContext.HostView)" *ngIf="gameIsValid && !isRandomGame">Jouer</button>
             <button mat-raised-button color="primary" (click)="createMatch(matchContext.RandomMode)" *ngIf="gameIsValid && isRandomGame">
-                Jouer jeu
+                Jouer
             </button>
         </div>
     </div>

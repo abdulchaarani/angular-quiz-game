@@ -18,6 +18,8 @@
                     [question]="question"
                     cdkDrag
                     [cdkDragData]="question"
+                    (mousedown)="dragBankQuestion()"
+                    (mouseup)="dropBankQuestion()"
                     (cdkDragStarted)="dragBankQuestion()"
                     (cdkDragEnded)="dropBankQuestion()"
                 ></app-short-question>

@@ -71,15 +71,10 @@ body {
     display: flex;
     gap: 1rem;
     margin-bottom: 1rem;
-    justify-content: space-between;
 }
 
 .buttons-rack {
     flex-direction: column;
-}
-
-.submit-button {
-    width: 10vw;
 }
 
 .error-snackbar {

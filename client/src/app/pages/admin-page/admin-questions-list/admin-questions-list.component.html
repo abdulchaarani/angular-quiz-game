@@ -3,6 +3,7 @@
         <div class="sidenav-close">
             <button mat-button (click)="sidenav.toggle()">✖</button>
         </div>
+        <p class="bank-message">{{ currentBankMessage }}</p>
         <cdk-virtual-scroll-viewport class="bank-scroll" itemSize="50">
             <div
                 id="bank-questions"
@@ -27,33 +28,32 @@
     <mat-sidenav-content>
         <h1 class="page-title">{{ getTitle() }} du jeu</h1>
 
-        <div class="buttons-container buttons-rack">
-            <div>
-                <button
-                    class="submit-button"
-                    mat-raised-button
-                    color="accent"
-                    (click)="handleSubmit()"
-                    [disabled]="gameForm.invalid || game.questions.length === 0"
-                >
-                    <mat-icon>done</mat-icon> {{ getButtonText() }}
-                </button>
-            </div>
+        <div class="buttons-container">
+            <button class="cancel-button" mat-raised-button color="warn" routerLink="/admin/games">
+                <mat-icon *ngIf="!this.isPendingChanges">cancel</mat-icon>
+                <mat-icon class="pending-changes" *ngIf="this.isPendingChanges">circle</mat-icon>
+                Annuler la {{ this.getTitle().toLocaleLowerCase() }} du jeu
+            </button>
 
-            <div class="buttons-container">
-                <div class="questions-button">
-                    <button mat-raised-button color="primary" (click)="openCreateQuestionDialog()" id="admin-question-creation-form-button">
-                        <mat-icon>add</mat-icon>Ajouter une nouvelle question
-                    </button>
-                    <button mat-raised-button color="primary" (click)="sidenav.toggle()"><mat-icon>question_mark</mat-icon>Banque de question</button>
-                    <button mat-raised-button color="warn" routerLink="/admin/games">
-                        <mat-icon *ngIf="!this.isPendingChanges">cancel</mat-icon>
-                        <mat-icon class="pending-changes" *ngIf="this.isPendingChanges">circle</mat-icon>
-                        Annuler la {{ this.getTitle().toLocaleLowerCase() }} du jeu
-                    </button>
-                </div>
-            </div>
+            <button
+                class="question-bank-button"
+                mat-raised-button
+                color="primary"
+                (click)="openCreateQuestionDialog()"
+                id="admin-question-creation-form-button"
+            >
+                <mat-icon>add</mat-icon>Ajouter une nouvelle question
+            </button>
+
+            <button class="question-bank-button" mat-raised-button color="primary" (click)="sidenav.toggle()">
+                <mat-icon>question_mark</mat-icon>Banque de question
+            </button>
+
+            <button class="submit-button" mat-raised-button (click)="handleSubmit()" [disabled]="gameForm.invalid || game.questions.length === 0">
+                <mat-icon>done</mat-icon> {{ getButtonText() }}
+            </button>
         </div>
+
         <div class="game-container">
             <form [formGroup]="gameForm">
                 <div class="game-form-details item-container">
@@ -92,6 +92,7 @@
                     <p *ngIf="game.questions.length === 0" class="create-notice">
                         Le jeu doit contenir au moins 1 question. Cliquer sur Ajouter une nouvelle question ou importer une question de la banque.
                     </p>
+
                     <cdk-virtual-scroll-viewport class="game-scroll" itemSize="50">
                         <app-question-list-item
                             class="question game-question"

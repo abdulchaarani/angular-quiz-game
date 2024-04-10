@@ -122,7 +122,7 @@ mat-sidenav {
 }
 
 .game-questions-list {
-    margin-top: 2rem;
+    margin: 2rem 0;
 }
 
 .item-container {
@@ -155,4 +155,9 @@ mat-sidenav {
 
 .game-scroll {
     height: 50vh;
+}
+
+.submit-button:not([disabled]) {
+    background-color: #499d37;
+    color: white;
 }

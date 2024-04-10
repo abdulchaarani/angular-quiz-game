@@ -32,14 +32,16 @@ html {
 #game-card {
     box-shadow: 2px 0 2.5px 0 10px;
     border-radius: 5pt;
-    min-height: 3rem;
+    height: 3rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
 
 #game-card-content {
     margin-left: 8px;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    justify-content: space-between;
+    display: flex;
+    flex-direction: row;
     align-items: center;
 }
 
@@ -75,6 +77,10 @@ html {
     padding: 25px;
 }
 
+#game-questions {
+    margin-left: 2rem;
+}
+
 button {
     width: 10vw;
     padding: 2rem;
@@ -88,10 +94,6 @@ app-game-list-item {
 ::-webkit-scrollbar {
     display: none;
     scrollbar-width: thin;
-}
-
-#game-description {
-    font-style: italic;
 }
 
 #time-container {

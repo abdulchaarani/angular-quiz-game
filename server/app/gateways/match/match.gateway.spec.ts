@@ -3,7 +3,15 @@
 import { ExpiredTimerEvents } from '@app/constants/expired-timer-events';
 import { BAN_PLAYER, NO_MORE_HOST } from '@app/constants/match-errors';
 import { HOST_CONFLICT, INVALID_CODE } from '@app/constants/match-login-errors';
-import { MOCK_MATCH_ROOM, MOCK_PLAYER, MOCK_PLAYER_ROOM, MOCK_ROOM_CODE, MOCK_TEST_MATCH_ROOM, MOCK_USER_INFO } from '@app/constants/match-mocks';
+import {
+    MOCK_MATCH_ROOM,
+    MOCK_PLAYER,
+    MOCK_PLAYER_ROOM,
+    MOCK_RANDOM_MATCH_ROOM,
+    MOCK_ROOM_CODE,
+    MOCK_TEST_MATCH_ROOM,
+    MOCK_USER_INFO,
+} from '@app/constants/match-mocks';
 import { MatchGateway } from '@app/gateways/match/match.gateway';
 import { Player } from '@app/model/schema/player.schema';
 import { HistogramService } from '@app/services/histogram/histogram.service';
@@ -112,6 +120,17 @@ describe('MatchGateway', () => {
         });
         expect(socket.join.calledOnce).toBeTruthy();
         expect(result).toEqual({ code: MOCK_TEST_MATCH_ROOM.code });
+    });
+
+    it('createRoom() should let host create a random match room and let host join as a regular player', () => {
+        matchRoomSpy.addRoom.returns(MOCK_RANDOM_MATCH_ROOM);
+        const result = gateway.createRoom(socket, {
+            gameId: MOCK_RANDOM_MATCH_ROOM.game.id,
+            isTestPage: MOCK_RANDOM_MATCH_ROOM.isTestRoom,
+            isRandomMode: MOCK_RANDOM_MATCH_ROOM.isRandomMode,
+        });
+        expect(socket.join.calledOnce).toBeTruthy();
+        expect(result).toEqual({ code: MOCK_RANDOM_MATCH_ROOM.code });
     });
 
     it('routeToResultsPage() should emit a routing event to a room, save history and call emitHistogramHistory', () => {
@@ -404,6 +423,14 @@ describe('MatchGateway', () => {
         const mockRoom = { ...MOCK_PLAYER_ROOM };
         mockRoom.code = MOCK_ROOM_CODE;
         mockRoom.hostSocket = mockRoom.players[0].socket;
+        jest.spyOn(matchRoomSpy, 'getRoom').mockReturnValue(mockRoom);
+        const isTestPage = gateway['isTestRoom'](MOCK_ROOM_CODE);
+        expect(isTestPage).toBe(false);
+    });
+
+    it('isTestRoom() should return false if context is a random match', () => {
+        const mockRoom = { ...MOCK_RANDOM_MATCH_ROOM };
+        mockRoom.code = MOCK_ROOM_CODE;
         jest.spyOn(matchRoomSpy, 'getRoom').mockReturnValue(mockRoom);
         const isTestPage = gateway['isTestRoom'](MOCK_ROOM_CODE);
         expect(isTestPage).toBe(false);

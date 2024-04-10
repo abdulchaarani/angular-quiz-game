@@ -23,13 +23,13 @@
         <cdk-virtual-scroll-viewport class="virtual-scroll" itemSize="50">
             <div id="game-details" *ngIf="gameIsValid; else elseBlock">
                 <div class="list">
-                    <strong>Description du jeu :</strong>
+                    <strong>Description :</strong>
                     <span id="game-description">{{ selectedGame.description }}</span>
-                    <strong>Temps alloué : </strong>
+                    <strong>Temps par QCM : </strong>
                     <span id="game-time-duration">{{ selectedGame.duration }} secondes</span>
                 </div>
                 <div class="list" *ngIf="!isRandomGame">
-                    <strong>Liste des questions : </strong>
+                    <strong>Questions : </strong>
                     <span id="game-questions" *ngFor="let question of selectedGame.questions; let i = index"
                         >{{ i + 1 }}. {{ question.text }}<br
                     /></span>

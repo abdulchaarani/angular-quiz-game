@@ -108,25 +108,34 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
             },
         });
 
-        this.gameForm.get('title')?.valueChanges.subscribe(() => this.gamesService.markPendingChanges());
-        this.gameForm.get('description')?.valueChanges.subscribe(() => this.gamesService.markPendingChanges());
-        this.gameForm.get('duration')?.valueChanges.subscribe(() => this.gamesService.markPendingChanges());
+        this.gameForm.get('title')?.valueChanges.subscribe((title: string | null) => {
+            if (title) {
+                this.game.title = title;
+                this.gamesService.markPendingChanges();
+            }
+        });
+
+        this.gameForm.get('description')?.valueChanges.subscribe((description: string | null) => {
+            if (description) {
+                this.game.description = description;
+                this.gamesService.markPendingChanges();
+            }
+        });
+
+        this.gameForm.get('duration')?.valueChanges.subscribe((duration: string | null) => {
+            if (duration) {
+                this.game.duration = parseInt(duration, 10);
+                this.gamesService.markPendingChanges();
+            }
+        });
     }
 
     ngOnDestroy() {
         this.isPendingChangesSubscription.unsubscribe();
     }
 
-    changeDuration(event: Event) {
-        this.game.duration = Number((event.target as HTMLInputElement).value);
-    }
-
     handleSubmit() {
-        if (this.gameForm.value.title && this.gameForm.value.description && this.gameForm.value.duration) {
-            this.game.title = this.gameForm.value.title;
-            this.game.description = this.gameForm.value.description;
-            this.game.duration = parseInt(this.gameForm.value.duration, 10);
-
+        if (this.game.title && this.game.description && this.game.duration) {
             this.gamesService.submitGame(this.game, this.state).subscribe({
                 next: () => {
                     this.notificationService.displaySuccessMessage(
@@ -177,10 +186,6 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
 
     toggleCreateQuestion() {
         this.dialogState = !this.dialogState;
-    }
-
-    toggleSideBarClass() {
-        this.isSideBarActive = !this.isSideBarActive;
     }
 
     openCreateQuestionDialog() {

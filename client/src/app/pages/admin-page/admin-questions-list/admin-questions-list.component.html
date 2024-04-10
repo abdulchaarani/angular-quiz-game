@@ -3,7 +3,7 @@
         <div class="sidenav-close">
             <button mat-button (click)="sidenav.toggle()">✖</button>
         </div>
-        <cdk-virtual-scroll-viewport class="virtual-scroll" itemSize="50">
+        <cdk-virtual-scroll-viewport class="bank-scroll" itemSize="50">
             <div
                 id="bank-questions"
                 cdkDropList
@@ -26,7 +26,6 @@
 
     <mat-sidenav-content>
         <h1 class="page-title">{{ getTitle() }} du jeu</h1>
-        <mat-icon class="pending-changes" *ngIf="this.isPendingChanges">circle</mat-icon>
 
         <div class="buttons-container buttons-rack">
             <div>
@@ -47,12 +46,17 @@
                         <mat-icon>add</mat-icon>Ajouter une nouvelle question
                     </button>
                     <button mat-raised-button color="primary" (click)="sidenav.toggle()"><mat-icon>question_mark</mat-icon>Banque de question</button>
+                    <button mat-raised-button color="warn" routerLink="/admin/games">
+                        <mat-icon *ngIf="!this.isPendingChanges">cancel</mat-icon>
+                        <mat-icon class="pending-changes" *ngIf="this.isPendingChanges">circle</mat-icon>
+                        Annuler la {{ this.getTitle().toLocaleLowerCase() }} du jeu
+                    </button>
                 </div>
             </div>
         </div>
-        <div>
+        <div class="game-container">
             <form [formGroup]="gameForm">
-                <div class="game-form-details">
+                <div class="game-form-details item-container">
                     <mat-form-field class="game-title">
                         <mat-label>Titre</mat-label>
                         <input matInput id="text" type="text" formControlName="title" />
@@ -64,11 +68,11 @@
                     </mat-form-field>
                 </div>
 
-                <mat-card>
-                    <mat-card-content class="time-slider">
+                <mat-card class="duration-card item-container">
+                    <mat-card-content class="duration-slider">
                         <p>Durée de la minuterie</p>
                         <mat-slider min="10" max="60" step="5" discrete="thumblabel">
-                            <input matSliderThumb [value]="game.duration" (change)="changeDuration($event)" formControlName="duration" />
+                            <input matSliderThumb [value]="game.duration" formControlName="duration" />
                         </mat-slider>
                         <p>{{ game.duration }} secondes</p>
                     </mat-card-content>
@@ -76,7 +80,7 @@
             </form>
             <div
                 id="quiz-questions"
-                class="list game-questions-list"
+                class="list game-questions-list item-container"
                 cdkDropList
                 [cdkDropListData]="game.questions"
                 cdkDropListConnectedTo="bank-questions"
@@ -88,19 +92,21 @@
                     <p *ngIf="game.questions.length === 0" class="create-notice">
                         Le jeu doit contenir au moins 1 question. Cliquer sur Ajouter une nouvelle question ou importer une question de la banque.
                     </p>
-                    <app-question-list-item
-                        class="question game-question"
-                        *ngFor="let question of game.questions"
-                        [index]="game.questions.indexOf(question) + 1"
-                        [question]="question"
-                        [isBankQuestion]="false"
-                        (deleteQuestionEvent)="deleteQuestion($event)"
-                        (cdkDragStarted)="dragQuizQuestion(question)"
-                        (cdkDragEnded)="dropQuizQuestion($event)"
-                        cdkDrag
-                    >
-                        <div cdkDragHandle></div>
-                    </app-question-list-item>
+                    <cdk-virtual-scroll-viewport class="game-scroll" itemSize="50">
+                        <app-question-list-item
+                            class="question game-question"
+                            *ngFor="let question of game.questions"
+                            [index]="game.questions.indexOf(question) + 1"
+                            [question]="question"
+                            [isBankQuestion]="false"
+                            (deleteQuestionEvent)="deleteQuestion($event)"
+                            (cdkDragStarted)="dragQuizQuestion(question)"
+                            (cdkDragEnded)="dropQuizQuestion($event)"
+                            cdkDrag
+                        >
+                            <div cdkDragHandle></div>
+                        </app-question-list-item>
+                    </cdk-virtual-scroll-viewport>
                 </mat-accordion>
             </div>
         </div>

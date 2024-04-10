@@ -89,26 +89,25 @@
 
 .game-form-details {
     display: flex;
-    justify-content: space-between;
+    gap: 2rem;
 }
 
 .game-description {
-    width: 70%;
+    width: 65%;
 }
 
-.time-slider {
+.duration-card {
+    width: 75%;
+}
+
+.duration-slider {
     display: flex;
     gap: 1rem;
 }
 
-.page-title,
-.pending-changes {
+.page-title {
     display: inline-block;
 }
-.pending-changes {
-    color: #4758b8;
-}
-
 .sidenav-container {
     position: absolute;
     top: 0;
@@ -119,12 +118,16 @@
 }
 
 mat-sidenav {
-    width: 20vw;
+    width: 15vw;
 }
 
 .game-questions-list {
-    margin: 2rem;
-    width: 65vw;
+    margin-top: 2rem;
+}
+
+.item-container {
+    margin-left: 0.5rem;
+    width: 70vw;
 }
 
 .sidenav-close {
@@ -139,4 +142,17 @@ mat-sidenav {
 .questions-button {
     display: flex;
     gap: 1rem;
+}
+
+.game-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.bank-scroll {
+    height: 100vh;
+}
+
+.game-scroll {
+    height: 50vh;
 }

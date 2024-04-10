@@ -88,3 +88,18 @@ app-game-list-item {
     display: none;
     scrollbar-width: thin;
 }
+
+#game-description {
+    font-style: italic;
+}
+
+#time-container {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    align-items: center;
+}
+
+.material-icons {
+    font-size: 1.5rem;
+}

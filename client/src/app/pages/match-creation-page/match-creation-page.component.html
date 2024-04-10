@@ -19,20 +19,26 @@
     </div>
 
     <div id="game-details-container">
-        <h2>Détails du jeu</h2>
+        <h2>Détails du jeu {{ selectedGame ? '"' + selectedGame.title + '"' : '' }}</h2>
         <cdk-virtual-scroll-viewport class="virtual-scroll" itemSize="50">
             <div id="game-details" *ngIf="gameIsValid; else elseBlock">
-                <div class="list">
-                    <strong>Description :</strong>
+                <div>
+                    <strong><i class="material-icons">notes</i> Description: </strong>
                     <span id="game-description">{{ selectedGame.description }}</span>
-                    <strong>Temps par QCM : </strong>
-                    <span id="game-time-duration">{{ selectedGame.duration }} secondes</span>
+                </div>
+                <div id="time-container">
+                    <strong><i class="material-icons">access_time</i> Temps par QCM:</strong>
+                    <span id="game-time-duration">{{ selectedGame.duration }} sec.</span>
                 </div>
                 <div class="list" *ngIf="!isRandomGame">
-                    <strong>Questions : </strong>
+                    <strong><i class="material-icons">contact_support</i> Questions : </strong>
                     <span id="game-questions" *ngFor="let question of selectedGame.questions; let i = index"
                         >{{ i + 1 }}. {{ question.text }}<br
                     /></span>
+                </div>
+                <div class="list" *ngIf="isRandomGame">
+                    <strong><i class="material-icons">contact_support</i> Questions : </strong>
+                    <p>Les questions sont générées aléatoirement!</p>
                 </div>
             </div>
 

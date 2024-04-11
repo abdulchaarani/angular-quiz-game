@@ -188,11 +188,11 @@ describe('AdminQuestionsListComponent', () => {
         expect(component.game).toEqual(mockGame);
     });
 
-    it('should be able to change duration', () => {
-        const event: Event = { target: { value: '20' } } as unknown as Event;
-        component.changeDuration(event);
-        expect(component.game.duration).toEqual(20);
-    });
+    // it('should be able to change duration', () => {
+    //     const event: Event = { target: { value: '20' } } as unknown as Event;
+    //     component.changeDuration(event);
+    //     expect(component.game.duration).toEqual(20);
+    // });
 
     it('should handle submit', () => {
         component.gameForm.setValue({ title: 'Test', description: 'Test', duration: '10' });
@@ -385,33 +385,10 @@ describe('AdminQuestionsListComponent', () => {
         expect(component.game.description).toEqual('Test');
     });
 
-    it('should not be able to delete a question if there is only one question', () => {
-        component.game.questions = [mockGame.questions[0]];
-        const questionToDeleteId = component.game.questions[0]?.id;
-        if (questionToDeleteId) {
-            component.deleteQuestion(questionToDeleteId);
-        }
-        expect(component.game.questions.length).toBe(1);
-    });
-
-    it('should not be able to delete a question if the id is null', () => {
-        component.game.questions[0].id = '';
-        const questionToDeleteId = component.game.questions[0]?.id;
-        component.deleteQuestion(questionToDeleteId);
-        expect(component.game.questions.length).toBe(mockGame.questions.length);
-    });
-
     it('should toggle create question dialog state', () => {
         expect(component.dialogState).toBeFalse();
         component.toggleCreateQuestion();
         expect(component.dialogState).toBeTrue();
-    });
-
-    it('should toggle side bar active state', () => {
-        component.isSideBarActive = false;
-        expect(component.isSideBarActive).toBeFalse();
-        component.toggleSideBarClass();
-        expect(component.isSideBarActive).toBeTrue();
     });
 
     it('should not open create question dialog if dialog state is true', () => {

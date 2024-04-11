@@ -50,7 +50,7 @@ export class ResultsPageComponent implements OnInit, OnDestroy {
         this.players = this.matchRoomService.players;
         this.histogramService.onHistogramHistory();
         this.subscribeToHistogramHistory();
-        this.confettiService.getWinner();
+        this.confettiService.onWinner();
     }
 
     ngOnDestroy(): void {

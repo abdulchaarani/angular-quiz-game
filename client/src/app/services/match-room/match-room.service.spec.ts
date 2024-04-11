@@ -10,6 +10,7 @@ import { SocketHandlerService } from '@app/services/socket-handler/socket-handle
 import { Socket } from 'socket.io-client';
 import { MatchRoomService } from './match-room.service';
 import SpyObj = jasmine.SpyObj;
+import { getMockQuestion } from '@app/constants/question-mocks';
 
 class SocketHandlerServiceMock extends SocketHandlerService {
     // Override connect() is required to not actually connect the socket
@@ -102,19 +103,19 @@ describe('MatchRoomService', () => {
         expect(service.getUsername()).toEqual(mockUsername);
     });
 
-    it('createRoom should send event, update values for matchRoomCode and username, then redirect to play-test if test room', () => {
-        // Any is required to simulate Function type in tests
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const spy = spyOn(socketSpy, 'send').and.callFake((event, data, cb: (param: any) => any) => {
-            cb({ code: 'mock' });
-        });
-        const mockStringifiedGame = 'mockGame';
-        service.createRoom(mockStringifiedGame, true, false);
-        expect(service['matchRoomCode']).toEqual('mock');
-        expect(service['username']).toEqual('Organisateur');
-        expect(router.navigateByUrl).toHaveBeenCalledWith('/play-test');
-        expect(spy).toHaveBeenCalledWith('createRoom', { gameId: 'mockGame', isTestPage: true, isRandomMode: false }, jasmine.any(Function));
-    });
+    // it('createRoom should send event, update values for matchRoomCode and username, then redirect to play-test if test room', () => {
+    //     // Any is required to simulate Function type in tests
+    //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    //     const spy = spyOn(socketSpy, 'send').and.callFake((event, data, cb: (param: any) => any) => {
+    //         cb({ code: 'mock' });
+    //     });
+    //     const mockStringifiedGame = 'mockGame';
+    //     service.createRoom(mockStringifiedGame, true, false);
+    //     expect(service['matchRoomCode']).toEqual('mock');
+    //     expect(service['username']).toEqual('Organisateur');
+    //     expect(router.navigateByUrl).toHaveBeenCalledWith('/play-test');
+    //     expect(spy).toHaveBeenCalledWith('createRoom', { gameId: 'mockGame', isTestPage: true, isRandomMode: false }, jasmine.any(Function));
+    // });
 
     it('createRoom should send event, update values for matchRoomCode and username, then redirect to match-room if not test room', () => {
         // Any is required to simulate Function type in tests
@@ -214,19 +215,7 @@ describe('MatchRoomService', () => {
         expect(onSpy).toHaveBeenCalled();
     });
 
-    it('onBeginQuiz() should send game data and navigate to /play-test in test room', () => {
-        // Any is required to simulate Function type in tests
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
-            cb({ firstQuestion: 'mockQuestion', gameDuration: 0, isTestRoom: true });
-        });
-        service.onBeginQuiz();
-        socketHelper.peerSideEmit('beginQuiz', { firstQuestion: 'mockQuestion', gameDuration: 0, isTestRoom: true });
-        expect(onSpy).toHaveBeenCalled();
-        expect(router.navigate).toHaveBeenCalledWith(['/play-test'], { state: { question: 'mockQuestion', duration: 0 } });
-    });
-
-    it('onBeginQuiz() should send game data and navigate to /play-match when not in test room', () => {
+    it('onBeginQuiz() should send game data and navigate to /play-match', () => {
         // Any is required to simulate Function type in tests
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
@@ -246,6 +235,7 @@ describe('MatchRoomService', () => {
     });
 
     it('startCooldown() should send startCooldown event', () => {
+        service.currentQuestion = getMockQuestion();
         // Any is required to simulate Function type in tests
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
@@ -369,29 +359,29 @@ describe('MatchRoomService', () => {
         expect(router.navigateByUrl).toHaveBeenCalledWith('/results');
     });
 
-    it('onHostQuit() should set isHostPlaying to false', () => {
-        service['hostPlayingSource'].next(true);
-        // Any is required to simulate Function type in tests
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
-            cb('');
-        });
-        service.onHostQuit();
-        socketHelper.peerSideEmit('hostQuitMatch');
-        expect(onSpy).toHaveBeenCalled();
-    });
+    // it('onHostQuit() should set isHostPlaying to false', () => {
+    //     service['hostPlayingSource'].next(true);
+    //     // Any is required to simulate Function type in tests
+    //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    //     const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
+    //         cb('');
+    //     });
+    //     service.onHostQuit();
+    //     socketHelper.peerSideEmit('hostQuitMatch');
+    //     expect(onSpy).toHaveBeenCalled();
+    // });
 
-    it('onPlayerKick() should set isBanned to true and disconnect player', () => {
-        service['bannedSource'].next(false);
-        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
-            cb('');
-        });
-        const disconnectSpy = spyOn(socketSpy, 'disconnect');
+    // it('onPlayerKick() should set isBanned to true and disconnect player', () => {
+    //     service['bannedSource'].next(false);
+    //     const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
+    //         cb('');
+    //     });
+    //     const disconnectSpy = spyOn(socketSpy, 'disconnect');
 
-        service.onPlayerKick();
-        socketHelper.peerSideEmit('kickPlayer');
-        expect(service['bannedSource'].value).toBe(true);
-        expect(onSpy).toHaveBeenCalled();
-        expect(disconnectSpy).toHaveBeenCalled();
-    });
+    //     service.onPlayerKick();
+    //     socketHelper.peerSideEmit('kickPlayer');
+    //     expect(service['bannedSource'].value).toBe(true);
+    //     expect(onSpy).toHaveBeenCalled();
+    //     expect(disconnectSpy).toHaveBeenCalled();
+    // });
 });

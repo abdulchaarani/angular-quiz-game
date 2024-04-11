@@ -9,6 +9,8 @@ import { Socket } from 'socket.io-client';
 import { AnswerService } from './answer.service';
 import SpyObj = jasmine.SpyObj;
 import { AnswerCorrectness } from '@common/constants/answer-correctness';
+import { MatchContextService } from '@app/services/question-context/question-context.service';
+import { MatchRoomService } from '@app/services/match-room/match-room.service';
 
 class SocketHandlerServiceMock extends SocketHandlerService {
     // Override connect() is required to not actually connect the socket
@@ -21,9 +23,25 @@ describe('AnswerService', () => {
     let socketSpy: SocketHandlerServiceMock;
     let socketHelper: SocketTestHelper;
     let router: SpyObj<Router>;
+    let questionContextSpy;
+    let matchRoomSpy;
 
     beforeEach(() => {
         router = jasmine.createSpyObj('Router', ['']);
+
+        questionContextSpy = jasmine.createSpyObj('MatchContextService', ['setContext', 'getContext']);
+
+        matchRoomSpy = jasmine.createSpyObj('MatchRoomService', [
+            'nextQuestion',
+            'getUsername',
+            'getRoomCode',
+            'disconnect',
+            'sendPlayersData',
+            'onRouteToResultsPage',
+            'routeToResultsPage',
+            'onGameOver',
+        ]);
+
         socketHelper = new SocketTestHelper();
         socketSpy = new SocketHandlerServiceMock(router);
         socketSpy.socket = socketHelper as unknown as Socket;
@@ -32,6 +50,8 @@ describe('AnswerService', () => {
             providers: [
                 { provide: SocketHandlerService, useValue: socketSpy },
                 { provide: Router, useValue: router },
+                { provide: MatchContextService, useValue: questionContextSpy },
+                { provide: MatchRoomService, useValue: matchRoomSpy },
             ],
         });
         service = TestBed.inject(AnswerService);

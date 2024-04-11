@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
+import { QuestionType } from '@app/constants/question-types';
 import { Game } from '@app/model/database/game';
 import { Question } from '@app/model/database/question';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
@@ -31,10 +32,11 @@ describe('RandomGameService', () => {
     });
 
     it('fetchAllQuestions() should fetch all questions', async () => {
-        const fakeQuestions = [new Question(), new Question()];
+        let fakeQuestions = [new Question(), new Question()];
         questionService.getAllQuestions.resolves(fakeQuestions);
 
         await service.fetchAllQuestions();
+        fakeQuestions = fakeQuestions.filter((question) => question.type === QuestionType.CHOICE);
         expect(service.allBankQuestions).toEqual(fakeQuestions);
     });
 

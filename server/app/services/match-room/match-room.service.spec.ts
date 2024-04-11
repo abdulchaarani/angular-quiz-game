@@ -6,20 +6,20 @@ import { MOCK_CHOICES, getMockGame } from '@app/constants/game-mocks';
 import { INVALID_CODE, LOCKED_ROOM } from '@app/constants/match-login-errors';
 import { MOCK_MATCH_ROOM, MOCK_PLAYER, MOCK_ROOM_CODE } from '@app/constants/match-mocks';
 import { getMockQuestion } from '@app/constants/question-mocks';
-import { ChoiceTracker } from '@app/model/tally-trackers/choice-tracker/choice-tracker';
 import { FAKE_ROOM_ID } from '@app/constants/time-mocks';
 import { PlayerInfo } from '@app/model/schema/answer.schema';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
+import { ChoiceTracker } from '@app/model/tally-trackers/choice-tracker/choice-tracker';
+import { LongAnswerStrategy } from '@app/question-strategies/long-answer-strategy/long-answer-strategy';
+import { MultipleChoiceStrategy } from '@app/question-strategies/multiple-choice-strategy/multiple-choice-strategy';
+import { QuestionStrategyContext } from '@app/services/question-strategy-context/question-strategy-context.service';
 import { TimeService } from '@app/services/time/time.service';
+import { MatchEvents } from '@common/events/match.events';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { Socket } from 'socket.io';
 import { MatchRoomService } from './match-room.service';
-import { QuestionStrategyContext } from '@app/services/question-strategy-context/question-strategy-context.service';
-import { MultipleChoiceStrategy } from '@app/question-strategies/multiple-choice-strategy/multiple-choice-strategy';
-import { LongAnswerStrategy } from '@app/question-strategies/long-answer-strategy/long-answer-strategy';
-import { MatchEvents } from '@common/events/match.events';
 
 const MAXIMUM_CODE_LENGTH = 4;
 const MOCK_YEAR = 2024;
@@ -320,7 +320,7 @@ describe('MatchRoomService', () => {
         matchRoom.hostSocket = mockHostSocket;
         const currentQuestion = matchRoom.game.questions[0];
         service.sendNextQuestion(mockServer, MOCK_ROOM_CODE);
-        expect(emitMock).toHaveBeenCalledWith('nextQuestion', currentQuestion);
+        expect(emitMock).toHaveBeenCalledWith('goToNextQuestion', currentQuestion);
         expect(startTimerMock).toHaveBeenCalledWith(mockServer, MOCK_ROOM_CODE, matchRoom.game.duration, ExpiredTimerEvents.QuestionTimerExpired);
     });
 

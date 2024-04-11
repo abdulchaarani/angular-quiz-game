@@ -15,6 +15,8 @@ import { GameService } from '@app/services/game/game.service';
 import { MatchService } from '@app/services/match/match.service';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { QuestionContextService } from '@app/services/question-context/question-context.service';
+import { QuestionService } from '@app/services/question/question.service';
+import { MINIMUM_QUESTIONS } from '@common/constants/match-constants';
 import { of, throwError } from 'rxjs';
 import { MatchCreationPageComponent } from './match-creation-page.component';
 import SpyObj = jasmine.SpyObj;
@@ -25,6 +27,7 @@ describe('MatchCreationPageComponent', () => {
     let gameService: GameService;
     let notificationSpy: SpyObj<NotificationService>;
     let questionContextSpy: SpyObj<QuestionContextService>;
+    let questionServiceSpy: SpyObj<QuestionService>;
 
     const invisibleGame: Game = { isVisible: false } as Game;
     const fakeGame: Game = getMockGame();
@@ -47,6 +50,7 @@ describe('MatchCreationPageComponent', () => {
     beforeEach(() => {
         notificationSpy = jasmine.createSpyObj('NotificationService', ['displayErrorMessageAction', 'openSnackBar', 'displayErrorMessage']);
         questionContextSpy = jasmine.createSpyObj('QuestionContextService', ['setContext']);
+        questionServiceSpy = jasmine.createSpyObj('QuestionService', ['getAllQuestions']);
 
         TestBed.configureTestingModule({
             declarations: [MatchCreationPageComponent],
@@ -57,6 +61,7 @@ describe('MatchCreationPageComponent', () => {
                 { provide: MatchService, useValue: matchServiceSpy },
                 { provide: MatDialog, useClass: MatDialogMock },
                 { provide: QuestionContextService, useValue: questionContextSpy },
+                { provide: QuestionService, useValue: questionServiceSpy },
             ],
         });
         fixture = TestBed.createComponent(MatchCreationPageComponent);
@@ -203,5 +208,34 @@ describe('MatchCreationPageComponent', () => {
         const reloadSpy = spyOn(component, 'reloadSelectedGame');
         component.createMatch(MatchContext.HostView);
         expect(reloadSpy).toHaveBeenCalled();
+    });
+
+    it('should return true and set isRandomGame and gameIsValid to true if questions count is equal to minimum', () => {
+        const questionsCount = MINIMUM_QUESTIONS;
+
+        const result = component.hasEnoughRandomQuestions(questionsCount);
+
+        expect(result).toBeTrue();
+        expect(component.isRandomGame).toBeTrue();
+        expect(component.gameIsValid).toBeTrue();
+    });
+
+    it('should return true and set isRandomGame and gameIsValid to true if questions count is greater than minimum', () => {
+        const questionsCount = 10;
+
+        const result = component.hasEnoughRandomQuestions(questionsCount);
+
+        expect(result).toBeTrue();
+        expect(component.isRandomGame).toBeTrue();
+        expect(component.gameIsValid).toBeTrue();
+    });
+    it('should return false and display error message if questions count is less than minimum', () => {
+        const questionsCount = 3;
+        const errorMessage = "Il n'y a pas assez de questions pour un jeu aléatoire";
+        const result = component.hasEnoughRandomQuestions(questionsCount);
+        expect(result).toBeFalsy();
+        expect(notificationSpy.displayErrorMessage).toHaveBeenCalledWith(errorMessage);
+        expect(component.isRandomGame).toBeFalsy();
+        expect(component.gameIsValid).toBeFalsy();
     });
 });

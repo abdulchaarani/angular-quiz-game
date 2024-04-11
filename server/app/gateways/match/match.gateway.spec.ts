@@ -361,7 +361,7 @@ describe('MatchGateway', () => {
         const nextSpy = jest.spyOn(matchRoomSpy, 'startNextQuestionCooldown').mockReturnThis();
         stub(socket, 'rooms').value(new Set([MOCK_ROOM_CODE]));
         const stateSpy = jest.spyOn(playerRoomSpy, 'setStateForAll').mockReturnThis();
-        gateway.nextQuestion(socket, MOCK_ROOM_CODE);
+        gateway.goToNextQuestion(socket, MOCK_ROOM_CODE);
         expect(nextSpy).toHaveBeenCalledWith(server, MOCK_ROOM_CODE);
         expect(stateSpy).toHaveBeenCalledWith(MOCK_ROOM_CODE, PlayerState.noInteraction);
     });

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { WarningMessage } from '@app/constants/feedback-messages';
 import { MatchContext } from '@app/constants/states';
@@ -9,17 +9,15 @@ import { NotificationService } from '@app/services/notification/notification.ser
 import { MatchContextService } from '@app/services/question-context/question-context.service';
 import { TimeService } from '@app/services/time/time.service';
 import { Subject } from 'rxjs';
-import { Subscription } from 'rxjs/internal/Subscription';
 
 @Component({
     selector: 'app-wait-page',
     templateUrl: './wait-page.component.html',
     styleUrls: ['./wait-page.component.scss'],
 })
-export class WaitPageComponent implements OnInit, OnDestroy {
+export class WaitPageComponent implements OnInit {
     isLocked: boolean;
     isHostPlaying: boolean;
-    private eventSubscriptions: Subscription[] = [];
 
     // permit more class parameters to decouple services
     // eslint-disable-next-line max-params
@@ -74,11 +72,6 @@ export class WaitPageComponent implements OnInit, OnDestroy {
         }
     }
 
-    ngOnDestroy(): void {
-        this.eventSubscriptions.forEach((subscription) => subscription.unsubscribe());
-        this.eventSubscriptions = [];
-    }
-
     toggleLock() {
         this.matchRoomService.toggleLock();
     }
@@ -89,10 +82,6 @@ export class WaitPageComponent implements OnInit, OnDestroy {
 
     startMatch() {
         this.matchRoomService.startMatch();
-    }
-
-    nextQuestion() {
-        this.matchRoomService.nextQuestion();
     }
 
     quitGame() {

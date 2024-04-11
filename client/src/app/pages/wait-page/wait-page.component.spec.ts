@@ -4,16 +4,18 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { WarningMessage } from '@app/constants/feedback-messages';
-import { Game } from '@app/interfaces/game';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { MatchService } from '@app/services/match/match.service';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { MatchContextService } from '@app/services/question-context/question-context.service';
 import { TimeService } from '@app/services/time/time.service';
-import { BehaviorSubject, Subject, of } from 'rxjs';
 import { WaitPageComponent } from './wait-page.component';
 import SpyObj = jasmine.SpyObj;
+import { Game } from '@app/interfaces/game';
+import { Router, Routes } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
+import { Subject } from 'rxjs';
+import { WarningMessage } from '@app/constants/feedback-messages';
 
 @Component({
     selector: 'app-chat',
@@ -29,8 +31,9 @@ describe('WaitPageComponent', () => {
     let timeSpy: SpyObj<TimeService>;
     let questionContextSpy: SpyObj<MatchContextService>;
     let notificationServiceSpy: SpyObj<NotificationService>;
-    let booleanSubject: BehaviorSubject<boolean>;
-    let gameTitleSubject: Subject<string>;
+    let router: Router;
+
+    const routes: Routes = [{ path: 'home', component: WaitPageComponent }];
 
     beforeEach(() => {
         matchRoomSpy = jasmine.createSpyObj('MatchRoomService', [
@@ -49,12 +52,12 @@ describe('WaitPageComponent', () => {
         ]);
         matchSpy = jasmine.createSpyObj('MatchService', ['']);
         questionContextSpy = jasmine.createSpyObj('QuestionContextService', ['setContext', 'getContext']);
-        timeSpy = jasmine.createSpyObj('TimeService', ['handleTimer', 'handleStopTimer', 'computeTimerProgress']);
+        timeSpy = jasmine.createSpyObj('TimeService', ['handleTimer', 'handleStopTimer', 'computeTimerProgress', 'listenToTimerEvents']);
         notificationServiceSpy = jasmine.createSpyObj('NotificationService', ['displayErrorMessage', 'openWarningDialog']);
 
         TestBed.configureTestingModule({
             declarations: [WaitPageComponent, MockChatComponent],
-            imports: [HttpClientTestingModule, MatProgressSpinnerModule],
+            imports: [RouterTestingModule.withRoutes(routes), HttpClientTestingModule, MatProgressSpinnerModule],
             providers: [
                 HttpClient,
                 { provide: MatchRoomService, useValue: matchRoomSpy },
@@ -67,15 +70,8 @@ describe('WaitPageComponent', () => {
 
         fixture = TestBed.createComponent(WaitPageComponent);
         component = fixture.componentInstance;
-
-        booleanSubject = new BehaviorSubject<boolean>(false);
-        gameTitleSubject = new Subject<string>();
-        matchRoomSpy.isHostPlaying$ = booleanSubject.asObservable();
-        matchRoomSpy.startMatch$ = booleanSubject.asObservable();
-        matchRoomSpy.isBanned$ = booleanSubject.asObservable();
-        matchRoomSpy.gameTitle$ = gameTitleSubject.asObservable();
-
         fixture.detectChanges();
+        router = TestBed.inject(Router);
     });
 
     it('should create', () => {
@@ -97,7 +93,7 @@ describe('WaitPageComponent', () => {
 
         component.ngOnInit();
 
-        expect(component.gameTitle).toEqual(mockGame.title);
+        expect(matchRoomSpy.gameTitle).toEqual(mockGame.title);
     });
 
     it('should get current game', () => {
@@ -120,76 +116,53 @@ describe('WaitPageComponent', () => {
         expect(matchRoomSpy.banUsername).toHaveBeenCalledWith('test');
     });
 
-    it('should prepare start of match', () => {
-        component.prepareStartOfMatch();
-        expect(component.startTimerButton).toBe(true);
-        expect(matchRoomSpy.startMatch).toHaveBeenCalled();
-    });
-
     it('startMatch() should call startMatch from matchRoomService', () => {
-        spyOn(component, 'prepareStartOfMatch').and.callFake(() => {
-            component.startTimerButton = true;
-            component.matchRoomService.startMatch();
-            return of(true);
-        });
         component.startMatch();
-        expect(component.startTimerButton).toBe(true);
         expect(matchRoomSpy.startMatch).toHaveBeenCalled();
     });
 
-    it('nextQuestion() should delegate call to nextQuestion to matchRoomService', () => {
-        component.nextQuestion();
-        expect(matchRoomSpy.nextQuestion).toHaveBeenCalled();
-    });
-
-    it('subscribeToGameTitle() should add a subscription to game title and display correct game ', () => {
-        component.gameTitle = '';
-        component['subscribeToGameTitle']();
-        gameTitleSubject.next('new game');
-        expect(component.gameTitle).toEqual('new game');
-    });
-
-    it('quitGame() should set isQuitting to true and delegate deconnection to matchService', () => {
-        component.isQuitting = false;
+    it('quitGame() navigate to home page', () => {
+        const navigateSpy = spyOn(router, 'navigateByUrl');
+        matchRoomSpy.isQuitting = true;
         component.quitGame();
-        expect(component.isQuitting).toBe(true);
-        expect(matchRoomSpy.disconnect).toHaveBeenCalled();
+        expect(navigateSpy).toHaveBeenCalledWith('/home');
     });
 
     it('should deactivate page when player or host is quitting', () => {
-        component.isQuitting = true;
+        matchRoomSpy.isQuitting = true;
         const isDeactivated = component.canDeactivate();
         expect(isDeactivated).toBe(true);
     });
 
     it('should deactivate page host quit', () => {
-        component.isHostPlaying = false;
+        matchRoomSpy.isQuitting = false;
+        matchRoomSpy.isHostPlaying = false;
         const isDeactivated = component.canDeactivate();
         expect(isDeactivated).toBe(true);
     });
 
     it('should deactivate page if wait is over', () => {
-        component.isQuitting = false;
-        component.isHostPlaying = true;
+        matchRoomSpy.isQuitting = false;
+        matchRoomSpy.isHostPlaying = true;
         matchRoomSpy.isWaitOver = true;
         const isDeactivated = component.canDeactivate();
         expect(isDeactivated).toBe(true);
     });
 
     it('should deactivate page if user is banned', () => {
-        component.isQuitting = false;
-        component.isHostPlaying = true;
+        matchRoomSpy.isQuitting = false;
+        matchRoomSpy.isHostPlaying = true;
         matchRoomSpy.isWaitOver = false;
-        component.isBanned = true;
+        matchRoomSpy.isBanned = true;
         const isDeactivated = component.canDeactivate();
         expect(isDeactivated).toBe(true);
     });
 
     it('should prompt user if back button is pressed and only deactivate if user confirms', () => {
-        component.isQuitting = false;
-        component.isHostPlaying = true;
+        matchRoomSpy.isQuitting = false;
+        matchRoomSpy.isHostPlaying = true;
         matchRoomSpy.isWaitOver = false;
-        component.isBanned = false;
+        matchRoomSpy.isBanned = false;
         const deactivateSubject = new Subject<boolean>();
         notificationServiceSpy.openWarningDialog.and.returnValue(deactivateSubject);
         const result = component.canDeactivate();
@@ -198,5 +171,21 @@ describe('WaitPageComponent', () => {
         expect(matchRoomSpy.disconnect).not.toHaveBeenCalled();
         deactivateSubject.next(true);
         expect(matchRoomSpy.disconnect).toHaveBeenCalled();
+    });
+
+    it('resetWaitPage() should reset all wait page attributes', () => {
+        component.isLocked = true;
+        matchRoomSpy.isMatchStarted = true;
+        matchRoomSpy.isHostPlaying = false;
+        matchRoomSpy.isBanned = true;
+        matchRoomSpy.isQuitting = true;
+
+        component['resetWaitPage']();
+
+        expect(component.isLocked).toBe(false);
+        expect(matchRoomSpy.isMatchStarted).toBe(false);
+        expect(matchRoomSpy.isHostPlaying).toBe(true);
+        expect(matchRoomSpy.isBanned).toBe(false);
+        expect(matchRoomSpy.isQuitting).toBe(false);
     });
 });

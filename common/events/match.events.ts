@@ -10,7 +10,7 @@ export enum MatchEvents {
     StartMatch = 'startMatch',
     MatchStarting = 'matchStarting',
     BeginQuiz = 'beginQuiz',
-    GoToNextQuestion = 'goTonextQuestion',
+    GoToNextQuestion = 'goToNextQuestion',
     StartCooldown = 'startCooldown',
     CurrentAnswers = 'currentAnswers',
     GameOver = 'gameOver',

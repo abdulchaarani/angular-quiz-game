@@ -43,7 +43,7 @@ describe('WaitPageComponent', () => {
             'getStartMatchObservable',
             'matchStarted',
             'beginQuiz',
-            'nextQuestion',
+            'goToNextQuestion',
             'gameOver',
             'disconnect',
         ]);
@@ -138,8 +138,8 @@ describe('WaitPageComponent', () => {
     });
 
     it('nextQuestion() should delegate call to nextQuestion to matchRoomService', () => {
-        component.nextQuestion();
-        expect(matchRoomSpy.nextQuestion).toHaveBeenCalled();
+        component.goToNextQuestion();
+        expect(matchRoomSpy.goToNextQuestion).toHaveBeenCalled();
     });
 
     it('subscribeToGameTitle() should add a subscription to game title and display correct game ', () => {

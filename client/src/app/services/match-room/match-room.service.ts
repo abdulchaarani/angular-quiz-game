@@ -160,7 +160,7 @@ export class MatchRoomService {
         });
     }
 
-    goTonextQuestion() {
+    goToNextQuestion() {
         this.socketService.send(MatchEvents.GoToNextQuestion, this.matchRoomCode);
     }
 

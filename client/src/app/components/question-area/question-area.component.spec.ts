@@ -97,7 +97,7 @@ describe('QuestionAreaComponent', () => {
         ]);
 
         matchRoomSpy = jasmine.createSpyObj('MatchRoomService', [
-            'nextQuestion',
+            'goToNextQuestion',
             'getUsername',
             'getRoomCode',
             'disconnect',
@@ -267,8 +267,8 @@ describe('QuestionAreaComponent', () => {
     });
 
     it('should go to next question when nextQuestion is called', () => {
-        component.nextQuestion();
-        expect(matchRoomSpy.nextQuestion).toHaveBeenCalled();
+        component.goToNextQuestion();
+        expect(matchRoomSpy.goToNextQuestion).toHaveBeenCalled();
     });
 
     it('getHistoryState() should return the current history state', () => {

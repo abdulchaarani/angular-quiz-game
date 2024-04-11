@@ -241,8 +241,8 @@ describe('MatchRoomService', () => {
     it('nextQuestion() should send nextQuestion event', () => {
         const sendSpy = spyOn(socketSpy, 'send');
         service['matchRoomCode'] = '';
-        service.nextQuestion();
-        expect(sendSpy).toHaveBeenCalledWith('nextQuestion', '');
+        service.goToNextQuestion();
+        expect(sendSpy).toHaveBeenCalledWith('goToNextQuestion', '');
     });
 
     it('startCooldown() should send startCooldown event', () => {
@@ -300,7 +300,7 @@ describe('MatchRoomService', () => {
             cb('mockQuestion');
         });
         service.onNextQuestion();
-        socketHelper.peerSideEmit('nextQuestion', 'mockQuestion');
+        socketHelper.peerSideEmit('goToNextQuestion', 'mockQuestion');
         expect(onSpy).toHaveBeenCalled();
     });
 

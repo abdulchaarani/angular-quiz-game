@@ -85,7 +85,7 @@
         <div id="host-area" *ngIf="context === matchContext.HostView">
             <div id="buttons-container">
                 <button mat-raised-button *ngIf="isLastQuestion" (click)="routeToResultsPage()">Présenter les résultats finaux</button>
-                <button mat-raised-button color="primary" (click)="goTonextQuestion()" *ngIf="isNextQuestionButton && !isLastQuestion">
+                <button mat-raised-button color="primary" (click)="goToNextQuestion()" *ngIf="isNextQuestionButton && !isLastQuestion">
                     Question suivante
                 </button>
             </div>

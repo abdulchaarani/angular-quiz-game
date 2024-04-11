@@ -130,8 +130,8 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
         this.isSelectionEnabled = false;
     }
 
-    goTonextQuestion() {
-        this.matchRoomService.goTonextQuestion();
+    goToNextQuestion() {
+        this.matchRoomService.goToNextQuestion();
         this.isNextQuestionButton = false;
     }
 
@@ -159,7 +159,7 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
         this.matchRoomService.sendPlayersData(this.matchRoomCode);
         this.showFeedback = true;
         if (this.context === MatchContext.TestPage || this.context === MatchContext.RandomMode) {
-            this.goTonextQuestion();
+            this.goToNextQuestion();
         }
     }
 

@@ -107,8 +107,8 @@ export class WaitPageComponent implements OnInit, OnDestroy {
         });
     }
 
-    goTonextQuestion() {
-        this.matchRoomService.goTonextQuestion();
+    goToNextQuestion() {
+        this.matchRoomService.goToNextQuestion();
     }
 
     quitGame() {

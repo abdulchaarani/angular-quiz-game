@@ -43,12 +43,6 @@ describe('TimeService', () => {
         expect(service).toBeTruthy();
     });
 
-    // it('it should get the timerFinished$ subject as observable', () => {
-    //     service['timerFinished'] = new BehaviorSubject<boolean>(false);
-    //     const timerFinished$ = service.timerFinished$;
-    //     expect(timerFinished$).toBeDefined();
-    // });
-
     it('it should set the time', () => {
         service['counter'] = 0;
         service.time = 10;
@@ -91,21 +85,30 @@ describe('TimeService', () => {
         expect(spy).toHaveBeenCalledWith('timer', jasmine.any(Function));
     });
 
-    // it('should detect stopTimer event and notify observers of timerFinished', () => {
-    //     const spy = spyOn(socketSpy, 'on').and.callFake((event: string, callback: (params: any) => any) => {
-    //         callback(true);
-    //     });
-    //     service['timerFinished'].next(false);
-    //     service.handleStopTimer();
-    //     socketHelper.peerSideEmit('stopTimer');
-    //     expect(service['timerFinished'].value).toBe(true);
-    //     expect(spy).toHaveBeenCalledWith('stopTimer', jasmine.any(Function));
-    // });
+    it('should detect stopTimer event and stop the panic mode', () => {
+        service.isPanicking = true;
+        const spy = spyOn(socketSpy, 'on').and.callFake((event: string, callback: (params: any) => any) => {
+            callback(true);
+        });
+        service.handleStopTimer();
+        socketHelper.peerSideEmit('stopTimer');
+        expect(spy).toHaveBeenCalledWith('stopTimer', jasmine.any(Function));
+        expect(service.isPanicking).toBe(false);
+    });
 
     it('should compute timer progress with computeTimerProgress() and return a percentage', () => {
         service['initialValue'] = 10;
         service.time = 5;
         const result = service.computeTimerProgress();
         expect(result).toEqual(50);
+    });
+
+    it('listenToTimerEvents() should listen to correct events', () => {
+        const timerSpy = spyOn(service, 'handleTimer').and.returnValue();
+        const stopTimeSpy = spyOn(service, 'handleStopTimer').and.returnValue();
+        service.listenToTimerEvents();
+
+        expect(timerSpy).toHaveBeenCalled();
+        expect(stopTimeSpy).toHaveBeenCalled();
     });
 });

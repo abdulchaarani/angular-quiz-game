@@ -8,6 +8,7 @@ import { TimerEvents } from '@common/events/timer.events';
     providedIn: 'root',
 })
 export class TimeService {
+    isPanicModeDisabled: boolean;
     isPanicking: boolean;
     private counter: number;
     private initialValue: number;
@@ -15,6 +16,7 @@ export class TimeService {
     constructor(private readonly socketService: SocketHandlerService) {
         this.counter = 0;
         this.initialValue = 0;
+        this.isPanicModeDisabled = false;
         this.isPanicking = false;
     }
 
@@ -33,6 +35,7 @@ export class TimeService {
     listenToTimerEvents() {
         this.handleTimer();
         this.handleStopTimer();
+        this.onDisablePanicTimer();
     }
 
     startTimer(roomCode: string, time: number): void {
@@ -62,6 +65,12 @@ export class TimeService {
     handleStopTimer(): void {
         this.socketService.on(TimerEvents.StopTimer, () => {
             this.isPanicking = false;
+        });
+    }
+
+    onDisablePanicTimer(): void {
+        this.socketService.on(TimerEvents.DisablePanicTimer, () => {
+            this.isPanicModeDisabled = true;
         });
     }
 

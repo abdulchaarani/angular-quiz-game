@@ -11,11 +11,12 @@ import { MultipleChoiceAnswer } from '@app/model/answer-types/multiple-choice-an
 import { ChoiceTracker } from '@app/model/tally-trackers/choice-tracker/choice-tracker';
 import { MultipleChoiceHistogram } from '@common/interfaces/histogram';
 import { QuestionType } from '@app/constants/question-types';
+import { PanicThresholdTime } from '@app/constants/panic-threasholds-time';
 
 @Injectable()
 export class MultipleChoiceStrategy extends QuestionStrategy {
     constructor(private readonly eventEmitter: EventEmitter2) {
-        super(QuestionType.CHOICE);
+        super(QuestionType.MultipleChoice, PanicThresholdTime.MultipleChoice);
     }
 
     gradeAnswers(matchRoom: MatchRoom, players: Player[]): void {
@@ -73,6 +74,6 @@ export class MultipleChoiceStrategy extends QuestionStrategy {
     }
 
     private convertToHistogram(choiceTracker: ChoiceTracker): MultipleChoiceHistogram {
-        return { question: choiceTracker.question, type: QuestionType.CHOICE, choiceTallies: Object.values(choiceTracker.items) };
+        return { question: choiceTracker.question, type: QuestionType.MultipleChoice, choiceTallies: Object.values(choiceTracker.items) };
     }
 }

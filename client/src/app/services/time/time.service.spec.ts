@@ -111,4 +111,15 @@ describe('TimeService', () => {
         expect(timerSpy).toHaveBeenCalled();
         expect(stopTimeSpy).toHaveBeenCalled();
     });
+
+    it('should detect disable panic timer event and disable the panic mode', () => {
+        service.isPanicModeDisabled = false;
+        const spy = spyOn(socketSpy, 'on').and.callFake((event: string, callback: (params: any) => any) => {
+            callback(true);
+        });
+        service.onDisablePanicTimer();
+        socketHelper.peerSideEmit('disablePanicTimer');
+        expect(spy).toHaveBeenCalledWith('disablePanicTimer', jasmine.any(Function));
+        expect(service.isPanicModeDisabled).toBe(true);
+    });
 });

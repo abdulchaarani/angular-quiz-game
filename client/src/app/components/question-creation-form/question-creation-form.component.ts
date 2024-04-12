@@ -7,7 +7,7 @@ import { MAX_CHOICES, MIN_CHOICES, SNACK_BAR_DISPLAY_TIME } from '@app/constants
 import { QuestionTypes } from '@app/constants/question-types';
 import { ManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
-import { NotificationService } from '@app/services/notification/notification.service';
+
 export interface DialogManagement {
     modificationState: ManagementState;
 }
@@ -32,7 +32,6 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
     constructor(
         private readonly snackBar: MatSnackBar,
         private readonly formBuilder: FormBuilder,
-        private readonly notificationService: NotificationService,
         @Optional() @Inject(MAT_DIALOG_DATA) public dialogData: DialogManagement,
     ) {
         this.initializeForm();
@@ -175,7 +174,7 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
         this.questionForm = this.formBuilder.group(
             {
                 text: ['', Validators.required],
-                points: [''],
+                points: ['', Validators.required],
                 type: ['', Validators.required],
             },
             { validators: this.validateChoicesLength },
@@ -183,15 +182,15 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
 
         this.questionForm.statusChanges.subscribe((status) => {
             if (status === 'INVALID' && this.questionForm.hasError('invalidChoicesLength')) {
-                this.notificationService.displayErrorMessage('Il faut au moins une réponse correcte et une incorrecte !');
+                this.openSnackBar('Il faut au moins une réponse correcte et une incorrecte !');
             } else if (this.questionForm.get('text')?.invalid) {
-                this.notificationService.openWarningDialog('Le champ de la question est requis !');
+                this.openSnackBar('Le champ de la question est requis !');
             }
             if (this.questionForm.get('points')?.invalid) {
-                this.notificationService.openWarningDialog('Le champs points est requis !');
+                this.openSnackBar('Le champs points est requis !');
             }
             if (this.questionForm.get('type')?.invalid) {
-                this.notificationService.openWarningDialog('Le champ type est requis !');
+                this.openSnackBar('Le champ type est requis !');
             }
         });
 

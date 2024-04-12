@@ -36,13 +36,12 @@ export class ChatComponent implements AfterViewChecked, OnInit, OnDestroy {
     sendMessage(messageText: string): void {
         const isChatActiveForPlayer = this.matchRoomService.getPlayerByUsername(this.matchRoomService.getUsername())?.isChatActive;
         const isPlayerHost = this.matchRoomService.getUsername() === HOST_USERNAME;
-        if (messageText !== '') { 
+        if (messageText) { 
             const newMessage: Message = {
                 text: messageText,
                 author: this.matchRoomService.getUsername(),
                 date: new Date(),
             };
-
             if (isChatActiveForPlayer || isPlayerHost) {
                 this.chatService.sendMessage(this.matchRoomService.getRoomCode(), newMessage);
             }

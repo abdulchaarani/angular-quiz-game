@@ -11,8 +11,9 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ChatService } from '@app/services/chat/chat.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 
-import { MOCK_DATE, MOCK_MESSAGE, MOCK_ROOM_CODE } from '@app/constants/chat-mocks';
+import { MOCK_DATE, MOCK_MESSAGE, MOCK_ROOM_CODE, PLAYER_MOCK } from '@app/constants/chat-mocks';
 import SpyObj = jasmine.SpyObj;
+import { HOST_USERNAME } from '@common/constants/match-constants';
 
 describe('ChatComponent', () => {
     let component: ChatComponent;
@@ -21,7 +22,7 @@ describe('ChatComponent', () => {
     let chatServiceSpy: SpyObj<ChatService>;
 
     beforeEach(() => {
-        const matchRoomSpy = jasmine.createSpyObj('MatchRoomService', ['getUsername', 'getRoomCode', 'gameOver']);
+        const matchRoomSpy = jasmine.createSpyObj('MatchRoomService', ['getUsername', 'getRoomCode', 'gameOver', 'getPlayerByUsername']);
         const socketHandlerSpy = jasmine.createSpyObj('SocketHandlerService', ['send']);
         const chatSpy = jasmine.createSpyObj('ChatService', ['displayOldMessages', 'sendMessage', 'handleReceivedMessages']);
         socketHandlerSpy.socket = jasmine.createSpyObj('socket', ['removeListener']);
@@ -72,6 +73,8 @@ describe('ChatComponent', () => {
     it('should send message', () => {
         matchRoomServiceSpy.getUsername.and.returnValue(mockMessage.author);
         matchRoomServiceSpy.getRoomCode.and.returnValue(mockRoomCode);
+        matchRoomServiceSpy.getPlayerByUsername.and.returnValue(PLAYER_MOCK);
+        PLAYER_MOCK.isChatActive = true;
         component.sendMessage(mockMessage.text);
         expect(chatServiceSpy.sendMessage).toHaveBeenCalledWith(mockRoomCode, mockMessage);
     });
@@ -80,6 +83,24 @@ describe('ChatComponent', () => {
         const messageText = '';
         component.sendMessage(messageText);
         expect(chatServiceSpy.sendMessage).not.toHaveBeenCalled();
+    });
+
+    it('should send message if message text is not empty and player is host', () => {
+        const messageText = MOCK_MESSAGE.text;
+        const roomCode = MOCK_ROOM_CODE;
+        const author = HOST_USERNAME;
+        matchRoomServiceSpy.getUsername.and.returnValue(author);
+        matchRoomServiceSpy.getRoomCode.and.returnValue(roomCode);
+        matchRoomServiceSpy.getPlayerByUsername.and.returnValue(null);
+        component.sendMessage(messageText);
+        expect(chatServiceSpy.sendMessage).toHaveBeenCalledWith(
+            roomCode,
+            jasmine.objectContaining({
+                text: messageText,
+                author: author,
+                date: jasmine.any(Date),
+            }),
+        );
     });
 
     it('should destroy the handleReceivedMessages() and the fetchOldMessages() emits', () => {

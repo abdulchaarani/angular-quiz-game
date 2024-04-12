@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { MatchContext } from '@app/constants/states';
 import { Message } from '@app/interfaces/message';
 import { Player } from '@app/interfaces/player';
 import { Question } from '@app/interfaces/question';
@@ -14,7 +13,6 @@ import { UserInfo } from '@common/interfaces/user-info';
 import { BehaviorSubject } from 'rxjs';
 import { Observable } from 'rxjs/internal/Observable';
 import { Subject } from 'rxjs/internal/Subject';
-import { QuestionContextService } from '@app/services/question-context/question-context.service';
 
 @Injectable({
     providedIn: 'root',
@@ -43,13 +41,10 @@ export class MatchRoomService {
     private matchRoomCode: string;
     private username: string;
 
-    // Services are required to decouple logic
-    // eslint-disable-next-line max-params
     constructor(
         public socketService: SocketHandlerService,
         private readonly router: Router,
         private readonly notificationService: NotificationService,
-        private readonly questionContextService: QuestionContextService,
     ) {}
 
     get socketId() {
@@ -80,7 +75,7 @@ export class MatchRoomService {
             this.onPlayerKick();
             this.handleError();
             this.onPlayerChatStateToggle();
-            this.handleReactivatedChatNotifications();
+            this.handleChatStateNotifications();
         }
     }
 
@@ -93,9 +88,7 @@ export class MatchRoomService {
             this.matchRoomCode = res.code;
             this.username = HOST_USERNAME;
             if (isTestRoom) {
-                this.players = [
-                    { username: this.username, score: 0, bonusCount: 0, isPlaying: true, isChatActive: true, state: PlayerState.default },
-                ];
+                this.players = [{ username: this.username, score: 0, bonusCount: 0,isChatActive:true, isPlaying: true, state: PlayerState.default }];
                 this.router.navigateByUrl('/play-test');
             } else {
                 this.sendPlayersData(this.matchRoomCode);
@@ -110,29 +103,17 @@ export class MatchRoomService {
     }
 
     onPlayerChatStateToggle() {
-        this.socketService.on(ChatEvents.SendBackState, (data: boolean) => {
+        this.socketService.on(ChatEvents.ReturnCurrentChatState, (currentChatState: boolean) => {
             const player = this.getPlayerByUsername(this.username);
-
             if (player) {
-                console.log(player);
-                player.isChatActive = data;
+                player.isChatActive = currentChatState;
             }
         });
     }
 
-    activateChatWhenGameIsOver() {
-        const player = this.getPlayerByUsername(this.username);
-        if (player) {
-            player.isChatActive = true;
-        }
-    }
-
     joinRoom(roomCode: string, username: string) {
         const sentInfo: UserInfo = { roomCode, username };
-        this.socketService.send(MatchEvents.JoinRoom, sentInfo, (res: { code: string; username: string; isRandomMode: boolean }) => {
-            if (res.isRandomMode) {
-                this.questionContextService.setContext(MatchContext.RandomMode);
-            }
+        this.socketService.send(MatchEvents.JoinRoom, sentInfo, (res: { code: string; username: string }) => {
             this.matchRoomCode = res.code;
             this.username = res.username;
             this.router.navigateByUrl('/match-room');
@@ -199,13 +180,9 @@ export class MatchRoomService {
     }
 
     onGameOver() {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        this.socketService.on(MatchEvents.GameOver, (data: any) => {
-            const { isTestRoom, isRandomMode } = data;
-            if (isTestRoom && !isRandomMode) {
+        this.socketService.on(MatchEvents.GameOver, (isTestRoom) => {
+            if (isTestRoom) {
                 this.router.navigateByUrl('/host');
-            } else if (isRandomMode) {
-                this.routeToResultsPage();
             }
         });
     }
@@ -264,8 +241,8 @@ export class MatchRoomService {
             this.disconnect();
         });
     }
-
-    handleReactivatedChatNotifications() {
+    // TO TEST 
+    handleChatStateNotifications() {
         this.socketService.on(ChatEvents.ChatReactivated, (notificationMessage: string) => {
             this.notificationService.displaySuccessMessage(notificationMessage);
         });

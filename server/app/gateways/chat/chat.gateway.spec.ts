@@ -12,7 +12,7 @@ import { MatchEvents } from '@common/events/match.events';
 import { ChatEvents } from '@common/events/chat.events';
 import { CHAT_DEACTIVATED, CHAT_REACTIVATED } from '@app/constants/chat-state-messages';
 import { MOCK_MESSAGE_INFO, MOCK_PLAYER, MOCK_PLAYER_ROOM, MOCK_ROOM_CODE } from '@app/constants/match-mocks';
-import { MOCK_CHAT_STATE_DATA, MOCK_MATCH_ROOM_INDEX, MOCK_PLAYER_INDEX } from '@app/constants/chat-mocks';
+import { MOCK_CHAT_STATE_DATA, MOCK_DATE, MOCK_MATCH_ROOM_INDEX, MOCK_PLAYER_INDEX } from '@app/constants/chat-mocks';
 
 describe('MatchGateway', () => {
     let gateway: ChatGateway;
@@ -42,6 +42,15 @@ describe('MatchGateway', () => {
         // We want to assign a value to the private field
         // eslint-disable-next-line dot-notation
         gateway['server'] = server;
+    });
+
+    beforeAll(() => {
+        jest.useFakeTimers();
+        jest.setSystemTime(MOCK_DATE);
+    });
+
+    afterAll(() => {
+        jest.useRealTimers();
     });
 
     it('should be defined', () => {

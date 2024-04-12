@@ -7,6 +7,7 @@ import { MAX_CHOICES, MIN_CHOICES, SNACK_BAR_DISPLAY_TIME } from '@app/constants
 import { QuestionTypes } from '@app/constants/question-types';
 import { ManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
+import { NotificationService } from '@app/services/notification/notification.service';
 export interface DialogManagement {
     modificationState: ManagementState;
 }
@@ -31,11 +32,16 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
     constructor(
         private readonly snackBar: MatSnackBar,
         private readonly formBuilder: FormBuilder,
+        private readonly notificationService: NotificationService,
         @Optional() @Inject(MAT_DIALOG_DATA) public dialogData: DialogManagement,
     ) {
         this.initializeForm();
         if (dialogData) {
             this.modificationState = dialogData.modificationState;
+            //this.questionForm.get('type')?.disable();
+        }
+        if (this.modifyingForm) {
+            // this.questionForm.get('type')?.disable();
         }
     }
 
@@ -45,8 +51,8 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
 
     buildChoices(): FormGroup {
         return this.formBuilder.group({
-            text: ['', Validators.required],
-            isCorrect: [false, Validators.required],
+            text: [''],
+            isCorrect: [false],
         });
     }
 
@@ -99,9 +105,9 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
     onSubmit() {
         if (this.questionForm.valid) {
             const newQuestion: Question = this.questionForm.value;
-            if (newQuestion.type === 'QRL') {
-                newQuestion.choices = [];
-            }
+            // if (newQuestion.type === 'QRL') {
+            //     newQuestion.choices = [];
+            // }
             newQuestion.lastModification = new Date().toLocaleString();
             if (this.modificationState === ManagementState.BankModify) {
                 this.modifyQuestionEvent.emit(newQuestion);
@@ -143,6 +149,8 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
         if (changes.question && this.question) {
             this.modifyingForm = true;
             this.updateFormValues();
+
+            //this.questionForm.get('type')?.disable();
         }
     }
 
@@ -167,28 +175,23 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
         this.questionForm = this.formBuilder.group(
             {
                 text: ['', Validators.required],
-                points: ['', Validators.required],
-                type: [''],
+                points: [''],
+                type: ['', Validators.required],
             },
             { validators: this.validateChoicesLength },
         );
-        this.questionForm.get('type')?.valueChanges.subscribe((type: string) => {
-            if (type === QuestionTypes.CHOICE) {
-                this.questionForm.addControl(
-                    'choices',
-                    this.formBuilder.array([
-                        this.formBuilder.group({
-                            text: ['', Validators.required],
-                            isCorrect: [true, Validators.required],
-                        }),
-                        this.formBuilder.group({
-                            text: ['', Validators.required],
-                            isCorrect: [false, Validators.required],
-                        }),
-                    ]),
-                );
-            } else if (type === QuestionTypes.LONG) {
-                this.questionForm.removeControl('choices');
+
+        this.questionForm.statusChanges.subscribe((status) => {
+            if (status === 'INVALID' && this.questionForm.hasError('invalidChoicesLength')) {
+                this.notificationService.displayErrorMessage('Il faut au moins une réponse correcte et une incorrecte !');
+            } else if (this.questionForm.get('text')?.invalid) {
+                this.notificationService.openWarningDialog('Le champ de la question est requis !');
+            }
+            if (this.questionForm.get('points')?.invalid) {
+                this.notificationService.openWarningDialog('Le champs points est requis !');
+            }
+            if (this.questionForm.get('type')?.invalid) {
+                this.notificationService.openWarningDialog('Le champ type est requis !');
             }
         });
 
@@ -198,12 +201,12 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
                     'choices',
                     this.formBuilder.array([
                         this.formBuilder.group({
-                            text: ['', Validators.required],
-                            isCorrect: [true, Validators.required],
+                            text: [''],
+                            isCorrect: [true],
                         }),
                         this.formBuilder.group({
-                            text: ['', Validators.required],
-                            isCorrect: [false, Validators.required],
+                            text: [''],
+                            isCorrect: [false],
                         }),
                     ]),
                 );
@@ -234,6 +237,9 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
                 );
             }
         });
+
+        // this.questionForm.get('type')?.disable();
+        //this.questionForm.get('type')?.setValue(this.question.type);
     }
 }
 

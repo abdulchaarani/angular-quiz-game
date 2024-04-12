@@ -9,3 +9,4 @@ export interface ChatStateInfo{
     roomCode: string;
     playerUsername: string;
 }
+

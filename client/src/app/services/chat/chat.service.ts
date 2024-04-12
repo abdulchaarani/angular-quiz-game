@@ -19,6 +19,7 @@ export class ChatService {
         this.socketHandler.send(ChatEvents.RoomMessage, messageInfo);
     }
 
+
     sendMessagesHistory(roomCode: string) {
         this.socketHandler.send(ChatEvents.SendMessagesHistory, roomCode);
     }

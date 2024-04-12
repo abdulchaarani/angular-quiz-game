@@ -36,36 +36,7 @@
                 </button>
             </div>
 
-            <div id="question-options">
-                <mat-form-field>
-                    <mat-label>Type de Question</mat-label>
-                    <mat-select formControlName="type">
-                        <mat-option *ngFor="let type of ['QCM', 'QRL']" [value]="type">{{ type }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-
-                <mat-form-field>
-                    <mat-label>Points</mat-label>
-                    <mat-select formControlName="points">
-                        <mat-option *ngFor="let point of [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]" [value]="point">{{ point }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <div>
-                    <button
-                        *ngIf="this.isActiveSubmit()"
-                        mat-raised-button
-                        color="primary"
-                        type="submit"
-                        class="submit-button"
-                        [disabled]="!questionForm.valid"
-                    >
-                        <mat-icon>check</mat-icon>
-                        {{ getButtonText() }}
-                    </button>
-                </div>
-            </div>
-            <div *ngIf="questionForm.get('type')?.value === 'QRL'">
-            </div>
+            <div *ngIf="questionForm.get('type')?.value === 'QRL'"></div>
         </div>
 
         <div id="question-options">

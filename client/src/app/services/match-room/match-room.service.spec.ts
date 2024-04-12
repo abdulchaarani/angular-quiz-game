@@ -10,6 +10,7 @@ import { SocketHandlerService } from '@app/services/socket-handler/socket-handle
 import { Socket } from 'socket.io-client';
 import { MatchRoomService } from './match-room.service';
 import SpyObj = jasmine.SpyObj;
+import { PLAYER_MOCK } from '@app/constants/chat-mocks';
 
 class SocketHandlerServiceMock extends SocketHandlerService {
     // Override connect() is required to not actually connect the socket
@@ -114,6 +115,26 @@ describe('MatchRoomService', () => {
         expect(service['username']).toEqual('Organisateur');
         expect(router.navigateByUrl).toHaveBeenCalledWith('/play-test');
         expect(spy).toHaveBeenCalledWith('createRoom', { gameId: 'mockGame', isTestPage: true, isRandomMode: false }, jasmine.any(Function));
+    });
+
+    it('should update player chat state on ReturnCurrentChatState event', () => {
+        const mockPlayer: Player = PLAYER_MOCK;
+        const mockCurrentChatState = false;
+        spyOn(service, 'getPlayerByUsername').and.returnValue(mockPlayer);
+        const socketHandlerMock = TestBed.inject(SocketHandlerService) as SocketHandlerServiceMock;
+        const onSpy = spyOn(socketHandlerMock, 'on');
+        service.onPlayerChatStateToggle();
+        const callback = onSpy.calls.mostRecent().args[1] as (currentChatState: boolean) => void;
+        callback(mockCurrentChatState);
+    
+        expect(mockPlayer.isChatActive).toEqual(mockCurrentChatState);
+    });
+
+    it('should return player by username if found', () => {
+        const mockPlayers: Player[] = [PLAYER_MOCK];
+        service.players = mockPlayers;
+        const foundPlayer = service.getPlayerByUsername(PLAYER_MOCK.username);
+        expect(foundPlayer).toEqual(mockPlayers[0]);
     });
 
     it('createRoom should send event, update values for matchRoomCode and username, then redirect to match-room if not test room', () => {

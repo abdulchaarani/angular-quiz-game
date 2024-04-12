@@ -117,21 +117,17 @@ export class PlayerRoomService {
 
     getUsernameErrors(matchRoomCode: string, username: string): string {
         let errors = '';
-        const usernameToValidate = username.trim().toUpperCase();
-        if (!usernameToValidate) {
-            errors += EMPTY_USERNAME;
-        }
-
         if (this.matchRoomService.getRoom(matchRoomCode).isTestRoom) return errors;
-        if (usernameToValidate === HOST_USERNAME) {
-            errors += HOST_CONFLICT;
-        }
-        if (this.isBannedUsername(matchRoomCode, usernameToValidate)) {
-            errors += BANNED_USERNAME;
-        }
-        if (this.getPlayerByUsername(matchRoomCode, usernameToValidate)) {
-            errors += USED_USERNAME;
-        }
+        const usernameToValidate = username.trim().toUpperCase();
+        const errorConditions: Map<string, boolean> = new Map([
+            [EMPTY_USERNAME, !usernameToValidate],
+            [HOST_CONFLICT, usernameToValidate === HOST_USERNAME],
+            [BANNED_USERNAME, this.isBannedUsername(matchRoomCode, usernameToValidate)],
+            [USED_USERNAME, !!this.getPlayerByUsername(matchRoomCode, usernameToValidate)],
+        ]);
+        errorConditions.forEach((hasError: boolean, message: string) => {
+            if (hasError) errors += message;
+        });
         return errors;
     }
 

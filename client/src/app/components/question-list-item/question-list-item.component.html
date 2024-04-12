@@ -1,4 +1,4 @@
-<mat-expansion-panel class="question-card" *ngIf="question" [ngClass]="question.type === 'QRL' ? 'color-variant' : ''">
+<mat-expansion-panel class="question-card" *ngIf="question" [ngClass]="question.type === 'QRL' ? 'color-variant' : ''" [expanded]="isExpanded">
     <mat-expansion-panel-header>
         <mat-panel-title class="question-text">
             <p class="question-text">{{ index }} {{ question.text }}</p>
@@ -12,9 +12,10 @@
                 <button
                     mat-icon-button
                     color="warn"
-                    aria-label="Example icon button with a menu icon"
                     appClickStopPropagation
                     (click)="deleteQuestion()"
+                    matTooltip="Supprimer la question"
+                    matTooltipClass="button-tooltip"
                 >
                     <mat-icon>delete</mat-icon>
                 </button>

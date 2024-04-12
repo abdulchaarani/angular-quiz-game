@@ -4,4 +4,5 @@ export enum TimerEvents {
     PauseTimer = 'pauseTimer',
     PanicTimer = 'panicTimer',
     Timer = 'timer',
+    DisablePanicTimer = 'disablePanicTimer',
 }

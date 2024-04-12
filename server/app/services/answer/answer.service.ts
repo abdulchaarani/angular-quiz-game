@@ -13,6 +13,7 @@ import { LongAnswerInfo } from '@common/interfaces/long-answer-info';
 import { AnswerCorrectness } from '@common/constants/answer-correctness';
 import { QuestionStrategyContext } from '@app/services/question-strategy-context/question-strategy-context.service';
 import { GradingEvents } from '@app/constants/grading-events';
+import { PlayerEvents } from '@app/constants/player-events';
 
 @Injectable()
 export class AnswerService {
@@ -41,6 +42,11 @@ export class AnswerService {
         this.finaliseRound(roomCode);
     }
 
+    @OnEvent(PlayerEvents.Quit)
+    onPlayerQuit(roomCode: string) {
+        this.handleFinalAnswerSubmitted(this.getRoom(roomCode));
+    }
+
     // permit more parameters to make method reusable
     // eslint-disable-next-line max-params
     updateChoice(choice: string, selection: boolean, username: string, roomCode: string) {
@@ -63,21 +69,24 @@ export class AnswerService {
         const player: Player = this.playerService.getPlayerByUsername(roomCode, username);
         const matchRoom = this.getRoom(roomCode);
 
+        player.answer.timestamp = Date.now();
         player.answer.isSubmitted = true;
         matchRoom.submittedPlayers++;
 
         this.handleFinalAnswerSubmitted(matchRoom);
     }
 
-    private getRoom(roomCode: string) {
-        return this.matchRoomService.getRoom(roomCode);
-    }
-
     private handleFinalAnswerSubmitted(matchRoom: MatchRoom) {
-        if (matchRoom.submittedPlayers === matchRoom.activePlayers) {
+        const activePlayers = matchRoom.players.filter((player) => player.isPlaying);
+        const areAllAnswersSubmitted = activePlayers.every((player) => player.answer.isSubmitted);
+        if (areAllAnswersSubmitted) {
             this.timeService.terminateTimer(matchRoom.code);
             this.onQuestionTimerExpired(matchRoom.code);
         }
+    }
+
+    private getRoom(roomCode: string) {
+        return this.matchRoomService.getRoom(roomCode);
     }
 
     private autoSubmitAnswers(roomCode: string) {

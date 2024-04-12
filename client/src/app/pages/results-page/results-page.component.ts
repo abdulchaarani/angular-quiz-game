@@ -53,7 +53,7 @@ export class ResultsPageComponent implements OnInit, OnDestroy {
         });
         this.histogramService.onHistogramHistory();
         this.subscribeToHistogramHistory();
-        this.confettiService.getWinner();
+        this.confettiService.onWinner();
     }
 
     ngOnDestroy(): void {

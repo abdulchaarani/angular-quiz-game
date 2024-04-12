@@ -4,7 +4,7 @@ import { MatchContext } from '@app/constants/states';
 @Injectable({
     providedIn: 'root',
 })
-export class QuestionContextService {
+export class MatchContextService {
     private context: MatchContext;
 
     setContext(context: MatchContext): void {

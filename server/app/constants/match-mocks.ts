@@ -67,6 +67,29 @@ const MOCK_TEST_MATCH_ROOM: MatchRoom = {
     startTime: new Date(),
 };
 
+const MOCK_RANDOM_MATCH_ROOM: MatchRoom = {
+    code: '',
+    isLocked: false,
+    isPlaying: false,
+    game: getMockGame(),
+    gameLength: 1,
+    questionDuration: 60,
+    currentQuestion: getMockQuestion(),
+    currentQuestionIndex: 0,
+    currentQuestionAnswer: [],
+    choiceTracker: new ChoiceTracker(),
+    matchHistograms: [],
+    bannedUsernames: [],
+    players: [],
+    activePlayers: 0,
+    submittedPlayers: 0,
+    messages: [],
+    hostSocket: undefined,
+    isTestRoom: true,
+    isRandomMode: true,
+    startTime: new Date(),
+};
+
 const MOCK_PLAYER_ROOM: MatchRoom = {
     code: '',
     isLocked: false,
@@ -100,6 +123,7 @@ export {
     MOCK_PLAYER_ROOM,
     MOCK_ROOM_CODE,
     MOCK_TEST_MATCH_ROOM,
+    MOCK_RANDOM_MATCH_ROOM,
     MOCK_USERNAME,
     MOCK_USER_INFO,
 };

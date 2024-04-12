@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ExpiredTimerEvents } from '@app/constants/expired-timer-events';
 import { FAKE_COUNTER, FAKE_ROOM_ID, TICK, TIMER_VALUE } from '@app/constants/time-mocks';
 import { MatchGateway } from '@app/gateways/match/match.gateway';
@@ -57,6 +59,7 @@ describe('TimeService', () => {
     });
 
     it('should start a timer and emit a timer event if time has not run out', () => {
+        service['isPanicModeEnabled'] = false;
         server.in.returns({
             emit: (event: string) => {
                 expect(event).toEqual('timer');
@@ -67,6 +70,19 @@ describe('TimeService', () => {
         expect(service['counters'].get(FAKE_ROOM_ID)).toBeDefined();
         expect(service['counters'].get(FAKE_ROOM_ID)).toEqual(1);
         expect(service['intervals'].get(FAKE_ROOM_ID)).toBeDefined();
+        expect(service['isPanicModeEnabled']).toBe(true);
+    });
+
+    it('should disable the panic timer if start time is below treshold', () => {
+        server.in.returns({
+            emit: (event: string) => {
+                expect(event).toEqual('timer');
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        const spy = jest.spyOn<any, any>(service, 'disablePanicTimer').mockImplementation();
+        service.currentPanicThresholdTime = 20;
+        service.startTimer(server, FAKE_ROOM_ID, TIMER_VALUE, ExpiredTimerEvents.CountdownTimerExpired);
+        expect(spy).toHaveBeenCalled();
     });
 
     it('should call startInterval in panic mode when isPanicking is set to true', () => {
@@ -87,7 +103,6 @@ describe('TimeService', () => {
         expect(service['tick']).toEqual(NORMAL_TICK);
     });
 
-    // TODO : emit is undefined and im too tired to fix this
     it('should reset interval for set roomId, start a panic mode interval and emit a panic event when panicTimer() is called', () => {
         server.to.returns({
             emit: (event: string) => {
@@ -140,5 +155,59 @@ describe('TimeService', () => {
         jest.advanceTimersByTime(TICK);
         expect(terminateSpy).toHaveBeenCalled();
         expect(expireSpy).toHaveBeenCalled();
+    });
+
+    it('should disable panic mode if currentTime is below treshold', () => {
+        service['counters'] = FAKE_COUNTER;
+        const disableSpy = jest.spyOn<any, any>(service, 'disablePanicTimer').mockImplementation();
+        server.in.returns({
+            emit: (event: string) => {
+                expect(event).toEqual('timer');
+            },
+        } as BroadcastOperator<unknown, unknown>);
+
+        server.to.returns({
+            emit: (event: string) => {
+                expect(event).toEqual('stopTimer');
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        service.currentPanicThresholdTime = 10;
+        service.startTimer(server, FAKE_ROOM_ID, 11, ExpiredTimerEvents.CountdownTimerExpired);
+        jest.advanceTimersByTime(TICK);
+        expect(disableSpy).toHaveBeenCalled();
+    });
+
+    it('should not disable panic mode if it is already disabled', () => {
+        service['counters'] = FAKE_COUNTER;
+        const disableSpy = jest.spyOn<any, any>(service, 'disablePanicTimer').mockImplementation(() => (service['isPanicModeEnabled'] = false));
+        server.in.returns({
+            emit: (event: string) => {
+                expect(event).toEqual('timer');
+            },
+        } as BroadcastOperator<unknown, unknown>);
+
+        server.to.returns({
+            emit: (event: string) => {
+                expect(event).toEqual('stopTimer');
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        service['isPanicModeEnabled'] = false;
+        service.currentPanicThresholdTime = 10;
+        service.startTimer(server, FAKE_ROOM_ID, 10, ExpiredTimerEvents.CountdownTimerExpired);
+        jest.advanceTimersByTime(TICK);
+        expect(disableSpy).toBeCalledTimes(1);
+    });
+
+    it('disablePanicTimer() should disable panic timer and emit correct event', () => {
+        service['isPanicModeEnabled'] = true;
+
+        server.in.returns({
+            emit: (event: string) => {
+                expect(event).toEqual('disablePanicTimer');
+            },
+        } as BroadcastOperator<unknown, unknown>);
+
+        service['disablePanicTimer'](server, FAKE_ROOM_ID);
+        expect(service['isPanicModeEnabled']).toBe(false);
     });
 });

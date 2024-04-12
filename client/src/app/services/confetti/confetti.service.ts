@@ -8,23 +8,25 @@ import { SocketHandlerService } from '@app/services/socket-handler/socket-handle
     providedIn: 'root',
 })
 export class ConfettiService {
+    private confetti = confetti;
+
     constructor(public socketService: SocketHandlerService) {}
 
-    getWinner() {
+    onWinner(): void {
         this.socketService.on('winner', () => {
             this.startWinnerConfetti();
         });
     }
 
     shootConfetti(): void {
-        confetti({
+        this.confetti({
             angle: this.randomInRange(ConfettiOptions.MIN_CONFETTI_ANGLE, ConfettiOptions.MAX_CONFETTI_ANGLE),
             spread: this.randomInRange(ConfettiOptions.MIN_CONFETTI_SPREAD, ConfettiOptions.MAX_CONFETTI_SPREAD),
             particleCount: this.randomInRange(ConfettiOptions.MIN_CONFETTI_PARTICLE_COUNT, ConfettiOptions.MAX_CONFETTI_PARTICLE_COUNT),
         });
     }
 
-    startWinnerConfetti() {
+    startWinnerConfetti(): void {
         let count = 0;
         this.shootConfetti();
         const interval = setInterval(() => {
@@ -33,7 +35,7 @@ export class ConfettiService {
         }, ConfettiOptions.WINNER_CONFETTI_DELAY);
     }
 
-    private randomInRange(min: number, max: number) {
+    private randomInRange(min: number, max: number): number {
         return Math.random() * (max - min) + min;
     }
 }

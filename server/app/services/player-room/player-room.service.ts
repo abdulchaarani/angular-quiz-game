@@ -1,4 +1,4 @@
-import { BANNED_USERNAME, HOST_CONFLICT, USED_USERNAME } from '@app/constants/match-login-errors';
+import { BANNED_USERNAME, EMPTY_USERNAME, HOST_CONFLICT, USED_USERNAME } from '@app/constants/match-login-errors';
 import { MultipleChoiceAnswer } from '@app/model/answer-types/multiple-choice-answer/multiple-choice-answer';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Player } from '@app/model/schema/player.schema';
@@ -70,7 +70,17 @@ export class PlayerRoomService {
         }
         return foundMatchRoom ? foundMatchRoom.code : undefined;
     }
-
+    getPlayerBySocket(socketId: string): Player | undefined {
+        let foundPlayer: Player;
+        this.matchRoomService.matchRooms.forEach((matchRoom: MatchRoom) => {
+            const playerByMatchRoom = matchRoom.players.find((player: Player) => player.socket.id === socketId);
+            if (playerByMatchRoom) {
+                foundPlayer = playerByMatchRoom;
+                return;
+            }
+        });
+        return foundPlayer;
+    }
 
 
     getPlayerByUsername(matchRoomCode: string, username: string): Player | undefined {

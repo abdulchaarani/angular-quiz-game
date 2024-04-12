@@ -1,14 +1,14 @@
 import { TestBed } from '@angular/core/testing';
 
-import { QuestionContextService } from './question-context.service';
+import { MatchContextService } from './question-context.service';
 import { MatchContext } from '@app/constants/states';
 
 describe('QuestionContextService', () => {
-    let service: QuestionContextService;
+    let service: MatchContextService;
 
     beforeEach(() => {
         TestBed.configureTestingModule({});
-        service = TestBed.inject(QuestionContextService);
+        service = TestBed.inject(MatchContextService);
     });
 
     it('should be created', () => {

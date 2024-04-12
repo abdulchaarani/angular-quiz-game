@@ -2,15 +2,15 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { NotificationService } from '@app/services/notification/notification.service';
-import { QuestionContextService } from '@app/services/question-context/question-context.service';
+import { MatchContextService } from '@app/services/question-context/question-context.service';
 
 export const matchLoginGuard = (): boolean => {
     const matchRoomService = inject(MatchRoomService);
     const router = inject(Router);
     const notificationService = inject(NotificationService);
-    const questionContextService = inject(QuestionContextService);
+    const matchContextService = inject(MatchContextService);
 
-    const isTestPage = questionContextService.getContext() === 'testPage';
+    const isTestPage = matchContextService.getContext() === 'testPage';
     const isPlaying = matchRoomService.isPlaying;
     const hasRoomCode = !!matchRoomService.getRoomCode();
     const hasUsername = !!matchRoomService.getUsername();

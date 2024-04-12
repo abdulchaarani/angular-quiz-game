@@ -78,6 +78,7 @@ export class MatchRoomService {
             startTime: new Date(),
         };
         this.matchRooms.push(newRoom);
+        this.setQuestionStrategy(newRoom);
         return newRoom;
     }
 
@@ -95,6 +96,7 @@ export class MatchRoomService {
 
     deleteRoom(matchRoomCode: string): void {
         this.timeService.terminateTimer(matchRoomCode);
+        this.questionStrategyService.deleteRoom(matchRoomCode);
         this.matchRooms = this.matchRooms.filter((room: MatchRoom) => {
             return room.code !== matchRoomCode;
         });
@@ -145,8 +147,7 @@ export class MatchRoomService {
         const firstQuestion = matchRoom.game.questions[0];
         const gameDuration: number = matchRoom.game.duration;
         const isTestRoom = matchRoom.isTestRoom;
-        this.questionStrategyService.setQuestionStrategy(matchRoom);
-
+        this.setQuestionStrategy(matchRoom);
         matchRoom.currentQuestionAnswer = this.filterCorrectChoices(firstQuestion);
         this.removeIsCorrectField(firstQuestion);
         if (!isTestRoom) {
@@ -171,7 +172,7 @@ export class MatchRoomService {
         const nextQuestion = this.getCurrentQuestion(matchRoomCode);
         matchRoom.currentQuestion = nextQuestion;
         matchRoom.currentQuestionAnswer = this.filterCorrectChoices(nextQuestion);
-        this.questionStrategyService.setQuestionStrategy(matchRoom);
+        this.setQuestionStrategy(matchRoom);
 
         this.removeIsCorrectField(nextQuestion);
         server.in(matchRoomCode).emit(MatchEvents.NextQuestion, nextQuestion);
@@ -224,5 +225,10 @@ export class MatchRoomService {
 
     private removeIsCorrectField(question: Question) {
         question.choices.forEach((choice: Choice) => delete choice.isCorrect);
+    }
+
+    private setQuestionStrategy(matchRoom: MatchRoom) {
+        this.questionStrategyService.setQuestionStrategy(matchRoom);
+        this.timeService.currentPanicThresholdTime = this.questionStrategyService.getQuestionPanicThreshold(matchRoom.code);
     }
 }

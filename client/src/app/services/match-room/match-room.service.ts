@@ -10,6 +10,7 @@ import { MatchContextService } from '@app/services/question-context/question-con
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 import { HOST_USERNAME } from '@common/constants/match-constants';
 import { PlayerState } from '@common/constants/player-states';
+import { ChatEvents } from '@common/events/chat.events';
 import { MatchEvents } from '@common/events/match.events';
 import { UserInfo } from '@common/interfaces/user-info';
 
@@ -34,7 +35,7 @@ export class MatchRoomService {
     private matchRoomCode: string;
     private username: string;
 
-    // Services are required to decouple logic
+    // Allow more constructor parameters
     // eslint-disable-next-line max-params
     constructor(
         public socketService: SocketHandlerService,
@@ -69,6 +70,8 @@ export class MatchRoomService {
             this.onHostQuit();
             this.onPlayerKick();
             this.handleError();
+            this.onPlayerChatStateToggle();
+            this.handleChatStateNotifications();
             this.onGameOver();
             this.onRouteToResultsPage();
         }
@@ -84,10 +87,30 @@ export class MatchRoomService {
             this.matchRoomCode = res.code;
             this.username = HOST_USERNAME;
             if (isTestRoom) {
-                this.players = [{ username: this.username, score: 0, bonusCount: 0, isPlaying: true, state: PlayerState.default }];
+                this.players = [
+                    { username: this.username, score: 0, bonusCount: 0, isChatActive: true, isPlaying: true, state: PlayerState.default },
+                ];
+                this.router.navigateByUrl('/play-test');
+                this.players = [
+                    { username: this.username, score: 0, bonusCount: 0, isChatActive: true, isPlaying: true, state: PlayerState.default },
+                ];
             } else {
                 this.sendPlayersData(this.matchRoomCode);
                 this.router.navigateByUrl('/match-room');
+            }
+        });
+    }
+
+    getPlayerByUsername(username: string): Player | null {
+        const playerToFindByUsername = this.players.find((player) => player.username === username);
+        return playerToFindByUsername ? playerToFindByUsername : null;
+    }
+
+    onPlayerChatStateToggle() {
+        this.socketService.on(ChatEvents.ReturnCurrentChatState, (currentChatState: boolean) => {
+            const player = this.getPlayerByUsername(this.username);
+            if (player) {
+                player.isChatActive = currentChatState;
             }
         });
     }
@@ -235,6 +258,12 @@ export class MatchRoomService {
         this.socketService.on(MatchEvents.KickPlayer, () => {
             this.isBanned = true;
             this.disconnect();
+        });
+    }
+
+    handleChatStateNotifications() {
+        this.socketService.on(ChatEvents.ChatReactivated, (notificationMessage: string) => {
+            this.notificationService.displaySuccessMessage(notificationMessage);
         });
     }
 }

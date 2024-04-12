@@ -41,6 +41,7 @@ export class PlayerRoomService {
             answerCorrectness: AnswerCorrectness.WRONG,
             bonusCount: 0,
             isPlaying: true,
+            isChatActive: true,
             socket: playerSocket,
             state: PlayerState.default,
         };
@@ -74,6 +75,18 @@ export class PlayerRoomService {
         return this.getPlayers(matchRoomCode).find((player: Player) => {
             return player.username.toUpperCase() === username.toUpperCase();
         });
+    }
+
+    getPlayerBySocket(socketId: string): Player | undefined {
+        let foundPlayer: Player;
+        this.matchRoomService.matchRooms.forEach((matchRoom: MatchRoom) => {
+            const playerByMatchRoom = matchRoom.players.find((player: Player) => player.socket.id === socketId);
+            if (playerByMatchRoom) {
+                foundPlayer = playerByMatchRoom;
+                return;
+            }
+        });
+        return foundPlayer;
     }
 
     makePlayerInactive(matchRoomCode: string, username: string): void {

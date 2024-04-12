@@ -9,10 +9,10 @@ import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
 import { HOST_USERNAME } from '@common/constants/match-constants';
 import { PlayerState } from '@common/constants/player-states';
+import { ChatEvents } from '@common/events/chat.events';
 import { HistogramEvents } from '@common/events/histogram.events';
 import { MatchEvents } from '@common/events/match.events';
 import { TimerEvents } from '@common/events/timer.events';
-import { ChatEvents } from '@common/events/chat.events';
 import { UserInfo } from '@common/interfaces/user-info';
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
@@ -171,11 +171,12 @@ export class MatchGateway implements OnGatewayDisconnect {
     }
 
     handlePlayersDisconnect(@ConnectedSocket() socket: Socket) {
-        const roomCode= this.playerRoomService.deletePlayerBySocket(socket.id);
+        const roomCode = this.playerRoomService.deletePlayerBySocket(socket.id);
         const player = this.playerRoomService.getPlayerBySocket(socket.id);
         if (!roomCode || !player) {
             return;
         }
+
         const room = this.matchRoomService.getRoom(roomCode);
         const isRoomEmpty = this.isRoomEmpty(room);
         if (room.isPlaying && isRoomEmpty && room.currentQuestionIndex !== room.gameLength) {
@@ -187,8 +188,8 @@ export class MatchGateway implements OnGatewayDisconnect {
             this.deleteRoom(roomCode);
             return;
         }
-        this.sendMessageOnDisconnect(roomCode, player.username);
         this.handleSendPlayersData(roomCode);
+        this.sendMessageOnDisconnect(roomCode, player.username);
     }
 
     deleteRoom(matchRoomCode: string) {
@@ -197,11 +198,6 @@ export class MatchGateway implements OnGatewayDisconnect {
         this.matchRoomService.deleteRoom(matchRoomCode);
     }
 
-    sendMessageOnDisconnect(roomCode, username) {
-        this.server
-            .to(roomCode)
-            .emit(ChatEvents.NewMessage, { roomCode, message: { author: '', text: `${username} a quitté la partie.`, date: new Date() } });
-    }
 
     handleSendPlayersData(matchRoomCode: string) {
         this.server.to(matchRoomCode).emit(MatchEvents.FetchPlayersData, this.playerRoomService.getPlayersStringified(matchRoomCode));
@@ -209,6 +205,12 @@ export class MatchGateway implements OnGatewayDisconnect {
 
     sendError(socketId: string, error: string) {
         this.server.to(socketId).emit(MatchEvents.Error, error);
+    }
+
+    sendMessageOnDisconnect(roomCode, username) {
+        this.server
+            .to(roomCode)
+            .emit(ChatEvents.NewMessage, { roomCode, message: { author: '', text: `${username} a quitté la partie.`, date: new Date() } });
     }
 
     private emitHistogramHistory(matchRoomCode: string) {

@@ -70,7 +70,7 @@ export class PlayerRoomService {
         }
         return foundMatchRoom ? foundMatchRoom.code : undefined;
     }
-    // TO TEST
+    
     getPlayerBySocket(socketId: string): Player | undefined {
         let foundPlayer: Player;
         this.matchRoomService.matchRooms.forEach((matchRoom: MatchRoom) => {

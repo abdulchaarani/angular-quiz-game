@@ -2,19 +2,19 @@
 
 <div id="main-container">
     <button mat-raised-button id="exit-button" routerLink="/home" (click)="quitGame()">Quitter</button>
-    <div id="game-starting" *ngIf="startTimerButton">
-        <h1>Le jeu {{ gameTitle }} commence dans..</h1>
+    <div id="game-starting" *ngIf="matchRoomService.isMatchStarted">
+        <h1>Le jeu {{ this.matchRoomService.gameTitle }} commence dans..</h1>
         <div id="timer">
-            <mat-progress-spinner [value]="this.timeService.computeTimerProgress()" mode="determinate" diameter="350"> </mat-progress-spinner>
+            <mat-progress-spinner [value]="timeService.computeTimerProgress()" mode="determinate" diameter="350"> </mat-progress-spinner>
             <h2 id="time-left">
-                {{ this.timeService.time }}
+                {{ timeService.time }}
             </h2>
         </div>
     </div>
-    <div id="waiting-for-players" *ngIf="!startTimerButton">
+    <div id="waiting-for-players" *ngIf="!matchRoomService.isMatchStarted">
         <h1>Hoot Hoot en attente</h1>
         <div *ngIf="isHost" id="host-options-container">
-            <p *ngIf="isHost" id="code">{{ this.matchRoomService.getRoomCode() }}</p>
+            <p *ngIf="isHost" id="code">{{ matchRoomService.getRoomCode() }}</p>
             <mat-slide-toggle [(ngModel)]="isLocked" (click)="toggleLock()">{{
                 isLocked ? 'Partie verrouillée' : 'Partie déverouillée'
             }}</mat-slide-toggle>
@@ -23,12 +23,12 @@
                 id="start-button"
                 color="primary"
                 (click)="startMatch()"
-                [disabled]="!isLocked || this.matchRoomService.players.length === 0"
+                [disabled]="!isLocked || matchRoomService.players.length === 0"
             >
                 Commencer la partie
             </button>
         </div>
-        <mat-card *ngFor="let player of this.matchRoomService.players" class="player-username-card">
+        <mat-card *ngFor="let player of matchRoomService.players" class="player-username-card">
             <p>{{ player.username }}</p>
             <button mat-icon-button (click)="banPlayerUsername(player.username)" color="warn" *ngIf="isHost">
                 <mat-icon *ngIf="player.username !== 'Organisateur'">delete</mat-icon>

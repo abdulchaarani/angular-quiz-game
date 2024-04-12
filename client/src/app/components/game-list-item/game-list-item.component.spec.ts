@@ -12,6 +12,7 @@ import { GameService } from '@app/services/game/game.service';
 import { of } from 'rxjs';
 import { GameListItemComponent } from './game-list-item.component';
 import SpyObj = jasmine.SpyObj;
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 const MOCK_GAME = getMockGame();
 
@@ -28,7 +29,7 @@ describe('GameListItemComponent', () => {
         gamesServiceSpy.toggleGameVisibility.and.returnValue(of());
 
         TestBed.configureTestingModule({
-            imports: [MatCardModule, HttpClientModule, MatIconModule, RouterModule, RouterTestingModule, ScrollingModule],
+            imports: [MatCardModule, HttpClientModule, MatIconModule, RouterModule, RouterTestingModule, ScrollingModule, MatTooltipModule],
             declarations: [GameListItemComponent],
             providers: [
                 { provide: GameService, useValue: gamesServiceSpy },

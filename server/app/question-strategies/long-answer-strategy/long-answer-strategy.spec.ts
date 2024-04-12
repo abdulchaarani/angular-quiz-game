@@ -161,7 +161,7 @@ describe('LongAnswerStrategy', () => {
 
     it("prepareAnswersForGrading() should convert every players's answers to a list of LongAnswerInfo for grading of a regular match", () => {
         matchRoom.isTestRoom = false;
-        grades.forEach((grade) => (grade.score = '0'));
+        grades.forEach((grade) => (grade.score = null));
 
         strategy['prepareAnswersForGrading'](matchRoom, matchRoom.players);
 

@@ -36,6 +36,8 @@ import { MultipleChoiceAreaComponent } from './components/multiple-choice-area/m
 import { LongAnswerAreaComponent } from './components/long-answer-area/long-answer-area.component';
 import { SortAnswersPipe } from './pipes/sort-answers.pipe';
 import { LongAnswerHistogramComponent } from './components/long-answer-histogram/long-answer-histogram.component';
+import { MAT_TOOLTIP_DEFAULT_OPTIONS } from '@angular/material/tooltip';
+import { tooltipOptions } from './constants/tooltip-options';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -86,7 +88,7 @@ import { LongAnswerHistogramComponent } from './components/long-answer-histogram
         ReactiveFormsModule,
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    providers: [],
+    providers: [{ provide: MAT_TOOLTIP_DEFAULT_OPTIONS, useValue: tooltipOptions }],
     exports: [QuestionListItemComponent, GameListItemComponent, QuestionCreationFormComponent],
     bootstrap: [AppComponent],
 })

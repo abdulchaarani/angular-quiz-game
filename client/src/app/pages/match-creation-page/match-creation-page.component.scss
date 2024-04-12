@@ -1,3 +1,6 @@
+h1 {
+    text-align: center;
+}
 body,
 html {
     height: 100%;
@@ -29,13 +32,16 @@ html {
 #game-card {
     box-shadow: 2px 0 2.5px 0 10px;
     border-radius: 5pt;
+    height: 3rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
 
 #game-card-content {
     margin-left: 8px;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    justify-content: space-between;
+    display: flex;
+    flex-direction: row;
     align-items: center;
 }
 
@@ -47,18 +53,21 @@ html {
     margin-right: 50px;
     display: flex;
     flex-direction: column;
+    gap: 2rem;
 }
 
 #game-details {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 2rem;
+    font-size: 1.5rem;
 }
 
 .list {
     display: flex;
     flex-direction: column;
     overflow-y: auto;
+    gap: 1rem;
 }
 
 #buttons-container {
@@ -68,9 +77,14 @@ html {
     padding: 25px;
 }
 
+#game-questions {
+    margin-left: 2rem;
+}
+
 button {
     width: 10vw;
-    height: 5vh;
+    padding: 2rem;
+    font-size: 1.5rem;
 }
 
 app-game-list-item {
@@ -80,4 +94,15 @@ app-game-list-item {
 ::-webkit-scrollbar {
     display: none;
     scrollbar-width: thin;
+}
+
+#time-container {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    align-items: center;
+}
+
+.material-icons {
+    font-size: 1.5rem;
 }

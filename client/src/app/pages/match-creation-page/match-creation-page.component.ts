@@ -8,7 +8,7 @@ import { Question } from '@app/interfaces/question';
 import { GameService } from '@app/services/game/game.service';
 import { MatchService } from '@app/services/match/match.service';
 import { NotificationService } from '@app/services/notification/notification.service';
-import { QuestionContextService } from '@app/services/question-context/question-context.service';
+import { MatchContextService } from '@app/services/question-context/question-context.service';
 import { QuestionService } from '@app/services/question/question.service';
 import { MINIMUM_QUESTIONS } from '@common/constants/match-constants';
 import { QuestionType } from '@common/constants/question-types';
@@ -31,7 +31,7 @@ export class MatchCreationPageComponent implements OnInit {
         private readonly gameService: GameService,
         private readonly notificationService: NotificationService,
         private readonly matchService: MatchService,
-        private readonly questionContextService: QuestionContextService,
+        private readonly matchContextService: MatchContextService,
         private readonly questionService: QuestionService,
     ) {
         this.gameIsValid = false;
@@ -127,7 +127,7 @@ export class MatchCreationPageComponent implements OnInit {
     }
 
     createMatch(context: MatchContext): void {
-        this.questionContextService.setContext(context);
+        this.matchContextService.setContext(context);
         if (!this.isRandomGame) this.reloadSelectedGame();
         else {
             this.revalidateRandomGame();

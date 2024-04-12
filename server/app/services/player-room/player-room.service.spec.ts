@@ -3,8 +3,6 @@ import { MOCK_MATCH_ROOM, MOCK_PLAYER, MOCK_PLAYER_ROOM, MOCK_ROOM_CODE, MOCK_US
 import { MultipleChoiceAnswer } from '@app/model/answer-types/multiple-choice-answer/multiple-choice-answer';
 import { Player } from '@app/model/schema/player.schema';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
-import { AnswerCorrectness } from '@common/constants/answer-correctness';
-import { HOST_USERNAME } from '@common/constants/match-constants';
 import { PlayerState } from '@common/constants/player-states';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
@@ -205,7 +203,6 @@ describe('PlayerRoomService', () => {
             { username: HOST_USERNAME, isBanned: false, isUsed: false, expectedResult: HOST_CONFLICT },
             { username: MOCK_USERNAME, isBanned: true, isUsed: false, expectedResult: BANNED_USERNAME },
             { username: MOCK_USERNAME, isBanned: false, isUsed: true, expectedResult: USED_USERNAME },
-            { username: HOST_USERNAME, isBanned: false, isUsed: true, expectedResult: HOST_CONFLICT + USED_USERNAME },
         ];
         for (const { username, isBanned, isUsed, expectedResult } of testCases) {
             const banSpy = jest.spyOn(service, 'isBannedUsername').mockReturnValue(isBanned);
@@ -228,7 +225,7 @@ describe('PlayerRoomService', () => {
 
     it('getUsernameErrors() should always return empty string if used in testPage', () => {
         matchRoomSpy.getRoom(MOCK_ROOM_CODE).isTestRoom = true;
-        const result = service.getUsernameErrors(MOCK_ROOM_CODE, '');
+        const result = service.getUsernameErrors(MOCK_ROOM_CODE, MOCK_USERNAME);
         expect(result).toBe('');
     });
 

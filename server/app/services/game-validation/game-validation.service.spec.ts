@@ -252,7 +252,7 @@ describe('GameValidationService', () => {
         const spyValidateLongQuestion = jest.spyOn(service, 'findGeneralQuestionErrors').mockImplementation(() => []);
         const mockGame = getMockGame();
         const mockQuestion = getMockQuestion();
-        mockQuestion.type = QuestionType.CHOICE;
+        mockQuestion.type = QuestionType.MultipleChoice;
         mockGame.questions = [mockQuestion];
         expect(service.findGameErrors(mockGame)).toEqual([ERROR_EMPTY_TITLE, ERROR_EMPTY_DESCRIPTION, ERROR_DURATION]);
         expect(spyValidString).toHaveBeenCalledWith(mockGame.title);

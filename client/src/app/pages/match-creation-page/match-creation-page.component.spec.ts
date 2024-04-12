@@ -16,7 +16,7 @@ import { Question } from '@app/interfaces/question';
 import { GameService } from '@app/services/game/game.service';
 import { MatchService } from '@app/services/match/match.service';
 import { NotificationService } from '@app/services/notification/notification.service';
-import { QuestionContextService } from '@app/services/question-context/question-context.service';
+import { MatchContextService } from '@app/services/question-context/question-context.service';
 import { QuestionService } from '@app/services/question/question.service';
 import { MINIMUM_QUESTIONS } from '@common/constants/match-constants';
 import { Subject, of, throwError } from 'rxjs';
@@ -28,7 +28,7 @@ describe('MatchCreationPageComponent', () => {
     let fixture: ComponentFixture<MatchCreationPageComponent>;
     let gameService: GameService;
     let notificationSpy: SpyObj<NotificationService>;
-    let questionContextSpy: SpyObj<QuestionContextService>;
+    let questionContextSpy: SpyObj<MatchContextService>;
     let questionServiceSpy: SpyObj<QuestionService>;
     let questionsSubject: Subject<Question[]>;
 
@@ -68,8 +68,8 @@ describe('MatchCreationPageComponent', () => {
                 { provide: NotificationService, useValue: notificationSpy },
                 { provide: MatchService, useValue: matchServiceSpy },
                 { provide: MatDialog, useClass: MatDialogMock },
-                { provide: QuestionContextService, useValue: questionContextSpy },
                 { provide: QuestionService, useValue: questionServiceSpy },
+                { provide: MatchContextService, useValue: questionContextSpy },
             ],
         });
         fixture = TestBed.createComponent(MatchCreationPageComponent);

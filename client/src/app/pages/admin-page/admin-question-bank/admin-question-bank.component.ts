@@ -1,5 +1,6 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatAccordion } from '@angular/material/expansion';
 import { QuestionCreationFormComponent } from '@app/components/question-creation-form/question-creation-form.component';
 import { TEMPLATE_QUESTION } from '@app/constants/question-creation';
 import { ManagementState } from '@app/constants/states';
@@ -16,6 +17,8 @@ export class AdminQuestionBankComponent implements OnInit {
     @Output() createQuestionEventQuestionBank: EventEmitter<Question> = new EventEmitter<Question>();
     @Input() createNewQuestionButton: boolean = false;
     @Input() createNewQuestionToBankButton: boolean = false;
+
+    @ViewChild(MatAccordion) accordion: MatAccordion;
 
     response: string = '';
     newQuestion: Question = TEMPLATE_QUESTION;
@@ -41,6 +44,7 @@ export class AdminQuestionBankComponent implements OnInit {
 
     updateQuestion(newQuestion: Question) {
         this.bankService.updateQuestion(newQuestion);
+        this.accordion.closeAll();
     }
 
     openDialog() {

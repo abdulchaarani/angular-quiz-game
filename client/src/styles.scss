@@ -77,10 +77,6 @@ body {
     flex-direction: column;
 }
 
-.submit-button {
-    width: 100%;
-}
-
 .error-snackbar {
     --mdc-snackbar-container-color: #cc0000;
     --mat-snack-bar-button-color: white;
@@ -144,10 +140,28 @@ body {
     border-bottom: solid 1px #ccc;
 }
 
-.virtual-scroll {
-    height: 100vh;
+.mat-button-toggle-button,
+.toggle {
+    height: inherit;
+    width: inherit;
 }
 
-.mat-button-toggle-button {
-    height: inherit;
+.spaced {
+    margin-bottom: 1rem;
+}
+
+.nav {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0;
+}
+
+.navigation-buttons {
+    margin: 0;
+}
+
+.virtual-scroll {
+    height: 100vh;
 }

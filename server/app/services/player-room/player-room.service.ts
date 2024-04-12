@@ -117,7 +117,7 @@ export class PlayerRoomService {
 
     getUsernameErrors(matchRoomCode: string, username: string): string {
         let errors = '';
-        if (this.matchRoomService.getRoom(matchRoomCode).isTestRoom) return errors;
+        if (this.matchRoomService.getRoom(matchRoomCode).isTestRoom && username === HOST_USERNAME) return errors;
         if (username.trim().toUpperCase() === HOST_USERNAME) {
             errors += HOST_CONFLICT;
         }

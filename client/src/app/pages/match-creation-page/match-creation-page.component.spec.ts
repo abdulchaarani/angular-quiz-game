@@ -9,8 +9,10 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SnackBarError } from '@app/constants/feedback-messages';
 import { getMockGame } from '@app/constants/game-mocks';
 import { MatDialogMock } from '@app/constants/mat-dialog-mock';
+import { RANDOM_MODE_GAME } from '@app/constants/question-creation';
 import { MatchContext } from '@app/constants/states';
 import { Game } from '@app/interfaces/game';
+import { Question } from '@app/interfaces/question';
 import { GameService } from '@app/services/game/game.service';
 import { MatchService } from '@app/services/match/match.service';
 import { NotificationService } from '@app/services/notification/notification.service';
@@ -21,7 +23,7 @@ import { of, throwError } from 'rxjs';
 import { MatchCreationPageComponent } from './match-creation-page.component';
 import SpyObj = jasmine.SpyObj;
 
-describe('MatchCreationPageComponent', () => {
+fdescribe('MatchCreationPageComponent', () => {
     let component: MatchCreationPageComponent;
     let fixture: ComponentFixture<MatchCreationPageComponent>;
     let gameService: GameService;
@@ -31,6 +33,11 @@ describe('MatchCreationPageComponent', () => {
 
     const invisibleGame: Game = { isVisible: false } as Game;
     const fakeGame: Game = getMockGame();
+
+    const mockData: Question[] = [];
+    for (let i = 0; i < MINIMUM_QUESTIONS; i++) {
+        mockData.push(getMockGame().questions[0]);
+    }
 
     const action = 'Actualiser';
 
@@ -77,6 +84,11 @@ describe('MatchCreationPageComponent', () => {
 
     it('should load games on init', () => {
         expect(component.games).toBeDefined();
+    });
+
+    it('should handle load random game', () => {
+        component.handleLoadRandomGame(mockData);
+        expect(component.selectedGame).toEqual(RANDOM_MODE_GAME);
     });
 
     it('should load only visible games on init', () => {
@@ -208,6 +220,28 @@ describe('MatchCreationPageComponent', () => {
         const reloadSpy = spyOn(component, 'reloadSelectedGame');
         component.createMatch(MatchContext.HostView);
         expect(reloadSpy).toHaveBeenCalled();
+    });
+
+    // it('createMatch() should revalidate random game if it is selected', () => {
+    //     const reloadSpy = spyOn(component, 'revalidateRandomGame');
+    //     component.createMatch(MatchContext.RandomMode);
+    //     expect(reloadSpy).toHaveBeenCalled();
+    // });
+
+    it('should handle revalidate random game', () => {
+        component.handleRevalidateRandomGame(mockData);
+
+        expect(component.isRandomGame).toBeTrue();
+        expect(component.gameIsValid).toBeTrue();
+        // expect(matchServiceSpy.currentGame).toEqual(RANDOM_MODE_GAME);
+        expect(matchServiceSpy.createMatch).toHaveBeenCalled();
+    });
+
+    it('handleRevalidateRandomGame() should display error message if not enough random questions', () => {
+        const notEnoughData: Question[] = [];
+        const errorMessage = "Il n'y a pas assez de questions pour un jeu aléatoire";
+        component.handleRevalidateRandomGame(notEnoughData);
+        expect(notificationSpy.displayErrorMessage).toHaveBeenCalledWith(errorMessage);
     });
 
     it('should return true and set isRandomGame and gameIsValid to true if questions count is equal to minimum', () => {

@@ -44,13 +44,17 @@ export class MatchCreationPageComponent implements OnInit {
         this.matchService.getAllGames().subscribe((data: Game[]) => (this.games = data));
     }
 
+    handleLoadRandomGame(data: Question[]) {
+        const questionsCount = [...data].length;
+        if (this.hasEnoughRandomQuestions(questionsCount)) {
+            this.selectedGame = RANDOM_MODE_GAME;
+        }
+    }
+
     loadRandomGame(): void {
         this.questionService.getAllQuestions().subscribe({
             next: (data: Question[]) => {
-                const questionsCount = [...data].length;
-                if (this.hasEnoughRandomQuestions(questionsCount)) {
-                    this.selectedGame = RANDOM_MODE_GAME;
-                }
+                this.handleLoadRandomGame(data);
             },
         });
     }
@@ -127,19 +131,23 @@ export class MatchCreationPageComponent implements OnInit {
         }
     }
 
+    handleRevalidateRandomGame(data: Question[]) {
+        const questionsCount = [...data].length;
+
+        const hasEnoughRandomQuestions = this.hasEnoughRandomQuestions(questionsCount);
+
+        if (hasEnoughRandomQuestions && this.isRandomGame && this.gameIsValid) {
+            this.matchService.currentGame = this.selectedGame;
+            this.matchService.createMatch();
+        } else {
+            this.notificationService.displayErrorMessage("Il n'y a pas assez de questions pour un jeu aléatoire");
+        }
+    }
+
     revalidateRandomGame() {
         this.questionService.getAllQuestions().subscribe({
             next: (data: Question[]) => {
-                const questionsCount = [...data].length;
-
-                const hasEnoughRandomQuestions = this.hasEnoughRandomQuestions(questionsCount);
-
-                if (hasEnoughRandomQuestions && this.isRandomGame && this.gameIsValid) {
-                    this.matchService.currentGame = this.selectedGame;
-                    this.matchService.createMatch();
-                } else {
-                    this.notificationService.displayErrorMessage("Il n'y a pas assez de questions pour un jeu aléatoire");
-                }
+                this.handleRevalidateRandomGame(data);
             },
         });
     }

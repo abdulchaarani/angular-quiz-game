@@ -1,5 +1,6 @@
 import { ExpiredTimerEvents } from '@app/constants/expired-timer-events';
 import { BAN_PLAYER, NO_MORE_HOST, NO_MORE_PLAYERS } from '@app/constants/match-errors';
+import { PlayerEvents } from '@app/constants/player-events';
 import { Game } from '@app/model/database/game';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { HistogramService } from '@app/services/histogram/histogram.service';
@@ -17,7 +18,6 @@ import { Injectable } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { ConnectedSocket, MessageBody, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { PlayerEvents } from '@app/constants/player-events';
 
 @WebSocketGateway({ cors: true })
 @Injectable()

@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { MOCK_MESSAGE_INFO, MOCK_ROOM_CODE } from '@app/constants/match-mocks';
+import { MOCK_MESSAGE_INFO, MOCK_PLAYER, MOCK_PLAYER_ROOM, MOCK_ROOM_CODE } from '@app/constants/match-mocks';
 import { ChatService } from '@app/services/chat/chat.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance, stub } from 'sinon';
@@ -8,20 +8,34 @@ import { BroadcastOperator, Server, Socket } from 'socket.io';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 import { ChatGateway } from './chat.gateway';
 import { ChatEvents } from '@common/events/chat.events';
+import { MatchRoomService } from '@app/services/match-room/match-room.service';
+import { PlayerRoomService } from '@app/services/player-room/player-room.service';
+import { ChatStateInfo } from '@common/interfaces/message-info';
+import { MatchEvents } from '@common/events/match.events';
+import { CHAT_DEACTIVATED, CHAT_REACTIVATED } from '@app/constants/chat-state-messages';
 
 describe('MatchGateway', () => {
     let gateway: ChatGateway;
     let chatSpy: SinonStubbedInstance<ChatService>;
     let socket: SinonStubbedInstance<Socket>;
     let server: SinonStubbedInstance<Server>;
+    let matchRoomSpy: SinonStubbedInstance<MatchRoomService>;
+    let playerRoomSpy: SinonStubbedInstance<PlayerRoomService>;
 
     beforeEach(async () => {
         chatSpy = createStubInstance(ChatService);
+        matchRoomSpy = createStubInstance(MatchRoomService);
+        playerRoomSpy = createStubInstance(PlayerRoomService);
         socket = createStubInstance<Socket>(Socket);
         server = createStubInstance<Server>(Server);
 
         const module: TestingModule = await Test.createTestingModule({
-            providers: [ChatGateway, { provide: ChatService, useValue: chatSpy }],
+            providers: [
+                ChatGateway,
+                { provide: ChatService, useValue: chatSpy },
+                { provide: MatchRoomService, useValue: matchRoomSpy },
+                { provide: PlayerRoomService, useValue: playerRoomSpy },
+            ],
         }).compile();
 
         gateway = module.get<ChatGateway>(ChatGateway);
@@ -84,5 +98,90 @@ describe('MatchGateway', () => {
 
         gateway.handleSentMessagesHistory(mockMatchRoomCode);
         expect(getMessagesSpy).toHaveBeenCalledWith(mockMatchRoomCode);
+    });
+
+    it('changeMessagingState() should emit the chat state', ()=>{
+        const mockRoom = MOCK_PLAYER_ROOM;
+        const mockRoomIndex = 0;
+        const mockPlayerIndex = 0;
+        const mockPlayer = MOCK_PLAYER;
+        const mockData: ChatStateInfo = {
+            roomCode: mockRoom.code, 
+            playerUsername: mockPlayer.username,
+        };
+        mockPlayer.socket = socket;
+        mockRoom.players = [mockPlayer];
+        matchRoomSpy.matchRooms = [mockRoom];
+        const getRoomIndexSpy = jest.spyOn(matchRoomSpy, 'getRoomIndex').mockReturnValue(mockRoomIndex);
+        //const getRoomSpy = jest.spyOn(matchRoomSpy, 'getRoom').mockReturnValue(mockRoom);
+        const getRoomSpy = jest.spyOn(matchRoomSpy, 'getRoom').mockReturnValue(mockRoom);
+       //const playerIndex = gateway['getPlayerIndex'](mockData.roomCode, mockData.playerUsername);
+        const toggleChatStateSpy = jest.spyOn(gateway, 'toggleChatState').mockReturnThis();
+        const getPlayerByUsernameSpy = jest.spyOn(playerRoomSpy, 'getPlayerByUsername').mockReturnValue(mockPlayer);
+        const emitCurrentChatStateSpy = jest.spyOn(gateway, 'emitCurrentChatState').mockReturnThis();
+        const emitChatStatusChangeSpy = jest.spyOn(gateway, 'emitChatStatusNotification').mockReturnThis();
+        gateway.changeMessagingState(socket, mockData);
+
+        expect(getRoomIndexSpy).toHaveBeenCalledWith(mockData.roomCode);
+        expect(getRoomSpy).toHaveBeenCalledWith(mockData.roomCode);
+        expect(toggleChatStateSpy).toHaveBeenCalled();
+        expect(getPlayerByUsernameSpy).toHaveBeenCalledWith(mockData.roomCode, mockData.playerUsername);
+        expect(emitCurrentChatStateSpy).toHaveBeenCalled();
+        expect(emitChatStatusChangeSpy).toHaveBeenCalledWith(mockPlayer.socket.id, mockRoomIndex, mockPlayerIndex);
+    })
+
+    it('should toggle chat state correctly', () => {
+        const mockRoom = MOCK_PLAYER_ROOM;
+        matchRoomSpy.matchRooms = [mockRoom];
+        gateway.toggleChatState(0, 0);
+        expect(mockRoom.players[0].isChatActive).toEqual(false);
+    }); 
+     it('emitCurrentChatState() should emit current chat state correctly', () => {
+        const mockRoomCode = MOCK_ROOM_CODE;
+        const mockRoom = MOCK_PLAYER_ROOM;
+        matchRoomSpy.matchRooms = [mockRoom];
+
+        server.to.returns({
+            emit: (event: string, playersStringified: string) => {
+                expect(event).toEqual(ChatEvents.ReturnCurrentChatState);
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        gateway.emitCurrentChatState(mockRoomCode, 0, 0);
+        // expect(emitSpy).toHaveBeenCalledWith(mockRoomCode);
+        // expect(emitSpy.mock.results[0].value.emit).toHaveBeenCalledWith(ChatEvents.ReturnCurrentChatState, false); 
+    });
+
+
+    it('emitChatStatusNotification() should send the notification to the player when the chat is deactivated', () => {
+        const mockRoomIndex = 0;
+        const mockPlayerIndex = 0;
+        const mockRoom = MOCK_PLAYER_ROOM;
+        matchRoomSpy.matchRooms = [mockRoom];
+        //const mockPlayer = MOCK_PLAYER;
+        server.in.returns({
+            emit: (event: string, error: string) => {
+                expect(event).toEqual(MatchEvents.Error);
+                expect(error).toEqual(CHAT_DEACTIVATED);
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        gateway.emitChatStatusNotification(socket, mockRoomIndex, mockPlayerIndex);
+    });
+
+
+    it('emitChatStatusChange() should send the notification to the player when the chat is reactivated', () => {
+        const mockRoomIndex = 0;
+        const mockPlayerIndex = 0;
+        const mockRoom = MOCK_PLAYER_ROOM;
+        matchRoomSpy.matchRooms = [mockRoom];
+        gateway.toggleChatState(0, 0);
+
+        //const mockPlayer = MOCK_PLAYER;
+        server.in.returns({
+            emit: (event: string, notificationMessage: string) => {
+                expect(event).toEqual(ChatEvents.ChatReactivated);
+                expect(notificationMessage).toEqual(CHAT_REACTIVATED);
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        gateway.emitChatStatusNotification(socket, mockRoomIndex, mockPlayerIndex);
     });
 });

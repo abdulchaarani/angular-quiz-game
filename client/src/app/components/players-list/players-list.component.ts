@@ -20,8 +20,9 @@ export class PlayersListComponent {
         readonly chatService: ChatService,
     ) {}
 
-    toggleChat(player: Player): void {
+    toggleChat(player: Player) {
         this.chatService.toggleChatState(this.matchRoomService.getRoomCode(), player.username);
+        player.isChatActive = !player.isChatActive;
     }
 
     playerLeftGameMessage() {

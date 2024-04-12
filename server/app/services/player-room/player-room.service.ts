@@ -52,7 +52,7 @@ export class PlayerRoomService {
         return newPlayer;
     }
 
-    deletePlayerBySocket(socketId: string): string {
+    deletePlayerBySocket(socketId: string): string | undefined {
         let foundPlayer: Player;
         let foundMatchRoom: MatchRoom;
         this.matchRoomService.matchRooms.forEach((matchRoom: MatchRoom) => {
@@ -69,6 +69,18 @@ export class PlayerRoomService {
             this.makePlayerInactive(foundMatchRoom.code, foundPlayer.username);
         }
         return foundMatchRoom ? foundMatchRoom.code : undefined;
+    }
+    // TO TEST
+    getPlayerBySocket(socketId: string): Player | undefined {
+        let foundPlayer: Player;
+        this.matchRoomService.matchRooms.forEach((matchRoom: MatchRoom) => {
+            const player = matchRoom.players.find((player: Player) => player.socket.id === socketId);
+            if (player) {
+                foundPlayer = player;
+                return;
+            }
+        });
+        return foundPlayer;
     }
 
     getPlayerByUsername(matchRoomCode: string, username: string): Player | undefined {

@@ -40,21 +40,14 @@ export class ChatGateway {
         const playerIndex = this.matchRoomService.getRoom(data.roomCode)?.players.findIndex((player) => {
             return player.username === data.playerUsername;
         });
+        const player = this.playerRoomService.getPlayerByUsername(data.roomCode, data.playerUsername);
 
         if (roomIndex !== INDEX_NOT_FOUND && playerIndex !== INDEX_NOT_FOUND) {
-            this.matchRoomService.matchRooms[roomIndex].players[playerIndex].isChatActive =
-                !this.matchRoomService.matchRooms[roomIndex].players[playerIndex].isChatActive;
+            this.toggleChatState(roomIndex, playerIndex);
         }
 
-        const player = this.playerRoomService.getPlayerByUsername(data.roomCode, data.playerUsername);
-        this.server.to(data.roomCode).emit(ChatEvents.SendBackState, this.matchRoomService.matchRooms[roomIndex].players[playerIndex].isChatActive);
-
-        // TO DO: maybe write a separate function to manage notifications
-        if (!this.matchRoomService.matchRooms[roomIndex].players[playerIndex].isChatActive) {
-            this.server.in(player.socket.id).emit(MatchEvents.Error, CHAT_DEACTIVATED);
-        } else {
-            this.server.in(player.socket.id).emit(ChatEvents.ChatReactivated, CHAT_REACTIVATED);
-        }
+        this.emitCurrentChatState(data.roomCode, roomIndex, playerIndex);
+        this.emitChatStatusChange(player.socket.id, roomIndex, playerIndex);
     }
 
     sendMessageToClients(data: MessageInfo) {
@@ -63,5 +56,24 @@ export class ChatGateway {
 
     handleSentMessagesHistory(matchRoomCode: string) {
         this.server.to(matchRoomCode).emit(ChatEvents.FetchOldMessages, this.chatService.getMessages(matchRoomCode));
+    }
+
+    toggleChatState(roomIndex: number, playerIndex: number): void {
+        const room = this.matchRoomService.matchRooms[roomIndex];
+        room.players[playerIndex].isChatActive = !room.players[playerIndex].isChatActive;
+    }
+
+    emitCurrentChatState(roomCode: string, roomIndex: number, playerIndex: number): void {
+        this.server
+            .to(roomCode)
+            .emit(ChatEvents.ReturnCurrentChatState, this.matchRoomService.matchRooms[roomIndex].players[playerIndex].isChatActive);
+    }
+
+    emitChatStatusChange(socketId: string, roomIndex: number, playerIndex: number): void {
+        const event = this.matchRoomService.matchRooms[roomIndex].players[playerIndex].isChatActive ? ChatEvents.ChatReactivated : MatchEvents.Error;
+        const notificationMessage = this.matchRoomService.matchRooms[roomIndex].players[playerIndex].isChatActive
+            ? CHAT_REACTIVATED
+            : CHAT_DEACTIVATED;
+        this.server.in(socketId).emit(event, notificationMessage);
     }
 }

@@ -12,6 +12,7 @@ import { PlayerState } from '@common/constants/player-states';
 import { HistogramEvents } from '@common/events/histogram.events';
 import { MatchEvents } from '@common/events/match.events';
 import { TimerEvents } from '@common/events/timer.events';
+import { ChatEvents } from '@common/events/chat.events';
 import { UserInfo } from '@common/interfaces/user-info';
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
@@ -170,8 +171,9 @@ export class MatchGateway implements OnGatewayDisconnect {
     }
 
     handlePlayersDisconnect(@ConnectedSocket() socket: Socket) {
-        const roomCode = this.playerRoomService.deletePlayerBySocket(socket.id);
-        if (!roomCode) {
+        const roomCode= this.playerRoomService.deletePlayerBySocket(socket.id);
+        const player = this.playerRoomService.getPlayerBySocket(socket.id);
+        if (!roomCode || !player) {
             return;
         }
         const room = this.matchRoomService.getRoom(roomCode);
@@ -185,6 +187,7 @@ export class MatchGateway implements OnGatewayDisconnect {
             this.deleteRoom(roomCode);
             return;
         }
+        this.sendMessageOnDisconnect(roomCode, player.username);
         this.handleSendPlayersData(roomCode);
     }
 
@@ -192,6 +195,12 @@ export class MatchGateway implements OnGatewayDisconnect {
         this.server.to(matchRoomCode).emit(MatchEvents.HostQuitMatch);
         this.server.in(matchRoomCode).disconnectSockets();
         this.matchRoomService.deleteRoom(matchRoomCode);
+    }
+
+    sendMessageOnDisconnect(roomCode, username) {
+        this.server
+            .to(roomCode)
+            .emit(ChatEvents.NewMessage, { roomCode, message: { author: '', text: `${username} a quitté la partie.`, date: new Date() } });
     }
 
     handleSendPlayersData(matchRoomCode: string) {

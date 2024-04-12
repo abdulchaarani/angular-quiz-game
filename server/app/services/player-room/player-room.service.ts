@@ -1,4 +1,4 @@
-import { BANNED_USERNAME, HOST_CONFLICT, USED_USERNAME } from '@app/constants/match-login-errors';
+import { BANNED_USERNAME, EMPTY_USERNAME, HOST_CONFLICT, USED_USERNAME } from '@app/constants/match-login-errors';
 import { MultipleChoiceAnswer } from '@app/model/answer-types/multiple-choice-answer/multiple-choice-answer';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Player } from '@app/model/schema/player.schema';
@@ -117,14 +117,19 @@ export class PlayerRoomService {
 
     getUsernameErrors(matchRoomCode: string, username: string): string {
         let errors = '';
+        const usernameToValidate = username.trim().toUpperCase();
+        if (!usernameToValidate) {
+            errors += EMPTY_USERNAME;
+        }
+
         if (this.matchRoomService.getRoom(matchRoomCode).isTestRoom) return errors;
-        if (username.trim().toUpperCase() === HOST_USERNAME) {
+        if (usernameToValidate === HOST_USERNAME) {
             errors += HOST_CONFLICT;
         }
-        if (this.isBannedUsername(matchRoomCode, username)) {
+        if (this.isBannedUsername(matchRoomCode, usernameToValidate)) {
             errors += BANNED_USERNAME;
         }
-        if (this.getPlayerByUsername(matchRoomCode, username)) {
+        if (this.getPlayerByUsername(matchRoomCode, usernameToValidate)) {
             errors += USED_USERNAME;
         }
         return errors;

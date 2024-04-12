@@ -219,15 +219,11 @@ describe('PlayerRoomService', () => {
     it('getUsernameErrors() should return empty string if used in testPage', () => {
         matchRoomSpy.getRoom(MOCK_ROOM_CODE).isTestRoom = true;
         MOCK_PLAYER.username = HOST_USERNAME;
-        matchRoomSpy.getRoom(MOCK_ROOM_CODE).players = [MOCK_PLAYER];
+        matchRoomSpy.getRoom(MOCK_ROOM_CODE).players = [];
         jest.spyOn(service, 'isHostPlayer').mockReturnValue(true);
-        const result = service.getUsernameErrors(MOCK_ROOM_CODE, '');
-        expect(result).toBe('');
-    });
+        jest.spyOn(service, 'isHostUsernameCorrect').mockReturnValue(true);
 
-    it('getUsernameErrors() should always return empty string if used in testPage', () => {
-        matchRoomSpy.getRoom(MOCK_ROOM_CODE).isTestRoom = true;
-        const result = service.getUsernameErrors(MOCK_ROOM_CODE, MOCK_USERNAME);
+        const result = service.getUsernameErrors(MOCK_ROOM_CODE, HOST_USERNAME);
         expect(result).toBe('');
     });
 

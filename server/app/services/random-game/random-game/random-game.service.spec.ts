@@ -36,7 +36,7 @@ describe('RandomGameService', () => {
         questionService.getAllQuestions.resolves(fakeQuestions);
 
         await service.fetchAllQuestions();
-        fakeQuestions = fakeQuestions.filter((question) => question.type === QuestionType.CHOICE);
+        fakeQuestions = fakeQuestions.filter((question) => question.type === QuestionType.MultipleChoice);
         expect(service.allBankQuestions).toEqual(fakeQuestions);
     });
 

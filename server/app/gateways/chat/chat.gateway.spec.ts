@@ -13,6 +13,7 @@ import { PlayerRoomService } from '@app/services/player-room/player-room.service
 import { ChatStateInfo } from '@common/interfaces/message-info';
 import { MatchEvents } from '@common/events/match.events';
 import { CHAT_DEACTIVATED, CHAT_REACTIVATED } from '@app/constants/chat-state-messages';
+import { MOCK_CHAT_STATE_DATA } from '@app/constants/chat-mocks';
 
 describe('MatchGateway', () => {
     let gateway: ChatGateway;
@@ -105,27 +106,21 @@ describe('MatchGateway', () => {
         const mockRoomIndex = 0;
         const mockPlayerIndex = 0;
         const mockPlayer = MOCK_PLAYER;
-        const mockData: ChatStateInfo = {
-            roomCode: mockRoom.code, 
-            playerUsername: mockPlayer.username,
-        };
+        const mockChatStateData = MOCK_CHAT_STATE_DATA;
         mockPlayer.socket = socket;
         mockRoom.players = [mockPlayer];
         matchRoomSpy.matchRooms = [mockRoom];
         const getRoomIndexSpy = jest.spyOn(matchRoomSpy, 'getRoomIndex').mockReturnValue(mockRoomIndex);
-        //const getRoomSpy = jest.spyOn(matchRoomSpy, 'getRoom').mockReturnValue(mockRoom);
         const getRoomSpy = jest.spyOn(matchRoomSpy, 'getRoom').mockReturnValue(mockRoom);
-       //const playerIndex = gateway['getPlayerIndex'](mockData.roomCode, mockData.playerUsername);
         const toggleChatStateSpy = jest.spyOn(gateway, 'toggleChatState').mockReturnThis();
         const getPlayerByUsernameSpy = jest.spyOn(playerRoomSpy, 'getPlayerByUsername').mockReturnValue(mockPlayer);
         const emitCurrentChatStateSpy = jest.spyOn(gateway, 'emitCurrentChatState').mockReturnThis();
         const emitChatStatusChangeSpy = jest.spyOn(gateway, 'emitChatStatusNotification').mockReturnThis();
-        gateway.changeMessagingState(socket, mockData);
-
-        expect(getRoomIndexSpy).toHaveBeenCalledWith(mockData.roomCode);
-        expect(getRoomSpy).toHaveBeenCalledWith(mockData.roomCode);
+        gateway.changeMessagingState(socket, mockChatStateData);
+        expect(getRoomIndexSpy).toHaveBeenCalledWith(mockChatStateData.roomCode);
+        expect(getRoomSpy).toHaveBeenCalledWith(mockChatStateData.roomCode);
         expect(toggleChatStateSpy).toHaveBeenCalled();
-        expect(getPlayerByUsernameSpy).toHaveBeenCalledWith(mockData.roomCode, mockData.playerUsername);
+        expect(getPlayerByUsernameSpy).toHaveBeenCalledWith(mockChatStateData.roomCode, mockChatStateData.playerUsername);
         expect(emitCurrentChatStateSpy).toHaveBeenCalled();
         expect(emitChatStatusChangeSpy).toHaveBeenCalledWith(mockPlayer.socket.id, mockRoomIndex, mockPlayerIndex);
     })
@@ -142,13 +137,11 @@ describe('MatchGateway', () => {
         matchRoomSpy.matchRooms = [mockRoom];
 
         server.to.returns({
-            emit: (event: string, playersStringified: string) => {
+            emit: (event: string) => {
                 expect(event).toEqual(ChatEvents.ReturnCurrentChatState);
             },
         } as BroadcastOperator<unknown, unknown>);
         gateway.emitCurrentChatState(mockRoomCode, 0, 0);
-        // expect(emitSpy).toHaveBeenCalledWith(mockRoomCode);
-        // expect(emitSpy.mock.results[0].value.emit).toHaveBeenCalledWith(ChatEvents.ReturnCurrentChatState, false); 
     });
 
 
@@ -157,7 +150,6 @@ describe('MatchGateway', () => {
         const mockPlayerIndex = 0;
         const mockRoom = MOCK_PLAYER_ROOM;
         matchRoomSpy.matchRooms = [mockRoom];
-        //const mockPlayer = MOCK_PLAYER;
         server.in.returns({
             emit: (event: string, error: string) => {
                 expect(event).toEqual(MatchEvents.Error);
@@ -174,8 +166,6 @@ describe('MatchGateway', () => {
         const mockRoom = MOCK_PLAYER_ROOM;
         matchRoomSpy.matchRooms = [mockRoom];
         gateway.toggleChatState(0, 0);
-
-        //const mockPlayer = MOCK_PLAYER;
         server.in.returns({
             emit: (event: string, notificationMessage: string) => {
                 expect(event).toEqual(ChatEvents.ChatReactivated);

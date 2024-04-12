@@ -128,9 +128,19 @@ export class PlayerRoomService {
         return usernameIndex !== INDEX_NOT_FOUND;
     }
 
+    isHostPlayer(matchRoomCode: string): boolean {
+        return this.getPlayerByUsername(matchRoomCode, HOST_USERNAME) !== undefined;
+    }
+
+    isHostUsernameCorrect(matchRoomCode: string, username: string): boolean {
+        const matchRoom = this.matchRoomService.getRoom(matchRoomCode);
+        const isHostUsername = username.trim().toUpperCase() === HOST_USERNAME.toUpperCase();
+        return matchRoom.isTestRoom && isHostUsername && !this.isHostPlayer(matchRoomCode);
+    }
+
     getUsernameErrors(matchRoomCode: string, username: string): string {
         let errors = '';
-        if (this.matchRoomService.getRoom(matchRoomCode).isTestRoom) return errors;
+        if (this.isHostUsernameCorrect(matchRoomCode, username)) return errors;
         const usernameToValidate = username.trim().toUpperCase();
         const errorConditions: Map<string, boolean> = new Map([
             [EMPTY_USERNAME, !usernameToValidate],

@@ -1,4 +1,5 @@
-import { DURATION, MINIMUM_QUESTIONS } from '@app/constants/random-game-constants';
+import { QuestionType } from '@app/constants/question-types';
+import { MINIMUM_QUESTIONS, RANDOM_GAME } from '@app/constants/random-game-constants';
 import { Game } from '@app/model/database/game';
 import { Question } from '@app/model/database/question';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
@@ -23,7 +24,7 @@ export class RandomGameService {
     async fetchAllQuestions() {
         try {
             const questions = await this.questionService.getAllQuestions();
-            this.allBankQuestions = questions;
+            this.allBankQuestions = questions.filter((question) => question.type === QuestionType.MultipleChoice);
         } catch (error) {
             // TODO: Change to notification
             // eslint-disable-next-line no-console
@@ -52,15 +53,8 @@ export class RandomGameService {
 
     generateRandomGame(): Game {
         const questions: Question[] = this.getRandomQuestions();
-        const game: Game = {
-            id: '',
-            title: 'Mode aléatoire',
-            description: 'Mode aléatoire',
-            duration: DURATION,
-            isVisible: true,
-            questions,
-            lastModification: new Date(),
-        };
+        const game: Game = RANDOM_GAME;
+        game.questions = questions;
         this.randomGame = this.gameCreationService.generateId(game);
         return this.randomGame;
     }

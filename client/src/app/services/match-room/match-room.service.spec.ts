@@ -4,15 +4,15 @@
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
+import { PLAYER_MOCK } from '@app/constants/chat-mocks';
+import { getMockQuestion } from '@app/constants/question-mocks';
 import { Player } from '@app/interfaces/player';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
+import { PlayerState } from '@common/constants/player-states';
 import { Socket } from 'socket.io-client';
 import { MatchRoomService } from './match-room.service';
 import SpyObj = jasmine.SpyObj;
-import { PLAYER_MOCK } from '@app/constants/chat-mocks';
-import { getMockQuestion } from '@app/constants/question-mocks';
-import { PlayerState } from '@common/constants/player-states';
 
 class SocketHandlerServiceMock extends SocketHandlerService {
     // Override connect() is required to not actually connect the socket
@@ -267,8 +267,8 @@ describe('MatchRoomService', () => {
     it('nextQuestion() should send nextQuestion event', () => {
         const sendSpy = spyOn(socketSpy, 'send');
         service['matchRoomCode'] = '';
-        service.nextQuestion();
-        expect(sendSpy).toHaveBeenCalledWith('nextQuestion', '');
+        service.goToNextQuestion();
+        expect(sendSpy).toHaveBeenCalledWith('goToNextQuestion', '');
     });
 
     it('startCooldown() should send startCooldown event', () => {
@@ -326,6 +326,8 @@ describe('MatchRoomService', () => {
         const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb(false);
         });
+        service.onNextQuestion();
+        socketHelper.peerSideEmit('goToNextQuestion', 'mockQuestion');
         service.onGameOver();
         socketHelper.peerSideEmit('gameOver', false);
         expect(onSpy).toHaveBeenCalled();

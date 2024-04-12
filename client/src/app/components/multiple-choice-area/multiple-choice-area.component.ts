@@ -45,6 +45,7 @@ export class MultipleChoiceAreaComponent implements OnInit {
 
     selectChoice(choice: Choice): void {
         if (this.answerService.isSelectionEnabled) {
+            this.answerService.showFeedback = false;
             if (!this.selectedAnswers.includes(choice)) {
                 this.selectedAnswers.push(choice);
                 this.answerService.selectChoice(choice.text, {
@@ -70,6 +71,7 @@ export class MultipleChoiceAreaComponent implements OnInit {
     }
 
     private resetStateForNewQuestion(): void {
+        this.answerService.showFeedback = false;
         this.selectedAnswers = [];
         this.answerService.resetStateForNewQuestion();
     }

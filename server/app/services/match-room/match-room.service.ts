@@ -1,11 +1,11 @@
 import { ExpiredTimerEvents } from '@app/constants/expired-timer-events';
 import { INVALID_CODE, LOCKED_ROOM } from '@app/constants/match-login-errors';
-import { ChoiceTracker } from '@app/model/tally-trackers/choice-tracker/choice-tracker';
 import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
 import { Question } from '@app/model/database/question';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Player } from '@app/model/schema/player.schema';
+import { ChoiceTracker } from '@app/model/tally-trackers/choice-tracker/choice-tracker';
 import { QuestionStrategyContext } from '@app/services/question-strategy-context/question-strategy-context.service';
 import { TimeService } from '@app/services/time/time.service';
 import { COOLDOWN_TIME, COUNTDOWN_TIME, FACTOR, MAXIMUM_CODE_LENGTH } from '@common/constants/match-constants';
@@ -175,7 +175,7 @@ export class MatchRoomService {
         this.setQuestionStrategy(matchRoom);
 
         this.removeIsCorrectField(nextQuestion);
-        server.in(matchRoomCode).emit(MatchEvents.NextQuestion, nextQuestion);
+        server.in(matchRoomCode).emit(MatchEvents.GoToNextQuestion, nextQuestion);
         matchRoom.hostSocket.send(MatchEvents.CurrentAnswers, matchRoom.currentQuestionAnswer);
         this.timeService.startTimer(server, matchRoomCode, matchRoom.questionDuration, ExpiredTimerEvents.QuestionTimerExpired);
     }

@@ -15,21 +15,21 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router, Routes } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
+import { WarningMessage } from '@app/constants/feedback-messages';
+import { getMockQuestion } from '@app/constants/question-mocks';
+import { MatchContext } from '@app/constants/states';
+import { Player } from '@app/interfaces/player';
 import { AnswerService } from '@app/services/answer/answer.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { MatchContextService } from '@app/services/question-context/question-context.service';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 import { TimeService } from '@app/services/time/time.service';
+import { AnswerCorrectness } from '@common/constants/answer-correctness';
+import { Subject } from 'rxjs';
 import { Socket } from 'socket.io-client';
 import { QuestionAreaComponent } from './question-area.component';
 import spyObj = jasmine.SpyObj;
-import { getMockQuestion } from '@app/constants/question-mocks';
-import { MatchContext } from '@app/constants/states';
-import { Subject } from 'rxjs';
-import { WarningMessage } from '@app/constants/feedback-messages';
-import { Player } from '@app/interfaces/player';
-import { AnswerCorrectness } from '@common/constants/answer-correctness';
 
 class SocketHandlerServiceMock extends SocketHandlerService {
     override connect() {}
@@ -86,7 +86,7 @@ describe('QuestionAreaComponent', () => {
         ]);
 
         matchRoomSpy = jasmine.createSpyObj('MatchRoomService', [
-            'nextQuestion',
+            'goToNextQuestion',
             'getUsername',
             'getRoomCode',
             'disconnect',
@@ -219,8 +219,8 @@ describe('QuestionAreaComponent', () => {
 
     it('should go to next question when nextQuestion is called', () => {
         answerSpy.isNextQuestionButton = true;
-        component.nextQuestion();
-        expect(matchRoomSpy.nextQuestion).toHaveBeenCalled();
+        component.goToNextQuestion();
+        expect(matchRoomSpy.goToNextQuestion).toHaveBeenCalled();
         expect(answerSpy.isNextQuestionButton).toBe(false);
     });
 

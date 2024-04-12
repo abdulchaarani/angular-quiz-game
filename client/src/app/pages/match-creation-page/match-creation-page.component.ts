@@ -1,5 +1,6 @@
 import { HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { RandomModeStatus, SnackBarAction, SnackBarError } from '@app/constants/feedback-messages';
 import { RANDOM_MODE_GAME } from '@app/constants/question-creation';
 import { MatchContext } from '@app/constants/states';
 import { Game } from '@app/interfaces/game';
@@ -10,6 +11,7 @@ import { NotificationService } from '@app/services/notification/notification.ser
 import { MatchContextService } from '@app/services/question-context/question-context.service';
 import { QuestionService } from '@app/services/question/question.service';
 import { MINIMUM_QUESTIONS } from '@common/constants/match-constants';
+import { QuestionType } from '@common/constants/question-types';
 
 @Component({
     selector: 'app-match-creation-page',
@@ -44,20 +46,25 @@ export class MatchCreationPageComponent implements OnInit {
         this.matchService.getAllGames().subscribe((data: Game[]) => (this.games = data));
     }
 
+    handleLoadRandomGame(data: Question[]) {
+        const questionsCount = [...data].length;
+        if (this.hasEnoughRandomQuestions(questionsCount)) {
+            this.selectedGame = RANDOM_MODE_GAME;
+        }
+    }
+
     loadRandomGame(): void {
         this.questionService.getAllQuestions().subscribe({
             next: (data: Question[]) => {
-                const questionsCount = [...data].length;
-                if (this.hasEnoughRandomQuestions(questionsCount)) {
-                    this.selectedGame = RANDOM_MODE_GAME;
-                }
+                data = data.filter((question) => question.type === QuestionType.QCM);
+                this.handleLoadRandomGame(data);
             },
         });
     }
 
     hasEnoughRandomQuestions(questionsCount: number): boolean {
         if (questionsCount < MINIMUM_QUESTIONS) {
-            this.notificationService.displayErrorMessage("Il n'y a pas assez de questions pour un jeu aléatoire");
+            this.notificationService.displayErrorMessage(RandomModeStatus.FAILURE);
             this.isRandomGame = this.gameIsValid = false;
             return false;
         }
@@ -73,7 +80,7 @@ export class MatchCreationPageComponent implements OnInit {
                 this.validateGame(this.selectedGame);
             },
             error: () => {
-                const snackBarRef = this.notificationService.displayErrorMessageAction("Le jeu sélectionné n'existe plus", 'Actualiser');
+                const snackBarRef = this.notificationService.displayErrorMessageAction(SnackBarError.DELETED, SnackBarAction.REFRESH);
                 snackBarRef.onAction().subscribe(() => this.reloadAllGames());
             },
         });
@@ -87,7 +94,7 @@ export class MatchCreationPageComponent implements OnInit {
                 this.revalidateGame();
             },
             error: () => {
-                const snackBarRef = this.notificationService.displayErrorMessageAction("Le jeu sélectionné n'existe plus", 'Actualiser');
+                const snackBarRef = this.notificationService.displayErrorMessageAction(SnackBarError.DELETED, SnackBarAction.REFRESH);
                 snackBarRef.onAction().subscribe(() => this.reloadAllGames());
             },
         });
@@ -97,7 +104,7 @@ export class MatchCreationPageComponent implements OnInit {
         if (selectedGame.isVisible) {
             this.gameIsValid = true;
         } else {
-            const snackBarRef = this.notificationService.displayErrorMessageAction("Le jeu sélectionné n'est plus visible", 'Actualiser');
+            const snackBarRef = this.notificationService.displayErrorMessageAction(SnackBarError.INVISIBLE, SnackBarAction.REFRESH);
             snackBarRef.onAction().subscribe(() => this.reloadAllGames());
         }
     }
@@ -114,7 +121,7 @@ export class MatchCreationPageComponent implements OnInit {
                 }
             });
         } else {
-            const snackBarRef = this.notificationService.displayErrorMessageAction("Le jeu sélectionné n'est plus visible", 'Actualiser');
+            const snackBarRef = this.notificationService.displayErrorMessageAction(SnackBarError.INVISIBLE, SnackBarAction.REFRESH);
             snackBarRef.onAction().subscribe(() => this.reloadAllGames());
         }
     }
@@ -127,19 +134,24 @@ export class MatchCreationPageComponent implements OnInit {
         }
     }
 
+    handleRevalidateRandomGame(data: Question[]) {
+        const questionsCount = [...data].length;
+
+        const hasEnoughRandomQuestions = this.hasEnoughRandomQuestions(questionsCount);
+
+        if (hasEnoughRandomQuestions && this.isRandomGame && this.gameIsValid) {
+            this.matchService.currentGame = RANDOM_MODE_GAME;
+            this.matchService.createMatch();
+        } else {
+            this.notificationService.displayErrorMessage(RandomModeStatus.FAILURE);
+        }
+    }
+
     revalidateRandomGame() {
         this.questionService.getAllQuestions().subscribe({
             next: (data: Question[]) => {
-                const questionsCount = [...data].length;
-
-                const hasEnoughRandomQuestions = this.hasEnoughRandomQuestions(questionsCount);
-
-                if (hasEnoughRandomQuestions && this.isRandomGame && this.gameIsValid) {
-                    this.matchService.currentGame = this.selectedGame;
-                    this.matchService.createMatch();
-                } else {
-                    this.notificationService.displayErrorMessage("Il n'y a pas assez de questions pour un jeu aléatoire");
-                }
+                data = data.filter((question) => question.type === QuestionType.QCM);
+                this.handleRevalidateRandomGame(data);
             },
         });
     }

@@ -101,14 +101,14 @@ describe('PlayerRoomService', () => {
     });
 
     it('getPlayerBySocket() should delete the player if the foundMatchRoom is not playing yet', () => {
-    const mockRoom = MOCK_PLAYER_ROOM;
-    const mockPlayer = MOCK_PLAYER;
-    mockPlayer.socket = socket;
-    mockRoom.players = [mockPlayer];
-    matchRoomSpy.matchRooms = [mockRoom];
-    const result = service.getPlayerBySocket(socket.id);
-    expect(result).toEqual(MOCK_PLAYER);
-});
+        const mockRoom = MOCK_PLAYER_ROOM;
+        const mockPlayer = MOCK_PLAYER;
+        mockPlayer.socket = socket;
+        mockRoom.players = [mockPlayer];
+        matchRoomSpy.matchRooms = [mockRoom];
+        const result = service.getPlayerBySocket(socket.id);
+        expect(result).toEqual(MOCK_PLAYER);
+    });
 
     it('deletePlayerBySocket() should make the player inactive if the foundMatchRoom is playing', () => {
         const mockRoom = MOCK_PLAYER_ROOM;

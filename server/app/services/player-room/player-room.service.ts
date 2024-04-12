@@ -78,16 +78,16 @@ export class PlayerRoomService {
     }
 
     getPlayerBySocket(socketId: string): Player | undefined {
-    let foundPlayer: Player;
-    this.matchRoomService.matchRooms.forEach((matchRoom: MatchRoom) => {
-        const playerByMatchRoom = matchRoom.players.find((player: Player) => player.socket.id === socketId);
-        if (playerByMatchRoom) {
-            foundPlayer = playerByMatchRoom;
-            return;
-        }
-    });
-    return foundPlayer;
-}
+        let foundPlayer: Player;
+        this.matchRoomService.matchRooms.forEach((matchRoom: MatchRoom) => {
+            const playerByMatchRoom = matchRoom.players.find((player: Player) => player.socket.id === socketId);
+            if (playerByMatchRoom) {
+                foundPlayer = playerByMatchRoom;
+                return;
+            }
+        });
+        return foundPlayer;
+    }
 
     makePlayerInactive(matchRoomCode: string, username: string): void {
         const roomIndex = this.matchRoomService.getRoomIndex(matchRoomCode);

@@ -124,15 +124,15 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
     handleSubmit() {
         if (this.gameForm.valid) {
             const title = this.gameForm.value.title;
-            if (title !== null && title !== undefined) {
+            if (title) {
                 this.game.title = title;
             }
             const description = this.gameForm.value.description;
-            if (description !== null && description !== undefined) {
+            if (description) {
                 this.game.description = description;
             }
             const duration = this.gameForm.value.duration;
-            if (duration !== null && duration !== undefined) {
+            if (duration) {
                 this.game.duration = parseInt(duration, 10);
             }
 

@@ -47,6 +47,7 @@ class MockChatComponent {}
 })
 class MockPlayersListComponent {
     @Input() players: Player[];
+    @Input() canHostToggleChatState: boolean = true;
 }
 
 @Component({

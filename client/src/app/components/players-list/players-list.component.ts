@@ -13,6 +13,7 @@ import { MatchContextService } from '@app/services/question-context/question-con
 export class PlayersListComponent {
     @Input() players: Player[];
     @Input() canHostToggleChatState: boolean = true;
+    @Input() isChatActiveForPlayer: boolean;
 
     context = MatchContext;
     constructor(
@@ -24,5 +25,6 @@ export class PlayersListComponent {
     toggleChat(player: Player) {
         this.chatService.toggleChatState(this.matchRoomService.getRoomCode(), player.username);
         player.isChatActive = !player.isChatActive;
+        this.isChatActiveForPlayer = player.isChatActive;
     }
 }

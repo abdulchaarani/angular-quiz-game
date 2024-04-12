@@ -51,7 +51,6 @@ export class QuestionService extends CommunicationService<Question> {
 
     validateChoicesLength(control: AbstractControl): ValidationErrors | null {
         if (control.get('type')?.value !== 'QCM') return null;
-
         const choices = control.get('choices') as FormArray;
         let hasCorrect = false;
         let hasIncorrect = false;

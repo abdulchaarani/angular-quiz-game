@@ -1,4 +1,4 @@
-import { AfterViewChecked, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewChecked, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 
 import { Message } from '@app/interfaces/message';
 
@@ -12,7 +12,10 @@ import { HOST_USERNAME } from '@common/constants/match-constants';
     styleUrls: ['./chat.component.scss'],
 })
 export class ChatComponent implements AfterViewChecked, OnInit, OnDestroy {
+    [x: string]: any;
     @ViewChild('messagesContainer', { static: true }) messagesContainer: ElementRef;
+
+    @Input() disableMessagingField: boolean;
 
     constructor(
         readonly matchRoomService: MatchRoomService,
@@ -44,7 +47,7 @@ export class ChatComponent implements AfterViewChecked, OnInit, OnDestroy {
             };
             if (isChatActiveForPlayer || isPlayerHost) {
                 this.chatService.sendMessage(this.matchRoomService.getRoomCode(), newMessage);
-            }
+            } 
         }
     }
 

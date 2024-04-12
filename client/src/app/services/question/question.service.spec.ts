@@ -79,4 +79,26 @@ describe('QuestionService', () => {
         questionService.openCreateQuestionModal(0);
         expect(dialog.open).toHaveBeenCalledWith(QuestionCreationFormComponent, manageConfig);
     });
+
+    // it('validateChoicesLength() should validate the number of true and false choices in a creation form ', () => {
+
+    //     spyOn(questionCreationFormComponent.questionForm, 'setValue');
+
+    //     questionCreationFormComponent!.questionForm.setValue({
+    //         text: 'Test ',
+    //         points: 10,
+    //         type: 'QCM',
+    //         choices: [
+    //             { text: 'Choice 1', isCorrect: false },
+    //             { text: 'Choice 2', isCorrect: false },
+    //         ],
+    //     });
+
+    //     questionService.validateChoicesLength;
+
+    //     questionCreationFormComponent.onSubmit();
+
+    //     expect(questionCreationFormComponent.createQuestionEvent).not.toHaveBeenCalled();
+
+    // });
 });

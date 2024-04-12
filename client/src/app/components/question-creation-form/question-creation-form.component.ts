@@ -208,10 +208,3 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
         });
     }
 }
-
-// References:
-// https://stackoverflow.com/questions/49782253/angular-reactive-form
-// https://stackoverflow.com/questions/53362983/angular-reactiveforms-nested-formgroup-within-formarray-no-control-found?rq=3
-// https://stackblitz.com/edit/angular-nested-formarray-dynamic-forms?file=src%2Fapp%2Fapp.component.html
-// https://stackoverflow.com/questions/67834802/template-error-type-abstractcontrol-is-not-assignable-to-type-formcontrol
-// https://stackoverflow.com/questions/39679637/angular-2-form-cannot-find-control-with-path

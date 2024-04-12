@@ -11,7 +11,7 @@ import { ChatEvents } from '@common/events/chat.events';
 export class ChatService {
     constructor(
         public socketHandler: SocketHandlerService,
-        readonly matchRoomService: MatchRoomService,
+        readonly matchRoomService: MatchRoomService, // readonly playerRoomService PlayerRoomService,
     ) {}
 
     sendMessage(roomCode: string, message: Message): void {
@@ -38,5 +38,9 @@ export class ChatService {
         this.socketHandler.on(ChatEvents.NewMessage, (messageInfo: MessageInfo) => {
             this.matchRoomService.messages.push(messageInfo.message);
         });
+    }
+
+    toggleChatState(roomCode: string, playerUsername: string) {
+        this.socketHandler.send(ChatEvents.ChangeChatState, { roomCode, playerUsername });
     }
 }

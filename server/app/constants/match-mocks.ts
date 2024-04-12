@@ -17,6 +17,7 @@ const MOCK_PLAYER: Player = {
     answerCorrectness: AnswerCorrectness.WRONG,
     bonusCount: 0,
     isPlaying: true,
+    isChatActive: true,
     socket: undefined,
     state: PlayerState.default,
 };

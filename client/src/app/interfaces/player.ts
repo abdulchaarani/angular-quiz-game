@@ -3,5 +3,6 @@ export interface Player {
     score: number;
     bonusCount: number;
     isPlaying: boolean;
+    isChatActive: boolean;
     state: string;
 }

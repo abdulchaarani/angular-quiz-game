@@ -10,6 +10,7 @@ import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
 import { HOST_USERNAME } from '@common/constants/match-constants';
 import { PlayerState } from '@common/constants/player-states';
+import { ChatEvents } from '@common/events/chat.events';
 import { HistogramEvents } from '@common/events/histogram.events';
 import { MatchEvents } from '@common/events/match.events';
 import { TimerEvents } from '@common/events/timer.events';
@@ -174,9 +175,11 @@ export class MatchGateway implements OnGatewayDisconnect {
 
     handlePlayersDisconnect(@ConnectedSocket() socket: Socket) {
         const roomCode = this.playerRoomService.deletePlayerBySocket(socket.id);
-        if (!roomCode) {
+        const player = this.playerRoomService.getPlayerBySocket(socket.id);
+        if (!roomCode || !player) {
             return;
         }
+
         this.eventEmitter.emit(PlayerEvents.Quit, roomCode);
         const room = this.matchRoomService.getRoom(roomCode);
         const isRoomEmpty = this.isRoomEmpty(room);
@@ -190,6 +193,7 @@ export class MatchGateway implements OnGatewayDisconnect {
             return;
         }
         this.handleSendPlayersData(roomCode);
+        this.sendMessageOnDisconnect(roomCode, player.username);
     }
 
     deleteRoom(matchRoomCode: string) {
@@ -204,6 +208,12 @@ export class MatchGateway implements OnGatewayDisconnect {
 
     sendError(socketId: string, error: string) {
         this.server.to(socketId).emit(MatchEvents.Error, error);
+    }
+
+    sendMessageOnDisconnect(roomCode, username) {
+        this.server
+            .to(roomCode)
+            .emit(ChatEvents.NewMessage, { roomCode, message: { author: '', text: `${username} a quitté la partie.`, date: new Date() } });
     }
 
     private emitHistogramHistory(matchRoomCode: string) {

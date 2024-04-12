@@ -17,6 +17,7 @@ export class ResultsPageComponent implements OnInit, OnDestroy {
     players: Player[] = [];
     currentQuestionIndex: number = 0;
     histogramsGame: Histogram[] = [];
+
     private histogramSubscriptions: Subscription[] = [];
     constructor(
         private readonly matchRoomService: MatchRoomService,
@@ -48,6 +49,9 @@ export class ResultsPageComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.players = this.matchRoomService.players;
+        this.players.forEach((player) => {
+            player.isChatActive = true;
+        });
         this.histogramService.onHistogramHistory();
         this.subscribeToHistogramHistory();
         this.confettiService.onWinner();

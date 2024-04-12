@@ -76,6 +76,7 @@ describe('ResultsPageComponent', () => {
     let histogramServiceSpy: jasmine.SpyObj<HistogramService>;
     let confettiServiceSpy: jasmine.SpyObj<ConfettiService>;
     let histogramSubject: Subject<Histogram[]>;
+    const playersMock = [PLAYER_MOCK];
 
     beforeEach(() => {
         matchRoomServiceSpy = jasmine.createSpyObj('MatchRoomService', ['disconnect', 'gameOver']);
@@ -103,6 +104,8 @@ describe('ResultsPageComponent', () => {
 
         histogramSubject = new Subject<Histogram[]>();
         histogramServiceSpy.histogramHistory$ = histogramSubject.asObservable();
+
+        component['matchRoomService'].players = playersMock;
 
         fixture.detectChanges();
     });

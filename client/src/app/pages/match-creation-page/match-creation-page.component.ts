@@ -57,7 +57,6 @@ export class MatchCreationPageComponent implements OnInit {
         this.questionService.getAllQuestions().subscribe({
             next: (data: Question[]) => {
                 data = data.filter((question) => question.type === QuestionType.QCM);
-                console.log(data);
                 this.handleLoadRandomGame(data);
             },
         });

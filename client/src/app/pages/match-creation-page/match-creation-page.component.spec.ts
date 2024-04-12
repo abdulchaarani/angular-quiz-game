@@ -23,7 +23,7 @@ import { Subject, of, throwError } from 'rxjs';
 import { MatchCreationPageComponent } from './match-creation-page.component';
 import SpyObj = jasmine.SpyObj;
 
-fdescribe('MatchCreationPageComponent', () => {
+describe('MatchCreationPageComponent', () => {
     let component: MatchCreationPageComponent;
     let fixture: ComponentFixture<MatchCreationPageComponent>;
     let gameService: GameService;
@@ -250,7 +250,7 @@ fdescribe('MatchCreationPageComponent', () => {
 
     it('handleRevalidateRandomGame() should display error message if not enough random questions', () => {
         const notEnoughData: Question[] = [];
-        const errorMessage = "Il n'y a pas assez de questions pour un jeu aléatoire";
+        const errorMessage = "Il n'y a pas assez de questions pour un jeu aléatoire 😿";
         component.handleRevalidateRandomGame(notEnoughData);
         expect(notificationSpy.displayErrorMessage).toHaveBeenCalledWith(errorMessage);
     });
@@ -284,7 +284,7 @@ fdescribe('MatchCreationPageComponent', () => {
     });
     it('should return false and display error message if questions count is less than minimum', () => {
         const questionsCount = 3;
-        const errorMessage = "Il n'y a pas assez de questions pour un jeu aléatoire";
+        const errorMessage = "Il n'y a pas assez de questions pour un jeu aléatoire 😿";
         const result = component.hasEnoughRandomQuestions(questionsCount);
         expect(result).toBeFalsy();
         expect(notificationSpy.displayErrorMessage).toHaveBeenCalledWith(errorMessage);

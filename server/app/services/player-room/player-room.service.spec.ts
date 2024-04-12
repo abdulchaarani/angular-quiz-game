@@ -205,6 +205,7 @@ describe('PlayerRoomService', () => {
             { username: MOCK_USERNAME, isBanned: true, isUsed: false, expectedResult: BANNED_USERNAME },
             { username: MOCK_USERNAME, isBanned: false, isUsed: true, expectedResult: USED_USERNAME },
         ];
+        matchRoomSpy.getRoom(MOCK_ROOM_CODE).isTestRoom = false;
         for (const { username, isBanned, isUsed, expectedResult } of testCases) {
             const banSpy = jest.spyOn(service, 'isBannedUsername').mockReturnValue(isBanned);
             const usedSpy = jest.spyOn(service, 'getPlayerByUsername').mockReturnValue(isUsed ? MOCK_PLAYER : undefined);

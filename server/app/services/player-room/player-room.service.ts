@@ -4,13 +4,13 @@ import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Player } from '@app/model/schema/player.schema';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { AnswerCorrectness } from '@common/constants/answer-correctness';
-import { HOST_USERNAME } from '@common/constants/match-constants';
 import { PlayerState } from '@common/constants/player-states';
 import { MatchEvents } from '@common/events/match.events';
 import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
 
 const INDEX_NOT_FOUND = -1;
+const HOST_USERNAME = 'ORGANISATEUR';
 
 @Injectable()
 export class PlayerRoomService {
@@ -115,18 +115,18 @@ export class PlayerRoomService {
         return usernameIndex !== INDEX_NOT_FOUND;
     }
 
-    isHostPlayer(matchRoomCode: string): Player {
-        return this.getPlayers(matchRoomCode).find((player: Player) => {
-            return player.username.toUpperCase() === HOST_USERNAME;
-        });
+    isHostPlayer(matchRoomCode: string): boolean {
+        return this.getPlayerByUsername(matchRoomCode, HOST_USERNAME) !== undefined;
     }
 
     getUsernameErrors(matchRoomCode: string, username: string): string {
         let errors = '';
         const matchRoom = this.matchRoomService.getRoom(matchRoomCode);
-        const isHostUsername = username.trim().toUpperCase() === HOST_USERNAME;
+        const isHostUsername = username.trim().toUpperCase() === HOST_USERNAME.toUpperCase();
 
-        if (matchRoom.isTestRoom && isHostUsername && this.isHostPlayer(matchRoomCode)) return errors;
+        if (matchRoom.isTestRoom && isHostUsername && !this.isHostPlayer(matchRoomCode)) {
+            return errors;
+        }
         if (isHostUsername) {
             errors += HOST_CONFLICT;
         }

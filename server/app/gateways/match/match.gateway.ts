@@ -180,12 +180,12 @@ export class MatchGateway implements OnGatewayDisconnect {
         this.eventEmitter.emit(PlayerEvents.Quit, roomCode);
         const room = this.matchRoomService.getRoom(roomCode);
         const isRoomEmpty = this.isRoomEmpty(room);
-        if (room.isPlaying && isRoomEmpty && room.currentQuestionIndex !== room.gameLength) {
+        if (room.isPlaying && isRoomEmpty && room.currentQuestionIndex <= room.gameLength) {
             this.sendError(roomCode, NO_MORE_PLAYERS);
             this.deleteRoom(roomCode);
             return;
         }
-        if (isRoomEmpty) {
+        if (isRoomEmpty && !room.hostSocket.connected) {
             this.deleteRoom(roomCode);
             return;
         }

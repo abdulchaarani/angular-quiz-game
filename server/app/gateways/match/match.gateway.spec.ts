@@ -303,6 +303,8 @@ describe('MatchGateway', () => {
         matchRoomSpy.getRoomCodeByHostSocket.returns('');
         playerRoomSpy.deletePlayerBySocket.returns(MOCK_ROOM_CODE);
         const room = { ...MOCK_MATCH_ROOM };
+        room.hostSocket = socket;
+        socket.connected = false;
         const mockPlayer: Player = { ...MOCK_PLAYER };
         mockPlayer.isPlaying = false;
         room.players = [mockPlayer];

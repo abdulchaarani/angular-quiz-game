@@ -90,6 +90,7 @@ export class WaitPageComponent implements OnInit, OnDestroy {
     }
 
     banPlayerUsername(username: string) {
+        if (username === 'Organisateur') return;
         this.matchRoomService.banUsername(username);
     }
 

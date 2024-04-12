@@ -12,6 +12,7 @@ import { MatchContextService } from '@app/services/question-context/question-con
 })
 export class PlayersListComponent {
     @Input() players: Player[];
+    @Input() canHostToggleChatState: boolean = true;
 
     context = MatchContext;
     constructor(

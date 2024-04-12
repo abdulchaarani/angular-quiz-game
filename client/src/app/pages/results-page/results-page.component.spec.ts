@@ -116,8 +116,6 @@ describe('ResultsPageComponent', () => {
     });
 
     it('should set the isChatActive to true after the game ends', () => {
-        const playersMock = [PLAYER_MOCK];
-        matchRoomServiceSpy.players = playersMock;
         playersMock.forEach((player) => expect(player.isChatActive).toEqual(true));
     });
 

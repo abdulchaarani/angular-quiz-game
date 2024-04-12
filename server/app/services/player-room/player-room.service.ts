@@ -115,10 +115,19 @@ export class PlayerRoomService {
         return usernameIndex !== INDEX_NOT_FOUND;
     }
 
+    isHostPlayer(matchRoomCode: string): Player {
+        return this.getPlayers(matchRoomCode).find((player: Player) => {
+            return player.username.toUpperCase() === HOST_USERNAME;
+        });
+    }
+
     getUsernameErrors(matchRoomCode: string, username: string): string {
         let errors = '';
-        if (this.matchRoomService.getRoom(matchRoomCode).isTestRoom && username === HOST_USERNAME) return errors;
-        if (username.trim().toUpperCase() === HOST_USERNAME) {
+        const matchRoom = this.matchRoomService.getRoom(matchRoomCode);
+        const isHostUsername = username.trim().toUpperCase() === HOST_USERNAME;
+
+        if (matchRoom.isTestRoom && isHostUsername && this.isHostPlayer(matchRoomCode)) return errors;
+        if (isHostUsername) {
             errors += HOST_CONFLICT;
         }
         if (this.isBannedUsername(matchRoomCode, username)) {

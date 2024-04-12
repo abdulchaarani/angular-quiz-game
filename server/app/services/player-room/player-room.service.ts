@@ -82,7 +82,6 @@ export class PlayerRoomService {
         return foundPlayer;
     }
 
-
     getPlayerByUsername(matchRoomCode: string, username: string): Player | undefined {
         return this.getPlayers(matchRoomCode).find((player: Player) => {
             return player.username.toUpperCase() === username.toUpperCase();
@@ -143,7 +142,6 @@ export class PlayerRoomService {
         });
         return errors;
     }
-
 
     setStateForAll(matchRoomCode: string, state: string): void {
         const matchRoomIndex = this.matchRoomService.getRoomIndex(matchRoomCode);

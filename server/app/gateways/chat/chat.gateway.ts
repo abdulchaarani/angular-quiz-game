@@ -32,7 +32,7 @@ export class ChatGateway {
             this.handleSentMessagesHistory(matchRoomCode);
         }
     }
-    
+
     @SubscribeMessage(ChatEvents.ChangeChatState)
     changeMessagingState(@ConnectedSocket() socket: Socket, @MessageBody() data: ChatStateInfo) {
         const roomIndex = this.matchRoomService.getRoomIndex(data.roomCode);

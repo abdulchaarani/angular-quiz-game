@@ -17,6 +17,7 @@ import { AgChartOptions } from 'ag-charts-community';
 import { ResultsPageComponent } from './results-page.component';
 import { Subject, Subscription } from 'rxjs';
 import { ConfettiService } from '@app/services/confetti/confetti.service';
+import { PLAYER_MOCK } from '@app/constants/chat-mocks';
 
 @Component({
     // Component is provided by Angular Material; therefore, its selector starts with mat
@@ -69,13 +70,14 @@ class MockHistogramComponent {
     histogramsGame: Histogram[] = [];
 }
 
-xdescribe('ResultsPageComponent', () => {
+describe('ResultsPageComponent', () => {
     let component: ResultsPageComponent;
     let fixture: ComponentFixture<ResultsPageComponent>;
     let matchRoomServiceSpy: jasmine.SpyObj<MatchRoomService>;
     let histogramServiceSpy: jasmine.SpyObj<HistogramService>;
     let confettiServiceSpy: jasmine.SpyObj<ConfettiService>;
     let histogramSubject: Subject<Histogram[]>;
+    const playersMock = [PLAYER_MOCK];
 
     beforeEach(() => {
         matchRoomServiceSpy = jasmine.createSpyObj('MatchRoomService', ['disconnect', 'gameOver']);
@@ -104,11 +106,19 @@ xdescribe('ResultsPageComponent', () => {
         histogramSubject = new Subject<Histogram[]>();
         histogramServiceSpy.histogramHistory$ = histogramSubject.asObservable();
 
+        component['matchRoomService'].players = playersMock;
+
         fixture.detectChanges();
     });
 
     it('should create', () => {
         expect(component).toBeTruthy();
+    });
+
+    it('should set the isChatActive to true after the game ends', () => {
+        const playersMock = [PLAYER_MOCK];
+        matchRoomServiceSpy.players = playersMock;
+        playersMock.forEach((player) => expect(player.isChatActive).toEqual(true));
     });
 
     it('should unsubscribe from subscriptions on ngOnDestroy', () => {

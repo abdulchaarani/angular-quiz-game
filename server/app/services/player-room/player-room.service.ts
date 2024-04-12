@@ -3,7 +3,6 @@ import { MultipleChoiceAnswer } from '@app/model/answer-types/multiple-choice-an
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Player } from '@app/model/schema/player.schema';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
-import { HOST_USERNAME } from '@common/constants/match-constants';
 import { AnswerCorrectness } from '@common/constants/answer-correctness';
 import { PlayerState } from '@common/constants/player-states';
 import { MatchEvents } from '@common/events/match.events';
@@ -11,6 +10,7 @@ import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
 
 const INDEX_NOT_FOUND = -1;
+const HOST_USERNAME = 'ORGANISATEUR';
 
 @Injectable()
 export class PlayerRoomService {
@@ -52,7 +52,7 @@ export class PlayerRoomService {
         return newPlayer;
     }
 
-    deletePlayerBySocket(socketId: string): string | undefined {
+    deletePlayerBySocket(socketId: string): string {
         let foundPlayer: Player;
         let foundMatchRoom: MatchRoom;
         this.matchRoomService.matchRooms.forEach((matchRoom: MatchRoom) => {
@@ -70,23 +70,24 @@ export class PlayerRoomService {
         }
         return foundMatchRoom ? foundMatchRoom.code : undefined;
     }
-    getPlayerBySocket(socketId: string): Player | undefined {
-        let foundPlayer: Player;
-        this.matchRoomService.matchRooms.forEach((matchRoom: MatchRoom) => {
-            const playerByMatchRoom = matchRoom.players.find((player: Player) => player.socket.id === socketId);
-            if (playerByMatchRoom) {
-                foundPlayer = playerByMatchRoom;
-                return;
-            }
-        });
-        return foundPlayer;
-    }
 
     getPlayerByUsername(matchRoomCode: string, username: string): Player | undefined {
         return this.getPlayers(matchRoomCode).find((player: Player) => {
             return player.username.toUpperCase() === username.toUpperCase();
         });
     }
+
+    getPlayerBySocket(socketId: string): Player | undefined {
+    let foundPlayer: Player;
+    this.matchRoomService.matchRooms.forEach((matchRoom: MatchRoom) => {
+        const playerByMatchRoom = matchRoom.players.find((player: Player) => player.socket.id === socketId);
+        if (playerByMatchRoom) {
+            foundPlayer = playerByMatchRoom;
+            return;
+        }
+    });
+    return foundPlayer;
+}
 
     makePlayerInactive(matchRoomCode: string, username: string): void {
         const roomIndex = this.matchRoomService.getRoomIndex(matchRoomCode);

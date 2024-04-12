@@ -35,6 +35,8 @@ export class MatchRoomService {
     private matchRoomCode: string;
     private username: string;
 
+    // Allow more constructor parameters
+    // eslint-disable-next-line max-params
     constructor(
         public socketService: SocketHandlerService,
         private readonly router: Router,

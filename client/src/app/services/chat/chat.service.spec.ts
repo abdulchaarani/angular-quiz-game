@@ -7,7 +7,7 @@ import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 import { ChatService } from './chat.service';
 
-import { MOCK_MESSAGE, MOCK_MESSAGES, MOCK_ROOM_CODE } from '@app/constants/chat-mocks';
+import { MOCK_MESSAGE, MOCK_MESSAGES, MOCK_ROOM_CODE, MOCK_USERNAME } from '@app/constants/chat-mocks';
 import SpyObj = jasmine.SpyObj;
 
 describe('ChatService', () => {
@@ -36,6 +36,8 @@ describe('ChatService', () => {
     const mockMessages = MOCK_MESSAGES;
 
     const mockRoomCode = MOCK_ROOM_CODE;
+
+    const mockUsername = MOCK_USERNAME;
 
     it('should be created', () => {
         expect(service).toBeTruthy();
@@ -76,6 +78,12 @@ describe('ChatService', () => {
 
     it('should send message', () => {
         service.sendMessage(mockRoomCode, mockMessage);
+        expect(socketHandlerSpy.send).toHaveBeenCalled();
+    });
+
+
+    it('toggleChatState() should send an event to toggle the chat state', () => {
+        service.toggleChatState(mockRoomCode, mockUsername);
         expect(socketHandlerSpy.send).toHaveBeenCalled();
     });
 });

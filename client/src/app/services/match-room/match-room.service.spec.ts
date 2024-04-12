@@ -27,7 +27,7 @@ describe('MatchRoomService', () => {
 
     beforeEach(async () => {
         router = jasmine.createSpyObj('Router', ['navigateByUrl', 'navigate']);
-        notificationService = jasmine.createSpyObj('NotificationService', ['displayErrorMessage']);
+        notificationService = jasmine.createSpyObj('NotificationService', ['displayErrorMessage', 'displaySuccessMessage']);
 
         socketHelper = new SocketTestHelper();
         socketSpy = new SocketHandlerServiceMock(router);
@@ -314,15 +314,27 @@ describe('MatchRoomService', () => {
         expect(router.navigateByUrl).not.toHaveBeenCalled();
     });
 
-    it('onNextQuestion() should send nextQuestion event', () => {
+    it('onGameOver() should not navigate to /host when not in test room', () => {
         // Any is required to simulate Function type in tests
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
-            cb('mockQuestion');
+            cb(false);
         });
-        service.onNextQuestion();
-        socketHelper.peerSideEmit('nextQuestion', 'mockQuestion');
+        service.onGameOver();
+        socketHelper.peerSideEmit('gameOver', false);
         expect(onSpy).toHaveBeenCalled();
+        expect(router.navigateByUrl).not.toHaveBeenCalled();
+    });
+
+    it('handleChatStateNotifications() should notify a player if chat is reactivated', () => {
+        // Any is required to simulate Function type in tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
+            cb('');
+        });
+        service.handleChatStateNotifications();
+        expect(onSpy).toHaveBeenCalled();
+        //expect(onSpy).toHaveBeenCalled();
     });
 
     it('onFetchPlayersData() should update players when receiving event', () => {

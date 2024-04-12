@@ -17,6 +17,8 @@ export const MOCK_MESSAGES: Message[] = [
 
 export const MOCK_ROOM_CODE = '1234';
 
+export const MOCK_USERNAME = MOCK_MESSAGE.author;
+
 export const PLAYER_MOCK: Player = {
     username: '',
     score: 0,

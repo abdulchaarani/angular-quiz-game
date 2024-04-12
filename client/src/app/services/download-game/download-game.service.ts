@@ -5,9 +5,13 @@ import { Game } from '@app/interfaces/game';
     providedIn: 'root',
 })
 export class DownloadGameService {
+    isValidKey(key: string): boolean {
+        return key !== 'isVisible' && key !== '_id' && key !== '__v';
+    }
+
     formatGameToExport(game: Game): string {
         return JSON.stringify(game, (key, value) => {
-            if (key !== 'isVisible' && key !== '_id' && key !== '__v') {
+            if (this.isValidKey(key)) {
                 return value;
             }
         });

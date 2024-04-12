@@ -12,10 +12,10 @@ import { Subject } from 'rxjs';
 })
 export class MatchService extends CommunicationService<Game> {
     questionAdvanced: Subject<void>;
-    private currentQuestionId: string;
+    currentGame: Game;
 
+    questionId: string;
     private questionAdvanceSubject = new Subject<void>();
-    private selectedGame: Game;
 
     constructor(
         http: HttpClient,
@@ -27,21 +27,6 @@ export class MatchService extends CommunicationService<Game> {
 
     get questionAdvanced$() {
         return this.questionAdvanceSubject.asObservable();
-    }
-
-    get currentGame() {
-        return this.selectedGame;
-    }
-
-    get questionId() {
-        return this.currentQuestionId;
-    }
-    set currentGame(game: Game) {
-        this.selectedGame = game;
-    }
-
-    set questionId(id: string) {
-        this.currentQuestionId = id;
     }
 
     getAllGames() {
@@ -68,6 +53,6 @@ export class MatchService extends CommunicationService<Game> {
         const isTestPage = this.questionContextService.getContext() === MatchContext.TestPage;
         const isRandomMode = this.questionContextService.getContext() === MatchContext.RandomMode;
         this.matchRoomService.connect();
-        this.matchRoomService.createRoom(this.selectedGame.id, isTestPage, isRandomMode);
+        this.matchRoomService.createRoom(this.currentGame.id, isTestPage, isRandomMode);
     }
 }

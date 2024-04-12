@@ -34,16 +34,9 @@ export class GameValidationService {
     }
 
     isValidChoicesRatio(question: CreateQuestionDto): boolean {
-        let isValidRightChoiceNumber = false;
-        let isValidWrongChoiceNumber = false;
-        question.choices.forEach((choice: Choice) => {
-            if (choice.isCorrect && this.isValidString(choice.text)) {
-                isValidRightChoiceNumber = true;
-            } else if (!choice.isCorrect && this.isValidString(choice.text)) {
-                isValidWrongChoiceNumber = true;
-            }
-        });
-        return isValidRightChoiceNumber && isValidWrongChoiceNumber;
+        const hasValidRightChoice = question.choices.some((choice: Choice) => choice.isCorrect && this.isValidString(choice.text));
+        const hasValidWrongChoice = question.choices.some((choice: Choice) => !choice.isCorrect && this.isValidString(choice.text));
+        return hasValidRightChoice && hasValidWrongChoice;
     }
 
     isValidRange(quantity: number, firstBound: number, secondBound: number) {

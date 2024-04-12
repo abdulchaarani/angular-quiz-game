@@ -109,7 +109,7 @@ describe('MatchService', () => {
     });
 
     it('createMatch() should connect and create room', () => {
-        service['selectedGame'] = getMockGame();
+        service.currentGame = getMockGame();
         service.createMatch();
         expect(matchRoomSpy.connect).toHaveBeenCalled();
         expect(matchRoomSpy.createRoom).toHaveBeenCalled();

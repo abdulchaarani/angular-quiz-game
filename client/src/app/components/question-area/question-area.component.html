@@ -65,7 +65,7 @@
             </div>
         </div>
 
-        <div class="choice-container" *ngIf="!isCooldown || context === matchContext.TestPage">
+        <div class="choice-container" *ngIf="!isCooldown || context === matchContext.TestPage || context === matchContext.RandomMode">
             <app-multiple-choice-area
                 *ngIf="currentQuestion.type === questionType.QCM"
                 class="choice-area"

@@ -157,7 +157,6 @@ export class QuestionAreaComponent implements OnInit, OnDestroy {
         this.playerScore = feedback.score;
         // TODO: À revoir si chaque client renvoi son data...
         this.matchRoomService.sendPlayersData(this.matchRoomCode);
-        this.showFeedback = true;
         if (this.context === MatchContext.TestPage || this.context === MatchContext.RandomMode) {
             this.goToNextQuestion();
         }

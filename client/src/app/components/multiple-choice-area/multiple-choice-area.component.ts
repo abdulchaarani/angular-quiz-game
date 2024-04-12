@@ -62,6 +62,7 @@ export class MultipleChoiceAreaComponent implements OnInit, OnDestroy {
 
     selectChoice(choice: Choice): void {
         if (this.isSelectionEnabled) {
+            this.showFeedback = false;
             if (!this.selectedAnswers.includes(choice)) {
                 this.selectedAnswers.push(choice);
                 this.answerService.selectChoice(choice.text, { username: this.username, roomCode: this.matchRoomCode });
@@ -96,10 +97,10 @@ export class MultipleChoiceAreaComponent implements OnInit, OnDestroy {
     }
 
     private resetStateForNewQuestion(): void {
+        this.showFeedback = false;
         this.selectedAnswers = [];
         this.eventSubscriptions = [];
         this.selectedAnswers = [];
         this.correctAnswers = [];
-        this.showFeedback = false;
     }
 }

@@ -93,6 +93,7 @@
         <ng-template #elseBlock><mat-icon>play_arrow</mat-icon></ng-template>
     </button>
 
+    <audio #ref src="../../../assets/audio/alert.mp3"></audio>
     <button
         mat-raised-button
         id="panic-button"
@@ -100,6 +101,7 @@
         *ngIf="!this.matchRoomService.isCooldown && context === 'hostView'"
         [disabled]="this.timeService.isPanicModeDisabled || this.timeService.isPanicking"
         (click)="togglePanicTimer()"
+        (click)="ref.play()"
     >
         MODE PANIQUE
     </button>

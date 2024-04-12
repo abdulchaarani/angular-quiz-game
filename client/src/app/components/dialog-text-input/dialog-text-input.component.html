@@ -5,7 +5,7 @@
         <input matInput [(ngModel)]="data.input" />
     </mat-form-field>
 </div>
-<div mat-dialog-actions>
+<div mat-dialog-actions align="end" id="buttons-container">
     <button mat-button (click)="onNoClick()">Annuler</button>
-    <button mat-button [mat-dialog-close]="data.input" cdkFocusInitial>OK</button>
+    <button mat-raised-button [mat-dialog-close]="data.input" color="primary">OK</button>
 </div>

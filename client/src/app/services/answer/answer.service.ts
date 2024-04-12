@@ -1,17 +1,17 @@
 import { Injectable } from '@angular/core';
+import { MatchContext } from '@app/constants/states';
+import { MatchRoomService } from '@app/services/match-room/match-room.service';
+import { MatchContextService } from '@app/services/question-context/question-context.service';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
+import { TimeService } from '@app/services/time/time.service';
+import { AnswerCorrectness } from '@common/constants/answer-correctness';
+import { AnswerEvents } from '@common/events/answer.events';
+import { MatchEvents } from '@common/events/match.events';
 import { ChoiceInfo } from '@common/interfaces/choice-info';
 import { Feedback } from '@common/interfaces/feedback';
-import { UserInfo } from '@common/interfaces/user-info';
-import { AnswerEvents } from '@common/events/answer.events';
-import { LongAnswerInfo } from '@common/interfaces/long-answer-info';
 import { GradesInfo } from '@common/interfaces/grades-info';
-import { MatchRoomService } from '@app/services/match-room/match-room.service';
-import { MatchEvents } from '@common/events/match.events';
-import { AnswerCorrectness } from '@common/constants/answer-correctness';
-import { MatchContextService } from '@app/services/question-context/question-context.service';
-import { MatchContext } from '@app/constants/states';
-import { TimeService } from '../time/time.service';
+import { LongAnswerInfo } from '@common/interfaces/long-answer-info';
+import { UserInfo } from '@common/interfaces/user-info';
 
 @Injectable({
     providedIn: 'root',

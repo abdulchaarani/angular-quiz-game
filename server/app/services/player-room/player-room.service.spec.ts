@@ -300,7 +300,7 @@ describe('PlayerRoomService', () => {
         const result = service.isHostPlayer(MOCK_ROOM_CODE);
         expect(result).toEqual(false);
     });
-    it('isHostUsernameCorrect() should return true if the username is the host username and the match room is a test room and the player is not the host', () => {
+    it("isHostUsernameCorrect() should return true if the username is the host's and the room is a test room and the player is not the host", () => {
         const matchRoomCode = 'test-room';
         const username = HOST_USERNAME;
         const matchRoom = MOCK_MATCH_ROOM;

@@ -1,10 +1,10 @@
-import { ChoiceTracker } from '@app/model/tally-trackers/choice-tracker/choice-tracker';
+import { MultipleChoiceAnswer } from '@app/model/answer-types/multiple-choice-answer/multiple-choice-answer';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Player } from '@app/model/schema/player.schema';
+import { ChoiceTracker } from '@app/model/tally-trackers/choice-tracker/choice-tracker';
+import { AnswerCorrectness } from '@common/constants/answer-correctness';
 import { PlayerState } from '@common/constants/player-states';
 import { getMockGame } from './game-mocks';
-import { MultipleChoiceAnswer } from '@app/model/answer-types/multiple-choice-answer/multiple-choice-answer';
-import { AnswerCorrectness } from '@common/constants/answer-correctness';
 import { getMockQuestion } from './question-mocks';
 
 const MOCK_USER_INFO = { roomCode: '', username: '' };
@@ -88,6 +88,7 @@ const MOCK_PLAYER_ROOM: MatchRoom = {
     isRandomMode: false,
     startTime: new Date(),
 };
+
 const MOCK_ROOM_CODE = 'mockCode';
 const MOCK_USERNAME = 'mockUsername';
 

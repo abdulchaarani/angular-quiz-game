@@ -17,6 +17,7 @@ export class ResultsPageComponent implements OnInit, OnDestroy {
     players: Player[] = [];
     currentQuestionIndex: number = 0;
     histogramsGame: Histogram[] = [];
+
     private histogramSubscriptions: Subscription[] = [];
     constructor(
         private readonly matchRoomService: MatchRoomService,

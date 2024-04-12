@@ -29,6 +29,7 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
     questionForm: FormGroup;
     checked: boolean;
     disabled: boolean;
+
     // Allow more constructor parameters to reduce logic in the component
     // eslint-disable-next-line max-params
     constructor(

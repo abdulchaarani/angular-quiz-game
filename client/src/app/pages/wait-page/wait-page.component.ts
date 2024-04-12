@@ -8,6 +8,7 @@ import { MatchService } from '@app/services/match/match.service';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { QuestionContextService } from '@app/services/question-context/question-context.service';
 import { TimeService } from '@app/services/time/time.service';
+import { HOST_USERNAME } from '@common/constants/match-constants';
 import { Subject } from 'rxjs';
 import { Subscription } from 'rxjs/internal/Subscription';
 
@@ -90,7 +91,7 @@ export class WaitPageComponent implements OnInit, OnDestroy {
     }
 
     banPlayerUsername(username: string) {
-        if (username === 'Organisateur') return;
+        if (username === HOST_USERNAME) return;
         this.matchRoomService.banUsername(username);
     }
 

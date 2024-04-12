@@ -4,13 +4,13 @@ import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Player } from '@app/model/schema/player.schema';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { AnswerCorrectness } from '@common/constants/answer-correctness';
+import { HOST_USERNAME } from '@common/constants/match-constants';
 import { PlayerState } from '@common/constants/player-states';
 import { MatchEvents } from '@common/events/match.events';
 import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
 
 const INDEX_NOT_FOUND = -1;
-const HOST_USERNAME = 'ORGANISATEUR';
 
 @Injectable()
 export class PlayerRoomService {

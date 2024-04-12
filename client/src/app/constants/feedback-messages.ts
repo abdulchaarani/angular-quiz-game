@@ -37,3 +37,11 @@ export enum SnackBarError {
     DELETED = "Le jeu sélectionné n'existe plus",
     INVISIBLE = "Le jeu sélectionné n'est plus visible",
 }
+
+export enum SnackBarAction {
+    REFRESH = 'Actualiser',
+}
+
+export enum RandomModeStatus {
+    FAILURE = "Il n'y a pas assez de questions pour un jeu aléatoire",
+}

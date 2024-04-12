@@ -109,6 +109,32 @@ describe('LongAnswerHistogramComponent', () => {
         expect(component.ngOnInit).toHaveBeenCalled();
     });
 
+    it('should reset chart and initialize on changes if currentHistogram changes', () => {
+        const changes = {
+            currentLongAnswerHistogram: {
+                currentValue: {
+                    question: 'new question',
+                    type: 'QRL',
+                    gradeTallies: [],
+                },
+                previousValue: {
+                    question: 'old question',
+                    type: 'QRL',
+                    gradeTallies: [],
+                },
+                firstChange: true,
+                isFirstChange: () => true,
+            },
+        };
+        spyOn(component, 'resetChart');
+        spyOn(component, 'ngOnInit');
+
+        component.ngOnChanges(changes);
+
+        expect(component.resetChart).toHaveBeenCalled();
+        expect(component.ngOnInit).toHaveBeenCalled();
+    });
+
     it('should unsubscribe from subscriptions on ngOnDestroy', () => {
         const unsubscribeSpy = jasmine.createSpyObj('unsubscribe', ['unsubscribe']);
         const subscriptions = [unsubscribeSpy, unsubscribeSpy, unsubscribeSpy];

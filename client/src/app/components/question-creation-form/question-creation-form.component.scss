@@ -43,3 +43,13 @@
     flex-direction: column;
     gap: 0.25rem;
 }
+
+.correct-choice {
+    accent-color: rgb(133, 215, 95);
+    width: 1rem;
+    height: 1rem;
+}
+
+.pointer-on-hover {
+    cursor: pointer;
+}

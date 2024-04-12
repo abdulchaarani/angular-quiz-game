@@ -15,6 +15,11 @@ describe('DownloadGameService', () => {
         expect(service).toBeTruthy();
     });
 
+    it('isValidKey() should return false if key is isVisible, _id or __v', () => {
+        const result = service.isValidKey('isVisible');
+        expect(result).toBeFalsy();
+    });
+
     it('formatGameToExport() should return a stringified game without isVisible property', () => {
         const stringifiedMockGame = '{"id":"mock","title":"mock","description":"mock","lastModification":"mock","duration":1,"questions":[]}';
         const result = service.formatGameToExport(mockGame);

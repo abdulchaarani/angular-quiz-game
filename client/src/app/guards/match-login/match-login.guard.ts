@@ -10,11 +10,20 @@ export const matchLoginGuard = (): boolean => {
     const notificationService = inject(NotificationService);
     const matchContextService = inject(MatchContextService);
 
-    if (matchContextService.getContext() === 'testPage' && !matchRoomService.isPlaying) return true;
-    if (!matchRoomService.getRoomCode() || !matchRoomService.getUsername() || matchRoomService.isPlaying) {
+    const isTestPage = matchContextService.getContext() === 'testPage';
+    const isPlaying = matchRoomService.isPlaying;
+    const hasRoomCode = !!matchRoomService.getRoomCode();
+    const hasUsername = !!matchRoomService.getUsername();
+
+    if (isTestPage && !isPlaying) {
+        return true;
+    }
+
+    if (!hasRoomCode || !hasUsername || isPlaying) {
         router.navigateByUrl('/home');
-        notificationService.displayErrorMessage('Accès refusé: Veillez joindre une partie ou créer une partie.');
+        notificationService.displayErrorMessage('Accès refusé: Veuillez rejoindre une partie ou créer une partie.');
         return false;
     }
+
     return true;
 };

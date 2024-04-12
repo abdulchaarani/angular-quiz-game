@@ -19,7 +19,7 @@ import { NotificationService } from '@app/services/notification/notification.ser
 import { QuestionContextService } from '@app/services/question-context/question-context.service';
 import { QuestionService } from '@app/services/question/question.service';
 import { MINIMUM_QUESTIONS } from '@common/constants/match-constants';
-import { of, throwError } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 import { MatchCreationPageComponent } from './match-creation-page.component';
 import SpyObj = jasmine.SpyObj;
 
@@ -30,6 +30,7 @@ fdescribe('MatchCreationPageComponent', () => {
     let notificationSpy: SpyObj<NotificationService>;
     let questionContextSpy: SpyObj<QuestionContextService>;
     let questionServiceSpy: SpyObj<QuestionService>;
+    let questionsSubject: Subject<Question[]>;
 
     const invisibleGame: Game = { isVisible: false } as Game;
     const fakeGame: Game = getMockGame();
@@ -75,6 +76,9 @@ fdescribe('MatchCreationPageComponent', () => {
         gameService = TestBed.inject(GameService);
 
         component = fixture.componentInstance;
+
+        questionsSubject = new Subject<Question[]>();
+        questionServiceSpy.getAllQuestions.and.returnValue(questionsSubject.asObservable());
         fixture.detectChanges();
     });
 
@@ -88,6 +92,12 @@ fdescribe('MatchCreationPageComponent', () => {
 
     it('should handle load random game', () => {
         component.handleLoadRandomGame(mockData);
+        expect(component.selectedGame).toEqual(RANDOM_MODE_GAME);
+    });
+
+    it('should load random game', () => {
+        component.loadRandomGame();
+        questionsSubject.next(mockData);
         expect(component.selectedGame).toEqual(RANDOM_MODE_GAME);
     });
 
@@ -222,18 +232,19 @@ fdescribe('MatchCreationPageComponent', () => {
         expect(reloadSpy).toHaveBeenCalled();
     });
 
-    // it('createMatch() should revalidate random game if it is selected', () => {
-    //     const reloadSpy = spyOn(component, 'revalidateRandomGame');
-    //     component.createMatch(MatchContext.RandomMode);
-    //     expect(reloadSpy).toHaveBeenCalled();
-    // });
+    it('createMatch() should revalidate random game if it is selected', () => {
+        component.isRandomGame = true;
+        const reloadSpy = spyOn(component, 'revalidateRandomGame');
+        component.createMatch(MatchContext.RandomMode);
+        expect(reloadSpy).toHaveBeenCalled();
+    });
 
     it('should handle revalidate random game', () => {
         component.handleRevalidateRandomGame(mockData);
 
         expect(component.isRandomGame).toBeTrue();
         expect(component.gameIsValid).toBeTrue();
-        // expect(matchServiceSpy.currentGame).toEqual(RANDOM_MODE_GAME);
+        expect(matchServiceSpy.currentGame).toEqual(RANDOM_MODE_GAME);
         expect(matchServiceSpy.createMatch).toHaveBeenCalled();
     });
 
@@ -242,6 +253,14 @@ fdescribe('MatchCreationPageComponent', () => {
         const errorMessage = "Il n'y a pas assez de questions pour un jeu aléatoire";
         component.handleRevalidateRandomGame(notEnoughData);
         expect(notificationSpy.displayErrorMessage).toHaveBeenCalledWith(errorMessage);
+    });
+
+    it('should revalidate random game', () => {
+        const handleSpy = spyOn(component, 'handleRevalidateRandomGame');
+        component.revalidateRandomGame();
+        questionsSubject.next(mockData);
+        expect(questionServiceSpy.getAllQuestions).toHaveBeenCalled();
+        expect(handleSpy).toHaveBeenCalled();
     });
 
     it('should return true and set isRandomGame and gameIsValid to true if questions count is equal to minimum', () => {

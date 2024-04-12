@@ -137,7 +137,7 @@ export class MatchCreationPageComponent implements OnInit {
         const hasEnoughRandomQuestions = this.hasEnoughRandomQuestions(questionsCount);
 
         if (hasEnoughRandomQuestions && this.isRandomGame && this.gameIsValid) {
-            this.matchService.currentGame = this.selectedGame;
+            this.matchService.currentGame = RANDOM_MODE_GAME;
             this.matchService.createMatch();
         } else {
             this.notificationService.displayErrorMessage("Il n'y a pas assez de questions pour un jeu aléatoire");

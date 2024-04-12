@@ -1,4 +1,4 @@
-import { BANNED_USERNAME, HOST_CONFLICT, USED_USERNAME } from '@app/constants/match-login-errors';
+import { BANNED_USERNAME, EMPTY_USERNAME, HOST_CONFLICT, USED_USERNAME } from '@app/constants/match-login-errors';
 import { MultipleChoiceAnswer } from '@app/model/answer-types/multiple-choice-answer/multiple-choice-answer';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Player } from '@app/model/schema/player.schema';
@@ -118,15 +118,16 @@ export class PlayerRoomService {
     getUsernameErrors(matchRoomCode: string, username: string): string {
         let errors = '';
         if (this.matchRoomService.getRoom(matchRoomCode).isTestRoom) return errors;
-        if (username.trim().toUpperCase() === HOST_USERNAME) {
-            errors += HOST_CONFLICT;
-        }
-        if (this.isBannedUsername(matchRoomCode, username)) {
-            errors += BANNED_USERNAME;
-        }
-        if (this.getPlayerByUsername(matchRoomCode, username)) {
-            errors += USED_USERNAME;
-        }
+        const usernameToValidate = username.trim().toUpperCase();
+        const errorConditions: Map<string, boolean> = new Map([
+            [EMPTY_USERNAME, !usernameToValidate],
+            [HOST_CONFLICT, usernameToValidate === HOST_USERNAME],
+            [BANNED_USERNAME, this.isBannedUsername(matchRoomCode, usernameToValidate)],
+            [USED_USERNAME, !!this.getPlayerByUsername(matchRoomCode, usernameToValidate)],
+        ]);
+        errorConditions.forEach((hasError: boolean, message: string) => {
+            if (hasError) errors += message;
+        });
         return errors;
     }
 

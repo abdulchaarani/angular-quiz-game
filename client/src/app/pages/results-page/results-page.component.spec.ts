@@ -80,7 +80,7 @@ describe('ResultsPageComponent', () => {
     beforeEach(() => {
         matchRoomServiceSpy = jasmine.createSpyObj('MatchRoomService', ['disconnect', 'gameOver']);
         histogramServiceSpy = jasmine.createSpyObj('HistogramService', ['onHistogramHistory']);
-        confettiServiceSpy = jasmine.createSpyObj('ConfettiService', ['getWinner']);
+        confettiServiceSpy = jasmine.createSpyObj('ConfettiService', ['onWinner']);
         TestBed.configureTestingModule({
             declarations: [
                 ResultsPageComponent,

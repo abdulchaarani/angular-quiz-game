@@ -9,6 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { DialogAdminPasswordComponent } from './dialog-admin-password.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
     selector: 'app-chat',
@@ -43,7 +44,15 @@ describe('DialogAdminPasswordComponent', () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            imports: [MatDialogModule, FormsModule, MatFormFieldModule, MatInputModule, BrowserAnimationsModule, MatExpansionModule],
+            imports: [
+                MatDialogModule,
+                FormsModule,
+                MatFormFieldModule,
+                MatInputModule,
+                BrowserAnimationsModule,
+                MatExpansionModule,
+                MatTooltipModule,
+            ],
             declarations: [
                 DialogAdminPasswordComponent,
                 MockChatComponent,

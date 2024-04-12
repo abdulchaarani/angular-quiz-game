@@ -13,6 +13,7 @@ import { TimerInfo } from '@common/interfaces/timer-info';
 import { MultipleChoiceStrategy } from '@app/question-strategies/multiple-choice-strategy/multiple-choice-strategy';
 import { LongAnswerStrategy } from '@app/question-strategies/long-answer-strategy/long-answer-strategy';
 import { HistogramEvents } from '@common/events/histogram.events';
+import { getMockGame } from '@app/constants/game-mocks';
 
 describe('HistogramService', () => {
     let histogramService: HistogramService;
@@ -50,10 +51,10 @@ describe('HistogramService', () => {
         };
 
         mockMatchRoom = { ...MOCK_MATCH_ROOM };
+        mockMatchRoom.game = getMockGame();
+        mockMatchRoom.currentQuestion = mockMatchRoom.game.questions[0];
         mockMatchRoom.currentQuestion.type = 'QRL';
         mockMatchRoom.hostSocket = mockSocket;
-
-        matchRoomService.getRoom.returns(mockMatchRoom);
 
         questionStrategyContext.setQuestionStrategy(mockMatchRoom);
     });
@@ -64,6 +65,9 @@ describe('HistogramService', () => {
 
     it('onTimerTick() should call buildHistogram only if current question is of type long answer and current time is a multiple of 5', () => {
         const buildHistogramSpy = jest.spyOn<any, any>(histogramService, 'buildHistogram').mockImplementation();
+        jest.spyOn<any, any>(matchRoomService, 'isGamePlaying').mockReturnValue(true);
+        jest.spyOn<any, any>(questionStrategyContext, 'getQuestionStrategy').mockReturnValue('QRL');
+        jest.spyOn<any, any>(matchRoomService, 'getRoom').mockReturnValue(mockMatchRoom);
 
         eventEmitter.addListener(TimerDurationEvents.Timer, histogramService.onTimerTick);
         expect(eventEmitter.hasListeners(TimerDurationEvents.Timer)).toBe(true);
@@ -77,30 +81,40 @@ describe('HistogramService', () => {
 
     it('onTimerTick() should not call buildHistogram if current time is not a multiple of 5', () => {
         const buildHistogramSpy = jest.spyOn<any, any>(histogramService, 'buildHistogram').mockImplementation();
+        jest.spyOn<any, any>(matchRoomService, 'isGamePlaying').mockReturnValue(true);
+        jest.spyOn<any, any>(questionStrategyContext, 'getQuestionStrategy').mockReturnValue('QRL');
+        jest.spyOn<any, any>(matchRoomService, 'getRoom').mockReturnValue(mockMatchRoom);
+
+        const timerInfo: TimerInfo = { currentTime: 17, duration: 60 };
+        histogramService.onTimerTick(MOCK_ROOM_CODE, timerInfo);
+        expect(buildHistogramSpy).not.toHaveBeenCalledWith(mockMatchRoom);
+    });
+
+    it('onTimerTick() should not call buildHistogram if current question is not of type long answer  ', () => {
+        const buildHistogramSpy = jest.spyOn<any, any>(histogramService, 'buildHistogram').mockImplementation();
+        jest.spyOn<any, any>(matchRoomService, 'isGamePlaying').mockReturnValue(true);
+        jest.spyOn<any, any>(questionStrategyContext, 'getQuestionStrategy').mockReturnValue('QCM');
+        jest.spyOn<any, any>(matchRoomService, 'getRoom').mockReturnValue(mockMatchRoom);
 
         eventEmitter.addListener(TimerDurationEvents.Timer, histogramService.onTimerTick);
         expect(eventEmitter.hasListeners(TimerDurationEvents.Timer)).toBe(true);
 
-        const timerInfo: TimerInfo = { currentTime: 17, duration: 60 };
+        const timerInfo: TimerInfo = { currentTime: 30, duration: 60 };
         histogramService.onTimerTick(MOCK_ROOM_CODE, timerInfo);
         expect(buildHistogramSpy).not.toHaveBeenCalledWith(mockMatchRoom);
 
         eventEmitter.removeListener(TimerDurationEvents.Timer, histogramService.onTimerTick);
     });
 
-    it('onTimerTick() should not call buildHistogram if current question is not of type long answer  ', () => {
+    it('onTimerTick() should not call buildHistogram if current game is not playing  ', () => {
         const buildHistogramSpy = jest.spyOn<any, any>(histogramService, 'buildHistogram').mockImplementation();
+        jest.spyOn<any, any>(matchRoomService, 'isGamePlaying').mockReturnValue(false);
+        jest.spyOn<any, any>(questionStrategyContext, 'getQuestionStrategy').mockReturnValue('QRL');
+        jest.spyOn<any, any>(matchRoomService, 'getRoom').mockReturnValue(mockMatchRoom);
 
-        eventEmitter.addListener(TimerDurationEvents.Timer, histogramService.onTimerTick);
-        expect(eventEmitter.hasListeners(TimerDurationEvents.Timer)).toBe(true);
-
-        mockMatchRoom.currentQuestion.type = 'QCM';
-        questionStrategyContext.setQuestionStrategy(mockMatchRoom);
-        const timerInfo: TimerInfo = { currentTime: 30, duration: 60 };
+        const timerInfo: TimerInfo = { currentTime: 5, duration: 5 };
         histogramService.onTimerTick(MOCK_ROOM_CODE, timerInfo);
         expect(buildHistogramSpy).not.toHaveBeenCalledWith(mockMatchRoom);
-
-        eventEmitter.removeListener(TimerDurationEvents.Timer, histogramService.onTimerTick);
     });
 
     it('buildHistogram() should call correct helper functions', () => {
@@ -127,19 +141,22 @@ describe('HistogramService', () => {
     it('should send histogram history', () => {
         mockMatchRoom.hostSocket = mockSocket;
         const histograms = (mockMatchRoom.matchHistograms = [] as Histogram[]);
+        jest.spyOn<any, any>(matchRoomService, 'getRoom').mockReturnValue(mockMatchRoom);
+
         histogramService.sendHistogramHistory(MOCK_ROOM_CODE);
         expect(emitMock).toHaveBeenCalledWith(HistogramEvents.HistogramHistory, histograms);
     });
 
-    // it('should reset choice histogram', () => {
-    //     const currentQuestion = mockMatchRoom.currentQuestion;
-    //     jest.spyOn(matchRoomService, 'getCurrentQuestion').mockReturnValue(currentQuestion);
-    //     const resetTrackerSpy = jest.spyOn(mockMatchRoom.choiceTracker, 'resetChoiceTracker').mockImplementation();
+    it('should reset choice histogram if game has questions', () => {
+        const resetTrackerSpy = jest.spyOn(mockMatchRoom.choiceTracker, 'resetChoiceTracker').mockImplementation();
+        jest.spyOn<any, any>(matchRoomService, 'getRoom').mockReturnValue(mockMatchRoom);
 
-    //     histogramService['resetChoiceTracker'](MOCK_ROOM_CODE);
+        histogramService['resetChoiceTracker'](MOCK_ROOM_CODE);
+        mockMatchRoom.game.questions = [];
+        histogramService['resetChoiceTracker'](MOCK_ROOM_CODE);
 
-    //     expect(resetTrackerSpy).toHaveBeenCalledWith(currentQuestion.text, currentQuestion.choices);
-    // });
+        expect(resetTrackerSpy).toBeCalledTimes(1);
+    });
 
     it('sendHistogram() should emit current histogram', () => {
         histogramService.sendHistogram(mockHistogram, mockMatchRoom);
@@ -148,6 +165,8 @@ describe('HistogramService', () => {
 
     it('sendEmptyHistogram() should send an histogram history', () => {
         jest.spyOn<any, any>(questionStrategyContext, 'buildHistogram').mockReturnValue(mockHistogram);
+        jest.spyOn<any, any>(matchRoomService, 'getRoom').mockReturnValue(mockMatchRoom);
+
         histogramService.sendEmptyHistogram(MOCK_ROOM_CODE);
         expect(emitMock).toHaveBeenCalledWith(HistogramEvents.CurrentHistogram, mockHistogram);
     });

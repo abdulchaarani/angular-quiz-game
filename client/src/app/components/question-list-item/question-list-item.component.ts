@@ -11,6 +11,7 @@ export class QuestionListItemComponent implements OnInit {
     @Input() question: Question;
     @Input() index: number;
     @Input() isBankQuestion: boolean;
+    @Input() isExpanded: boolean;
     @Output() deleteQuestionEvent = new EventEmitter<string>();
     @Output() updateQuestionEvent = new EventEmitter<Question>();
 

@@ -14,11 +14,12 @@ import { AnswerCorrectness } from '@common/constants/answer-correctness';
 import { isInt } from 'class-validator';
 import { Grade } from '@common/interfaces/choice-tally';
 import { QuestionType } from '@app/constants/question-types';
+import { PanicThresholdTime } from '@app/constants/panic-threasholds-time';
 
 @Injectable()
 export class LongAnswerStrategy extends QuestionStrategy {
     constructor(private readonly eventEmitter: EventEmitter2) {
-        super(QuestionType.LONG);
+        super(QuestionType.LongAnswer, PanicThresholdTime.LongAnswer);
     }
 
     gradeAnswers(matchRoom: MatchRoom, players: Player[]): void {
@@ -48,9 +49,10 @@ export class LongAnswerStrategy extends QuestionStrategy {
         const players = matchRoom.players;
         const time = Date.now() - HISTOGRAM_UPDATE_TIME_MS;
 
+        // TODO: move to constant
         const emptyHistogram = {
             question: matchRoom.currentQuestion.text,
-            type: QuestionType.LONG,
+            type: QuestionType.LongAnswer,
             playerCount: 0,
             activePlayers: 0,
             inactivePlayers: 0,
@@ -69,7 +71,7 @@ export class LongAnswerStrategy extends QuestionStrategy {
     private buildGradesHistogram(matchRoom: MatchRoom, gradeTracker: GradeTracker): void {
         const gradesHistogram: GradesHistogram = {
             question: gradeTracker.question,
-            type: QuestionType.LONG,
+            type: QuestionType.LongAnswer,
             gradeTallies: Object.values(gradeTracker.items),
         };
         matchRoom.matchHistograms[matchRoom.currentQuestionIndex] = gradesHistogram;
@@ -77,16 +79,19 @@ export class LongAnswerStrategy extends QuestionStrategy {
 
     private prepareAnswersForGrading(matchRoom: MatchRoom, players: Player[]) {
         if (matchRoom.isTestRoom) {
+            // TODO: unanonymize object
             const testAnswer: LongAnswerInfo[] = [{ username: players[0].username, answer: '', score: AnswerCorrectness.GOOD.toString() }];
             this.calculateScore(matchRoom, players, testAnswer);
             return;
         }
 
-        const playerAnswers = players.map((player: Player) => {
+        const playingPlayers = players.filter((player) => player.isPlaying);
+
+        const playerAnswers = playingPlayers.map((player: Player) => {
             const answer: string = (player.answer as LongAnswer).answer;
             const username: string = player.username;
-            const score = '0';
-            const longAnswerInfo: LongAnswerInfo = { username, answer, score };
+            // TODO: unanonymize object
+            const longAnswerInfo: LongAnswerInfo = { username, answer, score: null };
             player.socket.emit(AnswerEvents.TimesUp);
             return longAnswerInfo;
         });

@@ -57,7 +57,7 @@ describe('GameCreationService', () => {
 
     it('completeIsCorrectChoice() should return the question if it is of QRL type', () => {
         const mockQuestion = getMockQuestion();
-        mockQuestion.type = QuestionType.LONG;
+        mockQuestion.type = QuestionType.LongAnswer;
         expect(service.completeIsCorrectChoice(mockQuestion)).toEqual(mockQuestion);
     });
 

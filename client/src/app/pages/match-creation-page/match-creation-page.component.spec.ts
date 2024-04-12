@@ -14,7 +14,7 @@ import { Game } from '@app/interfaces/game';
 import { GameService } from '@app/services/game/game.service';
 import { MatchService } from '@app/services/match/match.service';
 import { NotificationService } from '@app/services/notification/notification.service';
-import { QuestionContextService } from '@app/services/question-context/question-context.service';
+import { MatchContextService } from '@app/services/question-context/question-context.service';
 import { of, throwError } from 'rxjs';
 import { MatchCreationPageComponent } from './match-creation-page.component';
 import SpyObj = jasmine.SpyObj;
@@ -24,7 +24,7 @@ describe('MatchCreationPageComponent', () => {
     let fixture: ComponentFixture<MatchCreationPageComponent>;
     let gameService: GameService;
     let notificationSpy: SpyObj<NotificationService>;
-    let questionContextSpy: SpyObj<QuestionContextService>;
+    let questionContextSpy: SpyObj<MatchContextService>;
 
     const invisibleGame: Game = { isVisible: false } as Game;
     const fakeGame: Game = getMockGame();
@@ -56,7 +56,7 @@ describe('MatchCreationPageComponent', () => {
                 { provide: NotificationService, useValue: notificationSpy },
                 { provide: MatchService, useValue: matchServiceSpy },
                 { provide: MatDialog, useClass: MatDialogMock },
-                { provide: QuestionContextService, useValue: questionContextSpy },
+                { provide: MatchContextService, useValue: questionContextSpy },
             ],
         });
         fixture = TestBed.createComponent(MatchCreationPageComponent);

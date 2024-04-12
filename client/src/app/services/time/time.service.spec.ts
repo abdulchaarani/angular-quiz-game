@@ -8,7 +8,6 @@ import { Socket } from 'socket.io-client';
 import { TimeService } from './time.service';
 import SpyObj = jasmine.SpyObj;
 import { TimerInfo } from '@common/interfaces/timer-info';
-import { BehaviorSubject } from 'rxjs';
 
 class SocketHandlerServiceMock extends SocketHandlerService {
     override connect() {
@@ -42,12 +41,6 @@ describe('TimeService', () => {
 
     it('should be created', () => {
         expect(service).toBeTruthy();
-    });
-
-    it('it should get the timerFinished$ subject as observable', () => {
-        service['timerFinished'] = new BehaviorSubject<boolean>(false);
-        const timerFinished$ = service.timerFinished$;
-        expect(timerFinished$).toBeDefined();
     });
 
     it('it should set the time', () => {
@@ -92,15 +85,15 @@ describe('TimeService', () => {
         expect(spy).toHaveBeenCalledWith('timer', jasmine.any(Function));
     });
 
-    it('should detect stopTimer event and notify observers of timerFinished', () => {
+    it('should detect stopTimer event and stop the panic mode', () => {
+        service.isPanicking = true;
         const spy = spyOn(socketSpy, 'on').and.callFake((event: string, callback: (params: any) => any) => {
             callback(true);
         });
-        service['timerFinished'].next(false);
         service.handleStopTimer();
         socketHelper.peerSideEmit('stopTimer');
-        expect(service['timerFinished'].value).toBe(true);
         expect(spy).toHaveBeenCalledWith('stopTimer', jasmine.any(Function));
+        expect(service.isPanicking).toBe(false);
     });
 
     it('should compute timer progress with computeTimerProgress() and return a percentage', () => {
@@ -108,5 +101,25 @@ describe('TimeService', () => {
         service.time = 5;
         const result = service.computeTimerProgress();
         expect(result).toEqual(50);
+    });
+
+    it('listenToTimerEvents() should listen to correct events', () => {
+        const timerSpy = spyOn(service, 'handleTimer').and.returnValue();
+        const stopTimeSpy = spyOn(service, 'handleStopTimer').and.returnValue();
+        service.listenToTimerEvents();
+
+        expect(timerSpy).toHaveBeenCalled();
+        expect(stopTimeSpy).toHaveBeenCalled();
+    });
+
+    it('should detect disable panic timer event and disable the panic mode', () => {
+        service.isPanicModeDisabled = false;
+        const spy = spyOn(socketSpy, 'on').and.callFake((event: string, callback: (params: any) => any) => {
+            callback(true);
+        });
+        service.onDisablePanicTimer();
+        socketHelper.peerSideEmit('disablePanicTimer');
+        expect(spy).toHaveBeenCalledWith('disablePanicTimer', jasmine.any(Function));
+        expect(service.isPanicModeDisabled).toBe(true);
     });
 });

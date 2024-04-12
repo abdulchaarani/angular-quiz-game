@@ -1,5 +1,6 @@
 import { ExpiredTimerEvents } from '@app/constants/expired-timer-events';
 import { BAN_PLAYER, NO_MORE_HOST, NO_MORE_PLAYERS } from '@app/constants/match-errors';
+import { PlayerEvents } from '@app/constants/player-events';
 import { Game } from '@app/model/database/game';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { HistogramService } from '@app/services/histogram/histogram.service';
@@ -14,7 +15,7 @@ import { MatchEvents } from '@common/events/match.events';
 import { TimerEvents } from '@common/events/timer.events';
 import { UserInfo } from '@common/interfaces/user-info';
 import { Injectable } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { ConnectedSocket, MessageBody, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
@@ -31,6 +32,7 @@ export class MatchGateway implements OnGatewayDisconnect {
         private readonly matchBackupService: MatchBackupService,
         private readonly histogramService: HistogramService,
         private readonly historyService: HistoryService,
+        private readonly eventEmitter: EventEmitter2,
     ) {}
 
     @SubscribeMessage(MatchEvents.JoinRoom)
@@ -66,6 +68,7 @@ export class MatchGateway implements OnGatewayDisconnect {
 
             if (!newMatchRoom.isRandomMode) {
                 this.matchRoomService.sendFirstQuestion(this.server, playerInfo.roomCode);
+                this.matchRoomService.startMatch(socket, this.server, newMatchRoom.code);
             }
 
             return { code: newMatchRoom.code };
@@ -174,14 +177,15 @@ export class MatchGateway implements OnGatewayDisconnect {
         if (!roomCode) {
             return;
         }
+        this.eventEmitter.emit(PlayerEvents.Quit, roomCode);
         const room = this.matchRoomService.getRoom(roomCode);
         const isRoomEmpty = this.isRoomEmpty(room);
-        if (room.isPlaying && isRoomEmpty && room.currentQuestionIndex !== room.gameLength) {
+        if (room.isPlaying && isRoomEmpty && room.currentQuestionIndex <= room.gameLength) {
             this.sendError(roomCode, NO_MORE_PLAYERS);
             this.deleteRoom(roomCode);
             return;
         }
-        if (isRoomEmpty) {
+        if (isRoomEmpty && !room.hostSocket.connected) {
             this.deleteRoom(roomCode);
             return;
         }

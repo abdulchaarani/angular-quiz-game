@@ -17,7 +17,7 @@ describe('QuestionStrategyService', () => {
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
-            providers: [QuestionStrategyContext, MultipleChoiceStrategy, LongAnswerStrategy, EventEmitter2],
+            providers: [QuestionStrategyContext, EventEmitter2, MultipleChoiceStrategy, LongAnswerStrategy],
         }).compile();
 
         service = module.get<QuestionStrategyContext>(QuestionStrategyContext);
@@ -28,6 +28,8 @@ describe('QuestionStrategyService', () => {
         const player2 = { ...MOCK_PLAYER };
 
         matchRoom.players = [player1, player2];
+
+        service['questionStrategies'].set(matchRoom.code, service['multipleChoiceStrategy']);
     });
 
     it('should be defined', () => {
@@ -35,7 +37,7 @@ describe('QuestionStrategyService', () => {
     });
 
     it('getQuestionStrategy() should return current strategy ', () => {
-        const currentStrategy = service.getQuestionStrategy();
+        const currentStrategy = service.getQuestionStrategy(matchRoom.code);
         expect(currentStrategy).toEqual('QCM');
     });
 
@@ -64,7 +66,7 @@ describe('QuestionStrategyService', () => {
     });
 
     it('gradeAnswers() should delegate call to current strategy method', () => {
-        const gradeAnswersSpy = jest.spyOn(service['questionStrategy'], 'gradeAnswers').mockImplementation();
+        const gradeAnswersSpy = jest.spyOn(service['questionStrategies'].get(matchRoom.code), 'gradeAnswers').mockImplementation();
 
         service.gradeAnswers(matchRoom, matchRoom.players);
 
@@ -72,7 +74,7 @@ describe('QuestionStrategyService', () => {
     });
 
     it('calculateScore() should delegate call to current strategy method', () => {
-        const calculateScoreSpy = jest.spyOn(service['questionStrategy'], 'calculateScore').mockImplementation();
+        const calculateScoreSpy = jest.spyOn(service['questionStrategies'].get(matchRoom.code), 'calculateScore').mockImplementation();
         const grades = [] as LongAnswerInfo[];
 
         service.calculateScore(matchRoom, matchRoom.players, grades);
@@ -81,7 +83,7 @@ describe('QuestionStrategyService', () => {
     });
 
     it('buildHistogram() should delegate call to current strategy method', () => {
-        const buildHistogramSpy = jest.spyOn(service['questionStrategy'], 'buildHistogram').mockImplementation();
+        const buildHistogramSpy = jest.spyOn(service['questionStrategies'].get(matchRoom.code), 'buildHistogram').mockImplementation();
         const choice = 'choice1';
         const selection = true;
 
@@ -91,14 +93,14 @@ describe('QuestionStrategyService', () => {
     });
 
     it('setMultipleChoiceStrategy() should set question strategy to multipleChoiceStrategy', () => {
-        service['setMultipleChoiceStrategy']();
+        service['setMultipleChoiceStrategy'](matchRoom.code);
 
-        expect(service['questionStrategy']).toBeInstanceOf(MultipleChoiceStrategy);
+        expect(service['questionStrategies'].get(matchRoom.code)).toBeInstanceOf(MultipleChoiceStrategy);
     });
 
     it('setLongAnswerStrategy() should set question strategy to longAnswerStrategy', () => {
-        service['setLongAnswerStrategy']();
+        service['setLongAnswerStrategy'](matchRoom.code);
 
-        expect(service['questionStrategy']).toBeInstanceOf(LongAnswerStrategy);
+        expect(service['questionStrategies'].get(matchRoom.code)).toBeInstanceOf(LongAnswerStrategy);
     });
 });

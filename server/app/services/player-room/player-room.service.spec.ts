@@ -1,14 +1,14 @@
-import { BANNED_USERNAME, HOST_CONFLICT, USED_USERNAME } from '@app/constants/match-login-errors';
+import { BANNED_USERNAME, EMPTY_USERNAME, HOST_CONFLICT, USED_USERNAME } from '@app/constants/match-login-errors';
 import { MOCK_MATCH_ROOM, MOCK_PLAYER, MOCK_PLAYER_ROOM, MOCK_ROOM_CODE, MOCK_USERNAME } from '@app/constants/match-mocks';
+import { MultipleChoiceAnswer } from '@app/model/answer-types/multiple-choice-answer/multiple-choice-answer';
 import { Player } from '@app/model/schema/player.schema';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
+import { AnswerCorrectness } from '@common/constants/answer-correctness';
 import { PlayerState } from '@common/constants/player-states';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { Socket } from 'socket.io';
 import { PlayerRoomService } from './player-room.service';
-import { MultipleChoiceAnswer } from '@app/model/answer-types/multiple-choice-answer/multiple-choice-answer';
-import { AnswerCorrectness } from '@common/constants/answer-correctness';
 
 describe('PlayerRoomService', () => {
     let emitMock;
@@ -204,6 +204,7 @@ describe('PlayerRoomService', () => {
             { username: 'Organisateur', isBanned: false, isUsed: false, expectedResult: HOST_CONFLICT },
             { username: MOCK_USERNAME, isBanned: true, isUsed: false, expectedResult: BANNED_USERNAME },
             { username: MOCK_USERNAME, isBanned: false, isUsed: true, expectedResult: USED_USERNAME },
+            { username: ' ', isBanned: false, isUsed: false, expectedResult: EMPTY_USERNAME },
         ];
         for (const { username, isBanned, isUsed, expectedResult } of testCases) {
             const banSpy = jest.spyOn(service, 'isBannedUsername').mockReturnValue(isBanned);
@@ -217,7 +218,7 @@ describe('PlayerRoomService', () => {
 
     it('getUsernameErrors() should always return empty string if used in testPage', () => {
         matchRoomSpy.getRoom(MOCK_ROOM_CODE).isTestRoom = true;
-        const result = service.getUsernameErrors(MOCK_ROOM_CODE, '');
+        const result = service.getUsernameErrors(MOCK_ROOM_CODE, MOCK_USERNAME);
         expect(result).toBe('');
     });
 

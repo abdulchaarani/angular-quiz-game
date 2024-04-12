@@ -8,12 +8,15 @@ import { Server } from 'socket.io';
 
 @Injectable()
 export class TimeService {
+    currentPanicThresholdTime: number;
+
     private tick: number;
     private intervals: Map<string, NodeJS.Timeout>;
     // TODO : Rename to smt more elegant + find solution with less maps...
     private pauses: Map<string, boolean>;
     private counters: Map<string, number>;
     private durations: Map<string, number>;
+    private isPanicModeEnabled;
 
     constructor(private readonly eventEmitter: EventEmitter2) {
         this.counters = new Map();
@@ -43,6 +46,8 @@ export class TimeService {
                 } else {
                     this.expireTimer(roomId, server, onTimerExpiredEvent);
                 }
+                if (!this.isPanicModeEnabled) return;
+                if (currentTime > 0 && currentTime <= this.currentPanicThresholdTime) this.disablePanicTimer(server, roomId);
             }, this.tick),
         );
     }
@@ -53,12 +58,15 @@ export class TimeService {
         if (this.intervals.has(roomId) && !this.pauses.get(roomId)) return;
         const timerInfo: TimerInfo = { currentTime: startValue, duration: startValue };
         this.tick = 1000;
+
+        this.isPanicModeEnabled = true;
+        if (startValue <= this.currentPanicThresholdTime) this.disablePanicTimer(server, roomId);
+
         server.in(roomId).emit(TimerEvents.Timer, timerInfo);
 
         this.durations.set(roomId, startValue);
         this.counters.set(roomId, startValue - 1);
         this.pauses.set(roomId, false);
-
         this.startInterval(server, roomId, startValue, onTimerExpiredEvent);
     }
 
@@ -90,5 +98,10 @@ export class TimeService {
         clearInterval(this.intervals.get(roomId));
         this.intervals.delete(roomId);
         this.counters.delete(roomId);
+    }
+
+    private disablePanicTimer(server: Server, roomId: string) {
+        this.isPanicModeEnabled = false;
+        server.in(roomId).emit(TimerEvents.DisablePanicTimer);
     }
 }

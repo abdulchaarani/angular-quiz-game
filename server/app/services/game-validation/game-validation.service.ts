@@ -64,7 +64,7 @@ export class GameValidationService {
         const errorConditions: Map<string, boolean> = new Map([
             [ERROR_POINTS, !this.isValidRange(question.points, MIN_POINTS, MAX_POINTS) || question.points % STEP_POINTS !== 0],
             [ERROR_EMPTY_QUESTION, !this.isValidString(question.text)],
-            [ERROR_QUESTION_TYPE, question.type !== QuestionType.CHOICE && question.type !== QuestionType.LONG],
+            [ERROR_QUESTION_TYPE, question.type !== QuestionType.MultipleChoice && question.type !== QuestionType.LongAnswer],
         ]);
         return this.checkErrors(errorConditions, []);
     }
@@ -100,6 +100,6 @@ export class GameValidationService {
     }
 
     findQuestionErrors(question: Question): string[] {
-        return question.type === QuestionType.CHOICE ? this.findChoicesQuestionErrors(question) : this.findGeneralQuestionErrors(question);
+        return question.type === QuestionType.MultipleChoice ? this.findChoicesQuestionErrors(question) : this.findGeneralQuestionErrors(question);
     }
 }

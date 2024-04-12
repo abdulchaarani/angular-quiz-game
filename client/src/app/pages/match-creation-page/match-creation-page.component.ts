@@ -10,6 +10,7 @@ import { NotificationService } from '@app/services/notification/notification.ser
 import { QuestionContextService } from '@app/services/question-context/question-context.service';
 import { QuestionService } from '@app/services/question/question.service';
 import { MINIMUM_QUESTIONS } from '@common/constants/match-constants';
+import { QuestionType } from '@common/constants/question-types';
 
 @Component({
     selector: 'app-match-creation-page',
@@ -54,7 +55,8 @@ export class MatchCreationPageComponent implements OnInit {
     loadRandomGame(): void {
         this.questionService.getAllQuestions().subscribe({
             next: (data: Question[]) => {
-                data = data.filter((question) => question.type === 'CHOICE');
+                data = data.filter((question) => question.type === QuestionType.QCM);
+                console.log(data);
                 this.handleLoadRandomGame(data);
             },
         });
@@ -148,7 +150,7 @@ export class MatchCreationPageComponent implements OnInit {
     revalidateRandomGame() {
         this.questionService.getAllQuestions().subscribe({
             next: (data: Question[]) => {
-                data = data.filter((question) => question.type === 'CHOICE');
+                data = data.filter((question) => question.type === QuestionType.QCM);
                 this.handleRevalidateRandomGame(data);
             },
         });

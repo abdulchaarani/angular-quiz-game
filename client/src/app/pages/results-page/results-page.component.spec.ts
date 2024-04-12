@@ -8,15 +8,15 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { Player } from '@app/interfaces/player';
+import { ConfettiService } from '@app/services/confetti/confetti.service';
 import { HistogramService } from '@app/services/histogram/histogram.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { ChoiceTally } from '@common/interfaces/choice-tally';
-import { Histogram } from '@common/interfaces/histogram';
+import { GradesHistogram, Histogram, MultipleChoiceHistogram } from '@common/interfaces/histogram';
 import { AgChartsAngularModule } from 'ag-charts-angular';
 import { AgChartOptions } from 'ag-charts-community';
-import { ResultsPageComponent } from './results-page.component';
 import { Subject, Subscription } from 'rxjs';
-import { ConfettiService } from '@app/services/confetti/confetti.service';
+import { ResultsPageComponent } from './results-page.component';
 
 @Component({
     // Component is provided by Angular Material; therefore, its selector starts with mat
@@ -109,6 +109,32 @@ describe('ResultsPageComponent', () => {
 
     it('should create', () => {
         expect(component).toBeTruthy();
+    });
+
+    it('should get current multiple choice histogram', () => {
+        const mockHistogram = { type: 'QCM' } as MultipleChoiceHistogram;
+        component['histogramsGame'] = [mockHistogram];
+        expect(component.currentMultipleChoiceHistogram).toEqual(mockHistogram);
+    });
+
+    it('should get current long answer histogram', () => {
+        const mockHistogram = { type: 'QRL' } as GradesHistogram;
+        component['histogramsGame'] = [mockHistogram];
+        expect(component.currentLongAnswerHistogram).toEqual(mockHistogram);
+    });
+
+    it('should check if question is multiple choice', () => {
+        const mockHistogram = { type: 'QCM' } as MultipleChoiceHistogram;
+        component['histogramsGame'] = [mockHistogram];
+        expect(component.isQuestionMultipleChoice()).toBeTrue();
+        expect(component.isQuestionLongAnswer()).toBeFalse();
+    });
+
+    it('should check if question is long answer', () => {
+        const mockHistogram = { type: 'QRL' } as MultipleChoiceHistogram;
+        component['histogramsGame'] = [mockHistogram];
+        expect(component.isQuestionMultipleChoice()).toBeFalse();
+        expect(component.isQuestionLongAnswer()).toBeTrue();
     });
 
     it('should unsubscribe from subscriptions on ngOnDestroy', () => {

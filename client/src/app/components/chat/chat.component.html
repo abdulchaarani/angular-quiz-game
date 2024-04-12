@@ -14,17 +14,20 @@
                 class="message-text-container"
                 [ngClass]="[
                     message.author === this.matchRoomService.getUsername() ? 'own-message' : 'received-message',
-                    message.author === 'Organisateur' ? 'host-message' : ''
+                    message.author === 'Organisateur' ? 'host-message' : '',
+                    message.author === '' ? 'player-quit-message' : ''
                 ]"
             >
                 <p>{{ message.text }}</p>
             </div>
         </div>
     </div>
+
     <form id="chat-form">
         <mat-form-field id="chat-input-container">
             <mat-label>Message</mat-label>
             <input
+                *ngIf="!this.disableMessagingField || this.matchRoomService.getUsername() === 'Organisateur'"
                 id="chat-input"
                 matInput
                 #message

@@ -2,8 +2,7 @@ import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSo
 import { ChatService } from '@app/services/chat/chat.service';
 import { Server, Socket } from 'socket.io';
 import { ChatEvents } from '@common/events/chat.events';
-import { MessageInfo } from '@common/interfaces/message-info';
-import { ChatStateInfo } from '@common/interfaces/message-info';
+import { MessageInfo, ChatStateInfo } from '@common/interfaces/message-info';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { MatchEvents } from '@common/events/match.events';
@@ -33,21 +32,21 @@ export class ChatGateway {
             this.handleSentMessagesHistory(matchRoomCode);
         }
     }
-
+    
     @SubscribeMessage(ChatEvents.ChangeChatState)
     changeMessagingState(@ConnectedSocket() socket: Socket, @MessageBody() data: ChatStateInfo) {
         const roomIndex = this.matchRoomService.getRoomIndex(data.roomCode);
         const playerIndex = this.matchRoomService.getRoom(data.roomCode).players.findIndex((player) => {
             return player.username === data.playerUsername;
         });
-        const player = this.playerRoomService.getPlayerByUsername(data.roomCode, data.playerUsername);
+        const playerByUsername = this.playerRoomService.getPlayerByUsername(data.roomCode, data.playerUsername);
 
         if (roomIndex !== INDEX_NOT_FOUND && playerIndex !== INDEX_NOT_FOUND) {
             this.toggleChatState(roomIndex, playerIndex);
         }
 
         this.emitCurrentChatState(data.roomCode, roomIndex, playerIndex);
-        this.emitChatStatusNotification(player.socket.id, roomIndex, playerIndex);
+        this.emitChatStatusNotification(playerByUsername.socket.id, roomIndex, playerIndex);
     }
 
     sendMessageToClients(data: MessageInfo) {

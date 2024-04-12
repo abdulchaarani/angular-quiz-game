@@ -44,7 +44,9 @@
             <mat-form-field>
                 <mat-label>Type de Question</mat-label>
                 <mat-select formControlName="type">
-                    <mat-option *ngFor="let type of ['QCM', 'QRL']" [value]="type">{{ type }}</mat-option>
+                    <span *ngIf="this.isActiveSubmit()">
+                        <mat-option *ngFor="let type of ['QCM', 'QRL']" [value]="type">{{ type }}</mat-option>
+                    </span>
                 </mat-select>
             </mat-form-field>
 

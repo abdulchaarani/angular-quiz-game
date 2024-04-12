@@ -88,7 +88,9 @@ export class MatchRoomService {
             this.matchRoomCode = res.code;
             this.username = HOST_USERNAME;
             if (isTestRoom) {
-                this.players = [{ username: this.username, score: 0, bonusCount: 0,isChatActive:true, isPlaying: true, state: PlayerState.default }];
+                this.players = [
+                    { username: this.username, score: 0, bonusCount: 0, isChatActive: true, isPlaying: true, state: PlayerState.default },
+                ];
                 this.router.navigateByUrl('/play-test');
             } else {
                 this.sendPlayersData(this.matchRoomCode);
@@ -98,8 +100,8 @@ export class MatchRoomService {
     }
 
     getPlayerByUsername(username: string): Player | null {
-        const player = this.players.find((player) => player.username === username);
-        return player ? player : null;
+        const playerToFindByUsername = this.players.find((player) => player.username === username);
+        return playerToFindByUsername ? playerToFindByUsername : null;
     }
 
     onPlayerChatStateToggle() {
@@ -180,9 +182,13 @@ export class MatchRoomService {
     }
 
     onGameOver() {
-        this.socketService.on(MatchEvents.GameOver, (isTestRoom) => {
-            if (isTestRoom) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        this.socketService.on(MatchEvents.GameOver, (data: any) => {
+            const { isTestRoom, isRandomMode } = data;
+            if (isTestRoom && !isRandomMode) {
                 this.router.navigateByUrl('/host');
+            } else if (isRandomMode) {
+                this.routeToResultsPage();
             }
         });
     }
@@ -241,7 +247,7 @@ export class MatchRoomService {
             this.disconnect();
         });
     }
-    // TO TEST 
+    // TO TEST
     handleChatStateNotifications() {
         this.socketService.on(ChatEvents.ChatReactivated, (notificationMessage: string) => {
             this.notificationService.displaySuccessMessage(notificationMessage);

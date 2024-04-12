@@ -81,7 +81,6 @@ describe('ChatService', () => {
         expect(socketHandlerSpy.send).toHaveBeenCalled();
     });
 
-
     it('toggleChatState() should send an event to toggle the chat state', () => {
         service.toggleChatState(mockRoomCode, mockUsername);
         expect(socketHandlerSpy.send).toHaveBeenCalled();

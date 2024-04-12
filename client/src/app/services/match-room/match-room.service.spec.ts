@@ -126,7 +126,7 @@ describe('MatchRoomService', () => {
         service.onPlayerChatStateToggle();
         const callback = onSpy.calls.mostRecent().args[1] as (currentChatState: boolean) => void;
         callback(mockCurrentChatState);
-    
+
         expect(mockPlayer.isChatActive).toEqual(mockCurrentChatState);
     });
 
@@ -334,7 +334,6 @@ describe('MatchRoomService', () => {
         });
         service.handleChatStateNotifications();
         expect(onSpy).toHaveBeenCalled();
-        //expect(onSpy).toHaveBeenCalled();
     });
 
     it('onFetchPlayersData() should update players when receiving event', () => {

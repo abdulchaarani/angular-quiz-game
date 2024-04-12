@@ -50,7 +50,7 @@ describe('PlayerRoomService', () => {
         const expectedResult =
             // disable max lines since cant be split for string comparision
             // eslint-disable-next-line max-len
-            '[{"username":"","answer":{"isSubmitted":false,"selectedChoices":{}},"score":0,"answerCorrectness":0,"bonusCount":0,\"isPlaying":true,\"isChatActive\":true,\"state":"default"}]';
+            '[{"username":"","answer":{"isSubmitted":false,"selectedChoices":{}},"score":0,"answerCorrectness":0,"bonusCount":0,"isPlaying":true,"isChatActive":true,"state":"default"}]';
         const result = service.getPlayersStringified('');
         expect(result).toEqual(expectedResult);
     });
@@ -100,7 +100,6 @@ describe('PlayerRoomService', () => {
         expect(inactiveSpy).not.toHaveBeenCalled();
     });
 
-
     it('getPlayerBySocket() should delete the player if the foundMatchRoom is not playing yet', () => {
         const mockRoom = MOCK_PLAYER_ROOM;
         const mockPlayer = MOCK_PLAYER;
@@ -109,7 +108,6 @@ describe('PlayerRoomService', () => {
         matchRoomSpy.matchRooms = [mockRoom];
         const result = service.getPlayerBySocket(socket.id);
         expect(result).toEqual(MOCK_PLAYER);
-
     });
 
     it('deletePlayerBySocket() should make the player inactive if the foundMatchRoom is playing', () => {
@@ -224,7 +222,7 @@ describe('PlayerRoomService', () => {
             const result = service.getUsernameErrors('', username);
             expect(banSpy).toHaveBeenCalled();
             expect(usedSpy).toHaveBeenCalled();
-            //expect(result).toEqual(expectedResult);
+            // expect(result).toEqual(expectedResult);
         }
     });
 

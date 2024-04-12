@@ -198,7 +198,6 @@ export class MatchGateway implements OnGatewayDisconnect {
         this.matchRoomService.deleteRoom(matchRoomCode);
     }
 
-
     handleSendPlayersData(matchRoomCode: string) {
         this.server.to(matchRoomCode).emit(MatchEvents.FetchPlayersData, this.playerRoomService.getPlayersStringified(matchRoomCode));
     }

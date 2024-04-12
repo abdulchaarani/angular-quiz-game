@@ -70,18 +70,8 @@ export class PlayerRoomService {
         }
         return foundMatchRoom ? foundMatchRoom.code : undefined;
     }
-    
-    getPlayerBySocket(socketId: string): Player | undefined {
-        let foundPlayer: Player;
-        this.matchRoomService.matchRooms.forEach((matchRoom: MatchRoom) => {
-            const player = matchRoom.players.find((player: Player) => player.socket.id === socketId);
-            if (player) {
-                foundPlayer = player;
-                return;
-            }
-        });
-        return foundPlayer;
-    }
+
+
 
     getPlayerByUsername(matchRoomCode: string, username: string): Player | undefined {
         return this.getPlayers(matchRoomCode).find((player: Player) => {
@@ -131,17 +121,19 @@ export class PlayerRoomService {
     getUsernameErrors(matchRoomCode: string, username: string): string {
         let errors = '';
         if (this.matchRoomService.getRoom(matchRoomCode).isTestRoom) return errors;
-        if (username.trim().toUpperCase() === HOST_USERNAME) {
-            errors += HOST_CONFLICT;
-        }
-        if (this.isBannedUsername(matchRoomCode, username)) {
-            errors += BANNED_USERNAME;
-        }
-        if (this.getPlayerByUsername(matchRoomCode, username)) {
-            errors += USED_USERNAME;
-        }
+        const usernameToValidate = username.trim().toUpperCase();
+        const errorConditions: Map<string, boolean> = new Map([
+            [EMPTY_USERNAME, !usernameToValidate],
+            [HOST_CONFLICT, usernameToValidate === HOST_USERNAME],
+            [BANNED_USERNAME, this.isBannedUsername(matchRoomCode, usernameToValidate)],
+            [USED_USERNAME, !!this.getPlayerByUsername(matchRoomCode, usernameToValidate)],
+        ]);
+        errorConditions.forEach((hasError: boolean, message: string) => {
+            if (hasError) errors += message;
+        });
         return errors;
     }
+
 
     setStateForAll(matchRoomCode: string, state: string): void {
         const matchRoomIndex = this.matchRoomService.getRoomIndex(matchRoomCode);

@@ -97,7 +97,7 @@ describe('ChatComponent', () => {
             roomCode,
             jasmine.objectContaining({
                 text: messageText,
-                author: author,
+                author,
                 date: jasmine.any(Date),
             }),
         );

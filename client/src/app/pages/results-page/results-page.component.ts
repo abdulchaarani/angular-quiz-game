@@ -48,7 +48,7 @@ export class ResultsPageComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.players = this.matchRoomService.players;
-        this.players.forEach(player => {
+        this.players.forEach((player) => {
             player.isChatActive = true;
         });
         this.histogramService.onHistogramHistory();

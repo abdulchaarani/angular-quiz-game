@@ -11,14 +11,13 @@ import { ChatEvents } from '@common/events/chat.events';
 export class ChatService {
     constructor(
         public socketHandler: SocketHandlerService,
-        readonly matchRoomService: MatchRoomService, //readonly playerRoomService PlayerRoomService,
+        readonly matchRoomService: MatchRoomService, // readonly playerRoomService PlayerRoomService,
     ) {}
 
     sendMessage(roomCode: string, message: Message): void {
         const messageInfo: MessageInfo = { roomCode, message };
         this.socketHandler.send(ChatEvents.RoomMessage, messageInfo);
     }
-
 
     sendMessagesHistory(roomCode: string) {
         this.socketHandler.send(ChatEvents.SendMessagesHistory, roomCode);

@@ -1,12 +1,13 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Component, EventEmitter, Inject, Input, OnChanges, OnInit, Optional, Output, SimpleChanges } from '@angular/core';
-import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MAX_CHOICES, MIN_CHOICES, SNACK_BAR_DISPLAY_TIME } from '@app/constants/question-creation';
 import { QuestionTypes } from '@app/constants/question-types';
 import { ManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
+import { QuestionService } from '@app/services/question/question.service';
 
 export interface DialogManagement {
     modificationState: ManagementState;
@@ -28,19 +29,17 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
     questionForm: FormGroup;
     checked: boolean;
     disabled: boolean;
-
+    // Allow more constructor parameters to reduce logic in the component
+    // eslint-disable-next-line max-params
     constructor(
         private readonly snackBar: MatSnackBar,
         private readonly formBuilder: FormBuilder,
+        private readonly questionService: QuestionService,
         @Optional() @Inject(MAT_DIALOG_DATA) public dialogData: DialogManagement,
     ) {
         this.initializeForm();
         if (dialogData) {
             this.modificationState = dialogData.modificationState;
-            //this.questionForm.get('type')?.disable();
-        }
-        if (this.modifyingForm) {
-            // this.questionForm.get('type')?.disable();
         }
     }
 
@@ -50,33 +49,9 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
 
     buildChoices(): FormGroup {
         return this.formBuilder.group({
-            text: [''],
-            isCorrect: [false],
+            text: ['', Validators.required],
+            isCorrect: [false, Validators.required],
         });
-    }
-
-    validateChoicesLength(control: AbstractControl): ValidationErrors | null {
-        if (control.get('type')?.value !== 'QCM') return null;
-
-        const choices = control.get('choices') as FormArray;
-        let hasCorrect = false;
-        let hasIncorrect = false;
-
-        for (let i = 0; i < choices.length; i++) {
-            const isCorrect = choices.at(i).get('isCorrect')?.value;
-
-            if (isCorrect) {
-                hasCorrect = true;
-            } else if (!isCorrect) {
-                hasIncorrect = true;
-            }
-        }
-
-        if (hasCorrect && hasIncorrect) {
-            return null;
-        } else {
-            return { invalidChoicesLength: true };
-        }
     }
 
     addChoice() {
@@ -104,9 +79,6 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
     onSubmit() {
         if (this.questionForm.valid) {
             const newQuestion: Question = this.questionForm.value;
-            // if (newQuestion.type === 'QRL') {
-            //     newQuestion.choices = [];
-            // }
             newQuestion.lastModification = new Date().toLocaleString();
             if (this.modificationState === ManagementState.BankModify) {
                 this.modifyQuestionEvent.emit(newQuestion);
@@ -148,8 +120,6 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
         if (changes.question && this.question) {
             this.modifyingForm = true;
             this.updateFormValues();
-
-            //this.questionForm.get('type')?.disable();
         }
     }
 
@@ -177,20 +147,19 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
                 points: ['', Validators.required],
                 type: ['', Validators.required],
             },
-            { validators: this.validateChoicesLength },
+            { validators: this.questionService.validateChoicesLength },
         );
 
         this.questionForm.statusChanges.subscribe((status) => {
-            if (status === 'INVALID' && this.questionForm.hasError('invalidChoicesLength')) {
+            if (this.questionForm.get('text')?.invalid) {
+                this.openSnackBar('Le champ de la question est requis !', SNACK_BAR_DISPLAY_TIME);
+            } else if (status === 'INVALID' && this.questionForm.hasError('choices')) {
                 this.openSnackBar('Il faut au moins une réponse correcte et une incorrecte !');
-            } else if (this.questionForm.get('text')?.invalid) {
-                this.openSnackBar('Le champ de la question est requis !');
-            }
-            if (this.questionForm.get('points')?.invalid) {
-                this.openSnackBar('Le champs points est requis !');
+            } else if (this.questionForm.get('points')?.invalid) {
+                this.openSnackBar('Le champs points est requis !', SNACK_BAR_DISPLAY_TIME);
             }
             if (this.questionForm.get('type')?.invalid) {
-                this.openSnackBar('Le champ type est requis !');
+                this.openSnackBar('Le champ type est requis !', SNACK_BAR_DISPLAY_TIME);
             }
         });
 
@@ -200,12 +169,12 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
                     'choices',
                     this.formBuilder.array([
                         this.formBuilder.group({
-                            text: [''],
-                            isCorrect: [true],
+                            text: ['', Validators.required],
+                            isCorrect: [true, Validators.required],
                         }),
                         this.formBuilder.group({
-                            text: [''],
-                            isCorrect: [false],
+                            text: ['', Validators.required],
+                            isCorrect: [false, Validators.required],
                         }),
                     ]),
                 );
@@ -236,9 +205,6 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
                 );
             }
         });
-
-        // this.questionForm.get('type')?.disable();
-        //this.questionForm.get('type')?.setValue(this.question.type);
     }
 }
 

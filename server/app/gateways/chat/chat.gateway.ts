@@ -37,7 +37,7 @@ export class ChatGateway {
     @SubscribeMessage(ChatEvents.ChangeChatState)
     changeMessagingState(@ConnectedSocket() socket: Socket, @MessageBody() data: ChatStateInfo) {
         const roomIndex = this.matchRoomService.getRoomIndex(data.roomCode);
-        const playerIndex = this.matchRoomService.getRoom(data.roomCode)?.players.findIndex((player) => {
+        const playerIndex = this.matchRoomService.getRoom(data.roomCode).players.findIndex((player) => {
             return player.username === data.playerUsername;
         });
         const player = this.playerRoomService.getPlayerByUsername(data.roomCode, data.playerUsername);
@@ -47,7 +47,7 @@ export class ChatGateway {
         }
 
         this.emitCurrentChatState(data.roomCode, roomIndex, playerIndex);
-        this.emitChatStatusChange(player.socket.id, roomIndex, playerIndex);
+        this.emitChatStatusNotification(player.socket.id, roomIndex, playerIndex);
     }
 
     sendMessageToClients(data: MessageInfo) {
@@ -69,7 +69,7 @@ export class ChatGateway {
             .emit(ChatEvents.ReturnCurrentChatState, this.matchRoomService.matchRooms[roomIndex].players[playerIndex].isChatActive);
     }
 
-    emitChatStatusChange(socketId: string, roomIndex: number, playerIndex: number): void {
+    emitChatStatusNotification(socketId, roomIndex: number, playerIndex: number): void {
         const event = this.matchRoomService.matchRooms[roomIndex].players[playerIndex].isChatActive ? ChatEvents.ChatReactivated : MatchEvents.Error;
         const notificationMessage = this.matchRoomService.matchRooms[roomIndex].players[playerIndex].isChatActive
             ? CHAT_REACTIVATED

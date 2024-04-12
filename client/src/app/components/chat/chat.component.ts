@@ -4,6 +4,7 @@ import { Message } from '@app/interfaces/message';
 
 import { ChatService } from '@app/services/chat/chat.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
+import { HOST_USERNAME } from '@common/constants/match-constants';
 
 @Component({
     selector: 'app-chat',
@@ -33,13 +34,17 @@ export class ChatComponent implements AfterViewChecked, OnInit, OnDestroy {
     }
 
     sendMessage(messageText: string): void {
-        if (messageText.trim() !== '') {
+        const isChatActiveForPlayer = this.matchRoomService.getPlayerByUsername(this.matchRoomService.getUsername())?.isChatActive;
+        const isPlayerHost = this.matchRoomService.getUsername() === HOST_USERNAME;
+        if (messageText) {
             const newMessage: Message = {
                 text: messageText,
                 author: this.matchRoomService.getUsername(),
                 date: new Date(),
             };
-            this.chatService.sendMessage(this.matchRoomService.getRoomCode(), newMessage);
+            if (isChatActiveForPlayer || isPlayerHost) {
+                this.chatService.sendMessage(this.matchRoomService.getRoomCode(), newMessage);
+            }
         }
     }
 

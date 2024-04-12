@@ -24,6 +24,13 @@
                 <p>{{ player.score }} pts</p>
                 <p>({{ player.bonusCount }}✨)</p>
             </div>
+           <!-- <mat-slide-toggle [(ngModel)]="player.isChatActive" (click)="toggleChat(player)"></mat-slide-toggle>--> 
+           <p>
+           <button *ngIf="this.canHostToggleChatState" class="chat-toggle-button" (click)="toggleChat(player)" [attr.chat-message]="player.isChatActive ? 'Désactiver le droit de clavarder' : 'Réactiver le droit de clavarder'">
+            <i class="material-icons">{{ player.isChatActive ? 'speaker_notes' : 'speaker_notes_off' }}</i>
+          </button>
+        </p>
+        
         </div>
     </div>
     <div *ngIf="this.matchRoomService.getUsername() !== 'Organisateur' || this.matchContextService.getContext() === context.RandomMode">

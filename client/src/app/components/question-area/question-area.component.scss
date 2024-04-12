@@ -1,4 +1,3 @@
-
 #main-container {
     width: 60vw;
     height: 90vh;
@@ -186,4 +185,9 @@ button.answer.selected {
 .choice-area {
     position: fixed;
     top: 55vh;
+}
+
+#exit-button {
+    display: flex;
+    gap: 1rem;
 }

@@ -106,6 +106,9 @@
         MODE PANIQUE
     </button>
 
-    <button mat-raised-button id="exit-button" color="primary" routerLink="/home" (click)="quitGame()">QUITTER</button>
+    <button mat-raised-button id="exit-button" color="primary" routerLink="/home" (click)="quitGame()">
+        <p>QUITTER</p>
+        <i class="material-icons">logout</i>
+    </button>
 </div>
 <app-players-list [players]="this.matchRoomService.players" *ngIf="context !== matchContext.TestPage"></app-players-list>

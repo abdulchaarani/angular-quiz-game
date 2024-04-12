@@ -24,7 +24,10 @@ export class BankService {
 
     deleteQuestion(questionId: string): void {
         this.questionService.deleteQuestion(questionId).subscribe({
-            next: () => (this.questions = this.questions.filter((question: Question) => question.id !== questionId)),
+            next: () => {
+                this.questions = this.questions.filter((question: Question) => question.id !== questionId);
+                this.notificationService.displaySuccessMessage(`${BankStatus.DELETED}`);
+            },
             error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`${BankStatus.STILL}\n ${error.message}`),
         });
     }

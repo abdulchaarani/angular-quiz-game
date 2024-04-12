@@ -25,6 +25,10 @@ export class QuestionStrategyContext {
         return this.questionStrategies.get(matchRoomCode).type;
     }
 
+    getQuestionPanicThreshold(matchRoomCode: string): number {
+        return this.questionStrategies.get(matchRoomCode).panicThresholdTime;
+    }
+
     setQuestionStrategy(matchRoom: MatchRoom) {
         const currentQuestionType = matchRoom.currentQuestion.type;
 

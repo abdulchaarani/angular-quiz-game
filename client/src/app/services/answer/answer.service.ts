@@ -11,6 +11,7 @@ import { MatchEvents } from '@common/events/match.events';
 import { AnswerCorrectness } from '@common/constants/answer-correctness';
 import { MatchContextService } from '@app/services/question-context/question-context.service';
 import { MatchContext } from '@app/constants/states';
+import { TimeService } from '../time/time.service';
 
 @Injectable({
     providedIn: 'root',
@@ -31,10 +32,13 @@ export class AnswerService {
     isEndGame: boolean;
     currentLongAnswer: string;
 
+    // Allow more constructor parameters to decouple services
+    // eslint-disable-next-line max-params
     constructor(
         public socketService: SocketHandlerService,
         public matchRoomService: MatchRoomService,
         private readonly matchContextService: MatchContextService,
+        private readonly timeService: TimeService,
     ) {
         this.listenToAnswerEvents();
     }
@@ -61,6 +65,7 @@ export class AnswerService {
         this.isTimesUp = false;
         this.isEndGame = false;
         this.currentLongAnswer = '';
+        this.timeService.isPanicModeDisabled = false;
     }
 
     selectChoice(choice: string, userInfo: UserInfo) {

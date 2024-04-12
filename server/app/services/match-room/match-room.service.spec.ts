@@ -135,7 +135,7 @@ describe('MatchRoomService', () => {
     it('addRoom() should generate a room code add the new MatchRoom in the rooms list', () => {
         service.matchRooms = [];
         const generateSpy = jest.spyOn(service, 'generateRoomCode').mockReturnValue(MOCK_ROOM_CODE);
-        const strategySpy = jest.spyOn(questionStrategyService, 'setQuestionStrategy').mockImplementation();
+        const strategySpy = jest.spyOn<any, any>(service, 'setQuestionStrategy').mockImplementation();
         const mockGame = getMockGame();
         const expectedResult: MatchRoom = {
             code: MOCK_ROOM_CODE,
@@ -170,7 +170,7 @@ describe('MatchRoomService', () => {
     it('addRoom() should set isLocked and isPlaying attributes approprietly if room is a test page', () => {
         service.matchRooms = [];
         jest.spyOn(service, 'generateRoomCode').mockReturnValue(MOCK_ROOM_CODE);
-        jest.spyOn(questionStrategyService, 'setQuestionStrategy').mockImplementation();
+        jest.spyOn<any, any>(service, 'setQuestionStrategy').mockImplementation();
         const mockGame = getMockGame();
         const result = service.addRoom(mockGame, socket, false, true);
         expect(result.isLocked).toEqual(false);
@@ -180,7 +180,7 @@ describe('MatchRoomService', () => {
     it('addRoom() should set isLocked and isPlaying attributes approprietly if room is a random page', () => {
         service.matchRooms = [];
         jest.spyOn(service, 'generateRoomCode').mockReturnValue(MOCK_ROOM_CODE);
-        jest.spyOn(questionStrategyService, 'setQuestionStrategy').mockImplementation();
+        jest.spyOn<any, any>(service, 'setQuestionStrategy').mockImplementation();
         const mockGame = getMockGame();
         const result = service.addRoom(mockGame, socket, true, false);
         expect(result.isLocked).toEqual(true);
@@ -419,5 +419,17 @@ describe('MatchRoomService', () => {
         const spy = jest.spyOn(timeService, 'panicTimer').mockReturnThis();
         service.panicMatchTimer(mockServer, FAKE_ROOM_ID);
         expect(spy).toHaveBeenCalled();
+    });
+
+    it('setQuestionStrategy should set question strategy and panic timer treshhold', () => {
+        timeService.currentPanicThresholdTime = 0;
+        const panicTreshold = 20;
+        const spy = jest.spyOn(questionStrategyService, 'setQuestionStrategy').mockReturnThis();
+        jest.spyOn(questionStrategyService, 'getQuestionPanicThreshold').mockReturnValue(panicTreshold);
+
+        service['setQuestionStrategy'](matchRoom);
+
+        expect(spy).toHaveBeenCalled();
+        expect(timeService.currentPanicThresholdTime).toEqual(panicTreshold);
     });
 });

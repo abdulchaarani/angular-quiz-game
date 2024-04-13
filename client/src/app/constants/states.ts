@@ -10,4 +10,5 @@ export enum MatchContext {
     HostView = 'hostView',
     PlayerView = 'playerView',
     RandomMode = 'randomMode',
+    Null = 0,
 }

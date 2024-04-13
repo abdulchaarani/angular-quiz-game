@@ -7,6 +7,10 @@ import { MatchContext } from '@app/constants/states';
 export class MatchContextService {
     private context: MatchContext;
 
+    resetContext(): void {
+        this.context = MatchContext.Null;
+    }
+
     setContext(context: MatchContext): void {
         this.context = context;
     }

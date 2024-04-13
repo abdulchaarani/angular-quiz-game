@@ -121,8 +121,8 @@ export class MatchGateway implements OnGatewayDisconnect {
         this.playerRoomService.setStateForAll(roomCode, PlayerState.noInteraction);
     }
 
-    @SubscribeMessage(MatchEvents.NextQuestion)
-    nextQuestion(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
+    @SubscribeMessage(MatchEvents.GoToNextQuestion)
+    goToNextQuestion(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
         this.playerRoomService.setStateForAll(roomCode, PlayerState.noInteraction);
         this.matchRoomService.startNextQuestionCooldown(this.server, roomCode);
     }
@@ -174,8 +174,8 @@ export class MatchGateway implements OnGatewayDisconnect {
     }
 
     handlePlayersDisconnect(@ConnectedSocket() socket: Socket) {
-        const roomCode = this.playerRoomService.deletePlayerBySocket(socket.id);
         const player = this.playerRoomService.getPlayerBySocket(socket.id);
+        const roomCode = this.playerRoomService.deletePlayerBySocket(socket.id);
         if (!roomCode || !player) {
             return;
         }

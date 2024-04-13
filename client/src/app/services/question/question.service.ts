@@ -43,7 +43,7 @@ export class QuestionService extends CommunicationService<Question> {
             data: {
                 modificationState,
             },
-            height: '70%',
+            height: '50%',
             width: '100%',
         };
         return this.dialog.open(QuestionCreationFormComponent, manageConfig);

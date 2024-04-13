@@ -2,18 +2,18 @@ import { TestBed } from '@angular/core/testing';
 
 import { Router } from '@angular/router';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
+import { MatchContext } from '@app/constants/states';
+import { MatchRoomService } from '@app/services/match-room/match-room.service';
+import { MatchContextService } from '@app/services/question-context/question-context.service';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
+import { AnswerCorrectness } from '@common/constants/answer-correctness';
+import { AnswerEvents } from '@common/events/answer.events';
 import { Feedback } from '@common/interfaces/feedback';
+import { LongAnswerInfo } from '@common/interfaces/long-answer-info';
 import { UserInfo } from '@common/interfaces/user-info';
 import { Socket } from 'socket.io-client';
 import { AnswerService } from './answer.service';
 import SpyObj = jasmine.SpyObj;
-import { AnswerCorrectness } from '@common/constants/answer-correctness';
-import { MatchContextService } from '@app/services/question-context/question-context.service';
-import { MatchRoomService } from '@app/services/match-room/match-room.service';
-import { AnswerEvents } from '@common/events/answer.events';
-import { MatchContext } from '@app/constants/states';
-import { LongAnswerInfo } from '@common/interfaces/long-answer-info';
 
 class SocketHandlerServiceMock extends SocketHandlerService {
     // Override connect() is required to not actually connect the socket
@@ -36,7 +36,7 @@ describe('AnswerService', () => {
         questionContextSpy = jasmine.createSpyObj('MatchContextService', ['setContext', 'getContext']);
 
         matchRoomSpy = jasmine.createSpyObj('MatchRoomService', [
-            'nextQuestion',
+            'goToNextQuestion',
             'getUsername',
             'getRoomCode',
             'disconnect',
@@ -130,7 +130,7 @@ describe('AnswerService', () => {
         socketHelper.peerSideEmit('feedback', feedback);
 
         expect(service.isNextQuestionButton).toBe(false);
-        expect(matchRoomSpy.nextQuestion).toHaveBeenCalled();
+        expect(matchRoomSpy.goToNextQuestion).toHaveBeenCalled();
     });
 
     it('should call nextQuestion() on feedback if context is random page', () => {
@@ -141,7 +141,7 @@ describe('AnswerService', () => {
         socketHelper.peerSideEmit('feedback', feedback);
 
         expect(service.isNextQuestionButton).toBe(false);
-        expect(matchRoomSpy.nextQuestion).toHaveBeenCalled();
+        expect(matchRoomSpy.goToNextQuestion).toHaveBeenCalled();
     });
 
     it('should receive bonus points', () => {

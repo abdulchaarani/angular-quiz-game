@@ -5,16 +5,17 @@
     left: 7.5vw;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
     text-align: center;
     height: 100vh;
     margin: 0 auto;
+    margin-top: 1rem;
 }
 
-#code {
-    font-size: 3rem;
+#host-options-container #code {
+    font-size: 4rem;
     margin: 0;
+    margin-bottom: 1rem;
     font-weight: 800;
 }
 
@@ -28,8 +29,9 @@
     width: 50vw;
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1rem;
     margin-bottom: 2rem;
+    font-size: 1.25rem;
 }
 
 .player-username-card {

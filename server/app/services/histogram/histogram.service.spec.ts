@@ -1,19 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { MOCK_ROOM_CODE } from '@app/constants/chat-mocks';
+import { getMockGame } from '@app/constants/game-mocks';
 import { MOCK_MATCH_ROOM } from '@app/constants/match-mocks';
+import { TimerDurationEvents } from '@app/constants/timer-events';
+import { Question } from '@app/model/database/question';
+import { LongAnswerStrategy } from '@app/question-strategies/long-answer-strategy/long-answer-strategy';
+import { MultipleChoiceStrategy } from '@app/question-strategies/multiple-choice-strategy/multiple-choice-strategy';
 import { HistogramService } from '@app/services/histogram/histogram.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
+import { QuestionStrategyContext } from '@app/services/question-strategy-context/question-strategy-context.service';
+import { HistogramEvents } from '@common/events/histogram.events';
 import { Histogram } from '@common/interfaces/histogram';
+import { TimerInfo } from '@common/interfaces/timer-info';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
-import { QuestionStrategyContext } from '@app/services/question-strategy-context/question-strategy-context.service';
-import { TimerDurationEvents } from '@app/constants/timer-events';
-import { TimerInfo } from '@common/interfaces/timer-info';
-import { MultipleChoiceStrategy } from '@app/question-strategies/multiple-choice-strategy/multiple-choice-strategy';
-import { LongAnswerStrategy } from '@app/question-strategies/long-answer-strategy/long-answer-strategy';
-import { HistogramEvents } from '@common/events/histogram.events';
-import { getMockGame } from '@app/constants/game-mocks';
 
 describe('HistogramService', () => {
     let histogramService: HistogramService;
@@ -147,15 +148,36 @@ describe('HistogramService', () => {
         expect(emitMock).toHaveBeenCalledWith(HistogramEvents.HistogramHistory, histograms);
     });
 
-    it('should reset choice histogram if game has questions', () => {
-        const resetTrackerSpy = jest.spyOn(mockMatchRoom.choiceTracker, 'resetChoiceTracker').mockImplementation();
-        jest.spyOn<any, any>(matchRoomService, 'getRoom').mockReturnValue(mockMatchRoom);
+    it('resetChoiceTracker() should reset the choice tracker', () => {
+        const matchRoomCode = MOCK_ROOM_CODE;
+        const matchRoom = { ...MOCK_MATCH_ROOM };
+        const currentQuestion: Question = {
+            text: 'Sample question',
+            choices: [
+                { text: 'Choice 1', isCorrect: true },
+                { text: 'Choice 2', isCorrect: false },
+            ],
+            id: '',
+            type: '',
+            points: 0,
+            lastModification: new Date(),
+        };
+        matchRoom.game.questions = [currentQuestion];
+        matchRoom.currentQuestionIndex = 0;
 
-        histogramService['resetChoiceTracker'](MOCK_ROOM_CODE);
-        mockMatchRoom.game.questions = [];
-        histogramService['resetChoiceTracker'](MOCK_ROOM_CODE);
+        const resetChoiceTrackerSpy = jest.spyOn(matchRoom.choiceTracker, 'resetChoiceTracker');
 
-        expect(resetTrackerSpy).toBeCalledTimes(1);
+        matchRoomService.getRoom.returns(matchRoom);
+
+        histogramService.resetChoiceTracker(matchRoomCode);
+
+        expect(resetChoiceTrackerSpy).toHaveBeenCalledWith(currentQuestion.text, currentQuestion.choices);
+    });
+
+    it('should send histogram', () => {
+        mockMatchRoom.hostSocket = mockSocket;
+        histogramService.sendHistogram(mockHistogram, mockMatchRoom);
+        expect(emitMock).toHaveBeenCalledWith(HistogramEvents.CurrentHistogram, mockHistogram);
     });
 
     it('sendHistogram() should emit current histogram', () => {

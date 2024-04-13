@@ -4,18 +4,18 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Router, Routes } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
+import { WarningMessage } from '@app/constants/feedback-messages';
+import { Game } from '@app/interfaces/game';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { MatchService } from '@app/services/match/match.service';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { MatchContextService } from '@app/services/question-context/question-context.service';
 import { TimeService } from '@app/services/time/time.service';
+import { Subject } from 'rxjs';
 import { WaitPageComponent } from './wait-page.component';
 import SpyObj = jasmine.SpyObj;
-import { Game } from '@app/interfaces/game';
-import { Router, Routes } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
-import { Subject } from 'rxjs';
-import { WarningMessage } from '@app/constants/feedback-messages';
 
 @Component({
     selector: 'app-chat',
@@ -46,7 +46,7 @@ describe('WaitPageComponent', () => {
             'getStartMatchObservable',
             'matchStarted',
             'beginQuiz',
-            'nextQuestion',
+            'goToNextQuestion',
             'gameOver',
             'disconnect',
         ]);

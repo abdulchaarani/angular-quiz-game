@@ -75,7 +75,7 @@ describe('QuestionService', () => {
             data: {
                 modificationState: 0,
             },
-            height: '70%',
+            height: '50%',
             width: '100%',
         };
         spyOn(dialog, 'open').and.callThrough();

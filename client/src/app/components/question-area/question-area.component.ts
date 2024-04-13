@@ -100,8 +100,8 @@ export class QuestionAreaComponent implements OnInit {
         this.answerService.submitAnswer({ username: this.matchRoomService.getUsername(), roomCode: this.matchRoomService.getRoomCode() });
     }
 
-    nextQuestion() {
-        this.matchRoomService.nextQuestion();
+    goToNextQuestion() {
+        this.matchRoomService.goToNextQuestion();
         this.answerService.isNextQuestionButton = false;
     }
 

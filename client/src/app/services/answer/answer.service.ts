@@ -106,7 +106,7 @@ export class AnswerService {
                 this.matchRoomService.sendPlayersData(this.matchRoomService.getRoomCode());
                 const context = this.matchContextService.getContext();
                 if (context === MatchContext.TestPage || context === MatchContext.RandomMode) {
-                    this.matchRoomService.nextQuestion();
+                    this.matchRoomService.goToNextQuestion();
                     this.isNextQuestionButton = false;
                 }
             }
@@ -133,7 +133,7 @@ export class AnswerService {
     }
 
     onNextQuestion() {
-        this.socketService.on(MatchEvents.NextQuestion, () => {
+        this.socketService.on(MatchEvents.GoToNextQuestion, () => {
             this.resetStateForNewQuestion();
         });
     }

@@ -8,6 +8,7 @@ import { MatchService } from '@app/services/match/match.service';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { MatchContextService } from '@app/services/question-context/question-context.service';
 import { TimeService } from '@app/services/time/time.service';
+import { HOST_USERNAME } from '@common/constants/match-constants';
 import { Subject } from 'rxjs';
 
 @Component({
@@ -63,13 +64,11 @@ export class WaitPageComponent implements OnInit {
         this.timeService.listenToTimerEvents();
 
         if (this.isHost) {
-            // TODO: is it needed here?
             this.matchRoomService.gameTitle = this.currentGame.title;
         } else {
-            // TODO is needed?
-            // if (!this.matchContextService.getContext()) {
-            this.matchContextService.setContext(MatchContext.PlayerView);
-            // }
+            if (!this.matchContextService.getContext()) {
+                this.matchContextService.setContext(MatchContext.PlayerView);
+            }
         }
     }
 
@@ -78,6 +77,7 @@ export class WaitPageComponent implements OnInit {
     }
 
     banPlayerUsername(username: string) {
+        if (username === HOST_USERNAME) return;
         this.matchRoomService.banUsername(username);
     }
 

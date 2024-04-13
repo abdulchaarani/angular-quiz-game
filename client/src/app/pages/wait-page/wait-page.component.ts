@@ -64,13 +64,11 @@ export class WaitPageComponent implements OnInit {
         this.timeService.listenToTimerEvents();
 
         if (this.isHost) {
-            // TODO: is it needed here?
             this.matchRoomService.gameTitle = this.currentGame.title;
         } else {
-            // TODO is needed?
-            // if (!this.matchContextService.getContext()) {
-            this.matchContextService.setContext(MatchContext.PlayerView);
-            // }
+            if (!this.matchContextService.getContext()) {
+                this.matchContextService.setContext(MatchContext.PlayerView);
+            }
         }
     }
 

@@ -174,8 +174,8 @@ export class MatchGateway implements OnGatewayDisconnect {
     }
 
     handlePlayersDisconnect(@ConnectedSocket() socket: Socket) {
-        const roomCode = this.playerRoomService.deletePlayerBySocket(socket.id);
         const player = this.playerRoomService.getPlayerBySocket(socket.id);
+        const roomCode = this.playerRoomService.deletePlayerBySocket(socket.id);
         if (!roomCode || !player) {
             return;
         }

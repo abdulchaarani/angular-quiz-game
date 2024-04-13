@@ -91,6 +91,7 @@ export class QuestionAreaComponent implements OnInit {
         this.matchRoomService.isQuitting = false;
         this.answerService.playerScore = 0;
         this.context = this.matchContextService.getContext();
+        console.log('QuestionAreaComponent initialized', this.context);
         if (this.isFirstQuestion) {
             this.isFirstQuestion = false;
         }

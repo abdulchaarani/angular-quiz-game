@@ -78,6 +78,7 @@ export class MatchRoomService {
     }
 
     disconnect() {
+        this.matchContextService.resetContext();
         this.socketService.disconnect();
     }
 

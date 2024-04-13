@@ -30,7 +30,6 @@
     gap: 10px;
     width: 20vw;
     height: 20vh;
-    background-color: rgb(235, 235, 235);
     z-index: 99;
 }
 
@@ -190,4 +189,10 @@ button.answer.selected {
 #exit-button {
     display: flex;
     gap: 1rem;
+}
+
+#host-area {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }

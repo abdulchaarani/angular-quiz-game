@@ -61,6 +61,7 @@ $answer-options-count: 3;
     padding: 10px;
 }
 
+.next-question-area,
 .grading-area {
     height: 50vh;
     width: 50vw;
@@ -96,7 +97,7 @@ $answer-options-count: 3;
     align-items: center;
 }
 
-.grading-prompt {
+.prompt {
     width: 100%;
     display: flex;
     justify-content: center;

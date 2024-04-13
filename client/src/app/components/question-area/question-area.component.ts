@@ -103,7 +103,7 @@ export class QuestionAreaComponent implements OnInit {
 
     goToNextQuestion() {
         this.matchRoomService.goToNextQuestion();
-        this.answerService.isNextQuestionButton = false;
+        this.answerService.isNextQuestionButtonEnabled = false;
     }
 
     routeToResultsPage() {

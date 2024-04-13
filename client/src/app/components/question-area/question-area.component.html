@@ -58,19 +58,6 @@
             <app-long-answer-area *ngIf="currentQuestion.type === questionType.QRL" class="choice-area"></app-long-answer-area>
         </div>
 
-        <div id="host-area" *ngIf="context === matchContext.HostView">
-            <div id="buttons-container">
-                <button mat-raised-button *ngIf="this.answerService.isEndGame" (click)="routeToResultsPage()">Présenter les résultats finaux</button>
-                <button
-                    mat-raised-button
-                    color="primary"
-                    (click)="goToNextQuestion()"
-                    *ngIf="this.answerService.isNextQuestionButton && !this.answerService.isEndGame"
-                >
-                    Question suivante
-                </button>
-            </div>
-        </div>
         <div
             id="submit-button-container"
             *ngIf="context === matchContext.PlayerView || context === matchContext.TestPage || context === matchContext.RandomMode"
@@ -82,33 +69,45 @@
     </div>
 </div>
 <div id="controls-container">
-    <button
-        mat-raised-button
-        id="pause-button"
-        *ngIf="!this.matchRoomService.isCooldown && time !== 0 && context === 'hostView'"
-        (click)="pauseTimer()"
-        (click)="paused = !paused"
-    >
-        <mat-icon *ngIf="!paused; else elseBlock">pause</mat-icon>
-        <ng-template #elseBlock><mat-icon>play_arrow</mat-icon></ng-template>
-    </button>
+    <div id="host-area" *ngIf="context === matchContext.HostView && !this.matchRoomService.isCooldown">
+        <button mat-raised-button *ngIf="this.answerService.isEndGame" color="primary" (click)="routeToResultsPage()">
+            <mat-icon class="material-icons">bar_chart</mat-icon>
+            <p>Présenter les résultats finaux</p>
+        </button>
+        <button
+            *ngIf="!this.answerService.isEndGame"
+            mat-raised-button
+            color="primary"
+            (click)="goToNextQuestion()"
+            [disabled]="!this.answerService.isNextQuestionButtonEnabled"
+        >
+            <mat-icon class="material-icons">skip_next</mat-icon>
+            <p>QUESTION SUIVANTE</p>
+        </button>
+        <button mat-raised-button id="pause-button" (click)="pauseTimer()" (click)="paused = !paused" [disabled]="time === 0">
+            <mat-icon class="material-icons" *ngIf="!paused">pause</mat-icon>
+            <p *ngIf="!paused">SUSPENDRE LA MINUTERIE</p>
 
-    <audio #ref src="../../../assets/audio/alert.mp3"></audio>
-    <button
-        mat-raised-button
-        id="panic-button"
-        color="accent"
-        *ngIf="!this.matchRoomService.isCooldown && context === 'hostView'"
-        [disabled]="this.timeService.isPanicModeDisabled || this.timeService.isPanicking"
-        (click)="togglePanicTimer()"
-        (click)="ref.play()"
-    >
-        MODE PANIQUE
-    </button>
+            <mat-icon class="material-icons" *ngIf="paused">play_arrow</mat-icon>
+            <p *ngIf="paused">PARTIR LA MINUTERIE</p>
+        </button>
 
+        <audio #ref src="../../../assets/audio/alert.mp3"></audio>
+        <button
+            mat-raised-button
+            id="panic-button"
+            color="accent"
+            [disabled]="this.timeService.isPanicModeDisabled || this.timeService.isPanicking"
+            (click)="togglePanicTimer()"
+            (click)="ref.play()"
+        >
+            <mat-icon class="material-icons">priority_high</mat-icon>
+            <p>MODE PANIQUE</p>
+        </button>
+    </div>
     <button mat-raised-button id="exit-button" color="primary" routerLink="/home" (click)="quitGame()">
+        <mat-icon class="material-icons">logout</mat-icon>
         <p>QUITTER</p>
-        <i class="material-icons">logout</i>
     </button>
 </div>
 <app-players-list [players]="this.matchRoomService.players" *ngIf="context !== matchContext.TestPage"></app-players-list>

@@ -22,7 +22,7 @@ export class AnswerService {
     gradeAnswers: boolean;
     isGradingComplete: boolean;
     showFeedback: boolean;
-    isNextQuestionButton: boolean;
+    isNextQuestionButtonEnabled: boolean;
     isSelectionEnabled: boolean;
     correctAnswer: string[];
     answerCorrectness: AnswerCorrectness;
@@ -61,7 +61,7 @@ export class AnswerService {
         this.isSelectionEnabled = true;
         this.answerCorrectness = AnswerCorrectness.WRONG;
         this.bonusPoints = 0;
-        this.isNextQuestionButton = false;
+        this.isNextQuestionButtonEnabled = false;
         this.isTimesUp = false;
         this.isEndGame = false;
         this.currentLongAnswer = '';
@@ -95,7 +95,7 @@ export class AnswerService {
         this.socketService.on(AnswerEvents.Feedback, (feedback: Feedback) => {
             this.feedback = feedback;
             this.showFeedback = true;
-            this.isNextQuestionButton = true;
+            this.isNextQuestionButtonEnabled = true;
 
             if (feedback) {
                 if (this.feedback.correctAnswer) this.correctAnswer = this.feedback.correctAnswer;
@@ -107,7 +107,7 @@ export class AnswerService {
                 const context = this.matchContextService.getContext();
                 if (context === MatchContext.TestPage || context === MatchContext.RandomMode) {
                     this.matchRoomService.goToNextQuestion();
-                    this.isNextQuestionButton = false;
+                    this.isNextQuestionButtonEnabled = false;
                 }
             }
         });

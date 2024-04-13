@@ -124,23 +124,23 @@ describe('AnswerService', () => {
 
     it('should call nextQuestion() on feedback if context is test page', () => {
         const feedback: Feedback = { correctAnswer: ['A'], answerCorrectness: AnswerCorrectness.GOOD, score: 100 };
-        service.isNextQuestionButton = true;
+        service.isNextQuestionButtonEnabled = true;
         questionContextSpy.getContext.and.returnValue(MatchContext.TestPage);
         service.onFeedback();
         socketHelper.peerSideEmit('feedback', feedback);
 
-        expect(service.isNextQuestionButton).toBe(false);
+        expect(service.isNextQuestionButtonEnabled).toBe(false);
         expect(matchRoomSpy.goToNextQuestion).toHaveBeenCalled();
     });
 
     it('should call nextQuestion() on feedback if context is random page', () => {
         const feedback: Feedback = { correctAnswer: ['A'], answerCorrectness: AnswerCorrectness.GOOD, score: 100 };
-        service.isNextQuestionButton = true;
+        service.isNextQuestionButtonEnabled = true;
         questionContextSpy.getContext.and.returnValue(MatchContext.RandomMode);
         service.onFeedback();
         socketHelper.peerSideEmit('feedback', feedback);
 
-        expect(service.isNextQuestionButton).toBe(false);
+        expect(service.isNextQuestionButtonEnabled).toBe(false);
         expect(matchRoomSpy.goToNextQuestion).toHaveBeenCalled();
     });
 
@@ -179,7 +179,7 @@ describe('AnswerService', () => {
         service.isSelectionEnabled = false;
         service.answerCorrectness = AnswerCorrectness.GOOD;
         service.bonusPoints = 30;
-        service.isNextQuestionButton = true;
+        service.isNextQuestionButtonEnabled = true;
         service.isTimesUp = true;
         service.isEndGame = true;
         service.currentLongAnswer = 'answer';
@@ -193,7 +193,7 @@ describe('AnswerService', () => {
         expect(service.showFeedback).toBe(false);
         expect(service.isSelectionEnabled).toBe(true);
         expect(service.bonusPoints).toEqual(0);
-        expect(service.isNextQuestionButton).toBe(false);
+        expect(service.isNextQuestionButtonEnabled).toBe(false);
         expect(service.isTimesUp).toBe(false);
         expect(service.isEndGame).toBe(false);
         expect(service.currentLongAnswer).toEqual('');

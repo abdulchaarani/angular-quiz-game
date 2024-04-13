@@ -218,10 +218,10 @@ describe('QuestionAreaComponent', () => {
     });
 
     it('should go to next question when nextQuestion is called', () => {
-        answerSpy.isNextQuestionButton = true;
+        answerSpy.isNextQuestionButtonEnabled = true;
         component.goToNextQuestion();
         expect(matchRoomSpy.goToNextQuestion).toHaveBeenCalled();
-        expect(answerSpy.isNextQuestionButton).toBe(false);
+        expect(answerSpy.isNextQuestionButtonEnabled).toBe(false);
     });
 
     it('quitGame() navigate to home page', () => {

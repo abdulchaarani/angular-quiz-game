@@ -139,6 +139,13 @@ describe('MatchRoomService', () => {
         expect(foundPlayer).toEqual(mockPlayers[0]);
     });
 
+    it('getPlayerByUsername() should return null if player is not found', () => {
+        const mockPlayers: Player[] = [PLAYER_MOCK];
+        service.players = mockPlayers;
+        const foundPlayer = service.getPlayerByUsername('nonexistantplayer');
+        expect(foundPlayer).toEqual(null);
+    });
+
     it('createRoom should send event, update values for matchRoomCode and username, then redirect to match-room if not test room', () => {
         // Any is required to simulate Function type in tests
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

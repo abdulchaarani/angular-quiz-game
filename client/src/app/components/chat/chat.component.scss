@@ -74,7 +74,7 @@
     color: #fff;
 }
 
-.player-quit-message{
+.player-quit-message {
     background-color: transparent;
     font-size: 20px;
 }
@@ -85,6 +85,11 @@
 
 .left-message {
     margin-left: -0.75vw;
+}
+
+.disabled-send {
+    cursor: not-allowed;
+    opacity: 0.5;
 }
 
 #chat-form {

@@ -23,6 +23,20 @@ const MOCK_HISTORY_ITEM_3: HistoryItem = {
     bestScore: 1,
 };
 
+const MOCK_HISTORY_ITEM_4: HistoryItem = {
+    title: 'D',
+    date: new Date(YEAR - 2, 1, 1),
+    playersCount: 1,
+    bestScore: 1,
+};
+
+const MOCK_HISTORY_ITEM_5: HistoryItem = {
+    title: 'E',
+    date: new Date(YEAR + 1, 1, 1),
+    playersCount: 1,
+    bestScore: 1,
+};
+
 const MOCK_HISTORY = [MOCK_HISTORY_ITEM_1, MOCK_HISTORY_ITEM_3, MOCK_HISTORY_ITEM_2];
 
-export { MOCK_HISTORY, MOCK_HISTORY_ITEM_1, MOCK_HISTORY_ITEM_2, MOCK_HISTORY_ITEM_3 };
+export { MOCK_HISTORY, MOCK_HISTORY_ITEM_1, MOCK_HISTORY_ITEM_2, MOCK_HISTORY_ITEM_3, MOCK_HISTORY_ITEM_4, MOCK_HISTORY_ITEM_5 };

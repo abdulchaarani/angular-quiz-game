@@ -165,3 +165,9 @@ body {
 .virtual-scroll {
     height: 100vh;
 }
+
+.centered-container {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+}

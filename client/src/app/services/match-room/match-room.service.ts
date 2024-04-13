@@ -91,7 +91,6 @@ export class MatchRoomService {
                 this.players = [
                     { username: this.username, score: 0, bonusCount: 0, isChatActive: true, isPlaying: true, state: PlayerState.default },
                 ];
-                this.router.navigateByUrl('/play-test');
             } else {
                 this.sendPlayersData(this.matchRoomCode);
                 this.router.navigateByUrl('/match-room');

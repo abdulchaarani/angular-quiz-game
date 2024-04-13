@@ -152,15 +152,10 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
         );
 
         this.questionForm.statusChanges.subscribe((status) => {
-            if (this.questionForm.get('text')?.invalid) {
+            if (status === 'INVALID' && this.questionForm.get('text')?.invalid) {
                 this.openSnackBar('Le champ de la question est requis !', SNACK_BAR_DISPLAY_TIME);
-            } else if (status === 'INVALID' && this.questionForm.hasError('choices')) {
-                this.openSnackBar('Il faut au moins une réponse correcte et une incorrecte !');
-            } else if (this.questionForm.get('points')?.invalid) {
-                this.openSnackBar('Le champs points est requis !', SNACK_BAR_DISPLAY_TIME);
-            }
-            if (this.questionForm.get('type')?.invalid) {
-                this.openSnackBar('Le champ type est requis !', SNACK_BAR_DISPLAY_TIME);
+            } else if (status === 'INVALID' && this.questionForm.get('choices')?.invalid && this.questionForm.hasError('invalidChoicesLength')) {
+                this.openSnackBar('Il faut au moins une réponse correcte et une incorrecte !', SNACK_BAR_DISPLAY_TIME);
             }
         });
 
@@ -197,7 +192,7 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
         if (!choicesArray) return;
         choicesArray.clear();
         this.question.choices?.forEach((choice) => {
-            if (choice.text.trim() !== '') {
+            if (choice.text) {
                 choicesArray.push(
                     this.formBuilder.group({
                         text: choice.text,

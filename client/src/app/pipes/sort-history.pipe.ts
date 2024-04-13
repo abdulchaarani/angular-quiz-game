@@ -10,18 +10,18 @@ export class SortHistoryPipe implements PipeTransform {
     transform(historyItems: HistoryItem[], sortDirection: string, sortBy: string): HistoryItem[] {
         if (sortBy === 'title') {
             return historyItems.sort((a: HistoryItem, b: HistoryItem) => {
-                return sortDirection === 'ascending'
-                    ? a.title.toUpperCase() > b.title.toUpperCase()
-                        ? 1
-                        : REVERSED_INDEX
-                    : a.title.toUpperCase() > b.title.toUpperCase()
-                    ? REVERSED_INDEX
-                    : 1;
+                if (sortDirection === 'ascending') {
+                    return a.title.toUpperCase() > b.title.toUpperCase() ? 1 : REVERSED_INDEX;
+                }
+                return a.title.toUpperCase() > b.title.toUpperCase() ? REVERSED_INDEX : 1;
             });
         }
         if (sortBy === 'date') {
             return historyItems.sort((a: HistoryItem, b: HistoryItem) => {
-                return sortDirection === 'ascending' ? (a.date > b.date ? 1 : REVERSED_INDEX) : a.date > b.date ? REVERSED_INDEX : 1;
+                if (sortDirection === 'ascending') {
+                    return a.date > b.date ? 1 : REVERSED_INDEX;
+                }
+                return a.date > b.date ? REVERSED_INDEX : 1;
             });
         }
         return historyItems;

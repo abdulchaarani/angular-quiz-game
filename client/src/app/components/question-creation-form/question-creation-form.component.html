@@ -8,7 +8,7 @@
         <div id="question-properties-options-container">
             <div id="question-options">
                 <mat-form-field>
-                    <mat-label>Type de Question</mat-label>
+                    <mat-label>{{this.isActiveSubmit() ? ' Type de Question':  questionForm.get('type')?.value }}</mat-label>
                     <mat-select formControlName="type">
                         <span *ngIf="this.isActiveSubmit()">
                             <mat-option *ngFor="let type of ['QCM', 'QRL']" [value]="type">{{ type }}</mat-option>

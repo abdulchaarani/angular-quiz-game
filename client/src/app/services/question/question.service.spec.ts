@@ -8,6 +8,8 @@ import { Question } from '@app/interfaces/question';
 import { of } from 'rxjs';
 import { QuestionService } from './question.service';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
+import { getMockQuestion } from '@app/constants/question-mocks';
+import { QuestionTypes } from '@app/constants/question-types';
 
 const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK', body: JSON.stringify(true) });
 
@@ -81,11 +83,11 @@ describe('QuestionService', () => {
         expect(dialog.open).toHaveBeenCalledWith(QuestionCreationFormComponent, manageConfig);
     });
 
-    it('validateChoicesLength() should validate the number of true and false choices in a question creation form (case when all choices are false) ', () => {
+    it('validateChoicesLength() should validate the number of true and false choices in a question creation form (all choices are false) ', () => {
         const formGroup = new FormGroup({
-            text: new FormControl('Test Question'),
-            points: new FormControl(10),
-            type: new FormControl('QCM'),
+            text: new FormControl(getMockQuestion().text),
+            points: new FormControl(getMockQuestion().points),
+            type: new FormControl(getMockQuestion().type),
             choices: new FormArray([
                 new FormGroup({
                     text: new FormControl('Choice 1'),
@@ -103,18 +105,18 @@ describe('QuestionService', () => {
         expect(validationResult).toEqual({ invalidChoicesLength: true });
     });
 
-    it('validateChoicesLength() should validate the number of true and false choices in a question creation form (case when all choices are true)', () => {
+    it('validateChoicesLength() should validate the number of true and false choices in a question creation form (all choices are true)', () => {
         const formGroup = new FormGroup({
-            text: new FormControl('Test Question'),
-            points: new FormControl(10),
-            type: new FormControl('QCM'),
+            text: new FormControl(getMockQuestion().text),
+            points: new FormControl(getMockQuestion().points),
+            type: new FormControl(getMockQuestion().type),
             choices: new FormArray([
                 new FormGroup({
-                    text: new FormControl('Choice 1'),
+                    text: new FormControl('choice 1'),
                     isCorrect: new FormControl(true),
                 }),
                 new FormGroup({
-                    text: new FormControl('Choice 2'),
+                    text: new FormControl('choice 2'),
                     isCorrect: new FormControl(true),
                 }),
             ]),
@@ -127,9 +129,9 @@ describe('QuestionService', () => {
 
     it('validateChoicesLength() should return null if the form has one wrong and one correct answer', () => {
         const formGroup = new FormGroup({
-            text: new FormControl('Test Question'),
-            points: new FormControl(10),
-            type: new FormControl('QCM'),
+            text: new FormControl(getMockQuestion().text),
+            points: new FormControl(getMockQuestion().points),
+            type: new FormControl(getMockQuestion().type),
             choices: new FormArray([
                 new FormGroup({
                     text: new FormControl('Choice 1'),
@@ -149,9 +151,9 @@ describe('QuestionService', () => {
 
     it('validateChoicesLength() should return null for QRL type', () => {
         const formGroup = new FormGroup({
-            text: new FormControl('Test Question'),
-            points: new FormControl(10),
-            type: new FormControl('QRL'),
+            text: new FormControl(getMockQuestion().text),
+            points: new FormControl(getMockQuestion().points),
+            type: new FormControl(QuestionTypes.LONG),
         });
 
         const validationResult = questionService.validateChoicesLength(formGroup);

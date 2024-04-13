@@ -12,7 +12,6 @@ import { HOST_USERNAME } from '@common/constants/match-constants';
     styleUrls: ['./chat.component.scss'],
 })
 export class ChatComponent implements AfterViewChecked, OnInit, OnDestroy {
-    [x: string]: any;
     @ViewChild('messagesContainer', { static: true }) messagesContainer: ElementRef;
 
     @Input() disableMessagingField: boolean;

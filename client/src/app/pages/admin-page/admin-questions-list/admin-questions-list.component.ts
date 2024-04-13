@@ -191,7 +191,6 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
     openCreateQuestionDialog() {
         if (!this.dialogState) {
             const dialogRef = this.questionService.openCreateQuestionModal(ManagementState.GameCreate);
-            
 
             dialogRef.componentInstance.createQuestionEvent.subscribe((newQuestion: Question) => {
                 this.handleCreateQuestionDialog(newQuestion, dialogRef);

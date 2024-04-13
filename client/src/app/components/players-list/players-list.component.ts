@@ -24,6 +24,5 @@ export class PlayersListComponent {
     toggleChat(player: Player) {
         this.chatService.toggleChatState(this.matchRoomService.getRoomCode(), player.username);
         player.isChatActive = !player.isChatActive;
-        //this.isChatActiveForPlayer = player.isChatActive;
     }
 }

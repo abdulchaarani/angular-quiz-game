@@ -1,24 +1,6 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
 <app-chat></app-chat>
 <div id="main-container">
-    <button mat-raised-button id="exit-button" routerLink="/home" (click)="quitGame()">QUITTER</button>
-    <button
-        mat-raised-button
-        id="panic-button"
-        *ngIf="!this.matchRoomService.isCooldown && context === 'hostView'"
-        [disabled]="this.timeService.isPanicModeDisabled || this.timeService.isPanicking"
-        (click)="togglePanicTimer()"
-    >
-        PANIC
-    </button>
-    <button
-        mat-raised-button
-        id="pause-button"
-        *ngIf="!this.matchRoomService.isCooldown && time !== 0 && context === 'hostView'"
-        (click)="pauseTimer()"
-    >
-        Pause
-    </button>
     <div id="question-area">
         <div id="question-timer-area">
             <div
@@ -98,5 +80,35 @@
             </button>
         </div>
     </div>
+</div>
+<div id="controls-container">
+    <button
+        mat-raised-button
+        id="pause-button"
+        *ngIf="!this.matchRoomService.isCooldown && time !== 0 && context === 'hostView'"
+        (click)="pauseTimer()"
+        (click)="paused = !paused"
+    >
+        <mat-icon *ngIf="!paused; else elseBlock">pause</mat-icon>
+        <ng-template #elseBlock><mat-icon>play_arrow</mat-icon></ng-template>
+    </button>
+
+    <audio #ref src="../../../assets/audio/alert.mp3"></audio>
+    <button
+        mat-raised-button
+        id="panic-button"
+        color="accent"
+        *ngIf="!this.matchRoomService.isCooldown && context === 'hostView'"
+        [disabled]="this.timeService.isPanicModeDisabled || this.timeService.isPanicking"
+        (click)="togglePanicTimer()"
+        (click)="ref.play()"
+    >
+        MODE PANIQUE
+    </button>
+
+    <button mat-raised-button id="exit-button" color="primary" routerLink="/home" (click)="quitGame()">
+        <p>QUITTER</p>
+        <i class="material-icons">logout</i>
+    </button>
 </div>
 <app-players-list [players]="this.matchRoomService.players" *ngIf="context !== matchContext.TestPage"></app-players-list>

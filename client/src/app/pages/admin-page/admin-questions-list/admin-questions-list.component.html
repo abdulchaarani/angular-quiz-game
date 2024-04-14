@@ -31,7 +31,7 @@
     </mat-sidenav>
 
     <mat-sidenav-content>
-        <h1 class="page-title">{{ state === managementState.GameModify ? 'Modification' : 'Creation' }} du jeu</h1>
+        <h1 class="page-title">{{ state === managementState.GameModify ? 'Modification' : 'Création' }} du jeu</h1>
 
         <div class="buttons-container">
             <button
@@ -54,7 +54,7 @@
             </button>
 
             <button class="question-bank-button" mat-raised-button color="primary" (click)="sidenav.toggle()">
-                <mat-icon>question_mark</mat-icon>Importer une question de la banque
+                <mat-icon>question_mark</mat-icon>Banque de questions
             </button>
 
             <button class="cancel-button" mat-raised-button routerLink="/admin/games">

@@ -12,7 +12,7 @@
         </button>
     </div>
     <div class="question-container container">
-        <mat-card *ngIf="bankService.questions.length === 0" class="empty-list-card">
+        <mat-card *ngIf="!bankService.isLoadingBank && bankService.questions.length === 0" class="empty-list-card">
             <mat-card-content class="empty-list-card">
                 <p><mat-icon>catching_pokemon</mat-icon> La banque de question est vide! <mat-icon>catching_pokemon</mat-icon></p>
                 <p>Cliquez sur <mat-icon>add</mat-icon> pour ajouter votre première question!</p>
@@ -27,6 +27,9 @@
                 <mat-button-toggle value="QRL">QRL</mat-button-toggle>
             </mat-button-toggle-group>
         </div>
+
+        <app-pulse-loader *ngIf="bankService.isLoadingBank"></app-pulse-loader>
+
         <mat-accordion class="list bank-list" multi="false" #accordion>
             <app-question-list-item
                 class="question bank-question"

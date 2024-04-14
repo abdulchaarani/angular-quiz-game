@@ -24,6 +24,7 @@ export class MatchCreationPageComponent implements OnInit {
     gameIsValid: boolean;
     matchContext = MatchContext;
     isRandomGame: boolean;
+    isLoadingGame: boolean;
 
     // Services are required to decouple logic
     // eslint-disable-next-line max-params
@@ -36,6 +37,7 @@ export class MatchCreationPageComponent implements OnInit {
     ) {
         this.gameIsValid = false;
         this.isRandomGame = false;
+        this.isLoadingGame = false;
     }
 
     ngOnInit(): void {
@@ -51,9 +53,11 @@ export class MatchCreationPageComponent implements OnInit {
         if (this.hasEnoughRandomQuestions(questionsCount)) {
             this.selectedGame = RANDOM_MODE_GAME;
         }
+        this.isLoadingGame = false;
     }
 
     loadRandomGame(): void {
+        this.isLoadingGame = true;
         this.questionService.getAllQuestions().subscribe({
             next: (data: Question[]) => {
                 data = data.filter((question) => question.type === QuestionType.MultipleChoice);
@@ -73,6 +77,7 @@ export class MatchCreationPageComponent implements OnInit {
     }
 
     loadSelectedGame(selectedGame: Game): void {
+        this.isLoadingGame = true;
         this.isRandomGame = false;
         this.gameService.getGameById(selectedGame.id).subscribe({
             next: (data: Game) => {
@@ -103,6 +108,7 @@ export class MatchCreationPageComponent implements OnInit {
     validateGame(selectedGame: Game): void {
         if (selectedGame.isVisible) {
             this.gameIsValid = true;
+            this.isLoadingGame = false;
         } else {
             const snackBarRef = this.notificationService.displayErrorMessageAction(SnackBarError.INVISIBLE, SnackBarAction.REFRESH);
             snackBarRef.onAction().subscribe(() => this.reloadAllGames());

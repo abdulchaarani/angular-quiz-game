@@ -60,6 +60,7 @@ export class GameModificationService {
 
     setGame(id: string) {
         this.state = ManagementState.GameModify;
+        this.game = { ...this.newGame };
         this.gamesService.getGameById(id).subscribe({
             next: (game: Game) => {
                 this.game = game;

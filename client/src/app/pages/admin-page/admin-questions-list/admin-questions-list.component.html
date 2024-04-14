@@ -4,6 +4,9 @@
             <button mat-button (click)="sidenav.toggle()">✖</button>
         </div>
         <p class="bank-message">{{ gameModificationService.currentBankMessage }}</p>
+
+        <app-pulse-loader *ngIf="!gameModificationService.bankQuestions.length"></app-pulse-loader>
+
         <cdk-virtual-scroll-viewport class="bank-scroll" itemSize="50">
             <div
                 id="bank-questions"
@@ -85,6 +88,9 @@
                     </mat-card-content>
                 </mat-card>
             </form>
+
+            <app-pulse-loader *ngIf="state !== managementState.GameCreate && !game.questions.length"></app-pulse-loader>
+
             <div
                 id="quiz-questions"
                 class="list game-questions-list item-container"

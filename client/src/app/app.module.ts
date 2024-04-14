@@ -38,6 +38,7 @@ import { SortAnswersPipe } from './pipes/sort-answers.pipe';
 import { LongAnswerHistogramComponent } from './components/long-answer-histogram/long-answer-histogram.component';
 import { MAT_TOOLTIP_DEFAULT_OPTIONS } from '@angular/material/tooltip';
 import { tooltipOptions } from './constants/tooltip-options';
+import { PulseLoaderComponent } from './components/pulse-loader/pulse-loader.component';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -76,6 +77,7 @@ import { tooltipOptions } from './constants/tooltip-options';
         SortAnswersPipe,
         LongAnswerHistogramComponent,
         FilterByQuestionTypePipe,
+        PulseLoaderComponent,
     ],
     imports: [
         AppMaterialModule,

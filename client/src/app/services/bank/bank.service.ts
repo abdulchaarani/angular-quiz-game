@@ -11,6 +11,7 @@ import { QuestionService } from '@app/services/question/question.service';
 export class BankService {
     questions: Question[] = [];
     addToBank: boolean = false;
+    isLoadingBank: boolean = false;
 
     constructor(
         private readonly questionService: QuestionService,
@@ -18,8 +19,12 @@ export class BankService {
     ) {}
 
     getAllQuestions(): void {
+        this.isLoadingBank = true;
         this.questionService.getAllQuestions().subscribe({
-            next: (data: Question[]) => (this.questions = [...data]),
+            next: (data: Question[]) => {
+                this.questions = [...data];
+                this.isLoadingBank = false;
+            },
             error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`${BankStatus.UNRETRIEVED}\n ${error.message}`),
         });
     }

@@ -152,15 +152,10 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
         );
 
         this.questionForm.statusChanges.subscribe((status) => {
-            if (this.questionForm.get('text')?.invalid) {
+            if (status === 'INVALID' && this.questionForm.get('text')?.invalid) {
                 this.openSnackBar('Le champ de la question est requis !', SNACK_BAR_DISPLAY_TIME);
-            } else if (status === 'INVALID' && this.questionForm.hasError('choices')) {
-                this.openSnackBar('Il faut au moins une réponse correcte et une incorrecte !');
-            } else if (this.questionForm.get('points')?.invalid) {
-                this.openSnackBar('Le champs points est requis !', SNACK_BAR_DISPLAY_TIME);
-            }
-            if (this.questionForm.get('type')?.invalid) {
-                this.openSnackBar('Le champ type est requis !', SNACK_BAR_DISPLAY_TIME);
+            } else if (status === 'INVALID' && this.questionForm.get('choices')?.invalid && this.questionForm.hasError('invalidChoicesLength')) {
+                this.openSnackBar('Il faut au moins une réponse correcte et une incorrecte !', SNACK_BAR_DISPLAY_TIME);
             }
         });
 
@@ -197,7 +192,7 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
         if (!choicesArray) return;
         choicesArray.clear();
         this.question.choices?.forEach((choice) => {
-            if (choice.text.trim() !== '') {
+            if (choice.text) {
                 choicesArray.push(
                     this.formBuilder.group({
                         text: choice.text,
@@ -208,10 +203,3 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
         });
     }
 }
-
-// References:
-// https://stackoverflow.com/questions/49782253/angular-reactive-form
-// https://stackoverflow.com/questions/53362983/angular-reactiveforms-nested-formgroup-within-formarray-no-control-found?rq=3
-// https://stackblitz.com/edit/angular-nested-formarray-dynamic-forms?file=src%2Fapp%2Fapp.component.html
-// https://stackoverflow.com/questions/67834802/template-error-type-abstractcontrol-is-not-assignable-to-type-formcontrol
-// https://stackoverflow.com/questions/39679637/angular-2-form-cannot-find-control-with-path

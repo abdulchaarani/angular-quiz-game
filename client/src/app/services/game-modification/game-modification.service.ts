@@ -40,6 +40,7 @@ export class GameModificationService {
     currentQuestion: Question;
     currentBankMessage = '';
 
+    isFirstInteraction: boolean = true;
     isPendingChanges: boolean = false;
 
     gameForm = new FormGroup({
@@ -101,6 +102,7 @@ export class GameModificationService {
     }
 
     dropInQuizList(event: CdkDragDrop<Question[]>) {
+        this.isFirstInteraction = false;
         const droppedQuestion: Question = event.previousContainer.data[event.previousIndex];
         if (event.previousContainer === event.container) {
             moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
@@ -125,6 +127,7 @@ export class GameModificationService {
     }
 
     dragBankQuestion(): void {
+        this.isFirstInteraction = false;
         this.isBankQuestionDragged = true;
     }
 
@@ -155,6 +158,7 @@ export class GameModificationService {
         });
         this.subscribeToFormChanges();
         this.setBankQuestions();
+        this.isFirstInteraction = true;
         this.resetPendingChanges();
     }
 

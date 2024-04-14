@@ -110,7 +110,7 @@
                         <app-question-list-item
                             class="question game-question"
                             *ngFor="let question of game.questions; let i = index"
-                            [isExpanded]="i === 0"
+                            [isExpanded]="i === 0 && gameModificationService.isFirstInteraction"
                             [index]="game.questions.indexOf(question) + 1"
                             [question]="question"
                             [isBankQuestion]="false"

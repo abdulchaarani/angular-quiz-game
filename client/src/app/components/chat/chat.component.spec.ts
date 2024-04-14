@@ -85,6 +85,12 @@ describe('ChatComponent', () => {
         expect(chatServiceSpy.sendMessage).not.toHaveBeenCalled();
     });
 
+    it('should disable the chat field when a the right to chat has been deactivated', () => {
+        matchRoomServiceSpy.getPlayerByUsername.and.returnValue(PLAYER_MOCK);
+        component.ngAfterViewChecked();
+        expect(component.disableMessagingField).toEqual(!PLAYER_MOCK.isChatActive);
+    });
+
     it('should send message if message text is not empty and player is host', () => {
         const messageText = MOCK_MESSAGE.text;
         const roomCode = MOCK_ROOM_CODE;

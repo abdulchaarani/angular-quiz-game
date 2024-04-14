@@ -16,6 +16,7 @@ import { ManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
 import { DialogManagement, QuestionCreationFormComponent } from './question-creation-form.component';
 import { QuestionService } from '@app/services/question/question.service';
+import { QuestionTypes } from '@app/constants/question-types';
 
 const mockQuestion: Question = {
     id: '1',
@@ -116,6 +117,15 @@ describe('QuestionCreationFormComponent', () => {
         expect(component.question).toEqual(component.questionForm.value);
     });
 
+    it('should remove choices control when question type is QRL', () => {
+        component.questionForm.patchValue({
+            text: 'Test question',
+            points: 10,
+            type: QuestionTypes.LONG,
+        });
+        expect(component.questionForm.contains('choices')).toBeFalse();
+    });
+
     it('should submit the form to create a question in the question list', () => {
         spyOn(component.createQuestionEvent, 'emit');
         component.onSubmit();
@@ -161,21 +171,6 @@ describe('QuestionCreationFormComponent', () => {
         component.questionForm.value.id = '1';
         expect(component.questionForm.value).toEqual(changedQuestion);
     });
-
-    // it('should not submit a question without at least one correct and incorrect choices - Case when all is true', () => {
-    //     spyOn(component.createQuestionEvent, 'emit');
-    //     component.questionForm.setValue({
-    //         text: 'Test ',
-    //         points: 10,
-    //         type: 'QCM',
-    //         choices: [
-    //             { text: 'Choice 1', isCorrect: true },
-    //             { text: 'Choice 2', isCorrect: true },
-    //         ],
-    //     });
-    //     component.onSubmit();
-    //     expect(component.createQuestionEvent.emit).not.toHaveBeenCalled();
-    // });
 
     // it('should not submit a question without at least one correct and incorrect choices - Case when all is false', () => {
     //     spyOn(component.createQuestionEvent, 'emit');

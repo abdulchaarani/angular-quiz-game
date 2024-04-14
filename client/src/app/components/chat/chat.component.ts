@@ -1,4 +1,4 @@
-import { AfterViewChecked, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 
 import { Message } from '@app/interfaces/message';
 
@@ -14,9 +14,12 @@ import { HOST_USERNAME } from '@common/constants/match-constants';
 export class ChatComponent implements AfterViewChecked, OnInit, OnDestroy {
     @ViewChild('messagesContainer', { static: true }) messagesContainer: ElementRef;
 
+    @Input() disableMessagingField: boolean;
+
     constructor(
         readonly matchRoomService: MatchRoomService,
         readonly chatService: ChatService,
+        private cdr: ChangeDetectorRef,
     ) {}
 
     ngOnInit(): void {
@@ -25,7 +28,14 @@ export class ChatComponent implements AfterViewChecked, OnInit, OnDestroy {
     }
 
     ngAfterViewChecked() {
+        const playerUsername = this.matchRoomService.getUsername();
+        const player = this.matchRoomService.getPlayerByUsername(playerUsername);
+        if (player) {
+            this.disableMessagingField = !player.isChatActive;
+        }
+
         this.scrollToBottom();
+        this.cdr.detectChanges();
     }
 
     ngOnDestroy() {
@@ -34,16 +44,21 @@ export class ChatComponent implements AfterViewChecked, OnInit, OnDestroy {
     }
 
     sendMessage(messageText: string): void {
-        const isChatActiveForPlayer = this.matchRoomService.getPlayerByUsername(this.matchRoomService.getUsername())?.isChatActive;
-        const isPlayerHost = this.matchRoomService.getUsername() === HOST_USERNAME;
-        if (messageText) {
-            const newMessage: Message = {
-                text: messageText,
-                author: this.matchRoomService.getUsername(),
-                date: new Date(),
-            };
-            if (isChatActiveForPlayer || isPlayerHost) {
-                this.chatService.sendMessage(this.matchRoomService.getRoomCode(), newMessage);
+        const playerUsername = this.matchRoomService.getUsername();
+        const isPlayerHost = playerUsername === HOST_USERNAME;
+        const player = this.matchRoomService.getPlayerByUsername(playerUsername);
+
+        if (player || isPlayerHost) {
+            const isChatActiveForPlayer = player?.isChatActive;
+            if (messageText) {
+                const newMessage: Message = {
+                    text: messageText,
+                    author: this.matchRoomService.getUsername(),
+                    date: new Date(),
+                };
+                if (isChatActiveForPlayer || isPlayerHost) {
+                    this.chatService.sendMessage(this.matchRoomService.getRoomCode(), newMessage);
+                }
             }
         }
     }

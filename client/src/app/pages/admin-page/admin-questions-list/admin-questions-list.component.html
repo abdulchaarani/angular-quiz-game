@@ -3,43 +3,48 @@
         <div class="sidenav-close">
             <button mat-button (click)="sidenav.toggle()">✖</button>
         </div>
-        <p class="bank-message">{{ currentBankMessage }}</p>
+        <p class="bank-message">{{ gameModificationService.currentBankMessage }}</p>
         <cdk-virtual-scroll-viewport class="bank-scroll" itemSize="50">
             <div
                 id="bank-questions"
                 cdkDropList
-                [cdkDropListData]="bankQuestions"
+                [cdkDropListData]="gameModificationService.bankQuestions"
                 cdkDropListConnectedTo="quiz-questions"
                 class="list bank-questions-list"
             >
                 <app-short-question
                     class="question short-question"
-                    *ngFor="let question of bankQuestions | sortByLastModification: 'descending'"
+                    *ngFor="let question of gameModificationService.bankQuestions | sortByLastModification: 'descending'"
                     [question]="question"
                     cdkDrag
                     [cdkDragData]="question"
-                    (mousedown)="dragBankQuestion()"
-                    (mouseup)="dropBankQuestion()"
-                    (cdkDragStarted)="dragBankQuestion()"
-                    (cdkDragEnded)="dropBankQuestion()"
+                    (mousedown)="gameModificationService.dragBankQuestion()"
+                    (mouseup)="gameModificationService.dropBankQuestion()"
+                    (cdkDragStarted)="gameModificationService.dragBankQuestion()"
+                    (cdkDragEnded)="gameModificationService.dropBankQuestion()"
                 ></app-short-question>
             </div>
         </cdk-virtual-scroll-viewport>
     </mat-sidenav>
 
     <mat-sidenav-content>
-        <h1 class="page-title">{{ getTitle() }} du jeu</h1>
+        <h1 class="page-title">{{ state === managementState.GameModify ? 'Modification' : 'Creation' }} du jeu</h1>
 
         <div class="buttons-container">
-            <button class="submit-button" mat-raised-button (click)="handleSubmit()" [disabled]="gameForm.invalid || game.questions.length === 0">
-                <mat-icon>done</mat-icon> {{ getButtonText() }}
+            <button
+                class="submit-button"
+                mat-raised-button
+                (click)="gameModificationService.handleSubmit()"
+                [disabled]="gameModificationService.gameForm.invalid || game.questions.length === 0"
+            >
+                <mat-icon>done</mat-icon> {{ state === managementState.GameModify ? 'Appliquer les modifications' : 'Créer le jeu' }}
             </button>
 
             <button
                 class="question-bank-button"
                 mat-raised-button
                 color="primary"
-                (click)="openCreateQuestionDialog()"
+                (click)="gameModificationService.openCreateQuestionDialog()"
                 id="admin-question-creation-form-button"
             >
                 <mat-icon>add</mat-icon>Ajouter une nouvelle question
@@ -50,14 +55,14 @@
             </button>
 
             <button class="cancel-button" mat-raised-button routerLink="/admin/games">
-                <mat-icon *ngIf="!this.isPendingChanges">clear</mat-icon>
-                <mat-icon class="pending-changes" *ngIf="this.isPendingChanges">pending</mat-icon>
-                Annuler la {{ this.getTitle().toLocaleLowerCase() }} du jeu
+                <mat-icon *ngIf="!this.gameModificationService.isPendingChanges">clear</mat-icon>
+                <mat-icon class="pending-changes" *ngIf="this.gameModificationService.isPendingChanges">pending</mat-icon>
+                Annuler la {{ state === managementState.GameModify ? 'modification' : 'création' }} du jeu
             </button>
         </div>
 
         <div class="game-container">
-            <form [formGroup]="gameForm">
+            <form [formGroup]="gameModificationService.gameForm">
                 <div class="game-form-details item-container">
                     <mat-form-field class="game-title">
                         <mat-label>Titre</mat-label>
@@ -86,9 +91,9 @@
                 cdkDropList
                 [cdkDropListData]="game.questions"
                 cdkDropListConnectedTo="bank-questions"
-                (cdkDropListDropped)="dropInQuizList($event)"
+                (cdkDropListDropped)="gameModificationService.dropInQuizList($event)"
                 [class.empty-list]="game.questions.length === 0"
-                [class.visible]="isBankQuestionDragged"
+                [class.visible]="gameModificationService.isBankQuestionDragged"
             >
                 <mat-accordion>
                     <p *ngIf="game.questions.length === 0" class="create-notice">
@@ -103,9 +108,9 @@
                             [index]="game.questions.indexOf(question) + 1"
                             [question]="question"
                             [isBankQuestion]="false"
-                            (deleteQuestionEvent)="deleteQuestion($event)"
-                            (cdkDragStarted)="dragQuizQuestion(question)"
-                            (cdkDragEnded)="dropQuizQuestion($event)"
+                            (deleteQuestionEvent)="gameModificationService.deleteQuestion($event)"
+                            (cdkDragStarted)="gameModificationService.dragQuizQuestion(question)"
+                            (cdkDragEnded)="gameModificationService.dropQuizQuestion($event)"
                             cdkDrag
                         >
                             <div cdkDragHandle></div>

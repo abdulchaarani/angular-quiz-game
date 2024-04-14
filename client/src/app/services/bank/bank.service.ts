@@ -10,6 +10,8 @@ import { QuestionService } from '@app/services/question/question.service';
 })
 export class BankService {
     questions: Question[] = [];
+    addToBank: boolean = false;
+
     constructor(
         private readonly questionService: QuestionService,
         private readonly notificationService: NotificationService,

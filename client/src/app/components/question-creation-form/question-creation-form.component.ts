@@ -26,7 +26,6 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
 
     response: string = '';
     modifyingForm: boolean = false;
-    addToBank: boolean = false;
     questionFormControl = new FormControl('', [Validators.required]);
     questionForm: FormGroup;
     checked: boolean;
@@ -38,7 +37,7 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
         private readonly snackBar: MatSnackBar,
         private readonly formBuilder: FormBuilder,
         private readonly questionService: QuestionService,
-        private readonly bankService: BankService,
+        public bankService: BankService,
         @Optional() @Inject(MAT_DIALOG_DATA) public dialogData: DialogManagement,
     ) {
         this.initializeForm();
@@ -93,7 +92,7 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
             } else {
                 this.createQuestionEvent.emit(newQuestion);
             }
-            if (this.addToBank) {
+            if (this.bankService.addToBank) {
                 this.bankService.addQuestion(newQuestion);
             }
         }
@@ -152,6 +151,7 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
     }
 
     private initializeForm(): void {
+        this.bankService.addToBank = false;
         this.questionForm = this.formBuilder.group(
             {
                 text: ['', Validators.required],

@@ -6,15 +6,13 @@ import { ManagementState } from '@app/constants/states';
 import { Game } from '@app/interfaces/game';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { NotificationService } from '@app/services/notification/notification.service';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
 })
 export class GameService extends CommunicationService<Game> {
     games: Game[];
-    isPendingChangesObservable: Observable<boolean>;
-    isPendingChangesSource = new BehaviorSubject<boolean>(false);
 
     constructor(
         http: HttpClient,
@@ -23,7 +21,6 @@ export class GameService extends CommunicationService<Game> {
     ) {
         super(http, 'admin/games');
         this.games = [];
-        this.isPendingChangesObservable = this.isPendingChangesSource.asObservable();
     }
 
     getGames(): void {
@@ -90,13 +87,5 @@ export class GameService extends CommunicationService<Game> {
 
     submitGame(game: Game, state: ManagementState) {
         return state === ManagementState.GameModify ? this.replaceGame(game) : this.addGame(game);
-    }
-
-    markPendingChanges() {
-        this.isPendingChangesSource.next(true);
-    }
-
-    resetPendingChanges() {
-        this.isPendingChangesSource.next(false);
     }
 }

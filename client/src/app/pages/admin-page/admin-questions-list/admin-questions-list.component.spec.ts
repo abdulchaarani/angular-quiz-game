@@ -252,7 +252,7 @@ describe('AdminQuestionsListComponent', () => {
     it('should set game and form values correctly', () => {
         gamesServiceSpy.getGameById.and.returnValue(of(mockGame));
         questionServiceSpy.getAllQuestions.and.returnValue(of(mockBankQuestions));
-        component.setGame().subscribe(() => {
+        component.getGameIdFromUrl().subscribe(() => {
             expect(component.game).toEqual(mockGame);
             expect(component.gameForm.value).toEqual({
                 title: mockGame.title,
@@ -269,7 +269,7 @@ describe('AdminQuestionsListComponent', () => {
         spyOn<any>(component, 'filterBankQuestions').and.returnValue(mockQuestions);
         component.ngAfterViewInit();
 
-        expect(component.setGame).toHaveBeenCalled();
+        expect(component.getGameIdFromUrl).toHaveBeenCalled();
         expect(component['filterBankQuestions']).toHaveBeenCalledWith(mockQuestions, mockGame.questions);
         expect(component.originalBankQuestions).toEqual(mockQuestions);
         expect(component.bankQuestions).toEqual(mockQuestions);
@@ -296,7 +296,7 @@ describe('AdminQuestionsListComponent', () => {
 
         component.ngAfterViewInit();
 
-        expect(component.setGame).toHaveBeenCalled();
+        expect(component.getGameIdFromUrl).toHaveBeenCalled();
         expect(notificationServiceSpy.displayErrorMessage).toHaveBeenCalled();
     });
 

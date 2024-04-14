@@ -16,6 +16,7 @@ import { TimeService } from '@app/services/time/time.service';
 import { Subject } from 'rxjs';
 import { WaitPageComponent } from './wait-page.component';
 import SpyObj = jasmine.SpyObj;
+import { HOST_USERNAME } from '@common/constants/match-constants';
 
 @Component({
     selector: 'app-chat',
@@ -114,6 +115,11 @@ describe('WaitPageComponent', () => {
     it('banUsername() should call banUsername of matchRoomService', () => {
         component.banPlayerUsername('test');
         expect(matchRoomSpy.banUsername).toHaveBeenCalledWith('test');
+    });
+
+    it('banUsername() should not call banUsername if user is the host', () => {
+        component.banPlayerUsername(HOST_USERNAME);
+        expect(matchRoomSpy.banUsername).not.toHaveBeenCalled();
     });
 
     it('startMatch() should call startMatch from matchRoomService', () => {

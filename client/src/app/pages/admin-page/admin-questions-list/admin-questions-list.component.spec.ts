@@ -1,3 +1,4 @@
+/* eslint-disable max-classes-per-file */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable max-lines */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
@@ -51,6 +52,14 @@ describe('AdminQuestionsListComponent', () => {
         @Output() createQuestionEvent: EventEmitter<Question> = new EventEmitter<Question>();
     }
 
+    @Component({
+        selector: 'app-short-question',
+        template: '',
+    })
+    class MockShortQuestionComponent {
+        @Input() question: Question;
+    }
+
     beforeEach(() => {
         activatedRouteSpy = jasmine.createSpyObj('ActivatedRoute', ['params', 'data', 'navigate']);
         activatedRouteSpy.params = of({ id: '1' });
@@ -81,7 +90,13 @@ describe('AdminQuestionsListComponent', () => {
                 ScrollingModule,
                 MatSliderModule,
             ],
-            declarations: [AdminQuestionsListComponent, SortByLastModificationPipe, MockCreateQuestionComponent, QuestionListItemComponent],
+            declarations: [
+                AdminQuestionsListComponent,
+                SortByLastModificationPipe,
+                MockCreateQuestionComponent,
+                QuestionListItemComponent,
+                MockShortQuestionComponent,
+            ],
             providers: [
                 { provide: MatSnackBar, useValue: {} },
                 { provide: NotificationService, useValue: notificationServiceSpy },

@@ -18,8 +18,7 @@ export class AdminQuestionsListComponent implements OnInit, CanComponentDeactiva
     @Output() createQuestionEventQuestionBank: EventEmitter<Question> = new EventEmitter<Question>();
 
     state: ManagementState;
-    // permit more constructor params to decouple services
-    // eslint-disable-next-line max-params
+
     constructor(
         private readonly notificationService: NotificationService,
         private readonly route: ActivatedRoute,

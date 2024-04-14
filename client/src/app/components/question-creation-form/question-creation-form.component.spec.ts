@@ -162,10 +162,10 @@ describe('QuestionCreationFormComponent', () => {
     it('should create copy of question in the bank if toggled', () => {
         spyOn(component.modifyQuestionEvent, 'emit');
 
-        component.addToBank = false;
+        bankServiceSpy.addToBank = false;
         component.modificationState = ManagementState.GameModify;
         component.onSubmit();
-        component.addToBank = true;
+        bankServiceSpy.addToBank = true;
         component.onSubmit();
 
         expect(bankServiceSpy.addQuestion).toHaveBeenCalledTimes(1);

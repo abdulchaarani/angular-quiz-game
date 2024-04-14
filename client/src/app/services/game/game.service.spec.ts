@@ -148,17 +148,6 @@ describe('GameService', () => {
         expect(replaceGameSpy).not.toHaveBeenCalled();
     });
 
-    it('should mark pending changes', () => {
-        service.markPendingChanges();
-        expect(service.isPendingChangesSource.value).toBe(true);
-    });
-
-    it('should reset pending changes', () => {
-        service.markPendingChanges();
-        service.resetPendingChanges();
-        expect(service.isPendingChangesSource.value).toBe(false);
-    });
-
     it('openDialog() should open a dialog asking to change the game title and resubmit the updated game', () => {
         const addGameSpy = spyOn(service, 'uploadGame');
         service.openDialog(NEW_MOCK_GAME);

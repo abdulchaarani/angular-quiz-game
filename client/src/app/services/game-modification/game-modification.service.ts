@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
-import { GameService } from '../game/game.service';
-import { BankService } from '../bank/bank.service';
+import { GameService } from '@app/services/game/game.service';
+import { BankService } from '@app/services/bank/bank.service';
 import { Game } from '@app/interfaces/game';
 import { ManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { BankStatus, QuestionStatus } from '@app/constants/feedback-messages';
-import { NotificationService } from '../notification/notification.service';
-import { QuestionService } from '../question/question.service';
+import { NotificationService } from '@app/services/notification/notification.service';
+import { QuestionService } from '@app/services/question/question.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { lastValueFrom } from 'rxjs/internal/lastValueFrom';
@@ -169,27 +169,37 @@ export class GameModificationService {
         });
     }
 
-    private subscribeToFormChanges() {
+    private subscribeToFormTitle() {
         this.gameForm.get('title')?.valueChanges.subscribe((title: string | null) => {
             if (title) {
                 this.game.title = title;
                 this.markPendingChanges();
             }
         });
+    }
 
+    private subscribeToFormDescription() {
         this.gameForm.get('description')?.valueChanges.subscribe((description: string | null) => {
             if (description) {
                 this.game.description = description;
                 this.markPendingChanges();
             }
         });
+    }
 
+    private subscribeToFormDuration() {
         this.gameForm.get('duration')?.valueChanges.subscribe((duration: string | null) => {
             if (duration) {
                 this.game.duration = parseInt(duration, 10);
                 this.markPendingChanges();
             }
         });
+    }
+
+    private subscribeToFormChanges() {
+        this.subscribeToFormTitle();
+        this.subscribeToFormDescription();
+        this.subscribeToFormDuration();
     }
 
     private addQuestionToBank(newQuestion: Question) {

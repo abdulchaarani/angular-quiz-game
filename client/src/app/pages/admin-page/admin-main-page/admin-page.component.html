@@ -68,7 +68,7 @@
                 </mat-card-content>
             </mat-card>
 
-            <!-- <app-pulse-loader *ngIf="!historyService.historyItems.length"></app-pulse-loader> -->
+            <app-pulse-loader *ngIf="!historyService.historyItems.length"></app-pulse-loader>
 
             <mat-card *ngFor="let history of this.historyService.historyItems | sortHistory: order.value : subject.value" class="history-card">
                 <mat-card-content class="history-content">

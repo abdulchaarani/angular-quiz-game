@@ -40,6 +40,8 @@ describe('AdminPageComponent', () => {
         notificationServiceSpy = jasmine.createSpyObj('NotificationService', ['displayErrorMessage', 'displaySuccessMessage']);
         uploadSpy = jasmine.createSpyObj('UploadGameService', ['onFileSelected']);
 
+        gameSpy.games = [getMockGame()];
+
         TestBed.configureTestingModule({
             imports: [MatButtonToggleModule, MatMenuModule, MatDialogModule, MatSnackBarModule, RouterTestingModule, MatIconModule, MatCardModule],
             declarations: [AdminPageComponent, GameListItemComponent, SortHistoryPipe],

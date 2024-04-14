@@ -27,7 +27,7 @@
             </mat-card-content>
         </mat-card>
 
-        <!-- <app-pulse-loader *ngIf="!gameService.games.length"></app-pulse-loader> -->
+        <app-pulse-loader *ngIf="!gameService.games.length"></app-pulse-loader>
 
         <app-game-list-item
             *ngFor="let game of this.gameService.games"

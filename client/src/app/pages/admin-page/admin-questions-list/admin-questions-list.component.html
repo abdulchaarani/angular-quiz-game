@@ -50,8 +50,8 @@
             </button>
 
             <button class="cancel-button" mat-raised-button routerLink="/admin/games">
-                <mat-icon *ngIf="!this.isPendingChanges">cancel</mat-icon>
-                <mat-icon class="pending-changes" *ngIf="this.isPendingChanges">circle</mat-icon>
+                <mat-icon *ngIf="!this.isPendingChanges">clear</mat-icon>
+                <mat-icon class="pending-changes" *ngIf="this.isPendingChanges">pending</mat-icon>
                 Annuler la {{ this.getTitle().toLocaleLowerCase() }} du jeu
             </button>
         </div>
@@ -98,7 +98,8 @@
                     <cdk-virtual-scroll-viewport class="game-scroll" itemSize="50">
                         <app-question-list-item
                             class="question game-question"
-                            *ngFor="let question of game.questions"
+                            *ngFor="let question of game.questions; let i = index"
+                            [isExpanded]="i === 0"
                             [index]="game.questions.indexOf(question) + 1"
                             [question]="question"
                             [isBankQuestion]="false"

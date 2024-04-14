@@ -20,6 +20,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatBadgeModule } from '@angular/material/badge';
 import { AgChartsAngularModule } from 'ag-charts-angular';
 
 const modules = [
@@ -43,6 +44,7 @@ const modules = [
     MatSnackBarModule,
     MatToolbarModule,
     MatTooltipModule,
+    MatBadgeModule,
     ScrollingModule,
     AgChartsAngularModule,
 ];

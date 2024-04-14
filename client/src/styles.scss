@@ -135,7 +135,7 @@ body {
 }
 
 .short-question {
-    width: 100%;
+    width: 13vw;
     padding: 20px 10px;
     border-bottom: solid 1px #ccc;
 }
@@ -170,4 +170,15 @@ body {
     height: 100%;
     display: flex;
     justify-content: center;
+}
+
+.question-type {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+}
+
+.color-variant {
+    background-color: rgb(247, 246, 255) !important;
 }

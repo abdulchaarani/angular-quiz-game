@@ -4,7 +4,7 @@ import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@ang
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MAX_CHOICES, MIN_CHOICES, SNACK_BAR_DISPLAY_TIME } from '@app/constants/question-creation';
-import { QuestionTypes } from '@app/constants/question-types';
+import { QuestionType } from '@common/constants/question-types';
 import { ManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
 import { QuestionService } from '@app/services/question/question.service';
@@ -165,7 +165,7 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
         });
 
         this.questionForm.get('type')?.valueChanges.subscribe((type: string) => {
-            if (type === QuestionTypes.CHOICE) {
+            if (type === QuestionType.MultipleChoice) {
                 this.questionForm.addControl(
                     'choices',
                     this.formBuilder.array([
@@ -179,7 +179,7 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
                         }),
                     ]),
                 );
-            } else if (type === QuestionTypes.LONG) {
+            } else if (type === QuestionType.LongAnswer) {
                 this.questionForm.removeControl('choices');
             }
         });

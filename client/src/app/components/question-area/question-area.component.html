@@ -54,8 +54,8 @@
             class="choice-container"
             *ngIf="!this.matchRoomService.isCooldown || context === matchContext.TestPage || context === matchContext.RandomMode"
         >
-            <app-multiple-choice-area *ngIf="currentQuestion.type === questionType.QCM" class="choice-area"></app-multiple-choice-area>
-            <app-long-answer-area *ngIf="currentQuestion.type === questionType.QRL" class="choice-area"></app-long-answer-area>
+            <app-multiple-choice-area *ngIf="currentQuestion.type === questionType.MultipleChoice" class="choice-area"></app-multiple-choice-area>
+            <app-long-answer-area *ngIf="currentQuestion.type === questionType.LongAnswer" class="choice-area"></app-long-answer-area>
         </div>
 
         <div

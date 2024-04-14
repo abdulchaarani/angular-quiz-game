@@ -56,7 +56,7 @@ export class MatchCreationPageComponent implements OnInit {
     loadRandomGame(): void {
         this.questionService.getAllQuestions().subscribe({
             next: (data: Question[]) => {
-                data = data.filter((question) => question.type === QuestionType.QCM);
+                data = data.filter((question) => question.type === QuestionType.MultipleChoice);
                 this.handleLoadRandomGame(data);
             },
         });
@@ -150,7 +150,7 @@ export class MatchCreationPageComponent implements OnInit {
     revalidateRandomGame() {
         this.questionService.getAllQuestions().subscribe({
             next: (data: Question[]) => {
-                data = data.filter((question) => question.type === QuestionType.QCM);
+                data = data.filter((question) => question.type === QuestionType.MultipleChoice);
                 this.handleRevalidateRandomGame(data);
             },
         });

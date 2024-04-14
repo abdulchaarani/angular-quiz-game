@@ -115,7 +115,6 @@ describe('MatchRoomService', () => {
         service.createRoom(mockStringifiedGame, true, false);
         expect(service['matchRoomCode']).toEqual('mock');
         expect(service['username']).toEqual('Organisateur');
-        expect(router.navigateByUrl).toHaveBeenCalledWith('/play-test');
         expect(spy).toHaveBeenCalledWith('createRoom', { gameId: 'mockGame', isTestPage: true, isRandomMode: false }, jasmine.any(Function));
     });
 

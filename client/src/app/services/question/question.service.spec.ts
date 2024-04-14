@@ -9,7 +9,7 @@ import { of } from 'rxjs';
 import { QuestionService } from './question.service';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { getMockQuestion } from '@app/constants/question-mocks';
-import { QuestionTypes } from '@app/constants/question-types';
+import { QuestionType } from '@common/constants/question-types';
 
 const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK', body: JSON.stringify(true) });
 
@@ -153,7 +153,7 @@ describe('QuestionService', () => {
         const formGroup = new FormGroup({
             text: new FormControl(getMockQuestion().text),
             points: new FormControl(getMockQuestion().points),
-            type: new FormControl(QuestionTypes.LONG),
+            type: new FormControl(QuestionType.LongAnswer),
         });
 
         const validationResult = questionService.validateChoicesLength(formGroup);

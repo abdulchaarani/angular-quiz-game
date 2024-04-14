@@ -42,7 +42,7 @@
                 (click)="openCreateQuestionDialog()"
                 id="admin-question-creation-form-button"
             >
-                <mat-icon>add</mat-icon>Créer une nouvelle question
+                <mat-icon>add</mat-icon>Ajouter une nouvelle question
             </button>
 
             <button class="question-bank-button" mat-raised-button color="primary" (click)="sidenav.toggle()">
@@ -95,7 +95,7 @@
                         Le jeu doit contenir au moins 1 question. Cliquez sur "Ajouter une nouvelle question" ou importez une question de la banque.
                     </p>
 
-                    <cdk-virtual-scroll-viewport class="game-scroll" itemSize="50">
+                    <cdk-virtual-scroll-viewport class="game-scroll" itemSize="350">
                         <app-question-list-item
                             class="question game-question"
                             *ngFor="let question of game.questions; let i = index"

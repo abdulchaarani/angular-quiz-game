@@ -8,6 +8,7 @@ import { QuestionType } from '@common/constants/question-types';
 import { ManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
 import { QuestionService } from '@app/services/question/question.service';
+import { BankService } from '@app/services/bank/bank.service';
 
 export interface DialogManagement {
     modificationState: ManagementState;
@@ -25,6 +26,7 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
 
     response: string = '';
     modifyingForm: boolean = false;
+    addToBank: boolean = false;
     questionFormControl = new FormControl('', [Validators.required]);
     questionForm: FormGroup;
     checked: boolean;
@@ -36,6 +38,7 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
         private readonly snackBar: MatSnackBar,
         private readonly formBuilder: FormBuilder,
         private readonly questionService: QuestionService,
+        private readonly bankService: BankService,
         @Optional() @Inject(MAT_DIALOG_DATA) public dialogData: DialogManagement,
     ) {
         this.initializeForm();
@@ -46,6 +49,10 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
 
     get choices(): FormArray {
         return this.questionForm.get('choices') as FormArray;
+    }
+
+    get managementState(): typeof ManagementState {
+        return ManagementState;
     }
 
     buildChoices(): FormGroup {
@@ -85,6 +92,9 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
                 this.modifyQuestionEvent.emit(newQuestion);
             } else {
                 this.createQuestionEvent.emit(newQuestion);
+            }
+            if (this.addToBank) {
+                this.bankService.addQuestion(newQuestion);
             }
         }
     }

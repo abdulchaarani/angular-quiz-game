@@ -225,7 +225,7 @@ export class AdminQuestionsListComponent implements OnInit, AfterViewInit, OnDes
 
     dropQuizQuestion(event: CdkDragEnd<Question[]>) {
         const destination = event.event.target as HTMLInputElement;
-        const container = destination.closest('mat-drawer');
+        const container = destination.closest('mat-sidenav');
         if (container) this.openConfirmDialog();
     }
 

@@ -30,6 +30,7 @@ import { Subject } from 'rxjs';
 import { Socket } from 'socket.io-client';
 import { QuestionAreaComponent } from './question-area.component';
 import spyObj = jasmine.SpyObj;
+import { MatIconModule } from '@angular/material/icon';
 
 class SocketHandlerServiceMock extends SocketHandlerService {
     override connect() {}
@@ -116,7 +117,14 @@ describe('QuestionAreaComponent', () => {
 
         await TestBed.configureTestingModule({
             declarations: [QuestionAreaComponent, MockChatComponent, MockPlayersListComponent, MockMultipleChoiceAreaComponent],
-            imports: [RouterTestingModule.withRoutes(routes), HttpClientTestingModule, MatSnackBarModule, MatDialogModule, MatProgressSpinnerModule],
+            imports: [
+                RouterTestingModule.withRoutes(routes),
+                HttpClientTestingModule,
+                MatSnackBarModule,
+                MatDialogModule,
+                MatProgressSpinnerModule,
+                MatIconModule,
+            ],
             providers: [
                 HttpClient,
                 { provide: SocketHandlerService, useValue: socketSpy },

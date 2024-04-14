@@ -29,7 +29,7 @@
         <div class="prompt">
             <h1>Veuillez noter les réponses des joueurs!</h1>
         </div>
-        <cdk-virtual-scroll-viewport class="grades-scroll" itemSize="50">
+        <cdk-virtual-scroll-viewport class="grades-scroll" itemSize="350">
             <div *cdkVirtualFor="let player of this.answerService.playersAnswers | sortAnswers" class="player-answer">
                 <mat-card class="answer-card">
                     <div>

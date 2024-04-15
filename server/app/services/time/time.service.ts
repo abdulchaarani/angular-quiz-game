@@ -37,6 +37,7 @@ export class TimeService {
         this.intervals.set(
             roomId,
             setInterval(() => {
+                if (this.pauses.get(roomId)) return;
                 const currentTime = this.counters.get(roomId);
                 if (currentTime >= 0) {
                     timerInfo = { currentTime, duration: this.durations.get(roomId) };
@@ -85,12 +86,10 @@ export class TimeService {
 
     pauseTimer(server: Server, roomId: string) {
         if (this.pauses.get(roomId)) {
-            this.startInterval(server, roomId, this.counters.get(roomId), ExpiredTimerEvents.CountdownTimerExpired);
             this.pauses.set(roomId, false);
             server.to(roomId).emit(TimerEvents.ResumeTimer);
         } else {
             this.pauses.set(roomId, true);
-            clearInterval(this.intervals.get(roomId));
             server.to(roomId).emit(TimerEvents.PauseTimer);
         }
     }

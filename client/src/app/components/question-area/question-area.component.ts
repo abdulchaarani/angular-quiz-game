@@ -4,6 +4,7 @@ import { WarningMessage } from '@app/constants/feedback-messages';
 import { MatchContext } from '@app/constants/states';
 import { CanDeactivateType } from '@app/interfaces/can-component-deactivate';
 import { AnswerService } from '@app/services/answer/answer.service';
+import { AudioPlayerService } from '@app/services/audio-player/audio-player.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { MatchContextService } from '@app/services/question-context/question-context.service';
@@ -28,6 +29,7 @@ export class QuestionAreaComponent implements OnInit {
         public matchRoomService: MatchRoomService,
         public timeService: TimeService,
         public answerService: AnswerService,
+        public audioService: AudioPlayerService,
         public router: Router,
         private readonly matchContextService: MatchContextService,
         private readonly notificationService: NotificationService,
@@ -115,7 +117,9 @@ export class QuestionAreaComponent implements OnInit {
     }
 
     togglePanicTimer() {
-        this.timeService.panicTimer(this.matchRoomService.getRoomCode());
+        const roomCode = this.matchRoomService.getRoomCode();
+        this.audioService.triggerPanicSound(roomCode);
+        this.timeService.panicTimer(roomCode);
     }
 
     pauseTimer() {
@@ -125,6 +129,7 @@ export class QuestionAreaComponent implements OnInit {
     private listenToGameEvents() {
         this.timeService.listenToTimerEvents();
         this.answerService.listenToAnswerEvents();
+        this.audioService.onPlayPanicSound();
     }
 
     private resetStateForNewQuestion(): void {

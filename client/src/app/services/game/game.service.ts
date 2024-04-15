@@ -13,6 +13,7 @@ import { Observable } from 'rxjs';
 })
 export class GameService extends CommunicationService<Game> {
     games: Game[];
+    isLoadingGames: boolean;
 
     constructor(
         http: HttpClient,
@@ -21,11 +22,16 @@ export class GameService extends CommunicationService<Game> {
     ) {
         super(http, 'admin/games');
         this.games = [];
+        this.isLoadingGames = false;
     }
 
     getGames(): void {
+        this.isLoadingGames = true;
         this.getAll().subscribe({
-            next: (data: Game[]) => (this.games = [...data]),
+            next: (data: Game[]) => {
+                this.games = [...data];
+                this.isLoadingGames = false;
+            },
             error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`Échec d'obtention des jeux 😿\n ${error.message}`),
         });
     }

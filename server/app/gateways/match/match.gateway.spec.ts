@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { MOCK_DATE } from '@app/constants/chat-mocks';
 import { ExpiredTimerEvents } from '@app/constants/expired-timer-events';
+import { GAME_VALID_QUESTION } from '@app/constants/game-mocks';
 import { BAN_PLAYER, NO_MORE_HOST } from '@app/constants/match-errors';
 import { HOST_CONFLICT, INVALID_CODE } from '@app/constants/match-login-errors';
 import {
@@ -112,9 +113,9 @@ describe('MatchGateway', () => {
         expect(sendErrorSpy).toHaveBeenCalled();
     });
 
-    it('createRoom() should let the host create a match room and let the host join the new room', () => {
+    it('createRoom() should let the host create a match room and let the host join the new room', async () => {
         matchRoomSpy.addRoom.returns(MOCK_MATCH_ROOM);
-        const result = gateway.createRoom(socket, {
+        const result = await gateway.createRoom(socket, {
             gameId: MOCK_MATCH_ROOM.game.id,
             isTestPage: MOCK_MATCH_ROOM.isTestRoom,
             isRandomMode: MOCK_MATCH_ROOM.isRandomMode,
@@ -123,9 +124,9 @@ describe('MatchGateway', () => {
         expect(result).toEqual({ code: MOCK_MATCH_ROOM.code });
     });
 
-    it('createRoom() should let host create a testing match room and let host join as the only player in the new room', () => {
+    it('createRoom() should let host create a testing match room and let host join as the only player in the new room', async () => {
         matchRoomSpy.addRoom.returns(MOCK_TEST_MATCH_ROOM);
-        const result = gateway.createRoom(socket, {
+        const result = await gateway.createRoom(socket, {
             gameId: MOCK_TEST_MATCH_ROOM.game.id,
             isTestPage: MOCK_TEST_MATCH_ROOM.isTestRoom,
             isRandomMode: MOCK_MATCH_ROOM.isRandomMode,
@@ -134,9 +135,10 @@ describe('MatchGateway', () => {
         expect(result).toEqual({ code: MOCK_TEST_MATCH_ROOM.code });
     });
 
-    it('createRoom() should let host create a random match room and let host join as a regular player', () => {
+    it('createRoom() should let host create a random match room and let host join as a regular player', async () => {
         matchRoomSpy.addRoom.returns(MOCK_RANDOM_MATCH_ROOM);
-        const result = gateway.createRoom(socket, {
+        matchBackupSpy.getBackupGame.returns(GAME_VALID_QUESTION);
+        const result = await gateway.createRoom(socket, {
             gameId: MOCK_RANDOM_MATCH_ROOM.game.id,
             isTestPage: MOCK_RANDOM_MATCH_ROOM.isTestRoom,
             isRandomMode: MOCK_RANDOM_MATCH_ROOM.isRandomMode,

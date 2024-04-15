@@ -106,10 +106,10 @@ export class MatchRoomService {
 
     onPlayerChatStateToggle() {
         this.socketService.on(ChatEvents.ReturnCurrentChatState, (currentChatState: boolean) => {
-            const player = this.getPlayerByUsername(this.username);
-            if (player) {
-                player.isChatActive = currentChatState;
-            }
+            this.getPlayerByUsername(this.username)!.isChatActive = currentChatState;
+            // if (player) {
+            //     player.isChatActive = currentChatState;
+            // }
         });
     }
 

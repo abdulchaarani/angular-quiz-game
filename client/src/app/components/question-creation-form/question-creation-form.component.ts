@@ -29,6 +29,7 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
     questionForm: FormGroup;
     checked: boolean;
     disabled: boolean;
+    notificationShown: boolean = false;
 
     // Allow more constructor parameters to reduce logic in the component
     // eslint-disable-next-line max-params
@@ -153,9 +154,17 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
 
         this.questionForm.statusChanges.subscribe((status) => {
             if (status === 'INVALID' && this.questionForm.get('text')?.invalid) {
-                this.openSnackBar('Le champ de la question est requis !', SNACK_BAR_DISPLAY_TIME);
-            } else if (status === 'INVALID' && this.questionForm.get('choices')?.invalid && this.questionForm.hasError('invalidChoicesLength')) {
-                this.openSnackBar('Il faut au moins une réponse correcte et une incorrecte !', SNACK_BAR_DISPLAY_TIME);
+                if (!this.notificationShown) {
+                    this.openSnackBar('Le champ de la question est requis !', SNACK_BAR_DISPLAY_TIME);
+                    this.notificationShown = true;
+                }
+            } else if (this.questionForm.invalid && this.questionForm.get('choices')?.invalid && this.questionForm.hasError('invalidChoicesLength')) {
+                if (!this.notificationShown) {
+                    this.openSnackBar('Il faut au moins une réponse correcte et une incorrecte !', SNACK_BAR_DISPLAY_TIME);
+                    this.notificationShown = true;
+                }
+            } else {
+                this.notificationShown = false;
             }
         });
 

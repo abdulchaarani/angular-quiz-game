@@ -8,8 +8,8 @@ import { TimerEvents } from '@common/events/timer.events';
     providedIn: 'root',
 })
 export class AudioPlayerService {
+    isPoop: boolean;
     private audioObject: HTMLAudioElement = new Audio();
-
     constructor(
         private readonly socketService: SocketHandlerService,
         private readonly notificationService: NotificationService,

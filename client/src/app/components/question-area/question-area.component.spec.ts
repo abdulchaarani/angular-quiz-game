@@ -55,6 +55,17 @@ class MockChatComponent {}
 })
 class MockMultipleChoiceAreaComponent {}
 
+@Component({
+    selector: 'app-alert',
+    template: '',
+})
+class MockAlertComponent {}
+@Component({
+    selector: 'app-audio-player',
+    template: '',
+})
+class MockAudioPlayerComponent {}
+
 describe('QuestionAreaComponent', () => {
     let component: QuestionAreaComponent;
     let fixture: ComponentFixture<QuestionAreaComponent>;
@@ -101,7 +112,7 @@ describe('QuestionAreaComponent', () => {
             'startTimer',
             'stopTimer',
             'pauseTimer',
-            'panicTimer',
+            'triggerPanicTimer',
             'handleTimer',
             'handleStopTimer',
             'computeTimerProgress',
@@ -116,7 +127,14 @@ describe('QuestionAreaComponent', () => {
         socketSpy.socket = socketHelper as unknown as Socket;
 
         await TestBed.configureTestingModule({
-            declarations: [QuestionAreaComponent, MockChatComponent, MockPlayersListComponent, MockMultipleChoiceAreaComponent],
+            declarations: [
+                QuestionAreaComponent,
+                MockChatComponent,
+                MockPlayersListComponent,
+                MockMultipleChoiceAreaComponent,
+                MockAlertComponent,
+                MockAudioPlayerComponent,
+            ],
             imports: [
                 RouterTestingModule.withRoutes(routes),
                 HttpClientTestingModule,
@@ -245,7 +263,7 @@ describe('QuestionAreaComponent', () => {
         expect(matchRoomSpy.routeToResultsPage).toHaveBeenCalled();
     });
 
-    it('should delegate toggle panic timer to timerService when togglePanicTimer() is called', () => {
+    it('should delegate toggle panic timer to timerService when triggerPanicTimer() is called', () => {
         component.triggerPanicTimer();
         expect(timerSpy.triggerPanicTimer).toHaveBeenCalled();
     });

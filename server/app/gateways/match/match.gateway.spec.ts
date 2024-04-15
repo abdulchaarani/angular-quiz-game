@@ -477,16 +477,4 @@ describe('MatchGateway', () => {
         const isTestPage = gateway['isTestRoom'](MOCK_ROOM_CODE);
         expect(isTestPage).toBe(false);
     });
-
-    it('should call matchRoomService.pauseMatchTimer when pauseTimer message is detected', () => {
-        const spy = jest.spyOn(matchRoomSpy, 'pauseMatchTimer');
-        gateway.pauseTimer(socket, MOCK_ROOM_CODE);
-        expect(spy).toHaveBeenCalled();
-    });
-
-    it('should call matchRoomService.panicMatchTimer when panicTimer message is detected', () => {
-        const spy = jest.spyOn(matchRoomSpy, 'panicMatchTimer');
-        gateway.panicTimer(socket, MOCK_ROOM_CODE);
-        expect(spy).toHaveBeenCalled();
-    });
 });

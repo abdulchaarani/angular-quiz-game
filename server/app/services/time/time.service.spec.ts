@@ -130,6 +130,12 @@ describe('TimeService', () => {
         const spy = jest.spyOn(service, 'startInterval');
         service['intervals'] = FAKE_INTERVAL;
         service['pauses'].set(FAKE_ROOM_ID, true);
+        server.to.returns({
+            emit: (event: string) => {
+                expect(event).toEqual('resumeTimer');
+            },
+        } as BroadcastOperator<unknown, unknown>);
+
         service.pauseTimer(server, FAKE_ROOM_ID);
 
         expect(service['pauses'].get(FAKE_ROOM_ID)).toBe(false);

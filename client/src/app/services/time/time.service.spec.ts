@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { TestBed } from '@angular/core/testing';
+import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
@@ -8,6 +8,7 @@ import { Socket } from 'socket.io-client';
 import { TimeService } from './time.service';
 import SpyObj = jasmine.SpyObj;
 import { TimerInfo } from '@common/interfaces/timer-info';
+import { PANIC_ALERT_DELAY } from '@common/constants/match-constants';
 
 class SocketHandlerServiceMock extends SocketHandlerService {
     override connect() {
@@ -112,14 +113,70 @@ describe('TimeService', () => {
         expect(stopTimeSpy).toHaveBeenCalled();
     });
 
-    it('should detect disable panic timer event and disable the panic mode', () => {
+    it('should detect panic timer event and display panic alert', () => {
+        const spy = spyOn(socketSpy, 'on').and.callFake((event: string, callback: (params: any) => any) => {
+            callback(true);
+        });
+        const displaySpy = spyOn<any, any>(service, 'displayPanicAlert').and.returnValue({});
+
+        service.onPanicTimer();
+        socketHelper.peerSideEmit('panicTimer');
+
+        expect(spy).toHaveBeenCalledWith('panicTimer', jasmine.any(Function));
+        expect(service.alertSymbol).toEqual('❗');
+        expect(displaySpy).toHaveBeenCalled();
+    });
+
+    it('should detect pause timer event and display pause alert', () => {
+        const spy = spyOn(socketSpy, 'on').and.callFake((event: string, callback: (params: any) => any) => {
+            callback(true);
+        });
+        const displaySpy = spyOn<any, any>(service, 'displayPanicAlert').and.returnValue({});
+
+        service.onPauseTimer();
+        socketHelper.peerSideEmit('pauseTimer');
+
+        expect(spy).toHaveBeenCalledWith('pauseTimer', jasmine.any(Function));
+        expect(service.alertSymbol).toEqual('II');
+        expect(displaySpy).toHaveBeenCalled();
+    });
+
+    it('should detect resume timer event and display resume alert', () => {
+        const spy = spyOn(socketSpy, 'on').and.callFake((event: string, callback: (params: any) => any) => {
+            callback(true);
+        });
+        const displaySpy = spyOn<any, any>(service, 'displayPanicAlert').and.returnValue({});
+
+        service.onResumeTimer();
+        socketHelper.peerSideEmit('resumeTimer');
+
+        expect(spy).toHaveBeenCalledWith('resumeTimer', jasmine.any(Function));
+        expect(service.alertSymbol).toEqual('▶');
+        expect(displaySpy).toHaveBeenCalled();
+    });
+
+    it('should detect disable panic timer event and disable panic mode', () => {
         service.isPanicModeDisabled = false;
         const spy = spyOn(socketSpy, 'on').and.callFake((event: string, callback: (params: any) => any) => {
             callback(true);
         });
+
         service.onDisablePanicTimer();
         socketHelper.peerSideEmit('disablePanicTimer');
+
         expect(spy).toHaveBeenCalledWith('disablePanicTimer', jasmine.any(Function));
-        expect(service.isPanicModeDisabled).toBe(true);
+        expect(service.isPanicModeDisabled).toBeTrue();
     });
+
+    it('should display panic alert and hide it after delay', fakeAsync(() => {
+        const delay = PANIC_ALERT_DELAY;
+
+        service['displayPanicAlert']();
+
+        expect(service.isAlertDisplayed).toBeTrue();
+        tick(delay - 1);
+        expect(service.isAlertDisplayed).toBeTrue();
+        tick(1);
+        expect(service.isAlertDisplayed).toBeFalse();
+    }));
 });

@@ -416,7 +416,7 @@ describe('MatchRoomService', () => {
     });
 
     it('should call panicTimer from timeService when panicMatchTimer() is called', () => {
-        const spy = jest.spyOn(timeService, 'panicTimer').mockReturnThis();
+        const spy = jest.spyOn(timeService, 'startPanicTimer').mockReturnThis();
         service.triggerPanicMode(mockServer, FAKE_ROOM_ID);
         expect(spy).toHaveBeenCalled();
     });

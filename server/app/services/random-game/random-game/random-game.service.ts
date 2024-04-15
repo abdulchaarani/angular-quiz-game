@@ -9,7 +9,6 @@ import { Injectable } from '@nestjs/common';
 @Injectable()
 export class RandomGameService {
     allBankQuestions: Question[] = [];
-    randomGame: Game;
     constructor(
         private readonly questionService: QuestionService,
         private gameCreationService: GameCreationService,
@@ -53,9 +52,9 @@ export class RandomGameService {
 
     generateRandomGame(): Game {
         const questions: Question[] = this.getRandomQuestions();
-        const game: Game = RANDOM_GAME;
+        const game: Game = { ...RANDOM_GAME };
         game.questions = questions;
-        this.randomGame = this.gameCreationService.generateId(game);
-        return this.randomGame;
+        const newRandomGame = this.gameCreationService.generateId(game);
+        return newRandomGame;
     }
 }

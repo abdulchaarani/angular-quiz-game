@@ -58,6 +58,7 @@ export class HistogramService {
     sendEmptyHistogram(roomCode: string) {
         const matchRoom = this.matchRoomService.getRoom(roomCode);
         const histogram: Histogram = this.questionStrategyContext.buildHistogram(matchRoom);
+        this.saveHistogram(histogram, matchRoom);
         matchRoom.hostSocket.emit(HistogramEvents.CurrentHistogram, histogram);
     }
 }

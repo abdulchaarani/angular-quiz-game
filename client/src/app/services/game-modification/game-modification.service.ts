@@ -221,7 +221,7 @@ export class GameModificationService {
     private addQuestionToGame(newQuestion: Question) {
         this.questionService.verifyQuestion(newQuestion).subscribe({
             next: () => {
-                this.notificationService.displaySuccessMessage(QuestionStatus.VERIFIED);
+                if (!this.bankService.addToBank) this.notificationService.displaySuccessMessage(QuestionStatus.VERIFIED);
                 this.game.questions.push(newQuestion);
                 this.markPendingChanges();
                 if (this.bankService.addToBank) {

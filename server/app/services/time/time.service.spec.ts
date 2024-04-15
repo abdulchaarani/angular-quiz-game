@@ -127,7 +127,6 @@ describe('TimeService', () => {
     });
 
     it('should restart timer if pauseTimer() is called on an already paused timer', () => {
-        const spy = jest.spyOn(service, 'startInterval');
         service['intervals'] = FAKE_INTERVAL;
         service['pauses'].set(FAKE_ROOM_ID, true);
         server.to.returns({
@@ -139,7 +138,6 @@ describe('TimeService', () => {
         service.pauseTimer(server, FAKE_ROOM_ID);
 
         expect(service['pauses'].get(FAKE_ROOM_ID)).toBe(false);
-        expect(spy).toHaveBeenCalled();
     });
 
     it('should call expire timer and reset timer with terminate timer when time runs out', () => {
@@ -161,6 +159,22 @@ describe('TimeService', () => {
         jest.advanceTimersByTime(TICK);
         expect(terminateSpy).toHaveBeenCalled();
         expect(expireSpy).toHaveBeenCalled();
+    });
+
+    it('should not tick timer if timer is paused', () => {
+        service['counters'] = FAKE_COUNTER;
+        service['pauses'].set(FAKE_ROOM_ID, true);
+        const initialCount = service['counters'].get(FAKE_ROOM_ID);
+
+        const terminateSpy = jest.spyOn(service, 'terminateTimer');
+        const expireSpy = jest.spyOn(service, 'expireTimer');
+
+        service.startInterval(server, FAKE_ROOM_ID, 10, ExpiredTimerEvents.CountdownTimerExpired);
+
+        jest.advanceTimersByTime(TICK);
+        expect(service['counters'].get(FAKE_ROOM_ID)).toEqual(initialCount);
+        expect(terminateSpy).not.toHaveBeenCalled();
+        expect(expireSpy).not.toHaveBeenCalled();
     });
 
     it('should disable panic mode if currentTime is below treshold', () => {

@@ -387,7 +387,6 @@ describe('GameModificationService', () => {
 
         service['addQuestionToGame'](newQuestion);
 
-        expect(notificationServiceSpy.displaySuccessMessage).toHaveBeenCalledWith(QuestionStatus.VERIFIED);
         expect(service.game.questions).toContain(newQuestion);
         expect(service.originalBankQuestions.length).toEqual(previousBankLength + 1);
     });

@@ -21,6 +21,7 @@ export enum QuestionStatus {
 
 export enum GameStatus {
     VERIFIED = 'Question vérifiée avec succès! 😺',
+    ARCHIVED = 'Question vérifiée et ajoutée à la banque avec succès! 😺',
     DUPLICATE = 'Cette question fait déjà partie de la liste des questions de ce jeu! 😾',
     FAILURE = "Échec d'obtention du jeu 😿",
 }

@@ -164,7 +164,7 @@ export class MatchGateway implements OnGatewayDisconnect {
         const hostRoomCode = this.matchRoomService.getRoomCodeByHostSocket(socket.id);
         if (!hostRoomCode) return false;
         const hostRoom = this.matchRoomService.getRoom(hostRoomCode);
-        if (hostRoom.isPlaying && !hostRoom.isRandomMode) {
+        if ((hostRoom.isPlaying || !hostRoom.currentQuestionIndex) && !hostRoom.isRandomMode) {
             this.sendError(hostRoomCode, NO_MORE_HOST);
             this.deleteRoom(hostRoomCode);
             return true;
@@ -191,6 +191,7 @@ export class MatchGateway implements OnGatewayDisconnect {
             this.deleteRoom(roomCode);
             return;
         }
+        console.log('Le host est connecté: ' + room.hostSocket.connected);
         if (isRoomEmpty && !room.hostSocket.connected) {
             this.deleteRoom(roomCode);
             return;

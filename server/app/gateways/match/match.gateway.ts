@@ -191,7 +191,6 @@ export class MatchGateway implements OnGatewayDisconnect {
             this.deleteRoom(roomCode);
             return;
         }
-        console.log('Le host est connecté: ' + room.hostSocket.connected);
         if (isRoomEmpty && !room.hostSocket.connected) {
             this.deleteRoom(roomCode);
             return;

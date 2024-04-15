@@ -8,10 +8,10 @@ import {
     MOCK_MATCH_ROOM,
     MOCK_PLAYER,
     MOCK_PLAYER_ROOM,
-    MOCK_USERNAME,
     MOCK_RANDOM_MATCH_ROOM,
     MOCK_ROOM_CODE,
     MOCK_TEST_MATCH_ROOM,
+    MOCK_USERNAME,
     MOCK_USER_INFO,
 } from '@app/constants/match-mocks';
 import { MatchGateway } from '@app/gateways/match/match.gateway';
@@ -146,6 +146,8 @@ describe('MatchGateway', () => {
     });
 
     it('routeToResultsPage() should emit a routing event to a room, save history and call emitHistogramHistory', () => {
+        jest.spyOn(matchRoomSpy, 'getRoomIndex').mockReturnValue(0);
+        matchRoomSpy.matchRooms = [MOCK_PLAYER_ROOM];
         const spy = jest.spyOn<any, any>(gateway, 'emitHistogramHistory').mockReturnThis();
         const stateSpy = jest.spyOn(playerRoomSpy, 'setStateForAll').mockReturnThis();
         const spyHistory = jest.spyOn(historySpy, 'createHistoryItem').mockReturnThis();

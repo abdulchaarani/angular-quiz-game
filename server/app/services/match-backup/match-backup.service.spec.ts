@@ -73,9 +73,11 @@ describe('MatchBackupService', () => {
         expect(spyFindUsingDB).not.toHaveBeenCalled();
     });
 
-    it('getBackupRandomGame() should return a generated random game', () => {
+    it('getBackupRandomGame() should return a generated random game', async () => {
+        const bankSpy = jest.spyOn(randomGameService, 'fetchAllQuestions').mockReturnThis();
         const spy = jest.spyOn(randomGameService, 'generateRandomGame').mockReturnThis();
-        service.getBackupRandomGame();
+        await service.getBackupRandomGame();
+        expect(bankSpy).toHaveBeenCalled();
         expect(spy).toHaveBeenCalled();
     });
 

@@ -81,6 +81,5 @@ describe('RandomGameService', () => {
         const game = service.generateRandomGame();
         expect(game).toEqual(mockGame);
         expect(game.questions).toEqual(mockQuestions);
-        expect(service.randomGame).toEqual(mockGame);
     });
 });

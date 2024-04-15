@@ -1,18 +1,18 @@
 /* eslint-disable max-lines */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { MOCK_CHAT_STATE_DATA, MOCK_DATE, MOCK_MATCH_ROOM_INDEX, MOCK_PLAYER_INDEX } from '@app/constants/chat-mocks';
+import { CHAT_DEACTIVATED, CHAT_REACTIVATED } from '@app/constants/chat-state-messages';
+import { MOCK_MESSAGE_INFO, MOCK_PLAYER, MOCK_PLAYER_ROOM, MOCK_ROOM_CODE } from '@app/constants/match-mocks';
+import { ChatService } from '@app/services/chat/chat.service';
+import { MatchRoomService } from '@app/services/match-room/match-room.service';
+import { PlayerRoomService } from '@app/services/player-room/player-room.service';
+import { ChatEvents } from '@common/events/chat.events';
+import { MatchEvents } from '@common/events/match.events';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance, stub } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 import { ChatGateway } from './chat.gateway';
-import { ChatService } from '@app/services/chat/chat.service';
-import { MatchRoomService } from '@app/services/match-room/match-room.service';
-import { PlayerRoomService } from '@app/services/player-room/player-room.service';
-import { MatchEvents } from '@common/events/match.events';
-import { ChatEvents } from '@common/events/chat.events';
-import { CHAT_DEACTIVATED, CHAT_REACTIVATED } from '@app/constants/chat-state-messages';
-import { MOCK_MESSAGE_INFO, MOCK_PLAYER, MOCK_PLAYER_ROOM, MOCK_ROOM_CODE } from '@app/constants/match-mocks';
-import { MOCK_CHAT_STATE_DATA, MOCK_DATE, MOCK_MATCH_ROOM_INDEX, MOCK_PLAYER_INDEX } from '@app/constants/chat-mocks';
 
 describe('MatchGateway', () => {
     let gateway: ChatGateway;
@@ -168,7 +168,7 @@ describe('MatchGateway', () => {
                 expect(error).toEqual(CHAT_DEACTIVATED);
             },
         } as BroadcastOperator<unknown, unknown>);
-        gateway.emitChatStatusNotification(socket, mockRoomIndex, mockPlayerIndex);
+        gateway.emitChatStatusNotification(socket.id, mockRoomIndex, mockPlayerIndex);
     });
 
     it('emitChatStatusNotification() should send the notification to the player when the chat is reactivated', () => {
@@ -183,6 +183,6 @@ describe('MatchGateway', () => {
                 expect(notificationMessage).toEqual(CHAT_REACTIVATED);
             },
         } as BroadcastOperator<unknown, unknown>);
-        gateway.emitChatStatusNotification(socket, mockRoomIndex, mockPlayerIndex);
+        gateway.emitChatStatusNotification(socket.id, mockRoomIndex, mockPlayerIndex);
     });
 });

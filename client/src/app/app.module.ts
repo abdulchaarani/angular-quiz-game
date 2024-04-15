@@ -39,6 +39,7 @@ import { LongAnswerHistogramComponent } from './components/long-answer-histogram
 import { MAT_TOOLTIP_DEFAULT_OPTIONS } from '@angular/material/tooltip';
 import { tooltipOptions } from './constants/tooltip-options';
 import { PulseLoaderComponent } from './components/pulse-loader/pulse-loader.component';
+import { AudioPlayerComponent } from './components/audio-player/audio-player.component';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -78,6 +79,7 @@ import { PulseLoaderComponent } from './components/pulse-loader/pulse-loader.com
         LongAnswerHistogramComponent,
         FilterByQuestionTypePipe,
         PulseLoaderComponent,
+        AudioPlayerComponent,
     ],
     imports: [
         AppMaterialModule,

@@ -37,5 +37,7 @@
             <p>QUITTER</p>
         </button>
     </div>
+
+    <button mat-raised-button id="exit-button" (click)="handleDisconnect()" routerLink="/home">Quitter</button>
 </div>
 <app-players-list [players]="players" [canHostToggleChatState]="false"></app-players-list>

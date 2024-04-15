@@ -138,7 +138,7 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
     }
 
     isActiveSubmit() {
-        return this.modificationState !== ManagementState.GameModify;
+        return this.modificationState !== ManagementState.GameModify && this.modificationState !== ManagementState.BankModify;
     }
 
     private initializeForm(): void {

@@ -70,7 +70,7 @@ export class TimeService {
         this.startInterval(server, roomId, startValue, onTimerExpiredEvent);
     }
 
-    panicTimer(server: Server, roomId: string) {
+    startPanicTimer(server: Server, roomId: string) {
         clearInterval(this.intervals.get(roomId));
         this.tick = 250;
         this.startInterval(server, roomId, this.counters.get(roomId), ExpiredTimerEvents.QuestionTimerExpired);
@@ -87,6 +87,7 @@ export class TimeService {
         if (this.pauses.get(roomId)) {
             this.startInterval(server, roomId, this.counters.get(roomId), ExpiredTimerEvents.CountdownTimerExpired);
             this.pauses.set(roomId, false);
+            server.to(roomId).emit(TimerEvents.ResumeTimer);
         } else {
             this.pauses.set(roomId, true);
             clearInterval(this.intervals.get(roomId));

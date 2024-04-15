@@ -93,7 +93,7 @@ describe('TimeService', () => {
         } as BroadcastOperator<unknown, unknown>);
 
         const PANIC_TICK = 250;
-        service.panicTimer(server, FAKE_ROOM_ID);
+        service.startPanicTimer(server, FAKE_ROOM_ID);
         expect(service['tick']).toEqual(PANIC_TICK);
     });
 
@@ -110,7 +110,7 @@ describe('TimeService', () => {
             },
         } as BroadcastOperator<unknown, unknown>);
         const spy = jest.spyOn(service, 'startInterval');
-        service.panicTimer(server, FAKE_ROOM_ID);
+        service.startPanicTimer(server, FAKE_ROOM_ID);
         expect(spy).toHaveBeenCalled();
     });
 

@@ -246,8 +246,8 @@ describe('QuestionAreaComponent', () => {
     });
 
     it('should delegate toggle panic timer to timerService when togglePanicTimer() is called', () => {
-        component.togglePanicTimer();
-        expect(timerSpy.panicTimer).toHaveBeenCalled();
+        component.triggerPanicTimer();
+        expect(timerSpy.triggerPanicTimer).toHaveBeenCalled();
     });
 
     it('should delegate pause timer to timerService when pauseTimer() is called', () => {

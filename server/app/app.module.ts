@@ -31,7 +31,7 @@ import { QuestionStrategyContext } from './services/question-strategy-context/qu
 import { LongAnswerStrategy } from '@app/question-strategies/long-answer-strategy/long-answer-strategy';
 import { MultipleChoiceStrategy } from '@app/question-strategies/multiple-choice-strategy/multiple-choice-strategy';
 import { RandomGameService } from './services/random-game/random-game/random-game.service';
-import { AudioPlayerGateway } from './gateways/audio-player/audio-player.gateway';
+import { TimerGateway } from './gateways/timer/timer.gateway';
 @Module({
     imports: [
         ConfigModule.forRoot({ isGlobal: true }),
@@ -70,7 +70,7 @@ import { AudioPlayerGateway } from './gateways/audio-player/audio-player.gateway
         QuestionStrategyContext,
         MultipleChoiceStrategy,
         LongAnswerStrategy,
-        AudioPlayerGateway,
+        TimerGateway,
     ],
 })
 export class AppModule {}

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 import { TimerInfo } from '@common/interfaces/timer-info';
-import { MULTIPLICATION_FACTOR } from '@common/constants/match-constants';
+import { MULTIPLICATION_FACTOR, PANIC_ALERT_DELAY } from '@common/constants/match-constants';
 import { TimerEvents } from '@common/events/timer.events';
 
 @Injectable({
@@ -10,6 +10,8 @@ import { TimerEvents } from '@common/events/timer.events';
 export class TimeService {
     isPanicModeDisabled: boolean;
     isPanicking: boolean;
+    isAlertDisplayed: boolean;
+    alertSymbol: string;
     private counter: number;
     private initialValue: number;
 
@@ -18,6 +20,7 @@ export class TimeService {
         this.initialValue = 0;
         this.isPanicModeDisabled = false;
         this.isPanicking = false;
+        this.isAlertDisplayed = false;
     }
 
     get time() {
@@ -35,6 +38,9 @@ export class TimeService {
     listenToTimerEvents() {
         this.handleTimer();
         this.handleStopTimer();
+        this.onPanicTimer();
+        this.onPauseTimer();
+        this.onResumeTimer();
         this.onDisablePanicTimer();
     }
 
@@ -50,7 +56,7 @@ export class TimeService {
         this.socketService.send(TimerEvents.PauseTimer, roomCode);
     }
 
-    panicTimer(roomCode: string): void {
+    triggerPanicTimer(roomCode: string): void {
         this.isPanicking = true;
         this.socketService.send(TimerEvents.PanicTimer, roomCode);
     }
@@ -68,6 +74,27 @@ export class TimeService {
         });
     }
 
+    onPanicTimer() {
+        this.socketService.on(TimerEvents.PanicTimer, () => {
+            this.alertSymbol = '❗';
+            this.displayPanicAlert();
+        });
+    }
+
+    onPauseTimer() {
+        this.socketService.on(TimerEvents.PauseTimer, () => {
+            this.alertSymbol = 'II';
+            this.displayPanicAlert();
+        });
+    }
+
+    onResumeTimer() {
+        this.socketService.on(TimerEvents.ResumeTimer, () => {
+            this.alertSymbol = '▶';
+            this.displayPanicAlert();
+        });
+    }
+
     onDisablePanicTimer(): void {
         this.socketService.on(TimerEvents.DisablePanicTimer, () => {
             this.isPanicModeDisabled = true;
@@ -76,5 +103,12 @@ export class TimeService {
 
     computeTimerProgress(): number {
         return (this.time / this.duration) * MULTIPLICATION_FACTOR;
+    }
+
+    private displayPanicAlert() {
+        this.isAlertDisplayed = true;
+        setTimeout(() => {
+            this.isAlertDisplayed = false;
+        }, PANIC_ALERT_DELAY);
     }
 }

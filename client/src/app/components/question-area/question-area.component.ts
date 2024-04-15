@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { WarningMessage } from '@app/constants/feedback-messages';
 import { MatchContext } from '@app/constants/states';
@@ -12,12 +12,15 @@ import { TimeService } from '@app/services/time/time.service';
 import { AnswerCorrectness } from '@common/constants/answer-correctness';
 import { QuestionType } from '@common/constants/question-types';
 import { Subject } from 'rxjs';
+import { AlertComponent } from '@app/components/alert/alert.component';
 @Component({
     selector: 'app-question-area',
     templateUrl: './question-area.component.html',
     styleUrls: ['./question-area.component.scss'],
 })
 export class QuestionAreaComponent implements OnInit {
+    @ViewChild('panicAlert') panicAlert: AlertComponent;
+
     gameDuration: number;
     context: MatchContext;
     isFirstQuestion: boolean = true;
@@ -116,10 +119,9 @@ export class QuestionAreaComponent implements OnInit {
         this.router.navigateByUrl('/home');
     }
 
-    togglePanicTimer() {
+    triggerPanicTimer() {
         const roomCode = this.matchRoomService.getRoomCode();
-        this.audioService.triggerPanicSound(roomCode);
-        this.timeService.panicTimer(roomCode);
+        this.timeService.triggerPanicTimer(roomCode);
     }
 
     pauseTimer() {
@@ -129,7 +131,7 @@ export class QuestionAreaComponent implements OnInit {
     private listenToGameEvents() {
         this.timeService.listenToTimerEvents();
         this.answerService.listenToAnswerEvents();
-        this.audioService.onPlayPanicSound();
+        this.audioService.onPanicTimer();
     }
 
     private resetStateForNewQuestion(): void {

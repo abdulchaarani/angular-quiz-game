@@ -1,5 +1,5 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-
+<app-alert #panicAlert></app-alert>
 <app-chat></app-chat>
 <div id="main-container">
     <div id="question-area">
@@ -102,7 +102,7 @@
                 id="panic-button"
                 color="accent"
                 [disabled]="this.timeService.isPanicModeDisabled || this.timeService.isPanicking"
-                (click)="togglePanicTimer()"
+                (click)="triggerPanicTimer()"
             >
                 <mat-icon class="material-icons">priority_high</mat-icon>
                 <p>MODE PANIQUE</p>

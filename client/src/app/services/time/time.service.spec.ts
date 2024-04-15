@@ -69,7 +69,7 @@ describe('TimeService', () => {
 
     it('should emit panicTimer event when panicTimer() is called', () => {
         const spy = spyOn(socketSpy, 'send');
-        service.panicTimer(FAKE_ROOM_ID);
+        service.triggerPanicTimer(FAKE_ROOM_ID);
         expect(spy).toHaveBeenCalledWith('panicTimer', FAKE_ROOM_ID);
         expect(service.isPanicking).toBeTrue();
     });

@@ -82,6 +82,9 @@ export class MatchGateway implements OnGatewayDisconnect {
     // TODO: rename event and function?
     @SubscribeMessage(MatchEvents.RouteToResultsPage)
     routeToResultsPage(@ConnectedSocket() socket: Socket, @MessageBody() matchRoomCode: string) {
+        const roomIndex = this.matchRoomService.getRoomIndex(matchRoomCode);
+        this.matchRoomService.matchRooms[roomIndex].isPlaying = false;
+
         this.playerRoomService.setStateForAll(matchRoomCode, PlayerState.default);
         this.server.to(matchRoomCode).emit(MatchEvents.RouteToResultsPage);
         this.emitHistogramHistory(matchRoomCode);
@@ -161,7 +164,7 @@ export class MatchGateway implements OnGatewayDisconnect {
         const hostRoomCode = this.matchRoomService.getRoomCodeByHostSocket(socket.id);
         if (!hostRoomCode) return false;
         const hostRoom = this.matchRoomService.getRoom(hostRoomCode);
-        if (hostRoom.currentQuestionIndex !== hostRoom.gameLength && !hostRoom.isRandomMode) {
+        if (hostRoom.isPlaying && !hostRoom.isRandomMode) {
             this.sendError(hostRoomCode, NO_MORE_HOST);
             this.deleteRoom(hostRoomCode);
             return true;
@@ -183,7 +186,7 @@ export class MatchGateway implements OnGatewayDisconnect {
         this.eventEmitter.emit(PlayerEvents.Quit, roomCode);
         const room = this.matchRoomService.getRoom(roomCode);
         const isRoomEmpty = this.isRoomEmpty(room);
-        if (room.isPlaying && isRoomEmpty && room.currentQuestionIndex <= room.gameLength) {
+        if (room.isPlaying && isRoomEmpty) {
             this.sendError(roomCode, NO_MORE_PLAYERS);
             this.deleteRoom(roomCode);
             return;

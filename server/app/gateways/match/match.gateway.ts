@@ -1,8 +1,10 @@
+import { CHAT_REACTIVATED } from '@app/constants/chat-state-messages';
 import { ExpiredTimerEvents } from '@app/constants/expired-timer-events';
 import { BAN_PLAYER, NO_MORE_HOST, NO_MORE_PLAYERS } from '@app/constants/match-errors';
 import { PlayerEvents } from '@app/constants/player-events';
 import { Game } from '@app/model/database/game';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
+import { Player } from '@app/model/schema/player.schema';
 import { HistogramService } from '@app/services/histogram/histogram.service';
 import { HistoryService } from '@app/services/history/history.service';
 import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
@@ -89,6 +91,13 @@ export class MatchGateway implements OnGatewayDisconnect {
         this.emitHistogramHistory(matchRoomCode);
         this.matchRoomService.declareWinner(matchRoomCode);
         this.historyService.createHistoryItem(this.matchRoomService.getRoom(matchRoomCode));
+
+        this.matchRoomService.matchRooms[roomIndex].players.forEach((player: Player) => {
+            if (!player.isChatActive) {
+                player.isChatActive = true;
+                this.server.in(player.socket.id).emit(ChatEvents.ChatReactivated, CHAT_REACTIVATED);
+            }
+        });
     }
 
     @SubscribeMessage(MatchEvents.ToggleLock)

@@ -1,6 +1,7 @@
 /* eslint-disable max-lines */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { MOCK_DATE } from '@app/constants/chat-mocks';
+import { CHAT_REACTIVATED } from '@app/constants/chat-state-messages';
 import { ExpiredTimerEvents } from '@app/constants/expired-timer-events';
 import { GAME_VALID_QUESTION } from '@app/constants/game-mocks';
 import { BAN_PLAYER, NO_MORE_HOST } from '@app/constants/match-errors';
@@ -149,13 +150,22 @@ describe('MatchGateway', () => {
 
     it('routeToResultsPage() should emit a routing event to a room, save history and call emitHistogramHistory', () => {
         jest.spyOn(matchRoomSpy, 'getRoomIndex').mockReturnValue(0);
-        matchRoomSpy.matchRooms = [MOCK_PLAYER_ROOM];
+        const mockRoom = { ...MOCK_PLAYER_ROOM };
+        mockRoom.players[0].isChatActive = false;
+        mockRoom.players[0].socket = socket;
+        matchRoomSpy.matchRooms = [mockRoom];
         const spy = jest.spyOn<any, any>(gateway, 'emitHistogramHistory').mockReturnThis();
         const stateSpy = jest.spyOn(playerRoomSpy, 'setStateForAll').mockReturnThis();
         const spyHistory = jest.spyOn(historySpy, 'createHistoryItem').mockReturnThis();
         server.to.returns({
             emit: (event: string) => {
                 expect(event).toBe('routeToResultsPage');
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        server.in.returns({
+            emit: (event: string, notificationMessage: string) => {
+                expect(event).toEqual(ChatEvents.ChatReactivated);
+                expect(notificationMessage).toEqual(CHAT_REACTIVATED);
             },
         } as BroadcastOperator<unknown, unknown>);
         gateway.routeToResultsPage(socket, MOCK_ROOM_CODE);

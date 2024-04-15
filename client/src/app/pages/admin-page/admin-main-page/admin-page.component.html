@@ -27,7 +27,7 @@
             </mat-card-content>
         </mat-card>
 
-        <app-pulse-loader *ngIf="!gameService.games.length"></app-pulse-loader>
+        <app-pulse-loader *ngIf="gameService.isLoadingGames"></app-pulse-loader>
 
         <app-game-list-item
             *ngFor="let game of this.gameService.games"
@@ -68,7 +68,7 @@
                 </mat-card-content>
             </mat-card>
 
-            <app-pulse-loader *ngIf="!historyService.historyItems.length"></app-pulse-loader>
+            <app-pulse-loader *ngIf="historyService.isLoadingHistory"></app-pulse-loader>
 
             <mat-card *ngFor="let history of this.historyService.historyItems | sortHistory: order.value : subject.value" class="history-card">
                 <mat-card-content class="history-content">

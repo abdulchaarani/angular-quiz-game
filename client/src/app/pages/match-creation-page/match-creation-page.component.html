@@ -9,7 +9,7 @@
                 </mat-card-content>
             </mat-card>
 
-            <app-pulse-loader *ngIf="!games.length"></app-pulse-loader>
+            <app-pulse-loader *ngIf="isLoadingGames"></app-pulse-loader>
 
             <app-game-list-item
                 *cdkVirtualFor="let game of games"
@@ -24,7 +24,7 @@
         <h2>Détails du jeu {{ selectedGame ? '"' + selectedGame.title + '"' : '' }}</h2>
 
         <cdk-virtual-scroll-viewport class="virtual-scroll" itemSize="50">
-            <div id="game-details" *ngIf="gameIsValid && !isLoadingGame; else elseBlock">
+            <div id="game-details" *ngIf="gameIsValid && !isLoadingSelectedGame; else elseBlock">
                 <div>
                     <strong><i class="material-icons">notes</i> Description: </strong>
                     <span id="game-description">{{ selectedGame.description }}</span>
@@ -46,10 +46,10 @@
             </div>
 
             <ng-template #elseBlock>
-                <span *ngIf="!isLoadingGame">Sélectionner un jeu dans la liste des jeux</span>
+                <span *ngIf="!isLoadingSelectedGame">Sélectionner un jeu dans la liste des jeux</span>
             </ng-template>
 
-            <app-pulse-loader *ngIf="isLoadingGame"></app-pulse-loader>
+            <app-pulse-loader *ngIf="isLoadingSelectedGame"></app-pulse-loader>
         </cdk-virtual-scroll-viewport>
 
         <div id="buttons-container">

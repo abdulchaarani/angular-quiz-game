@@ -12,6 +12,7 @@ import { UploadGameService } from '@app/services/upload-game/upload-game.service
 export class AdminPageComponent implements OnInit {
     order: string = 'ascending';
     subject: string = 'date';
+
     constructor(
         readonly gameService: GameService,
         readonly historyService: HistoryService,

@@ -182,3 +182,30 @@ body {
 .color-variant {
     background-color: rgb(247, 246, 255) !important;
 }
+
+.controls-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    gap: 10px;
+    width: 20vw;
+    height: 20vh;
+    z-index: 99;
+}
+
+.exit-button {
+    display: flex;
+    gap: 1rem;
+}
+
+.material-icons {
+    font-size: 1.5rem;
+}
+
+.controls-container button {
+    width: 15vw;
+}

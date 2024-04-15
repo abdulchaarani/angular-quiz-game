@@ -69,7 +69,7 @@
         </div>
     </div>
 </div>
-<div id="controls-container">
+<div class="controls-container">
     <div id="host-area" *ngIf="context === matchContext.HostView && !this.matchRoomService.isCooldown">
         <button mat-raised-button *ngIf="this.answerService.isEndGame" color="primary" (click)="routeToResultsPage()">
             <mat-icon class="material-icons">bar_chart</mat-icon>
@@ -85,7 +85,14 @@
             <mat-icon class="material-icons">skip_next</mat-icon>
             <p>QUESTION SUIVANTE</p>
         </button>
-        <button mat-raised-button id="pause-button" (click)="pauseTimer()" (click)="paused = !paused" [disabled]="time === 0">
+        <button
+            *ngIf="!answerService.showFeedback"
+            mat-raised-button
+            id="pause-button"
+            (click)="pauseTimer()"
+            (click)="paused = !paused"
+            [disabled]="time === 0"
+        >
             <mat-icon class="material-icons" *ngIf="!paused">pause</mat-icon>
             <p *ngIf="!paused">SUSPENDRE LA MINUTERIE</p>
 
@@ -93,20 +100,19 @@
             <p *ngIf="paused">PARTIR LA MINUTERIE</p>
         </button>
 
-        <audio #ref src="../../../assets/audio/alert.mp3"></audio>
         <button
+            *ngIf="!answerService.showFeedback"
             mat-raised-button
             id="panic-button"
             color="accent"
             [disabled]="this.timeService.isPanicModeDisabled || this.timeService.isPanicking"
             (click)="togglePanicTimer()"
-            (click)="ref.play()"
         >
             <mat-icon class="material-icons">priority_high</mat-icon>
             <p>MODE PANIQUE</p>
         </button>
     </div>
-    <button mat-raised-button id="exit-button" color="primary" routerLink="/home" (click)="quitGame()">
+    <button mat-raised-button class="exit-button" color="primary" routerLink="/home" (click)="quitGame()">
         <mat-icon class="material-icons">logout</mat-icon>
         <p>QUITTER</p>
     </button>

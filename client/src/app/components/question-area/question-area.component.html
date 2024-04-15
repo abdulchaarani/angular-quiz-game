@@ -85,32 +85,26 @@
             <mat-icon class="material-icons">skip_next</mat-icon>
             <p>QUESTION SUIVANTE</p>
         </button>
-        <button
-            *ngIf="!answerService.showFeedback"
-            mat-raised-button
-            id="pause-button"
-            (click)="pauseTimer()"
-            (click)="paused = !paused"
-            [disabled]="time === 0"
-        >
-            <mat-icon class="material-icons" *ngIf="!paused">pause</mat-icon>
-            <p *ngIf="!paused">SUSPENDRE LA MINUTERIE</p>
+        <div id="timer-controls" *ngIf="!answerService.showFeedback && !answerService.gradeAnswers">
+            <button mat-raised-button id="pause-button" (click)="pauseTimer()" (click)="paused = !paused" [disabled]="time === 0">
+                <mat-icon class="material-icons" *ngIf="!paused">pause</mat-icon>
+                <p *ngIf="!paused">SUSPENDRE LA MINUTERIE</p>
 
-            <mat-icon class="material-icons" *ngIf="paused">play_arrow</mat-icon>
-            <p *ngIf="paused">PARTIR LA MINUTERIE</p>
-        </button>
+                <mat-icon class="material-icons" *ngIf="paused">play_arrow</mat-icon>
+                <p *ngIf="paused">PARTIR LA MINUTERIE</p>
+            </button>
 
-        <button
-            *ngIf="!answerService.showFeedback"
-            mat-raised-button
-            id="panic-button"
-            color="accent"
-            [disabled]="this.timeService.isPanicModeDisabled || this.timeService.isPanicking"
-            (click)="togglePanicTimer()"
-        >
-            <mat-icon class="material-icons">priority_high</mat-icon>
-            <p>MODE PANIQUE</p>
-        </button>
+            <button
+                mat-raised-button
+                id="panic-button"
+                color="accent"
+                [disabled]="this.timeService.isPanicModeDisabled || this.timeService.isPanicking"
+                (click)="togglePanicTimer()"
+            >
+                <mat-icon class="material-icons">priority_high</mat-icon>
+                <p>MODE PANIQUE</p>
+            </button>
+        </div>
     </div>
     <button mat-raised-button class="exit-button" color="primary" routerLink="/home" (click)="quitGame()">
         <mat-icon class="material-icons">logout</mat-icon>

@@ -196,3 +196,9 @@ button.answer.selected {
     flex-direction: column;
     gap: 10px;
 }
+
+#timer-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}

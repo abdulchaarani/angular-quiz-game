@@ -80,7 +80,6 @@ export class MatchGateway implements OnGatewayDisconnect {
         return { code: newMatchRoom.code };
     }
 
-    // TODO: rename event and function?
     @SubscribeMessage(MatchEvents.RouteToResultsPage)
     routeToResultsPage(@ConnectedSocket() socket: Socket, @MessageBody() matchRoomCode: string) {
         const roomIndex = this.matchRoomService.getRoomIndex(matchRoomCode);

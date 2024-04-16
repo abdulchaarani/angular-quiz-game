@@ -68,7 +68,6 @@ export class QuestionAreaComponent implements OnInit {
         }
     }
 
-    // TODO: export to service?
     canDeactivate(): CanDeactivateType {
         if (this.matchRoomService.isResults) return true;
         if (this.matchRoomService.isQuitting) return true;
@@ -93,7 +92,6 @@ export class QuestionAreaComponent implements OnInit {
     ngOnInit(): void {
         this.resetStateForNewQuestion();
         this.listenToGameEvents();
-        // TODO: move score somewhere else?
         this.matchRoomService.isQuitting = false;
         this.answerService.playerScore = 0;
         this.context = this.matchContextService.getContext();

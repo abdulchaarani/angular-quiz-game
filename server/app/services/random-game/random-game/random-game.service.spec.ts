@@ -42,10 +42,8 @@ describe('RandomGameService', () => {
 
     it('fetAllQuestions() should log an error if the service fails', async () => {
         questionService.getAllQuestions.rejects('');
-        const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-
         await service.fetchAllQuestions();
-        expect(consoleSpy).toHaveBeenCalled();
+        expect(service.allBankQuestions.length).toEqual(0);
     });
 
     it('isRandomGameAvailable() should return true if there are enough questions (5)', () => {
@@ -81,6 +79,5 @@ describe('RandomGameService', () => {
         const game = service.generateRandomGame();
         expect(game).toEqual(mockGame);
         expect(game.questions).toEqual(mockQuestions);
-        expect(service.randomGame).toEqual(mockGame);
     });
 });

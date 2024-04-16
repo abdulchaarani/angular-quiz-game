@@ -22,6 +22,7 @@ import { MINIMUM_QUESTIONS } from '@common/constants/match-constants';
 import { Subject, of, throwError } from 'rxjs';
 import { MatchCreationPageComponent } from './match-creation-page.component';
 import SpyObj = jasmine.SpyObj;
+import { MatIconModule } from '@angular/material/icon';
 
 describe('MatchCreationPageComponent', () => {
     let component: MatchCreationPageComponent;
@@ -62,7 +63,7 @@ describe('MatchCreationPageComponent', () => {
 
         TestBed.configureTestingModule({
             declarations: [MatchCreationPageComponent],
-            imports: [HttpClientTestingModule, BrowserAnimationsModule, ScrollingModule, MatCardModule],
+            imports: [HttpClientTestingModule, BrowserAnimationsModule, ScrollingModule, MatCardModule, MatIconModule],
             providers: [
                 GameService,
                 { provide: NotificationService, useValue: notificationSpy },

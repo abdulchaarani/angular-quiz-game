@@ -22,7 +22,7 @@ export class AnswerService {
     gradeAnswers: boolean;
     isGradingComplete: boolean;
     showFeedback: boolean;
-    isNextQuestionButton: boolean;
+    isNextQuestionButtonEnabled: boolean;
     isSelectionEnabled: boolean;
     correctAnswer: string[];
     answerCorrectness: AnswerCorrectness;
@@ -61,11 +61,12 @@ export class AnswerService {
         this.isSelectionEnabled = true;
         this.answerCorrectness = AnswerCorrectness.WRONG;
         this.bonusPoints = 0;
-        this.isNextQuestionButton = false;
+        this.isNextQuestionButtonEnabled = false;
         this.isTimesUp = false;
         this.isEndGame = false;
         this.currentLongAnswer = '';
         this.timeService.isPanicModeDisabled = false;
+        this.timeService.isTimerPaused = false;
     }
 
     selectChoice(choice: string, userInfo: UserInfo) {
@@ -90,26 +91,13 @@ export class AnswerService {
         this.socketService.send(AnswerEvents.UpdateLongAnswer, choiceInfo);
     }
 
-    // TODO: fragment
     onFeedback() {
         this.socketService.on(AnswerEvents.Feedback, (feedback: Feedback) => {
             this.feedback = feedback;
             this.showFeedback = true;
-            this.isNextQuestionButton = true;
+            this.isNextQuestionButtonEnabled = true;
 
-            if (feedback) {
-                if (this.feedback.correctAnswer) this.correctAnswer = this.feedback.correctAnswer;
-                this.isSelectionEnabled = false;
-                this.answerCorrectness = feedback.answerCorrectness;
-                this.playerScore = feedback.score;
-                // TODO: À revoir si chaque client renvoi son data...
-                this.matchRoomService.sendPlayersData(this.matchRoomService.getRoomCode());
-                const context = this.matchContextService.getContext();
-                if (context === MatchContext.TestPage || context === MatchContext.RandomMode) {
-                    this.matchRoomService.goToNextQuestion();
-                    this.isNextQuestionButton = false;
-                }
-            }
+            if (feedback) this.processFeedback(feedback);
         });
     }
 
@@ -153,5 +141,22 @@ export class AnswerService {
 
     handleGrading(): void {
         this.isGradingComplete = this.playersAnswers.every((answer: LongAnswerInfo) => answer.score !== null);
+    }
+
+    private processFeedback(feedback: Feedback) {
+        if (this.feedback.correctAnswer) this.correctAnswer = this.feedback.correctAnswer;
+        this.isSelectionEnabled = false;
+        this.answerCorrectness = feedback.answerCorrectness;
+        this.playerScore = feedback.score;
+        this.matchRoomService.sendPlayersData(this.matchRoomService.getRoomCode());
+        this.finaliseRound();
+    }
+
+    private finaliseRound() {
+        const context = this.matchContextService.getContext();
+        if (context === MatchContext.TestPage || context === MatchContext.RandomMode) {
+            this.matchRoomService.goToNextQuestion();
+            this.isNextQuestionButtonEnabled = false;
+        }
     }
 }

@@ -49,7 +49,6 @@ export class LongAnswerStrategy extends QuestionStrategy {
         const players = matchRoom.players;
         const time = Date.now() - HISTOGRAM_UPDATE_TIME_MS;
 
-        // TODO: move to constant
         const emptyHistogram = {
             question: matchRoom.currentQuestion.text,
             type: QuestionType.LongAnswer,
@@ -79,7 +78,6 @@ export class LongAnswerStrategy extends QuestionStrategy {
 
     private prepareAnswersForGrading(matchRoom: MatchRoom, players: Player[]) {
         if (matchRoom.isTestRoom) {
-            // TODO: unanonymize object
             const testAnswer: LongAnswerInfo[] = [{ username: players[0].username, answer: '', score: AnswerCorrectness.GOOD.toString() }];
             this.calculateScore(matchRoom, players, testAnswer);
             return;
@@ -90,7 +88,6 @@ export class LongAnswerStrategy extends QuestionStrategy {
         const playerAnswers = playingPlayers.map((player: Player) => {
             const answer: string = (player.answer as LongAnswer).answer;
             const username: string = player.username;
-            // TODO: unanonymize object
             const longAnswerInfo: LongAnswerInfo = { username, answer, score: null };
             player.socket.emit(AnswerEvents.TimesUp);
             return longAnswerInfo;

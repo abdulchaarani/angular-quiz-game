@@ -129,7 +129,7 @@ export class PlayerRoomService {
     }
 
     isHostPlayer(matchRoomCode: string): boolean {
-        return this.getPlayerByUsername(matchRoomCode, HOST_USERNAME) !== undefined;
+        return !!this.getPlayerByUsername(matchRoomCode, HOST_USERNAME);
     }
 
     isHostUsernameCorrect(matchRoomCode: string, username: string): boolean {

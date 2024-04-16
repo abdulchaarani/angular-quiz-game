@@ -1,6 +1,6 @@
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BankStatus } from '@app/constants/feedback-messages';
+import { BankStatus, GameStatus } from '@app/constants/feedback-messages';
 import { Question } from '@app/interfaces/question';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { QuestionService } from '@app/services/question/question.service';
@@ -10,14 +10,21 @@ import { QuestionService } from '@app/services/question/question.service';
 })
 export class BankService {
     questions: Question[] = [];
+    addToBank: boolean = false;
+    isLoadingBank: boolean = false;
+
     constructor(
         private readonly questionService: QuestionService,
         private readonly notificationService: NotificationService,
     ) {}
 
     getAllQuestions(): void {
+        this.isLoadingBank = true;
         this.questionService.getAllQuestions().subscribe({
-            next: (data: Question[]) => (this.questions = [...data]),
+            next: (data: Question[]) => {
+                this.questions = [...data];
+                this.isLoadingBank = false;
+            },
             error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`${BankStatus.UNRETRIEVED}\n ${error.message}`),
         });
     }
@@ -32,13 +39,14 @@ export class BankService {
         });
     }
 
-    addQuestion(newQuestion: Question): void {
+    addQuestion(newQuestion: Question, isModificationPageQuestion: boolean = false): void {
         this.questionService.createQuestion(newQuestion).subscribe({
             next: (response: HttpResponse<string>) => {
                 if (response.body) {
                     newQuestion = JSON.parse(response.body);
                     this.questions.push(newQuestion);
-                    this.notificationService.displaySuccessMessage(BankStatus.SUCCESS);
+                    if (isModificationPageQuestion) this.notificationService.displaySuccessMessage(GameStatus.ARCHIVED);
+                    else this.notificationService.displaySuccessMessage(BankStatus.SUCCESS);
                 }
             },
             error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`${BankStatus.FAILURE}\n ${error.message}`),

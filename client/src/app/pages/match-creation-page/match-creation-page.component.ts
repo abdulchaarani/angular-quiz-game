@@ -24,6 +24,8 @@ export class MatchCreationPageComponent implements OnInit {
     gameIsValid: boolean;
     matchContext = MatchContext;
     isRandomGame: boolean;
+    isLoadingGames: boolean;
+    isLoadingSelectedGame: boolean;
 
     // Services are required to decouple logic
     // eslint-disable-next-line max-params
@@ -36,6 +38,8 @@ export class MatchCreationPageComponent implements OnInit {
     ) {
         this.gameIsValid = false;
         this.isRandomGame = false;
+        this.isLoadingGames = false;
+        this.isLoadingSelectedGame = false;
     }
 
     ngOnInit(): void {
@@ -43,7 +47,11 @@ export class MatchCreationPageComponent implements OnInit {
     }
 
     reloadAllGames(): void {
-        this.matchService.getAllGames().subscribe((data: Game[]) => (this.games = data));
+        this.isLoadingGames = true;
+        this.matchService.getAllGames().subscribe((data: Game[]) => {
+            this.games = data;
+            this.isLoadingGames = false;
+        });
     }
 
     handleLoadRandomGame(data: Question[]) {
@@ -51,12 +59,14 @@ export class MatchCreationPageComponent implements OnInit {
         if (this.hasEnoughRandomQuestions(questionsCount)) {
             this.selectedGame = RANDOM_MODE_GAME;
         }
+        this.isLoadingSelectedGame = false;
     }
 
     loadRandomGame(): void {
+        this.isLoadingSelectedGame = true;
         this.questionService.getAllQuestions().subscribe({
             next: (data: Question[]) => {
-                data = data.filter((question) => question.type === QuestionType.QCM);
+                data = data.filter((question) => question.type === QuestionType.MultipleChoice);
                 this.handleLoadRandomGame(data);
             },
         });
@@ -73,11 +83,13 @@ export class MatchCreationPageComponent implements OnInit {
     }
 
     loadSelectedGame(selectedGame: Game): void {
+        this.isLoadingSelectedGame = true;
         this.isRandomGame = false;
         this.gameService.getGameById(selectedGame.id).subscribe({
             next: (data: Game) => {
                 this.selectedGame = data;
                 this.validateGame(this.selectedGame);
+                this.isLoadingSelectedGame = false;
             },
             error: () => {
                 const snackBarRef = this.notificationService.displayErrorMessageAction(SnackBarError.DELETED, SnackBarAction.REFRESH);
@@ -150,7 +162,7 @@ export class MatchCreationPageComponent implements OnInit {
     revalidateRandomGame() {
         this.questionService.getAllQuestions().subscribe({
             next: (data: Question[]) => {
-                data = data.filter((question) => question.type === QuestionType.QCM);
+                data = data.filter((question) => question.type === QuestionType.MultipleChoice);
                 this.handleRevalidateRandomGame(data);
             },
         });

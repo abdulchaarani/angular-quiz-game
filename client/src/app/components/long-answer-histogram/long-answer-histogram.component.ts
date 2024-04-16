@@ -98,17 +98,17 @@ export class LongAnswerHistogramComponent implements OnInit, OnChanges, OnDestro
         let fill;
         switch (params.datum.grade) {
             case '100': {
-                fill = 'darkblue';
+                fill = '#4a56ae';
 
                 break;
             }
             case '50': {
-                fill = 'blue';
+                fill = '#6d75bb';
 
                 break;
             }
             case '0': {
-                fill = 'lightblue';
+                fill = '#8e95ca';
 
                 break;
             }

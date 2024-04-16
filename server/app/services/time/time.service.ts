@@ -11,38 +11,38 @@ export class TimeService {
     currentPanicThresholdTime: number;
 
     private tick: number;
-    private intervals: Map<string, NodeJS.Timeout>;
-    // TODO : Rename to smt more elegant + find solution with less maps...
-    private pauses: Map<string, boolean>;
-    private counters: Map<string, number>;
-    private durations: Map<string, number>;
-    private isPanicModeEnabled;
+    private roomIntervals: Map<string, NodeJS.Timeout>;
+    private pausedRooms: Map<string, boolean>;
+    private roomCounters: Map<string, number>;
+    private roomDurations: Map<string, number>;
+    private isPanicModeEnabled: boolean;
 
     constructor(private readonly eventEmitter: EventEmitter2) {
-        this.counters = new Map();
-        this.intervals = new Map();
-        this.durations = new Map();
-        this.pauses = new Map();
+        this.roomCounters = new Map();
+        this.roomIntervals = new Map();
+        this.roomDurations = new Map();
+        this.pausedRooms = new Map();
         this.tick = 1000;
     }
 
     getTime(roomId: string) {
-        return this.counters.get(roomId);
+        return this.roomCounters.get(roomId);
     }
 
     // passing event allows decoupling of timer service
     // eslint-disable-next-line max-params
     startInterval(server: Server, roomId: string, startValue: number, onTimerExpiredEvent: ExpiredTimerEvents) {
-        let timerInfo: TimerInfo = { currentTime: startValue, duration: this.durations.get(roomId) };
-        this.intervals.set(
+        let timerInfo: TimerInfo = { currentTime: startValue, duration: this.roomDurations.get(roomId) };
+        this.roomIntervals.set(
             roomId,
             setInterval(() => {
-                const currentTime = this.counters.get(roomId);
+                if (this.pausedRooms.get(roomId)) return;
+                const currentTime = this.roomCounters.get(roomId);
                 if (currentTime >= 0) {
-                    timerInfo = { currentTime, duration: this.durations.get(roomId) };
+                    timerInfo = { currentTime, duration: this.roomDurations.get(roomId) };
                     server.in(roomId).emit(TimerEvents.Timer, timerInfo);
                     this.eventEmitter.emit(TimerDurationEvents.Timer, roomId, timerInfo);
-                    this.counters.set(roomId, currentTime - 1);
+                    this.roomCounters.set(roomId, currentTime - 1);
                 } else {
                     this.expireTimer(roomId, server, onTimerExpiredEvent);
                 }
@@ -55,7 +55,7 @@ export class TimeService {
     // passing event allows decoupling of timer service
     // eslint-disable-next-line max-params
     startTimer(server: Server, roomId: string, startValue: number, onTimerExpiredEvent: ExpiredTimerEvents) {
-        if (this.intervals.has(roomId) && !this.pauses.get(roomId)) return;
+        if (this.roomIntervals.has(roomId) && !this.pausedRooms.get(roomId)) return;
         const timerInfo: TimerInfo = { currentTime: startValue, duration: startValue };
         this.tick = 1000;
 
@@ -64,16 +64,16 @@ export class TimeService {
 
         server.in(roomId).emit(TimerEvents.Timer, timerInfo);
 
-        this.durations.set(roomId, startValue);
-        this.counters.set(roomId, startValue - 1);
-        this.pauses.set(roomId, false);
+        this.roomDurations.set(roomId, startValue);
+        this.roomCounters.set(roomId, startValue - 1);
+        this.pausedRooms.set(roomId, false);
         this.startInterval(server, roomId, startValue, onTimerExpiredEvent);
     }
 
-    panicTimer(server: Server, roomId: string) {
-        clearInterval(this.intervals.get(roomId));
+    startPanicTimer(server: Server, roomId: string) {
+        clearInterval(this.roomIntervals.get(roomId));
         this.tick = 250;
-        this.startInterval(server, roomId, this.counters.get(roomId), ExpiredTimerEvents.QuestionTimerExpired);
+        this.startInterval(server, roomId, this.roomCounters.get(roomId), ExpiredTimerEvents.QuestionTimerExpired);
         server.to(roomId).emit(TimerEvents.PanicTimer);
     }
 
@@ -84,20 +84,19 @@ export class TimeService {
     }
 
     pauseTimer(server: Server, roomId: string) {
-        if (this.pauses.get(roomId)) {
-            this.startInterval(server, roomId, this.counters.get(roomId), ExpiredTimerEvents.CountdownTimerExpired);
-            this.pauses.set(roomId, false);
+        if (this.pausedRooms.get(roomId)) {
+            this.pausedRooms.set(roomId, false);
+            server.to(roomId).emit(TimerEvents.ResumeTimer);
         } else {
-            this.pauses.set(roomId, true);
-            clearInterval(this.intervals.get(roomId));
+            this.pausedRooms.set(roomId, true);
             server.to(roomId).emit(TimerEvents.PauseTimer);
         }
     }
 
     terminateTimer(roomId: string) {
-        clearInterval(this.intervals.get(roomId));
-        this.intervals.delete(roomId);
-        this.counters.delete(roomId);
+        clearInterval(this.roomIntervals.get(roomId));
+        this.roomIntervals.delete(roomId);
+        this.roomCounters.delete(roomId);
     }
 
     private disablePanicTimer(server: Server, roomId: string) {

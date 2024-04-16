@@ -30,6 +30,7 @@ import { Subject } from 'rxjs';
 import { Socket } from 'socket.io-client';
 import { QuestionAreaComponent } from './question-area.component';
 import spyObj = jasmine.SpyObj;
+import { MatIconModule } from '@angular/material/icon';
 
 class SocketHandlerServiceMock extends SocketHandlerService {
     override connect() {}
@@ -53,6 +54,17 @@ class MockChatComponent {}
     template: '',
 })
 class MockMultipleChoiceAreaComponent {}
+
+@Component({
+    selector: 'app-alert',
+    template: '',
+})
+class MockAlertComponent {}
+@Component({
+    selector: 'app-audio-player',
+    template: '',
+})
+class MockAudioPlayerComponent {}
 
 describe('QuestionAreaComponent', () => {
     let component: QuestionAreaComponent;
@@ -100,7 +112,7 @@ describe('QuestionAreaComponent', () => {
             'startTimer',
             'stopTimer',
             'pauseTimer',
-            'panicTimer',
+            'triggerPanicTimer',
             'handleTimer',
             'handleStopTimer',
             'computeTimerProgress',
@@ -115,8 +127,22 @@ describe('QuestionAreaComponent', () => {
         socketSpy.socket = socketHelper as unknown as Socket;
 
         await TestBed.configureTestingModule({
-            declarations: [QuestionAreaComponent, MockChatComponent, MockPlayersListComponent, MockMultipleChoiceAreaComponent],
-            imports: [RouterTestingModule.withRoutes(routes), HttpClientTestingModule, MatSnackBarModule, MatDialogModule, MatProgressSpinnerModule],
+            declarations: [
+                QuestionAreaComponent,
+                MockChatComponent,
+                MockPlayersListComponent,
+                MockMultipleChoiceAreaComponent,
+                MockAlertComponent,
+                MockAudioPlayerComponent,
+            ],
+            imports: [
+                RouterTestingModule.withRoutes(routes),
+                HttpClientTestingModule,
+                MatSnackBarModule,
+                MatDialogModule,
+                MatProgressSpinnerModule,
+                MatIconModule,
+            ],
             providers: [
                 HttpClient,
                 { provide: SocketHandlerService, useValue: socketSpy },
@@ -218,10 +244,10 @@ describe('QuestionAreaComponent', () => {
     });
 
     it('should go to next question when nextQuestion is called', () => {
-        answerSpy.isNextQuestionButton = true;
+        answerSpy.isNextQuestionButtonEnabled = true;
         component.goToNextQuestion();
         expect(matchRoomSpy.goToNextQuestion).toHaveBeenCalled();
-        expect(answerSpy.isNextQuestionButton).toBe(false);
+        expect(answerSpy.isNextQuestionButtonEnabled).toBe(false);
     });
 
     it('quitGame() navigate to home page', () => {
@@ -237,9 +263,9 @@ describe('QuestionAreaComponent', () => {
         expect(matchRoomSpy.routeToResultsPage).toHaveBeenCalled();
     });
 
-    it('should delegate toggle panic timer to timerService when togglePanicTimer() is called', () => {
-        component.togglePanicTimer();
-        expect(timerSpy.panicTimer).toHaveBeenCalled();
+    it('should delegate toggle panic timer to timerService when triggerPanicTimer() is called', () => {
+        component.triggerPanicTimer();
+        expect(timerSpy.triggerPanicTimer).toHaveBeenCalled();
     });
 
     it('should delegate pause timer to timerService when pauseTimer() is called', () => {

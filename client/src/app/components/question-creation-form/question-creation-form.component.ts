@@ -4,10 +4,11 @@ import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@ang
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MAX_CHOICES, MIN_CHOICES, SNACK_BAR_DISPLAY_TIME } from '@app/constants/question-creation';
-import { QuestionTypes } from '@app/constants/question-types';
+import { QuestionType } from '@common/constants/question-types';
 import { ManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
 import { QuestionService } from '@app/services/question/question.service';
+import { BankService } from '@app/services/bank/bank.service';
 
 export interface DialogManagement {
     modificationState: ManagementState;
@@ -29,6 +30,7 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
     questionForm: FormGroup;
     checked: boolean;
     disabled: boolean;
+    notificationShown: boolean = false;
 
     // Allow more constructor parameters to reduce logic in the component
     // eslint-disable-next-line max-params
@@ -36,6 +38,7 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
         private readonly snackBar: MatSnackBar,
         private readonly formBuilder: FormBuilder,
         private readonly questionService: QuestionService,
+        public bankService: BankService,
         @Optional() @Inject(MAT_DIALOG_DATA) public dialogData: DialogManagement,
     ) {
         this.initializeForm();
@@ -46,6 +49,10 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
 
     get choices(): FormArray {
         return this.questionForm.get('choices') as FormArray;
+    }
+
+    get managementState(): typeof ManagementState {
+        return ManagementState;
     }
 
     buildChoices(): FormGroup {
@@ -85,6 +92,9 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
                 this.modifyQuestionEvent.emit(newQuestion);
             } else {
                 this.createQuestionEvent.emit(newQuestion);
+            }
+            if (this.bankService.addToBank) {
+                this.bankService.addQuestion(newQuestion, true);
             }
         }
     }
@@ -138,10 +148,11 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
     }
 
     isActiveSubmit() {
-        return this.modificationState !== ManagementState.GameModify;
+        return this.modificationState !== ManagementState.GameModify && this.modificationState !== ManagementState.BankModify;
     }
 
     private initializeForm(): void {
+        this.bankService.addToBank = false;
         this.questionForm = this.formBuilder.group(
             {
                 text: ['', Validators.required],
@@ -153,14 +164,22 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
 
         this.questionForm.statusChanges.subscribe((status) => {
             if (status === 'INVALID' && this.questionForm.get('text')?.invalid) {
-                this.openSnackBar('Le champ de la question est requis !', SNACK_BAR_DISPLAY_TIME);
-            } else if (status === 'INVALID' && this.questionForm.get('choices')?.invalid && this.questionForm.hasError('invalidChoicesLength')) {
-                this.openSnackBar('Il faut au moins une réponse correcte et une incorrecte !', SNACK_BAR_DISPLAY_TIME);
+                if (!this.notificationShown) {
+                    this.openSnackBar('Le champ de la question est requis !', SNACK_BAR_DISPLAY_TIME);
+                    this.notificationShown = true;
+                }
+            } else if (this.questionForm.invalid && this.questionForm.get('choices')?.invalid && this.questionForm.hasError('invalidChoicesLength')) {
+                if (!this.notificationShown) {
+                    this.openSnackBar('Il faut au moins une réponse correcte et une incorrecte !', SNACK_BAR_DISPLAY_TIME);
+                    this.notificationShown = true;
+                }
+            } else {
+                this.notificationShown = false;
             }
         });
 
         this.questionForm.get('type')?.valueChanges.subscribe((type: string) => {
-            if (type === QuestionTypes.CHOICE) {
+            if (type === QuestionType.MultipleChoice) {
                 this.questionForm.addControl(
                     'choices',
                     this.formBuilder.array([
@@ -174,7 +193,7 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
                         }),
                     ]),
                 );
-            } else if (type === QuestionTypes.LONG) {
+            } else if (type === QuestionType.LongAnswer) {
                 this.questionForm.removeControl('choices');
             }
         });

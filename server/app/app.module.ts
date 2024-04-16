@@ -31,6 +31,7 @@ import { QuestionStrategyContext } from './services/question-strategy-context/qu
 import { LongAnswerStrategy } from '@app/question-strategies/long-answer-strategy/long-answer-strategy';
 import { MultipleChoiceStrategy } from '@app/question-strategies/multiple-choice-strategy/multiple-choice-strategy';
 import { RandomGameService } from './services/random-game/random-game/random-game.service';
+import { TimerGateway } from './gateways/timer/timer.gateway';
 @Module({
     imports: [
         ConfigModule.forRoot({ isGlobal: true }),
@@ -69,6 +70,7 @@ import { RandomGameService } from './services/random-game/random-game/random-gam
         QuestionStrategyContext,
         MultipleChoiceStrategy,
         LongAnswerStrategy,
+        TimerGateway,
     ],
 })
 export class AppModule {}

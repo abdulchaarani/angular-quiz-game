@@ -35,7 +35,7 @@ describe('TimeService', () => {
     });
 
     afterEach(async () => {
-        service['intervals'].forEach((interval: NodeJS.Timeout) => {
+        service['roomIntervals'].forEach((interval: NodeJS.Timeout) => {
             interval.unref();
         });
         jest.clearAllTimers();
@@ -46,14 +46,14 @@ describe('TimeService', () => {
     });
 
     it('should return counter associated with given room ID code', () => {
-        service['counters'] = FAKE_COUNTER;
+        service['roomCounters'] = FAKE_COUNTER;
         const expectedResult = FAKE_COUNTER.get(FAKE_ROOM_ID);
         const result = service.getTime(FAKE_ROOM_ID);
         expect(result).toEqual(expectedResult);
     });
 
     it('should not start a timer in a room that already has a started timer', () => {
-        service['intervals'] = FAKE_INTERVAL;
+        service['roomIntervals'] = FAKE_INTERVAL;
         const result = service.startTimer(server, FAKE_ROOM_ID, TIMER_VALUE, ExpiredTimerEvents.CountdownTimerExpired);
         expect(result).toBeUndefined();
     });
@@ -67,9 +67,9 @@ describe('TimeService', () => {
         } as BroadcastOperator<unknown, unknown>);
         service.startTimer(server, FAKE_ROOM_ID, TIMER_VALUE, ExpiredTimerEvents.CountdownTimerExpired);
         jest.advanceTimersByTime(TICK);
-        expect(service['counters'].get(FAKE_ROOM_ID)).toBeDefined();
-        expect(service['counters'].get(FAKE_ROOM_ID)).toEqual(1);
-        expect(service['intervals'].get(FAKE_ROOM_ID)).toBeDefined();
+        expect(service['roomCounters'].get(FAKE_ROOM_ID)).toBeDefined();
+        expect(service['roomCounters'].get(FAKE_ROOM_ID)).toEqual(1);
+        expect(service['roomIntervals'].get(FAKE_ROOM_ID)).toBeDefined();
         expect(service['isPanicModeEnabled']).toBe(true);
     });
 
@@ -93,7 +93,7 @@ describe('TimeService', () => {
         } as BroadcastOperator<unknown, unknown>);
 
         const PANIC_TICK = 250;
-        service.panicTimer(server, FAKE_ROOM_ID);
+        service.startPanicTimer(server, FAKE_ROOM_ID);
         expect(service['tick']).toEqual(PANIC_TICK);
     });
 
@@ -110,34 +110,38 @@ describe('TimeService', () => {
             },
         } as BroadcastOperator<unknown, unknown>);
         const spy = jest.spyOn(service, 'startInterval');
-        service.panicTimer(server, FAKE_ROOM_ID);
+        service.startPanicTimer(server, FAKE_ROOM_ID);
         expect(spy).toHaveBeenCalled();
     });
 
     it('should pause timer if timer is not already paused and emit pause timer event', () => {
-        service['intervals'] = FAKE_INTERVAL;
+        service['roomIntervals'] = FAKE_INTERVAL;
         server.to.returns({
             emit: (event: string) => {
                 expect(event).toEqual('pauseTimer');
             },
         } as BroadcastOperator<unknown, unknown>);
         service.pauseTimer(server, FAKE_ROOM_ID);
-        expect(service['pauses'].get(FAKE_ROOM_ID)).toBeDefined();
-        expect(service['pauses'].get(FAKE_ROOM_ID)).toBe(true);
+        expect(service['pausedRooms'].get(FAKE_ROOM_ID)).toBeDefined();
+        expect(service['pausedRooms'].get(FAKE_ROOM_ID)).toBe(true);
     });
 
     it('should restart timer if pauseTimer() is called on an already paused timer', () => {
-        const spy = jest.spyOn(service, 'startInterval');
-        service['intervals'] = FAKE_INTERVAL;
-        service['pauses'].set(FAKE_ROOM_ID, true);
+        service['roomIntervals'] = FAKE_INTERVAL;
+        service['pausedRooms'].set(FAKE_ROOM_ID, true);
+        server.to.returns({
+            emit: (event: string) => {
+                expect(event).toEqual('resumeTimer');
+            },
+        } as BroadcastOperator<unknown, unknown>);
+
         service.pauseTimer(server, FAKE_ROOM_ID);
 
-        expect(service['pauses'].get(FAKE_ROOM_ID)).toBe(false);
-        expect(spy).toHaveBeenCalled();
+        expect(service['pausedRooms'].get(FAKE_ROOM_ID)).toBe(false);
     });
 
     it('should call expire timer and reset timer with terminate timer when time runs out', () => {
-        service['counters'] = FAKE_COUNTER;
+        service['roomCounters'] = FAKE_COUNTER;
         const terminateSpy = jest.spyOn(service, 'terminateTimer');
         const expireSpy = jest.spyOn(service, 'expireTimer');
         server.in.returns({
@@ -157,8 +161,24 @@ describe('TimeService', () => {
         expect(expireSpy).toHaveBeenCalled();
     });
 
+    it('should not tick timer if timer is paused', () => {
+        service['roomCounters'] = FAKE_COUNTER;
+        service['pausedRooms'].set(FAKE_ROOM_ID, true);
+        const initialCount = service['roomCounters'].get(FAKE_ROOM_ID);
+
+        const terminateSpy = jest.spyOn(service, 'terminateTimer');
+        const expireSpy = jest.spyOn(service, 'expireTimer');
+
+        service.startInterval(server, FAKE_ROOM_ID, 10, ExpiredTimerEvents.CountdownTimerExpired);
+
+        jest.advanceTimersByTime(TICK);
+        expect(service['roomCounters'].get(FAKE_ROOM_ID)).toEqual(initialCount);
+        expect(terminateSpy).not.toHaveBeenCalled();
+        expect(expireSpy).not.toHaveBeenCalled();
+    });
+
     it('should disable panic mode if currentTime is below treshold', () => {
-        service['counters'] = FAKE_COUNTER;
+        service['roomCounters'] = FAKE_COUNTER;
         const disableSpy = jest.spyOn<any, any>(service, 'disablePanicTimer').mockImplementation();
         server.in.returns({
             emit: (event: string) => {
@@ -178,7 +198,7 @@ describe('TimeService', () => {
     });
 
     it('should not disable panic mode if it is already disabled', () => {
-        service['counters'] = FAKE_COUNTER;
+        service['roomCounters'] = FAKE_COUNTER;
         const disableSpy = jest.spyOn<any, any>(service, 'disablePanicTimer').mockImplementation(() => (service['isPanicModeEnabled'] = false));
         server.in.returns({
             emit: (event: string) => {

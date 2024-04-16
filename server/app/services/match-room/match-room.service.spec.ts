@@ -408,7 +408,6 @@ describe('MatchRoomService', () => {
         expect(matchRoom.players[1].socket.emit).not.toHaveBeenCalledWith(MatchEvents.Winner);
     });
 
-    // TODO : Getting same error as timeService service.to tests. Probably a mock error
     it('should call pauseTimer from timeService when pauseMatchTimer() is called', () => {
         const spy = jest.spyOn(timeService, 'pauseTimer').mockReturnThis();
         service.pauseMatchTimer(mockServer, FAKE_ROOM_ID);
@@ -416,8 +415,8 @@ describe('MatchRoomService', () => {
     });
 
     it('should call panicTimer from timeService when panicMatchTimer() is called', () => {
-        const spy = jest.spyOn(timeService, 'panicTimer').mockReturnThis();
-        service.panicMatchTimer(mockServer, FAKE_ROOM_ID);
+        const spy = jest.spyOn(timeService, 'startPanicTimer').mockReturnThis();
+        service.triggerPanicMode(mockServer, FAKE_ROOM_ID);
         expect(spy).toHaveBeenCalled();
     });
 

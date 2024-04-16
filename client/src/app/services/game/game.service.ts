@@ -6,15 +6,14 @@ import { ManagementState } from '@app/constants/states';
 import { Game } from '@app/interfaces/game';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { NotificationService } from '@app/services/notification/notification.service';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
 })
 export class GameService extends CommunicationService<Game> {
     games: Game[];
-    isPendingChangesObservable: Observable<boolean>;
-    isPendingChangesSource = new BehaviorSubject<boolean>(false);
+    isLoadingGames: boolean;
 
     constructor(
         http: HttpClient,
@@ -23,12 +22,16 @@ export class GameService extends CommunicationService<Game> {
     ) {
         super(http, 'admin/games');
         this.games = [];
-        this.isPendingChangesObservable = this.isPendingChangesSource.asObservable();
+        this.isLoadingGames = false;
     }
 
     getGames(): void {
+        this.isLoadingGames = true;
         this.getAll().subscribe({
-            next: (data: Game[]) => (this.games = [...data]),
+            next: (data: Game[]) => {
+                this.games = [...data];
+                this.isLoadingGames = false;
+            },
             error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`Échec d'obtention des jeux 😿\n ${error.message}`),
         });
     }
@@ -90,13 +93,5 @@ export class GameService extends CommunicationService<Game> {
 
     submitGame(game: Game, state: ManagementState) {
         return state === ManagementState.GameModify ? this.replaceGame(game) : this.addGame(game);
-    }
-
-    markPendingChanges() {
-        this.isPendingChangesSource.next(true);
-    }
-
-    resetPendingChanges() {
-        this.isPendingChangesSource.next(false);
     }
 }

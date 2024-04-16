@@ -8,15 +8,21 @@ import { CommunicationService } from '@app/services/communication/communication.
 })
 export class HistoryService extends CommunicationService<HistoryItem> {
     historyItems: HistoryItem[];
+    isLoadingHistory: boolean;
 
     constructor(http: HttpClient) {
         super(http, 'history');
         this.historyItems = [];
+        this.isLoadingHistory = false;
     }
 
     getHistory(): void {
+        this.isLoadingHistory = true;
         this.getAll().subscribe({
-            next: (data: HistoryItem[]) => (this.historyItems = [...data]),
+            next: (data: HistoryItem[]) => {
+                this.historyItems = [...data];
+                this.isLoadingHistory = false;
+            },
         });
     }
 

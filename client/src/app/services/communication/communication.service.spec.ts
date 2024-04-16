@@ -6,7 +6,7 @@ import { environment } from 'src/environments/environment';
 import { CommunicationService } from './communication.service';
 
 describe('CommunicationService', () => {
-    let gamesService: CommunicationService<Game>;
+    let gameService: CommunicationService<Game>;
     let httpMock: HttpTestingController;
 
     const mockGame: Game = {
@@ -38,16 +38,16 @@ describe('CommunicationService', () => {
             imports: [HttpClientTestingModule],
             providers: [CommunicationService, { provide: 'BASE_URL', useValue: baseUrl }],
         });
-        gamesService = TestBed.inject(CommunicationService);
+        gameService = TestBed.inject(CommunicationService);
         httpMock = TestBed.inject(HttpTestingController);
     });
 
     it('A generic version of CommunicationService should be created', () => {
-        expect(gamesService).toBeTruthy();
+        expect(gameService).toBeTruthy();
     });
 
     it('should fetch all data of type T via a GET request', () => {
-        gamesService.getAll().subscribe((data) => {
+        gameService.getAll().subscribe((data) => {
             expect(data).toEqual([mockGame]);
         });
 
@@ -60,7 +60,7 @@ describe('CommunicationService', () => {
     it('should fetch a single data of type T via a GET request', () => {
         const id = mockGame.id;
 
-        gamesService.getById(id).subscribe((data) => {
+        gameService.getById(id).subscribe((data) => {
             expect(data).toEqual(mockGame);
         });
 
@@ -72,7 +72,7 @@ describe('CommunicationService', () => {
 
     it('should send data of type T via a POST request', () => {
         const mockResponse = 'Resource created';
-        gamesService.add(mockGame).subscribe((data) => {
+        gameService.add(mockGame).subscribe((data) => {
             expect(data.body).toEqual(mockResponse);
         });
 
@@ -84,7 +84,7 @@ describe('CommunicationService', () => {
 
     it('should delete data of type T via a DELETE request', () => {
         const mockResponse = 'Delete accepted';
-        gamesService.delete(endpoint).subscribe((data) => {
+        gameService.delete(endpoint).subscribe((data) => {
             expect(data.body).toEqual(mockResponse);
         });
 
@@ -96,7 +96,7 @@ describe('CommunicationService', () => {
 
     it('should update data of type T via a PATCH request', () => {
         const mockResponse = 'Resource modified';
-        gamesService.update(mockGame, endpoint).subscribe((data) => {
+        gameService.update(mockGame, endpoint).subscribe((data) => {
             expect(data.body).toEqual(mockResponse);
         });
 
@@ -108,7 +108,7 @@ describe('CommunicationService', () => {
 
     it('should replace data of type T via a PUT request', () => {
         const mockResponse = 'Resource modified';
-        gamesService.put(mockGame, endpoint).subscribe((data) => {
+        gameService.put(mockGame, endpoint).subscribe((data) => {
             expect(data.body).toEqual(mockResponse);
         });
 
@@ -125,7 +125,7 @@ describe('CommunicationService', () => {
             statusText: 'Not Found',
         });
 
-        const handleErrorFn = gamesService.handleError();
+        const handleErrorFn = gameService.handleError();
         const errorObservable = handleErrorFn(mockError);
 
         errorObservable.subscribe({

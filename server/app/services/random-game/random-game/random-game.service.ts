@@ -9,7 +9,6 @@ import { Injectable } from '@nestjs/common';
 @Injectable()
 export class RandomGameService {
     allBankQuestions: Question[] = [];
-    randomGame: Game;
     constructor(
         private readonly questionService: QuestionService,
         private gameCreationService: GameCreationService,
@@ -26,9 +25,7 @@ export class RandomGameService {
             const questions = await this.questionService.getAllQuestions();
             this.allBankQuestions = questions.filter((question) => question.type === QuestionType.MultipleChoice);
         } catch (error) {
-            // TODO: Change to notification
-            // eslint-disable-next-line no-console
-            console.error('Failed to fetch questions:', error);
+            this.allBankQuestions = [];
         }
     }
 
@@ -53,9 +50,9 @@ export class RandomGameService {
 
     generateRandomGame(): Game {
         const questions: Question[] = this.getRandomQuestions();
-        const game: Game = RANDOM_GAME;
+        const game: Game = { ...RANDOM_GAME };
         game.questions = questions;
-        this.randomGame = this.gameCreationService.generateId(game);
-        return this.randomGame;
+        const newRandomGame = this.gameCreationService.generateId(game);
+        return newRandomGame;
     }
 }

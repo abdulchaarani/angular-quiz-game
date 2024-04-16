@@ -12,6 +12,7 @@ import { HOST_USERNAME } from '@common/constants/match-constants';
 import { PlayerState } from '@common/constants/player-states';
 import { ChatEvents } from '@common/events/chat.events';
 import { MatchEvents } from '@common/events/match.events';
+import { GameOverInfo } from '@common/interfaces/game-over-info';
 import { UserInfo } from '@common/interfaces/user-info';
 
 @Injectable({
@@ -72,7 +73,6 @@ export class MatchRoomService {
             this.handleError();
             this.onPlayerChatStateToggle();
             this.handleChatStateNotifications();
-            this.onGameOver();
             this.onRouteToResultsPage();
         }
     }
@@ -82,7 +82,6 @@ export class MatchRoomService {
         this.socketService.disconnect();
     }
 
-    // TODO: check duplicate router navigation
     createRoom(gameId: string, isTestRoom: boolean = false, isRandomMode: boolean = false) {
         this.socketService.send(MatchEvents.CreateRoom, { gameId, isTestPage: isTestRoom, isRandomMode }, (res: { code: string }) => {
             this.matchRoomCode = res.code;
@@ -91,7 +90,6 @@ export class MatchRoomService {
                 this.players = [
                     { username: this.username, score: 0, bonusCount: 0, isChatActive: true, isPlaying: true, state: PlayerState.default },
                 ];
-                this.router.navigateByUrl('/play-test');
             } else {
                 this.sendPlayersData(this.matchRoomCode);
                 this.router.navigateByUrl('/match-room');
@@ -154,7 +152,6 @@ export class MatchRoomService {
         this.socketService.send(MatchEvents.StartMatch, this.matchRoomCode);
     }
 
-    // TODO: better way?
     onMatchStarted() {
         this.socketService.on(MatchEvents.MatchStarting, (data: { start: boolean; gameTitle: string }) => {
             if (data.start) {
@@ -172,7 +169,6 @@ export class MatchRoomService {
             this.currentQuestion = data.firstQuestion;
             this.gameDuration = data.gameDuration;
             const { firstQuestion, gameDuration } = data;
-            // TODO: remove unused state!
             this.router.navigate(['/play-match'], { state: { question: firstQuestion, duration: gameDuration } });
         });
     }
@@ -192,13 +188,11 @@ export class MatchRoomService {
     }
 
     onGameOver() {
-        // TODO: put message interface instead of any...
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        this.socketService.on(MatchEvents.GameOver, (data: any) => {
-            const { isTestRoom, isRandomMode } = data;
+        this.socketService.on(MatchEvents.GameOver, (gameOverInfo: GameOverInfo) => {
+            const { isTestRoom, isRandomMode } = gameOverInfo;
             if (isTestRoom && !isRandomMode) {
                 this.router.navigateByUrl('/host');
-            } else if (isRandomMode) {
+            } else if (isRandomMode && this.username === HOST_USERNAME) {
                 this.routeToResultsPage();
             }
         });

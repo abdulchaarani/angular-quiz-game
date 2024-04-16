@@ -1,4 +1,4 @@
 export enum QuestionType {
-    QCM = 'QCM',
-    QRL = 'QRL',
+    MultipleChoice = 'QCM',
+    LongAnswer = 'QRL',
 }

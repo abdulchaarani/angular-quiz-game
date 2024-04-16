@@ -1,8 +1,10 @@
+import { CHAT_REACTIVATED } from '@app/constants/chat-state-messages';
 import { ExpiredTimerEvents } from '@app/constants/expired-timer-events';
 import { BAN_PLAYER, NO_MORE_HOST, NO_MORE_PLAYERS } from '@app/constants/match-errors';
 import { PlayerEvents } from '@app/constants/player-events';
 import { Game } from '@app/model/database/game';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
+import { Player } from '@app/model/schema/player.schema';
 import { HistogramService } from '@app/services/histogram/histogram.service';
 import { HistoryService } from '@app/services/history/history.service';
 import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
@@ -13,7 +15,6 @@ import { PlayerState } from '@common/constants/player-states';
 import { ChatEvents } from '@common/events/chat.events';
 import { HistogramEvents } from '@common/events/histogram.events';
 import { MatchEvents } from '@common/events/match.events';
-import { TimerEvents } from '@common/events/timer.events';
 import { UserInfo } from '@common/interfaces/user-info';
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
@@ -52,12 +53,12 @@ export class MatchGateway implements OnGatewayDisconnect {
     }
 
     @SubscribeMessage(MatchEvents.CreateRoom)
-    createRoom(@ConnectedSocket() socket: Socket, @MessageBody() data: { gameId: string; isTestPage: boolean; isRandomMode: boolean }) {
+    async createRoom(@ConnectedSocket() socket: Socket, @MessageBody() data: { gameId: string; isTestPage: boolean; isRandomMode: boolean }) {
         let selectedGame: Game = {} as Game;
         if (!data.isRandomMode) {
             selectedGame = this.matchBackupService.getBackupGame(data.gameId);
         } else {
-            selectedGame = this.matchBackupService.getBackupRandomGame();
+            selectedGame = await this.matchBackupService.getBackupRandomGame();
         }
         const newMatchRoom: MatchRoom = this.matchRoomService.addRoom(selectedGame, socket, data.isTestPage, data.isRandomMode);
         this.histogramService.resetChoiceTracker(newMatchRoom.code);
@@ -79,14 +80,24 @@ export class MatchGateway implements OnGatewayDisconnect {
         return { code: newMatchRoom.code };
     }
 
-    // TODO: rename event and function?
     @SubscribeMessage(MatchEvents.RouteToResultsPage)
     routeToResultsPage(@ConnectedSocket() socket: Socket, @MessageBody() matchRoomCode: string) {
+        const roomIndex = this.matchRoomService.getRoomIndex(matchRoomCode);
+        this.matchRoomService.matchRooms[roomIndex].isPlaying = false;
+
         this.playerRoomService.setStateForAll(matchRoomCode, PlayerState.default);
         this.server.to(matchRoomCode).emit(MatchEvents.RouteToResultsPage);
         this.emitHistogramHistory(matchRoomCode);
+
         this.matchRoomService.declareWinner(matchRoomCode);
         this.historyService.createHistoryItem(this.matchRoomService.getRoom(matchRoomCode));
+
+        this.matchRoomService.matchRooms[roomIndex].players.forEach((player: Player) => {
+            if (!player.isChatActive) {
+                player.isChatActive = true;
+                this.server.in(player.socket.id).emit(ChatEvents.ChatReactivated, CHAT_REACTIVATED);
+            }
+        });
     }
 
     @SubscribeMessage(MatchEvents.ToggleLock)
@@ -127,16 +138,6 @@ export class MatchGateway implements OnGatewayDisconnect {
         this.matchRoomService.startNextQuestionCooldown(this.server, roomCode);
     }
 
-    @SubscribeMessage(TimerEvents.PauseTimer)
-    pauseTimer(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
-        this.matchRoomService.pauseMatchTimer(this.server, roomCode);
-    }
-
-    @SubscribeMessage(TimerEvents.PanicTimer)
-    panicTimer(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
-        this.matchRoomService.panicMatchTimer(this.server, roomCode);
-    }
-
     @OnEvent(ExpiredTimerEvents.CountdownTimerExpired)
     onCountdownTimerExpired(matchRoomCode: string) {
         this.matchRoomService.sendFirstQuestion(this.server, matchRoomCode);
@@ -146,7 +147,7 @@ export class MatchGateway implements OnGatewayDisconnect {
     @OnEvent(ExpiredTimerEvents.CooldownTimerExpired)
     onCooldownTimerExpired(matchRoomCode: string) {
         this.matchRoomService.sendNextQuestion(this.server, matchRoomCode);
-        if (!this.isTestRoom(matchRoomCode)) {
+        if (!this.isTestRoom(matchRoomCode) && !this.isRandomModeRoom(matchRoomCode)) {
             this.histogramService.resetChoiceTracker(matchRoomCode);
             this.histogramService.sendEmptyHistogram(matchRoomCode);
         }
@@ -161,7 +162,7 @@ export class MatchGateway implements OnGatewayDisconnect {
         const hostRoomCode = this.matchRoomService.getRoomCodeByHostSocket(socket.id);
         if (!hostRoomCode) return false;
         const hostRoom = this.matchRoomService.getRoom(hostRoomCode);
-        if (hostRoom.currentQuestionIndex !== hostRoom.gameLength && !hostRoom.isRandomMode) {
+        if ((hostRoom.isPlaying || !hostRoom.currentQuestionIndex) && !hostRoom.isRandomMode) {
             this.sendError(hostRoomCode, NO_MORE_HOST);
             this.deleteRoom(hostRoomCode);
             return true;
@@ -183,7 +184,7 @@ export class MatchGateway implements OnGatewayDisconnect {
         this.eventEmitter.emit(PlayerEvents.Quit, roomCode);
         const room = this.matchRoomService.getRoom(roomCode);
         const isRoomEmpty = this.isRoomEmpty(room);
-        if (room.isPlaying && isRoomEmpty && room.currentQuestionIndex <= room.gameLength) {
+        if (room.isPlaying && isRoomEmpty) {
             this.sendError(roomCode, NO_MORE_PLAYERS);
             this.deleteRoom(roomCode);
             return;
@@ -228,5 +229,9 @@ export class MatchGateway implements OnGatewayDisconnect {
     private isTestRoom(matchRoomCode: string) {
         const matchRoom = this.matchRoomService.getRoom(matchRoomCode);
         return matchRoom.isTestRoom && !matchRoom.isRandomMode;
+    }
+
+    private isRandomModeRoom(matchRoomCode: string) {
+        return this.matchRoomService.getRoom(matchRoomCode).isRandomMode;
     }
 }

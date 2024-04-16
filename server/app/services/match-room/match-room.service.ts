@@ -10,7 +10,9 @@ import { QuestionStrategyContext } from '@app/services/question-strategy-context
 import { TimeService } from '@app/services/time/time.service';
 import { COOLDOWN_TIME, COUNTDOWN_TIME, FACTOR, MAXIMUM_CODE_LENGTH } from '@common/constants/match-constants';
 import { MatchEvents } from '@common/events/match.events';
+import { TimerEvents } from '@common/events/timer.events';
 import { GameInfo } from '@common/interfaces/game-info';
+import { GameOverInfo } from '@common/interfaces/game-over-info';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 
@@ -129,8 +131,9 @@ export class MatchRoomService {
         this.timeService.pauseTimer(server, matchRoomCode);
     }
 
-    panicMatchTimer(server: Server, matchRoomCode: string) {
-        this.timeService.panicTimer(server, matchRoomCode);
+    triggerPanicMode(server: Server, matchRoomCode: string) {
+        this.timeService.startPanicTimer(server, matchRoomCode);
+        server.to(matchRoomCode).emit(TimerEvents.PanicTimer);
     }
 
     markGameAsPlaying(matchRoomCode: string): void {
@@ -166,7 +169,8 @@ export class MatchRoomService {
         const matchRoom: MatchRoom = this.getRoom(matchRoomCode);
 
         if (matchRoom.currentQuestionIndex === matchRoom.gameLength) {
-            server.in(matchRoomCode).emit(MatchEvents.GameOver, { isTestRoom: matchRoom.isTestRoom, isRandomMode: matchRoom.isRandomMode });
+            const gameOverInfo: GameOverInfo = { isTestRoom: matchRoom.isTestRoom, isRandomMode: matchRoom.isRandomMode };
+            server.in(matchRoomCode).emit(MatchEvents.GameOver, gameOverInfo);
             return;
         }
         const nextQuestion = this.getCurrentQuestion(matchRoomCode);

@@ -1,4 +1,9 @@
-<h1>Créer une partie</h1>
+<div class="nav">
+    <h1 class="page-title">Créer une partie</h1>
+    <div class="navigation-buttons">
+        <button mat-raised-button routerLink="/home"><mat-icon>home</mat-icon>Page principale</button>
+    </div>
+</div>
 <div id="match-creation-page">
     <div id="game-list-container">
         <h2>Liste des jeux</h2>
@@ -8,6 +13,8 @@
                     <p id="game-title">Mode Aléatoire</p>
                 </mat-card-content>
             </mat-card>
+
+            <app-pulse-loader *ngIf="isLoadingGames"></app-pulse-loader>
 
             <app-game-list-item
                 *cdkVirtualFor="let game of games"
@@ -20,8 +27,9 @@
 
     <div id="game-details-container">
         <h2>Détails du jeu {{ selectedGame ? '"' + selectedGame.title + '"' : '' }}</h2>
+
         <cdk-virtual-scroll-viewport class="virtual-scroll" itemSize="50">
-            <div id="game-details" *ngIf="gameIsValid; else elseBlock">
+            <div id="game-details" *ngIf="gameIsValid && !isLoadingSelectedGame; else elseBlock">
                 <div>
                     <strong><i class="material-icons">notes</i> Description: </strong>
                     <span id="game-description">{{ selectedGame.description }}</span>
@@ -43,8 +51,10 @@
             </div>
 
             <ng-template #elseBlock>
-                <span>Sélectionner un jeu dans la liste des jeux</span>
+                <span *ngIf="!isLoadingSelectedGame">Sélectionner un jeu dans la liste des jeux</span>
             </ng-template>
+
+            <app-pulse-loader *ngIf="isLoadingSelectedGame"></app-pulse-loader>
         </cdk-virtual-scroll-viewport>
 
         <div id="buttons-container">

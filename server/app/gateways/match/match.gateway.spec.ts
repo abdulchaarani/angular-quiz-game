@@ -462,6 +462,7 @@ describe('MatchGateway', () => {
         const histogramResetSpy = jest.spyOn(histogramSpy, 'resetChoiceTracker').mockReturnThis();
         const histogramSendSpy = jest.spyOn(histogramSpy, 'sendEmptyHistogram').mockReturnThis();
         jest.spyOn<any, any>(gateway, 'isTestRoom').mockReturnValue(false);
+        jest.spyOn<any, any>(gateway, 'isRandomModeRoom').mockReturnValue(false);
         eventEmitter.addListener(ExpiredTimerEvents.CooldownTimerExpired, gateway.onCountdownTimerExpired);
         expect(eventEmitter.hasListeners(ExpiredTimerEvents.CooldownTimerExpired)).toBe(true);
 
@@ -488,5 +489,14 @@ describe('MatchGateway', () => {
         jest.spyOn(matchRoomSpy, 'getRoom').mockReturnValue(mockRoom);
         const isTestPage = gateway['isTestRoom'](MOCK_ROOM_CODE);
         expect(isTestPage).toBe(false);
+    });
+
+    it('isRandomModeRoom() should return true if random mode', () => {
+        const mockRoom = { ...MOCK_RANDOM_MATCH_ROOM };
+        mockRoom.code = MOCK_ROOM_CODE;
+        mockRoom.isRandomMode = true;
+        jest.spyOn(matchRoomSpy, 'getRoom').mockReturnValue(mockRoom);
+        const isRandomModeRoom = gateway['isRandomModeRoom'](MOCK_ROOM_CODE);
+        expect(isRandomModeRoom).toBe(true);
     });
 });

@@ -58,9 +58,10 @@ body {
 }
 .main-container {
     padding: 1rem 8rem;
+    margin-bottom: 25vh;
     display: flex;
     flex-direction: column;
-    height: 100%;
+    min-height: 100%;
 }
 
 .container {

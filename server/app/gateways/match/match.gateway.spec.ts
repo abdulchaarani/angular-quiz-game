@@ -499,4 +499,16 @@ describe('MatchGateway', () => {
         const isRandomModeRoom = gateway['isRandomModeRoom'](MOCK_ROOM_CODE);
         expect(isRandomModeRoom).toBe(true);
     });
+
+    it('onRouteToResultsPage() should call routeToResultsPage when RouteToResultsPage event is emitted', () => {
+        const routeToResultsPageSpy = jest.spyOn(gateway, 'routeToResultsPage').mockReturnThis();
+
+        eventEmitter.addListener(MatchEvents.RouteToResultsPage, gateway.onRouteToResultsPage);
+        expect(eventEmitter.hasListeners(MatchEvents.RouteToResultsPage)).toBe(true);
+
+        gateway.onRouteToResultsPage(MOCK_ROOM_CODE);
+        expect(routeToResultsPageSpy).toHaveBeenCalledWith({}, MOCK_ROOM_CODE);
+
+        eventEmitter.removeListener(MatchEvents.RouteToResultsPage, gateway.onCountdownTimerExpired);
+    });
 });

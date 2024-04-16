@@ -14,6 +14,7 @@ import { TimerEvents } from '@common/events/timer.events';
 import { GameInfo } from '@common/interfaces/game-info';
 import { GameOverInfo } from '@common/interfaces/game-over-info';
 import { Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Server, Socket } from 'socket.io';
 
 @Injectable()
@@ -22,6 +23,7 @@ export class MatchRoomService {
     backgroundHostSocket: Socket;
 
     constructor(
+        private readonly eventEmitter: EventEmitter2,
         private readonly timeService: TimeService,
         private readonly questionStrategyService: QuestionStrategyContext,
     ) {
@@ -167,6 +169,11 @@ export class MatchRoomService {
 
     sendNextQuestion(server: Server, matchRoomCode: string): void {
         const matchRoom: MatchRoom = this.getRoom(matchRoomCode);
+
+        if (matchRoom.currentQuestionIndex === matchRoom.gameLength && matchRoom.isRandomMode) {
+            this.eventEmitter.emit(MatchEvents.RouteToResultsPage, matchRoomCode);
+            return;
+        }
 
         if (matchRoom.currentQuestionIndex === matchRoom.gameLength) {
             const gameOverInfo: GameOverInfo = { isTestRoom: matchRoom.isTestRoom, isRandomMode: matchRoom.isRandomMode };

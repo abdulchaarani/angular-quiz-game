@@ -192,8 +192,6 @@ export class MatchRoomService {
             const { isTestRoom, isRandomMode } = gameOverInfo;
             if (isTestRoom && !isRandomMode) {
                 this.router.navigateByUrl('/host');
-            } else if (isRandomMode && this.username === HOST_USERNAME) {
-                this.routeToResultsPage();
             }
         });
     }

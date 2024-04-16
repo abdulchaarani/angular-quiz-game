@@ -1,19 +1,19 @@
+import { CdkDragDrop, CdkDragEnd, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { GameService } from '@app/services/game/game.service';
-import { BankService } from '@app/services/bank/bank.service';
-import { Game } from '@app/interfaces/game';
-import { ManagementState } from '@app/constants/states';
-import { Question } from '@app/interfaces/question';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { MatDialogRef } from '@angular/material/dialog';
+import { Router } from '@angular/router';
+import { QuestionCreationFormComponent } from '@app/components/question-creation-form/question-creation-form.component';
 import { BankStatus, QuestionStatus } from '@app/constants/feedback-messages';
+import { ManagementState } from '@app/constants/states';
+import { Game } from '@app/interfaces/game';
+import { Question } from '@app/interfaces/question';
+import { BankService } from '@app/services/bank/bank.service';
+import { GameService } from '@app/services/game/game.service';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { QuestionService } from '@app/services/question/question.service';
-import { HttpErrorResponse } from '@angular/common/http';
-import { Router } from '@angular/router';
 import { lastValueFrom } from 'rxjs/internal/lastValueFrom';
-import { CdkDragDrop, CdkDragEnd, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
-import { MatDialogRef } from '@angular/material/dialog';
-import { QuestionCreationFormComponent } from '@app/components/question-creation-form/question-creation-form.component';
 
 @Injectable({
     providedIn: 'root',
@@ -72,6 +72,7 @@ export class GameModificationService {
 
     setNewGame() {
         this.state = ManagementState.GameCreate;
+        this.newGame.questions = [];
         this.game = { ...this.newGame };
         this.resetStateForNewGame();
     }

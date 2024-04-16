@@ -25,7 +25,7 @@
 
     <form id="chat-form">
         <mat-form-field id="chat-input-container">
-            <mat-label>Message</mat-label>
+            <mat-label>{{ disableMessagingField ? 'Désactivé' : 'Message' }}</mat-label>
             <input
                 id="chat-input"
                 matInput
@@ -33,6 +33,7 @@
                 maxlength="200"
                 [placeholder]="'...'"
                 (keydown.enter)="sendMessage(message.value); message.value = ''"
+                [disabled]="disableMessagingField"
             />
             <mat-icon id="chat-send-icon"  [ngClass]="{ 'disabled-send': disableMessagingField }" (click)="sendMessage(message.value); message.value = ''">send</mat-icon>
         </mat-form-field>

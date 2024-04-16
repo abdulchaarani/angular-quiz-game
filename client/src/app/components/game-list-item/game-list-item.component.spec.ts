@@ -3,6 +3,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { By } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -12,27 +13,26 @@ import { GameService } from '@app/services/game/game.service';
 import { of } from 'rxjs';
 import { GameListItemComponent } from './game-list-item.component';
 import SpyObj = jasmine.SpyObj;
-import { MatTooltipModule } from '@angular/material/tooltip';
 
 const MOCK_GAME = getMockGame();
 
 describe('GameListItemComponent', () => {
     let component: GameListItemComponent;
     let fixture: ComponentFixture<GameListItemComponent>;
-    let gamesServiceSpy: SpyObj<GameService>;
+    let gameServiceSpy: SpyObj<GameService>;
     let downloadSpy: SpyObj<DownloadGameService>;
 
     beforeEach(waitForAsync(() => {
-        gamesServiceSpy = jasmine.createSpyObj('GameService', ['getGames', 'getGameById', 'toggleGameVisibility', 'deleteGame', 'uploadGame']);
+        gameServiceSpy = jasmine.createSpyObj('GameService', ['getGames', 'getGameById', 'toggleGameVisibility', 'deleteGame', 'uploadGame']);
         downloadSpy = jasmine.createSpyObj('DownloadGameService', ['downloadGameAsJson']);
 
-        gamesServiceSpy.toggleGameVisibility.and.returnValue(of());
+        gameServiceSpy.toggleGameVisibility.and.returnValue(of());
 
         TestBed.configureTestingModule({
             imports: [MatCardModule, HttpClientModule, MatIconModule, RouterModule, RouterTestingModule, ScrollingModule, MatTooltipModule],
             declarations: [GameListItemComponent],
             providers: [
-                { provide: GameService, useValue: gamesServiceSpy },
+                { provide: GameService, useValue: gameServiceSpy },
                 { provide: DownloadGameService, useValue: downloadSpy },
             ],
         }).compileComponents();
@@ -77,13 +77,13 @@ describe('GameListItemComponent', () => {
     it('toggleGameVisibility() should call the service to toggle game visibility', () => {
         component.isAdminMode = true;
         component.toggleGameVisibility();
-        expect(gamesServiceSpy.toggleGameVisibility).toHaveBeenCalledWith(component.game);
+        expect(gameServiceSpy.toggleGameVisibility).toHaveBeenCalledWith(component.game);
     });
 
     it('toggleGameVisibility() should not call the service to toggle game visibility if not in admin mode', () => {
         component.isAdminMode = false;
         component.toggleGameVisibility();
-        expect(gamesServiceSpy.toggleGameVisibility).not.toHaveBeenCalled();
+        expect(gameServiceSpy.toggleGameVisibility).not.toHaveBeenCalled();
     });
 
     it('downloadGameAsJson() should call the service to download the game as json', () => {

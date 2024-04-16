@@ -53,7 +53,7 @@ export class GameModificationService {
     // eslint-disable-next-line max-params
     constructor(
         private readonly bankService: BankService,
-        private readonly gamesService: GameService,
+        private readonly gameService: GameService,
         private readonly notificationService: NotificationService,
         private readonly questionService: QuestionService,
         private readonly router: Router,
@@ -62,7 +62,7 @@ export class GameModificationService {
     setGame(id: string) {
         this.state = ManagementState.GameModify;
         this.game = { ...this.newGame };
-        this.gamesService.getGameById(id).subscribe({
+        this.gameService.getGameById(id).subscribe({
             next: (game: Game) => {
                 this.game = game;
                 this.resetStateForNewGame();
@@ -86,7 +86,7 @@ export class GameModificationService {
 
     handleSubmit() {
         if (this.game.title && this.game.description && this.game.duration) {
-            this.gamesService.submitGame(this.game, this.state).subscribe({
+            this.gameService.submitGame(this.game, this.state).subscribe({
                 next: () => {
                     this.notificationService.displaySuccessMessage(
                         `Jeux ${this.state === ManagementState.GameModify ? 'modifié' : 'créé'} avec succès! 😺`,

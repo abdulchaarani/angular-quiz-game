@@ -13,25 +13,25 @@ import { QuestionService } from '@app/services/question/question.service';
 
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { GameModificationService } from './game-modification.service';
-import { BankService } from '@app/services/bank/bank.service';
+import { CdkDragDrop, CdkDragEnd } from '@angular/cdk/drag-drop';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
+import { MatDialogRef } from '@angular/material/dialog';
+import { BankStatus, QuestionStatus } from '@app/constants/feedback-messages';
+import { getMockGame } from '@app/constants/game-mocks';
 import { getMockQuestion } from '@app/constants/question-mocks';
 import { ManagementState } from '@app/constants/states';
-import { getMockGame } from '@app/constants/game-mocks';
-import { BankStatus, QuestionStatus } from '@app/constants/feedback-messages';
-import { Question } from '@app/interfaces/question';
-import { MatDialogRef } from '@angular/material/dialog';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { CdkDragDrop, CdkDragEnd } from '@angular/cdk/drag-drop';
-import { FormControl, FormGroup } from '@angular/forms';
 import { Game } from '@app/interfaces/game';
+import { Question } from '@app/interfaces/question';
+import { BankService } from '@app/services/bank/bank.service';
+import { GameModificationService } from './game-modification.service';
 
 describe('GameModificationService', () => {
     let service: GameModificationService;
     let mockGame: Game;
 
     let notificationServiceSpy: jasmine.SpyObj<NotificationService>;
-    let gamesServiceSpy: jasmine.SpyObj<GameService>;
+    let gameServiceSpy: jasmine.SpyObj<GameService>;
     let questionServiceSpy: jasmine.SpyObj<QuestionService>;
     let bankServiceSpy: jasmine.SpyObj<BankService>;
     let routerSpy: jasmine.SpyObj<Router>;
@@ -90,7 +90,7 @@ describe('GameModificationService', () => {
             'confirmBankUpload',
         ]);
 
-        gamesServiceSpy = jasmine.createSpyObj('GameService', [
+        gameServiceSpy = jasmine.createSpyObj('GameService', [
             'getGames',
             'getGameById',
             'toggleGameVisibility',
@@ -127,7 +127,7 @@ describe('GameModificationService', () => {
 
         TestBed.configureTestingModule({
             providers: [
-                { provide: GameService, useValue: gamesServiceSpy },
+                { provide: GameService, useValue: gameServiceSpy },
                 { provide: MatSnackBar, useValue: {} },
                 { provide: NotificationService, useValue: notificationServiceSpy },
                 { provide: QuestionService, useValue: questionServiceSpy },
@@ -155,11 +155,11 @@ describe('GameModificationService', () => {
     it('should handle submit when state is modify', () => {
         const resetSpy = spyOn<any, any>(service, 'resetPendingChanges').and.returnValue({});
         service.state = ManagementState.GameModify;
-        gamesServiceSpy.submitGame.and.returnValue(of(mockHttpResponse));
+        gameServiceSpy.submitGame.and.returnValue(of(mockHttpResponse));
 
         service.handleSubmit();
 
-        expect(gamesServiceSpy.submitGame).toHaveBeenCalled();
+        expect(gameServiceSpy.submitGame).toHaveBeenCalled();
         expect(notificationServiceSpy.displaySuccessMessage).toHaveBeenCalledWith('Jeux modifié avec succès! 😺');
         expect(resetSpy).toHaveBeenCalled();
         expect(routerSpy.navigate).toHaveBeenCalledWith(['/admin/games/']);
@@ -168,11 +168,11 @@ describe('GameModificationService', () => {
     it('should handle submit when state is create', () => {
         const resetSpy = spyOn<any, any>(service, 'resetPendingChanges').and.returnValue({});
         service.state = ManagementState.GameCreate;
-        gamesServiceSpy.submitGame.and.returnValue(of(mockHttpResponse));
+        gameServiceSpy.submitGame.and.returnValue(of(mockHttpResponse));
 
         service.handleSubmit();
 
-        expect(gamesServiceSpy.submitGame).toHaveBeenCalled();
+        expect(gameServiceSpy.submitGame).toHaveBeenCalled();
         expect(notificationServiceSpy.displaySuccessMessage).toHaveBeenCalledWith('Jeux créé avec succès! 😺');
         expect(resetSpy).toHaveBeenCalled();
         expect(routerSpy.navigate).toHaveBeenCalledWith(['/admin/games/']);
@@ -181,22 +181,22 @@ describe('GameModificationService', () => {
     it('should handle modify submit error', () => {
         service.state = ManagementState.GameModify;
         const errorMessage = 'Error submitting game';
-        gamesServiceSpy.submitGame.and.returnValue(throwError(() => new HttpErrorResponse({ error: errorMessage })));
+        gameServiceSpy.submitGame.and.returnValue(throwError(() => new HttpErrorResponse({ error: errorMessage })));
 
         service.handleSubmit();
 
-        expect(gamesServiceSpy.submitGame).toHaveBeenCalled();
+        expect(gameServiceSpy.submitGame).toHaveBeenCalled();
         expect(notificationServiceSpy.displayErrorMessage).toHaveBeenCalled();
     });
 
     it('should handle create submit error', () => {
         service.state = ManagementState.GameCreate;
         const errorMessage = 'Error submitting game';
-        gamesServiceSpy.submitGame.and.returnValue(throwError(() => new HttpErrorResponse({ error: errorMessage })));
+        gameServiceSpy.submitGame.and.returnValue(throwError(() => new HttpErrorResponse({ error: errorMessage })));
 
         service.handleSubmit();
 
-        expect(gamesServiceSpy.submitGame).toHaveBeenCalled();
+        expect(gameServiceSpy.submitGame).toHaveBeenCalled();
         expect(notificationServiceSpy.displayErrorMessage).toHaveBeenCalled();
     });
 
@@ -409,7 +409,7 @@ describe('GameModificationService', () => {
 
     it('setGame() should set the game with correct id', () => {
         const resetSpy = spyOn<any, any>(service, 'resetStateForNewGame').and.returnValue({});
-        gamesServiceSpy.getGameById.and.returnValue(of(mockGame));
+        gameServiceSpy.getGameById.and.returnValue(of(mockGame));
 
         service.setGame('id');
 

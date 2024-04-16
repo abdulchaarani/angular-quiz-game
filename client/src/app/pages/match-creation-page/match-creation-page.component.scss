@@ -121,4 +121,6 @@ app-game-list-item {
 
 .navigation-buttons {
     grid-area: 1 / 5 / 2 / 6;
+    justify-self: right;
+    margin-right: 3.2rem;
 }

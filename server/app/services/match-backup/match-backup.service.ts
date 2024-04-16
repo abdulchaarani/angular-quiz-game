@@ -3,9 +3,9 @@ import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
 import { Question } from '@app/model/database/question';
 import { GameService } from '@app/services/game/game.service';
+import { RandomGameService } from '@app/services/random-game/random-game/random-game.service';
 import { Injectable } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
-import { RandomGameService } from '@app/services/random-game/random-game/random-game.service';
 
 @Injectable()
 export class MatchBackupService {
@@ -38,7 +38,8 @@ export class MatchBackupService {
         });
     }
 
-    getBackupRandomGame(): Game {
+    async getBackupRandomGame(): Promise<Game> {
+        await this.randomGameService.fetchAllQuestions();
         return this.randomGameService.generateRandomGame();
     }
 

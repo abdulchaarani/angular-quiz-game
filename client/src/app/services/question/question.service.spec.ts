@@ -7,6 +7,9 @@ import { MatDialogMock } from '@app/constants/mat-dialog-mock';
 import { Question } from '@app/interfaces/question';
 import { of } from 'rxjs';
 import { QuestionService } from './question.service';
+import { FormArray, FormControl, FormGroup } from '@angular/forms';
+import { getMockQuestion } from '@app/constants/question-mocks';
+import { QuestionType } from '@common/constants/question-types';
 
 const mockHttpResponse: HttpResponse<string> = new HttpResponse({ status: 200, statusText: 'OK', body: JSON.stringify(true) });
 
@@ -72,11 +75,89 @@ describe('QuestionService', () => {
             data: {
                 modificationState: 0,
             },
-            height: '70%',
+            height: '50%',
             width: '100%',
         };
         spyOn(dialog, 'open').and.callThrough();
         questionService.openCreateQuestionModal(0);
         expect(dialog.open).toHaveBeenCalledWith(QuestionCreationFormComponent, manageConfig);
+    });
+
+    it('validateChoicesLength() should validate the number of true and false choices in a question creation form (all choices are false) ', () => {
+        const formGroup = new FormGroup({
+            text: new FormControl(getMockQuestion().text),
+            points: new FormControl(getMockQuestion().points),
+            type: new FormControl(getMockQuestion().type),
+            choices: new FormArray([
+                new FormGroup({
+                    text: new FormControl('Choice 1'),
+                    isCorrect: new FormControl(false),
+                }),
+                new FormGroup({
+                    text: new FormControl('Choice 2'),
+                    isCorrect: new FormControl(false),
+                }),
+            ]),
+        });
+
+        const validationResult = questionService.validateChoicesLength(formGroup);
+
+        expect(validationResult).toEqual({ invalidChoicesLength: true });
+    });
+
+    it('validateChoicesLength() should validate the number of true and false choices in a question creation form (all choices are true)', () => {
+        const formGroup = new FormGroup({
+            text: new FormControl(getMockQuestion().text),
+            points: new FormControl(getMockQuestion().points),
+            type: new FormControl(getMockQuestion().type),
+            choices: new FormArray([
+                new FormGroup({
+                    text: new FormControl('choice 1'),
+                    isCorrect: new FormControl(true),
+                }),
+                new FormGroup({
+                    text: new FormControl('choice 2'),
+                    isCorrect: new FormControl(true),
+                }),
+            ]),
+        });
+
+        const validationResult = questionService.validateChoicesLength(formGroup);
+
+        expect(validationResult).toEqual({ invalidChoicesLength: true });
+    });
+
+    it('validateChoicesLength() should return null if the form has one wrong and one correct answer', () => {
+        const formGroup = new FormGroup({
+            text: new FormControl(getMockQuestion().text),
+            points: new FormControl(getMockQuestion().points),
+            type: new FormControl(getMockQuestion().type),
+            choices: new FormArray([
+                new FormGroup({
+                    text: new FormControl('Choice 1'),
+                    isCorrect: new FormControl(false),
+                }),
+                new FormGroup({
+                    text: new FormControl('Choice 2'),
+                    isCorrect: new FormControl(true),
+                }),
+            ]),
+        });
+
+        const validationResult = questionService.validateChoicesLength(formGroup);
+
+        expect(validationResult).toEqual(null);
+    });
+
+    it('validateChoicesLength() should return null for QRL type', () => {
+        const formGroup = new FormGroup({
+            text: new FormControl(getMockQuestion().text),
+            points: new FormControl(getMockQuestion().points),
+            type: new FormControl(QuestionType.LongAnswer),
+        });
+
+        const validationResult = questionService.validateChoicesLength(formGroup);
+
+        expect(validationResult).toEqual(null);
     });
 });

@@ -1,11 +1,6 @@
-.main-container {
-    padding: 2rem;
-}
-
-.question-properties {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 5vw;
+.form-container {
+    padding: 2rem 2rem 0 2rem;
+    font-size: 1.2rem;
 }
 
 .choices-container {
@@ -15,6 +10,10 @@
 
 .empty-container {
     width: 50vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .choice-container {
@@ -42,4 +41,25 @@
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
+}
+
+.correct-choice {
+    accent-color: rgb(133, 215, 95);
+    width: 1rem;
+    height: 1rem;
+}
+
+.pointer-on-hover {
+    cursor: pointer;
+}
+
+#question-properties-options-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+}
+
+.empty-icon {
+    font-size: 10rem;
+    opacity: 30%;
 }

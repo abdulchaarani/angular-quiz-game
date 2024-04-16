@@ -17,6 +17,7 @@ import { MultipleChoiceStrategy } from '@app/question-strategies/multiple-choice
 import { LongAnswerStrategy } from '@app/question-strategies/long-answer-strategy/long-answer-strategy';
 import { GradingEvents } from '@app/constants/grading-events';
 import { LongAnswerInfo } from '@common/interfaces/long-answer-info';
+import { PlayerEvents } from '@app/constants/player-events';
 
 describe('AnswerService', () => {
     let service: AnswerService;
@@ -85,6 +86,7 @@ describe('AnswerService', () => {
         player1.answer = { selectedChoices: selectedChoices1, isSubmitted: true, timestamp: randomDate } as MultipleChoiceAnswer;
         player1.answer.updateChoice = updateChoiceMock;
         player1.socket = mockPlayer1Socket;
+        player1.isPlaying = true;
         matchRoom.players[0] = player1;
 
         player2 = { ...MOCK_PLAYER };
@@ -95,6 +97,7 @@ describe('AnswerService', () => {
         player2.answer = { selectedChoices: selectedChoices2, isSubmitted: false } as MultipleChoiceAnswer;
         player2.answer.updateChoice = updateChoiceMock;
         player2.socket = mockPlayer2Socket;
+        player2.isPlaying = true;
         matchRoom.players[1] = player2;
 
         service['matchRoomService'].matchRooms[0] = matchRoom;
@@ -111,8 +114,8 @@ describe('AnswerService', () => {
     });
 
     it('onQuestionTimerExpired() should autoSubmitAnswers and call current strategy functions when QuestionTimerExpired event is emitted', () => {
-        const autoSubmitAnswersSpy = jest.spyOn<any, any>(service, 'autoSubmitAnswers');
-        const gradeAnswersSpy = jest.spyOn<any, any>(questionStrategyContext, 'gradeAnswers').mockReturnThis();
+        const autoSubmitAnswersSpy = jest.spyOn<any, any>(service, 'autoSubmitAnswers').mockImplementation();
+        const gradeAnswersSpy = jest.spyOn<any, any>(questionStrategyContext, 'gradeAnswers').mockImplementation();
 
         eventEmitter.addListener(ExpiredTimerEvents.QuestionTimerExpired, service.onQuestionTimerExpired);
         expect(eventEmitter.hasListeners(ExpiredTimerEvents.QuestionTimerExpired)).toBe(true);
@@ -126,8 +129,8 @@ describe('AnswerService', () => {
     });
 
     it('onGradingCompleteEvent() should call helper functions when GradingComplete event is emitted', () => {
-        const sendFeedbackSpy = jest.spyOn<any, any>(service, 'sendFeedback');
-        const finaliseRoundSpy = jest.spyOn<any, any>(service, 'finaliseRound');
+        const sendFeedbackSpy = jest.spyOn<any, any>(service, 'sendFeedback').mockImplementation();
+        const finaliseRoundSpy = jest.spyOn<any, any>(service, 'finaliseRound').mockImplementation();
         eventEmitter.addListener(GradingEvents.GradingComplete, service.onGradingCompleteEvent);
         expect(eventEmitter.hasListeners(GradingEvents.GradingComplete)).toBe(true);
 
@@ -139,10 +142,22 @@ describe('AnswerService', () => {
         eventEmitter.removeListener(GradingEvents.GradingComplete, service.onGradingCompleteEvent);
     });
 
+    it('onPlayerQuit() should call helper function when Quit event is emitted', () => {
+        const handleFinalAnswerSpy = jest.spyOn<any, any>(service, 'handleFinalAnswerSubmitted').mockImplementation();
+        eventEmitter.addListener(PlayerEvents.Quit, service['handleFinalAnswerSubmitted']);
+        expect(eventEmitter.hasListeners(PlayerEvents.Quit)).toBe(true);
+
+        service.onPlayerQuit(MOCK_ROOM_CODE);
+
+        expect(handleFinalAnswerSpy).toHaveBeenCalledWith(matchRoom);
+
+        eventEmitter.removeListener(PlayerEvents.Quit, service['handleFinalAnswerSubmitted']);
+    });
+
     it('updateChoice() should delegate choice tally according to selection', () => {
         player2.answer.isSubmitted = false;
         jest.spyOn<any, any>(playerService, 'getPlayerByUsername').mockReturnValue(player2);
-        const updateSpy = jest.spyOn<any, any>(histogramService, 'buildHistogram');
+        const updateSpy = jest.spyOn<any, any>(histogramService, 'buildHistogram').mockImplementation();
 
         service.updateChoice('choice1', true, 'player2', MOCK_ROOM_CODE);
         expect(player2.answer.updateChoice).toHaveBeenCalledWith('choice1', true);
@@ -183,6 +198,7 @@ describe('AnswerService', () => {
     });
 
     it('submitAnswers() should increment submitted players value', () => {
+        jest.spyOn<any, any>(service, 'handleFinalAnswerSubmitted').mockReturnThis();
         matchRoom.submittedPlayers = 0;
         jest.spyOn<any, any>(playerService, 'getPlayerByUsername').mockReturnValue(player2);
         service.submitAnswer('player2', MOCK_ROOM_CODE);
@@ -195,23 +211,33 @@ describe('AnswerService', () => {
     });
 
     it('handleFinalAnswerSubmitted() should cancel current timer and call score calculating functions if all active players have submitted', () => {
-        matchRoom.activePlayers = 2;
-        matchRoom.submittedPlayers = 2;
+        player1.answer.isSubmitted = true;
+        player2.answer.isSubmitted = true;
         const timerSpy = jest.spyOn<any, any>(timeService, 'terminateTimer').mockImplementation();
-        const timerExpiredSpy = jest.spyOn<any, any>(service, 'onQuestionTimerExpired');
+        const timerExpiredSpy = jest.spyOn<any, any>(service, 'onQuestionTimerExpired').mockImplementation();
         service['handleFinalAnswerSubmitted'](matchRoom);
         expect(timerSpy).toHaveBeenCalled();
         expect(timerExpiredSpy).toHaveBeenCalled();
     });
 
     it('handleFinalAnswerSubmitted() should not cancel timer nor call score calculating functions if not all active players have submitted', () => {
-        matchRoom.activePlayers = 2;
-        matchRoom.submittedPlayers = 1;
+        player1.answer.isSubmitted = true;
         const timerSpy = jest.spyOn<any, any>(timeService, 'terminateTimer').mockImplementation();
-        const timerExpiredSpy = jest.spyOn<any, any>(service, 'onQuestionTimerExpired');
+        const timerExpiredSpy = jest.spyOn<any, any>(service, 'onQuestionTimerExpired').mockImplementation();
         service['handleFinalAnswerSubmitted'](matchRoom);
         expect(timerSpy).not.toHaveBeenCalled();
         expect(timerExpiredSpy).not.toHaveBeenCalled();
+    });
+
+    it('handleFinalAnswerSubmitted() should stop round if a previously submitted player quit while other players have submitted', () => {
+        player1.answer.isSubmitted = true;
+        player2.answer.isSubmitted = true;
+        player1.isPlaying = false;
+        const timerSpy = jest.spyOn<any, any>(timeService, 'terminateTimer').mockImplementation();
+        const timerExpiredSpy = jest.spyOn<any, any>(service, 'onQuestionTimerExpired').mockImplementation();
+        service['handleFinalAnswerSubmitted'](matchRoom);
+        expect(timerSpy).toHaveBeenCalled();
+        expect(timerExpiredSpy).toHaveBeenCalled();
     });
 
     it("autoSubmitAnswers() should submit every player's answer if not already submitted", () => {
@@ -242,5 +268,15 @@ describe('AnswerService', () => {
         expect(player1.socket.emit).not.toHaveBeenCalledWith('feedback', player2Feedback);
         expect(player2.socket.emit).toHaveBeenCalledWith('feedback', player2Feedback);
         expect(player2.socket.emit).not.toHaveBeenCalledWith('feedback', player1Feedback);
+    });
+
+    it('finaliseRound() delegate calls to matchRoomService', () => {
+        const resetSpy = jest.spyOn<any, any>(matchRoomService, 'resetPlayerSubmissionCount').mockImplementation();
+        const incrementSpy = jest.spyOn<any, any>(matchRoomService, 'incrementCurrentQuestionIndex').mockImplementation();
+
+        service['finaliseRound'](MOCK_ROOM_CODE);
+
+        expect(resetSpy).toHaveBeenCalledWith(MOCK_ROOM_CODE);
+        expect(incrementSpy).toHaveBeenCalledWith(MOCK_ROOM_CODE);
     });
 });

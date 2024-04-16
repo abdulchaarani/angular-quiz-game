@@ -7,6 +7,7 @@ export enum BankStatus {
     FAILURE = "La question n'a pas pu être ajoutée. 😿",
     DUPLICATE = 'Cette question fait déjà partie de la banque! 😾',
     MODIFIED = 'Question modifiée avec succès! 😺',
+    DELETED = 'Question supprimée avec succès! 😺',
     UNMODIFIED = "La question n'a pas pu être modifiée. 😿",
     UNRETRIEVED = "Échec d'obtention des questions 😿",
     STILL = 'Échec de supression de la question 😿',
@@ -20,6 +21,7 @@ export enum QuestionStatus {
 
 export enum GameStatus {
     VERIFIED = 'Question vérifiée avec succès! 😺',
+    ARCHIVED = 'Question vérifiée et ajoutée à la banque avec succès! 😺',
     DUPLICATE = 'Cette question fait déjà partie de la liste des questions de ce jeu! 😾',
     FAILURE = "Échec d'obtention du jeu 😿",
 }
@@ -34,6 +36,14 @@ export enum WarningMessage {
 }
 
 export enum SnackBarError {
-    DELETED = "Le jeu sélectionné n'existe plus",
-    INVISIBLE = "Le jeu sélectionné n'est plus visible",
+    DELETED = "Le jeu sélectionné n'existe plus 😿",
+    INVISIBLE = "Le jeu sélectionné n'est plus visible 😿",
+}
+
+export enum SnackBarAction {
+    REFRESH = 'Actualiser',
+}
+
+export enum RandomModeStatus {
+    FAILURE = "Il n'y a pas assez de questions pour un jeu aléatoire 😿",
 }

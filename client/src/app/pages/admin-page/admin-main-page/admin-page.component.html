@@ -1,5 +1,10 @@
 <div id="main-container">
-    <h1>Administration des jeux</h1>
+    <div class="nav">
+        <h1>Administration des jeux</h1>
+        <div class="navigation-buttons">
+            <button mat-raised-button routerLink="/home"><mat-icon>home</mat-icon>Page principale</button>
+        </div>
+    </div>
     <div id="buttons-container">
         <div id="new-game-buttons-container">
             <button mat-raised-button color="primary" routerLink="/admin/games/new/"><mat-icon>add</mat-icon>Créer un nouveau jeu</button>
@@ -9,8 +14,8 @@
                     <mat-icon>upload</mat-icon>Importer un jeu (JSON)
                 </button>
             </div>
+            <button mat-raised-button color="primary" routerLink="/admin/bank"><mat-icon>question_mark</mat-icon>Banque de questions</button>
         </div>
-        <button mat-raised-button color="primary" routerLink="/admin/bank"><mat-icon>question_mark</mat-icon>Banque de questions</button>
     </div>
     <div class="games-container">
         <h2>Liste des jeux existants</h2>
@@ -21,6 +26,9 @@
                 <div id="game-list-item-options"><p>Options</p></div>
             </mat-card-content>
         </mat-card>
+
+        <app-pulse-loader *ngIf="gameService.isLoadingGames"></app-pulse-loader>
+
         <app-game-list-item
             *ngFor="let game of this.gameService.games"
             [game]="game"
@@ -59,6 +67,9 @@
                     <p>Meilleur score</p>
                 </mat-card-content>
             </mat-card>
+
+            <app-pulse-loader *ngIf="historyService.isLoadingHistory"></app-pulse-loader>
+
             <mat-card *ngFor="let history of this.historyService.historyItems | sortHistory: order.value : subject.value" class="history-card">
                 <mat-card-content class="history-content">
                     <p>{{ history.title }}</p>

@@ -4,7 +4,7 @@
     background-color: #bebebe3a;
     position: fixed;
     bottom: 0;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 
 #current-username {
@@ -17,7 +17,7 @@
     top: 10vh;
     height: 75vh;
     width: 20vw;
-    overflow-y: scroll;
+    overflow-y: auto;
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
@@ -74,12 +74,22 @@
     color: #fff;
 }
 
+.player-quit-message {
+    background-color: transparent;
+    font-size: 20px;
+}
+
 .right-message {
     margin-right: -0.65vw;
 }
 
 .left-message {
     margin-left: -0.75vw;
+}
+
+.disabled-send {
+    cursor: not-allowed;
+    opacity: 0.5;
 }
 
 #chat-form {

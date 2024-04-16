@@ -1,5 +1,6 @@
 import { HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { RandomModeStatus, SnackBarAction, SnackBarError } from '@app/constants/feedback-messages';
 import { RANDOM_MODE_GAME } from '@app/constants/question-creation';
 import { MatchContext } from '@app/constants/states';
 import { Game } from '@app/interfaces/game';
@@ -7,9 +8,10 @@ import { Question } from '@app/interfaces/question';
 import { GameService } from '@app/services/game/game.service';
 import { MatchService } from '@app/services/match/match.service';
 import { NotificationService } from '@app/services/notification/notification.service';
-import { QuestionContextService } from '@app/services/question-context/question-context.service';
+import { MatchContextService } from '@app/services/question-context/question-context.service';
 import { QuestionService } from '@app/services/question/question.service';
 import { MINIMUM_QUESTIONS } from '@common/constants/match-constants';
+import { QuestionType } from '@common/constants/question-types';
 
 @Component({
     selector: 'app-match-creation-page',
@@ -22,6 +24,8 @@ export class MatchCreationPageComponent implements OnInit {
     gameIsValid: boolean;
     matchContext = MatchContext;
     isRandomGame: boolean;
+    isLoadingGames: boolean;
+    isLoadingSelectedGame: boolean;
 
     // Services are required to decouple logic
     // eslint-disable-next-line max-params
@@ -29,11 +33,13 @@ export class MatchCreationPageComponent implements OnInit {
         private readonly gameService: GameService,
         private readonly notificationService: NotificationService,
         private readonly matchService: MatchService,
-        private readonly questionContextService: QuestionContextService,
+        private readonly matchContextService: MatchContextService,
         private readonly questionService: QuestionService,
     ) {
         this.gameIsValid = false;
         this.isRandomGame = false;
+        this.isLoadingGames = false;
+        this.isLoadingSelectedGame = false;
     }
 
     ngOnInit(): void {
@@ -41,23 +47,34 @@ export class MatchCreationPageComponent implements OnInit {
     }
 
     reloadAllGames(): void {
-        this.matchService.getAllGames().subscribe((data: Game[]) => (this.games = data));
+        this.isLoadingGames = true;
+        this.matchService.getAllGames().subscribe((data: Game[]) => {
+            this.games = data;
+            this.isLoadingGames = false;
+        });
+    }
+
+    handleLoadRandomGame(data: Question[]) {
+        const questionsCount = [...data].length;
+        if (this.hasEnoughRandomQuestions(questionsCount)) {
+            this.selectedGame = RANDOM_MODE_GAME;
+        }
+        this.isLoadingSelectedGame = false;
     }
 
     loadRandomGame(): void {
+        this.isLoadingSelectedGame = true;
         this.questionService.getAllQuestions().subscribe({
             next: (data: Question[]) => {
-                const questionsCount = [...data].length;
-                if (this.hasEnoughRandomQuestions(questionsCount)) {
-                    this.selectedGame = RANDOM_MODE_GAME;
-                }
+                data = data.filter((question) => question.type === QuestionType.MultipleChoice);
+                this.handleLoadRandomGame(data);
             },
         });
     }
 
     hasEnoughRandomQuestions(questionsCount: number): boolean {
         if (questionsCount < MINIMUM_QUESTIONS) {
-            this.notificationService.displayErrorMessage("Il n'y a pas assez de questions pour un jeu aléatoire");
+            this.notificationService.displayErrorMessage(RandomModeStatus.FAILURE);
             this.isRandomGame = this.gameIsValid = false;
             return false;
         }
@@ -66,14 +83,16 @@ export class MatchCreationPageComponent implements OnInit {
     }
 
     loadSelectedGame(selectedGame: Game): void {
+        this.isLoadingSelectedGame = true;
         this.isRandomGame = false;
         this.gameService.getGameById(selectedGame.id).subscribe({
             next: (data: Game) => {
                 this.selectedGame = data;
                 this.validateGame(this.selectedGame);
+                this.isLoadingSelectedGame = false;
             },
             error: () => {
-                const snackBarRef = this.notificationService.displayErrorMessageAction("Le jeu sélectionné n'existe plus", 'Actualiser');
+                const snackBarRef = this.notificationService.displayErrorMessageAction(SnackBarError.DELETED, SnackBarAction.REFRESH);
                 snackBarRef.onAction().subscribe(() => this.reloadAllGames());
             },
         });
@@ -87,7 +106,7 @@ export class MatchCreationPageComponent implements OnInit {
                 this.revalidateGame();
             },
             error: () => {
-                const snackBarRef = this.notificationService.displayErrorMessageAction("Le jeu sélectionné n'existe plus", 'Actualiser');
+                const snackBarRef = this.notificationService.displayErrorMessageAction(SnackBarError.DELETED, SnackBarAction.REFRESH);
                 snackBarRef.onAction().subscribe(() => this.reloadAllGames());
             },
         });
@@ -97,7 +116,7 @@ export class MatchCreationPageComponent implements OnInit {
         if (selectedGame.isVisible) {
             this.gameIsValid = true;
         } else {
-            const snackBarRef = this.notificationService.displayErrorMessageAction("Le jeu sélectionné n'est plus visible", 'Actualiser');
+            const snackBarRef = this.notificationService.displayErrorMessageAction(SnackBarError.INVISIBLE, SnackBarAction.REFRESH);
             snackBarRef.onAction().subscribe(() => this.reloadAllGames());
         }
     }
@@ -114,32 +133,37 @@ export class MatchCreationPageComponent implements OnInit {
                 }
             });
         } else {
-            const snackBarRef = this.notificationService.displayErrorMessageAction("Le jeu sélectionné n'est plus visible", 'Actualiser');
+            const snackBarRef = this.notificationService.displayErrorMessageAction(SnackBarError.INVISIBLE, SnackBarAction.REFRESH);
             snackBarRef.onAction().subscribe(() => this.reloadAllGames());
         }
     }
 
     createMatch(context: MatchContext): void {
-        this.questionContextService.setContext(context);
+        this.matchContextService.setContext(context);
         if (!this.isRandomGame) this.reloadSelectedGame();
         else {
             this.revalidateRandomGame();
         }
     }
 
+    handleRevalidateRandomGame(data: Question[]) {
+        const questionsCount = [...data].length;
+
+        const hasEnoughRandomQuestions = this.hasEnoughRandomQuestions(questionsCount);
+
+        if (hasEnoughRandomQuestions && this.isRandomGame && this.gameIsValid) {
+            this.matchService.currentGame = RANDOM_MODE_GAME;
+            this.matchService.createMatch();
+        } else {
+            this.notificationService.displayErrorMessage(RandomModeStatus.FAILURE);
+        }
+    }
+
     revalidateRandomGame() {
         this.questionService.getAllQuestions().subscribe({
             next: (data: Question[]) => {
-                const questionsCount = [...data].length;
-
-                const hasEnoughRandomQuestions = this.hasEnoughRandomQuestions(questionsCount);
-
-                if (hasEnoughRandomQuestions && this.isRandomGame && this.gameIsValid) {
-                    this.matchService.currentGame = this.selectedGame;
-                    this.matchService.createMatch();
-                } else {
-                    this.notificationService.displayErrorMessage("Il n'y a pas assez de questions pour un jeu aléatoire");
-                }
+                data = data.filter((question) => question.type === QuestionType.MultipleChoice);
+                this.handleRevalidateRandomGame(data);
             },
         });
     }

@@ -1,16 +1,18 @@
 import { ExpiredTimerEvents } from '@app/constants/expired-timer-events';
 import { INVALID_CODE, LOCKED_ROOM } from '@app/constants/match-login-errors';
-import { ChoiceTracker } from '@app/model/tally-trackers/choice-tracker/choice-tracker';
 import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
 import { Question } from '@app/model/database/question';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Player } from '@app/model/schema/player.schema';
+import { ChoiceTracker } from '@app/model/tally-trackers/choice-tracker/choice-tracker';
 import { QuestionStrategyContext } from '@app/services/question-strategy-context/question-strategy-context.service';
 import { TimeService } from '@app/services/time/time.service';
 import { COOLDOWN_TIME, COUNTDOWN_TIME, FACTOR, MAXIMUM_CODE_LENGTH } from '@common/constants/match-constants';
 import { MatchEvents } from '@common/events/match.events';
+import { TimerEvents } from '@common/events/timer.events';
 import { GameInfo } from '@common/interfaces/game-info';
+import { GameOverInfo } from '@common/interfaces/game-over-info';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 
@@ -78,6 +80,7 @@ export class MatchRoomService {
             startTime: new Date(),
         };
         this.matchRooms.push(newRoom);
+        this.setQuestionStrategy(newRoom);
         return newRoom;
     }
 
@@ -95,6 +98,7 @@ export class MatchRoomService {
 
     deleteRoom(matchRoomCode: string): void {
         this.timeService.terminateTimer(matchRoomCode);
+        this.questionStrategyService.deleteRoom(matchRoomCode);
         this.matchRooms = this.matchRooms.filter((room: MatchRoom) => {
             return room.code !== matchRoomCode;
         });
@@ -127,8 +131,9 @@ export class MatchRoomService {
         this.timeService.pauseTimer(server, matchRoomCode);
     }
 
-    panicMatchTimer(server: Server, matchRoomCode: string) {
-        this.timeService.panicTimer(server, matchRoomCode);
+    triggerPanicMode(server: Server, matchRoomCode: string) {
+        this.timeService.startPanicTimer(server, matchRoomCode);
+        server.to(matchRoomCode).emit(TimerEvents.PanicTimer);
     }
 
     markGameAsPlaying(matchRoomCode: string): void {
@@ -145,8 +150,7 @@ export class MatchRoomService {
         const firstQuestion = matchRoom.game.questions[0];
         const gameDuration: number = matchRoom.game.duration;
         const isTestRoom = matchRoom.isTestRoom;
-        this.questionStrategyService.setQuestionStrategy(matchRoom);
-
+        this.setQuestionStrategy(matchRoom);
         matchRoom.currentQuestionAnswer = this.filterCorrectChoices(firstQuestion);
         this.removeIsCorrectField(firstQuestion);
         if (!isTestRoom) {
@@ -165,16 +169,17 @@ export class MatchRoomService {
         const matchRoom: MatchRoom = this.getRoom(matchRoomCode);
 
         if (matchRoom.currentQuestionIndex === matchRoom.gameLength) {
-            server.in(matchRoomCode).emit(MatchEvents.GameOver, { isTestRoom: matchRoom.isTestRoom, isRandomMode: matchRoom.isRandomMode });
+            const gameOverInfo: GameOverInfo = { isTestRoom: matchRoom.isTestRoom, isRandomMode: matchRoom.isRandomMode };
+            server.in(matchRoomCode).emit(MatchEvents.GameOver, gameOverInfo);
             return;
         }
         const nextQuestion = this.getCurrentQuestion(matchRoomCode);
         matchRoom.currentQuestion = nextQuestion;
         matchRoom.currentQuestionAnswer = this.filterCorrectChoices(nextQuestion);
-        this.questionStrategyService.setQuestionStrategy(matchRoom);
+        this.setQuestionStrategy(matchRoom);
 
         this.removeIsCorrectField(nextQuestion);
-        server.in(matchRoomCode).emit(MatchEvents.NextQuestion, nextQuestion);
+        server.in(matchRoomCode).emit(MatchEvents.GoToNextQuestion, nextQuestion);
         matchRoom.hostSocket.send(MatchEvents.CurrentAnswers, matchRoom.currentQuestionAnswer);
         this.timeService.startTimer(server, matchRoomCode, matchRoom.questionDuration, ExpiredTimerEvents.QuestionTimerExpired);
     }
@@ -224,5 +229,10 @@ export class MatchRoomService {
 
     private removeIsCorrectField(question: Question) {
         question.choices.forEach((choice: Choice) => delete choice.isCorrect);
+    }
+
+    private setQuestionStrategy(matchRoom: MatchRoom) {
+        this.questionStrategyService.setQuestionStrategy(matchRoom);
+        this.timeService.currentPanicThresholdTime = this.questionStrategyService.getQuestionPanicThreshold(matchRoom.code);
     }
 }

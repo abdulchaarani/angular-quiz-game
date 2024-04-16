@@ -9,7 +9,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { MatExpansionModule } from '@angular/material/expansion';
+import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { QuestionListItemComponent } from '@app/components/question-list-item/question-list-item.component';
@@ -137,9 +137,12 @@ describe('AdminQuestionBankComponent', () => {
         expect(bankSpy.addQuestion).toHaveBeenCalled();
     });
 
-    it('updateQuestion() should update the question using the bank service', () => {
+    it('updateQuestion() should update the question using the bank service and then close the accordion', () => {
+        const mockAccordion: jasmine.SpyObj<MatAccordion> = jasmine.createSpyObj('MatAccordion', ['closeAll']);
+        component.accordion = mockAccordion;
         component.updateQuestion(newQuestionMock);
         expect(bankSpy.updateQuestion).toHaveBeenCalled();
+        expect(mockAccordion.closeAll).toHaveBeenCalled();
     });
 
     it('openDialog() should not open a dialog if dialogState is true', () => {

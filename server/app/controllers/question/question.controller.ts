@@ -12,7 +12,7 @@ export class QuestionController {
     constructor(private readonly questionService: QuestionService) {}
 
     @Get('/')
-    async allQuestions(@Res() response: Response) {
+    async getAllQuestions(@Res() response: Response) {
         try {
             const allQuestions = await this.questionService.getAllQuestions();
             response.status(HttpStatus.OK).json(allQuestions);
@@ -32,7 +32,7 @@ export class QuestionController {
     }
 
     @Get('/:id')
-    async questionById(@Param('id') id: string, @Res() response: Response) {
+    async getQuestionById(@Param('id') id: string, @Res() response: Response) {
         try {
             const question = await this.questionService.getQuestionById(id);
             response.status(HttpStatus.OK).json(question);

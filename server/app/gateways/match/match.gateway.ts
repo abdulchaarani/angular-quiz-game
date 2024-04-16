@@ -1,7 +1,10 @@
+import { CHAT_REACTIVATED } from '@app/constants/chat-state-messages';
 import { ExpiredTimerEvents } from '@app/constants/expired-timer-events';
 import { BAN_PLAYER, NO_MORE_HOST, NO_MORE_PLAYERS } from '@app/constants/match-errors';
+import { PlayerEvents } from '@app/constants/player-events';
 import { Game } from '@app/model/database/game';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
+import { Player } from '@app/model/schema/player.schema';
 import { HistogramService } from '@app/services/histogram/histogram.service';
 import { HistoryService } from '@app/services/history/history.service';
 import { MatchBackupService } from '@app/services/match-backup/match-backup.service';
@@ -9,12 +12,12 @@ import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { PlayerRoomService } from '@app/services/player-room/player-room.service';
 import { HOST_USERNAME } from '@common/constants/match-constants';
 import { PlayerState } from '@common/constants/player-states';
-import { MatchEvents } from '@common/events/match.events';
+import { ChatEvents } from '@common/events/chat.events';
 import { HistogramEvents } from '@common/events/histogram.events';
-import { TimerEvents } from '@common/events/timer.events';
+import { MatchEvents } from '@common/events/match.events';
 import { UserInfo } from '@common/interfaces/user-info';
 import { Injectable } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { ConnectedSocket, MessageBody, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
@@ -31,6 +34,7 @@ export class MatchGateway implements OnGatewayDisconnect {
         private readonly matchBackupService: MatchBackupService,
         private readonly histogramService: HistogramService,
         private readonly historyService: HistoryService,
+        private readonly eventEmitter: EventEmitter2,
     ) {}
 
     @SubscribeMessage(MatchEvents.JoinRoom)
@@ -49,12 +53,12 @@ export class MatchGateway implements OnGatewayDisconnect {
     }
 
     @SubscribeMessage(MatchEvents.CreateRoom)
-    createRoom(@ConnectedSocket() socket: Socket, @MessageBody() data: { gameId: string; isTestPage: boolean; isRandomMode: boolean }) {
+    async createRoom(@ConnectedSocket() socket: Socket, @MessageBody() data: { gameId: string; isTestPage: boolean; isRandomMode: boolean }) {
         let selectedGame: Game = {} as Game;
         if (!data.isRandomMode) {
             selectedGame = this.matchBackupService.getBackupGame(data.gameId);
         } else {
-            selectedGame = this.matchBackupService.getBackupRandomGame();
+            selectedGame = await this.matchBackupService.getBackupRandomGame();
         }
         const newMatchRoom: MatchRoom = this.matchRoomService.addRoom(selectedGame, socket, data.isTestPage, data.isRandomMode);
         this.histogramService.resetChoiceTracker(newMatchRoom.code);
@@ -66,6 +70,7 @@ export class MatchGateway implements OnGatewayDisconnect {
 
             if (!newMatchRoom.isRandomMode) {
                 this.matchRoomService.sendFirstQuestion(this.server, playerInfo.roomCode);
+                this.matchRoomService.startMatch(socket, this.server, newMatchRoom.code);
             }
 
             return { code: newMatchRoom.code };
@@ -75,14 +80,24 @@ export class MatchGateway implements OnGatewayDisconnect {
         return { code: newMatchRoom.code };
     }
 
-    // TODO: rename event and function?
     @SubscribeMessage(MatchEvents.RouteToResultsPage)
     routeToResultsPage(@ConnectedSocket() socket: Socket, @MessageBody() matchRoomCode: string) {
+        const roomIndex = this.matchRoomService.getRoomIndex(matchRoomCode);
+        this.matchRoomService.matchRooms[roomIndex].isPlaying = false;
+
         this.playerRoomService.setStateForAll(matchRoomCode, PlayerState.default);
         this.server.to(matchRoomCode).emit(MatchEvents.RouteToResultsPage);
         this.emitHistogramHistory(matchRoomCode);
+
         this.matchRoomService.declareWinner(matchRoomCode);
         this.historyService.createHistoryItem(this.matchRoomService.getRoom(matchRoomCode));
+
+        this.matchRoomService.matchRooms[roomIndex].players.forEach((player: Player) => {
+            if (!player.isChatActive) {
+                player.isChatActive = true;
+                this.server.in(player.socket.id).emit(ChatEvents.ChatReactivated, CHAT_REACTIVATED);
+            }
+        });
     }
 
     @SubscribeMessage(MatchEvents.ToggleLock)
@@ -117,20 +132,10 @@ export class MatchGateway implements OnGatewayDisconnect {
         this.playerRoomService.setStateForAll(roomCode, PlayerState.noInteraction);
     }
 
-    @SubscribeMessage(MatchEvents.NextQuestion)
-    nextQuestion(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
+    @SubscribeMessage(MatchEvents.GoToNextQuestion)
+    goToNextQuestion(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
         this.playerRoomService.setStateForAll(roomCode, PlayerState.noInteraction);
         this.matchRoomService.startNextQuestionCooldown(this.server, roomCode);
-    }
-
-    @SubscribeMessage(TimerEvents.PauseTimer)
-    pauseTimer(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
-        this.matchRoomService.pauseMatchTimer(this.server, roomCode);
-    }
-
-    @SubscribeMessage(TimerEvents.PanicTimer)
-    panicTimer(@ConnectedSocket() socket: Socket, @MessageBody() roomCode: string) {
-        this.matchRoomService.panicMatchTimer(this.server, roomCode);
     }
 
     @OnEvent(ExpiredTimerEvents.CountdownTimerExpired)
@@ -142,34 +147,54 @@ export class MatchGateway implements OnGatewayDisconnect {
     @OnEvent(ExpiredTimerEvents.CooldownTimerExpired)
     onCooldownTimerExpired(matchRoomCode: string) {
         this.matchRoomService.sendNextQuestion(this.server, matchRoomCode);
-        if (!this.isTestRoom(matchRoomCode)) {
+        if (!this.isTestRoom(matchRoomCode) && !this.isRandomModeRoom(matchRoomCode)) {
             this.histogramService.resetChoiceTracker(matchRoomCode);
             this.histogramService.sendEmptyHistogram(matchRoomCode);
         }
     }
 
     handleDisconnect(@ConnectedSocket() socket: Socket) {
-        const hostRoomCode = this.matchRoomService.getRoomCodeByHostSocket(socket.id);
-        const hostRoom = this.matchRoomService.getRoom(hostRoomCode);
+        const isHostDisconnected = this.handleHostDisconnect(socket);
+        if (!isHostDisconnected) this.handlePlayersDisconnect(socket);
+    }
 
-        // TODO: Improve
-        if (hostRoomCode && hostRoom.currentQuestionIndex !== hostRoom.gameLength && !hostRoom.isRandomMode) {
+    handleHostDisconnect(@ConnectedSocket() socket: Socket): boolean {
+        const hostRoomCode = this.matchRoomService.getRoomCodeByHostSocket(socket.id);
+        if (!hostRoomCode) return false;
+        const hostRoom = this.matchRoomService.getRoom(hostRoomCode);
+        if ((hostRoom.isPlaying || !hostRoom.currentQuestionIndex) && !hostRoom.isRandomMode) {
             this.sendError(hostRoomCode, NO_MORE_HOST);
             this.deleteRoom(hostRoomCode);
-            return;
+            return true;
         }
+        if (this.isRoomEmpty(hostRoom)) {
+            this.deleteRoom(hostRoomCode);
+            return true;
+        }
+        return false;
+    }
+
+    handlePlayersDisconnect(@ConnectedSocket() socket: Socket) {
+        const player = this.playerRoomService.getPlayerBySocket(socket.id);
         const roomCode = this.playerRoomService.deletePlayerBySocket(socket.id);
-        if (!roomCode) {
+        if (!roomCode || !player) {
             return;
         }
+
+        this.eventEmitter.emit(PlayerEvents.Quit, roomCode);
         const room = this.matchRoomService.getRoom(roomCode);
         const isRoomEmpty = this.isRoomEmpty(room);
-        if (room.isPlaying && isRoomEmpty && room.currentQuestionIndex !== room.gameLength) {
+        if (room.isPlaying && isRoomEmpty) {
             this.sendError(roomCode, NO_MORE_PLAYERS);
             this.deleteRoom(roomCode);
             return;
         }
+        if (isRoomEmpty && !room.hostSocket.connected) {
+            this.deleteRoom(roomCode);
+            return;
+        }
         this.handleSendPlayersData(roomCode);
+        this.sendMessageOnDisconnect(roomCode, player.username);
     }
 
     deleteRoom(matchRoomCode: string) {
@@ -186,6 +211,12 @@ export class MatchGateway implements OnGatewayDisconnect {
         this.server.to(socketId).emit(MatchEvents.Error, error);
     }
 
+    sendMessageOnDisconnect(roomCode, username) {
+        this.server
+            .to(roomCode)
+            .emit(ChatEvents.NewMessage, { roomCode, message: { author: '', text: `${username} a quitté la partie.`, date: new Date() } });
+    }
+
     private emitHistogramHistory(matchRoomCode: string) {
         const histograms = this.histogramService.sendHistogramHistory(matchRoomCode);
         this.server.to(matchRoomCode).emit(HistogramEvents.HistogramHistory, histograms);
@@ -198,5 +229,9 @@ export class MatchGateway implements OnGatewayDisconnect {
     private isTestRoom(matchRoomCode: string) {
         const matchRoom = this.matchRoomService.getRoom(matchRoomCode);
         return matchRoom.isTestRoom && !matchRoom.isRandomMode;
+    }
+
+    private isRandomModeRoom(matchRoomCode: string) {
+        return this.matchRoomService.getRoom(matchRoomCode).isRandomMode;
     }
 }

@@ -34,16 +34,9 @@ export class GameValidationService {
     }
 
     isValidChoicesRatio(question: CreateQuestionDto): boolean {
-        let isValidRightChoiceNumber = false;
-        let isValidWrongChoiceNumber = false;
-        question.choices.forEach((choice: Choice) => {
-            if (choice.isCorrect && this.isValidString(choice.text)) {
-                isValidRightChoiceNumber = true;
-            } else if (!choice.isCorrect && this.isValidString(choice.text)) {
-                isValidWrongChoiceNumber = true;
-            }
-        });
-        return isValidRightChoiceNumber && isValidWrongChoiceNumber;
+        const hasValidRightChoice = question.choices.some((choice: Choice) => choice.isCorrect && this.isValidString(choice.text));
+        const hasValidWrongChoice = question.choices.some((choice: Choice) => !choice.isCorrect && this.isValidString(choice.text));
+        return hasValidRightChoice && hasValidWrongChoice;
     }
 
     isValidRange(quantity: number, firstBound: number, secondBound: number) {
@@ -60,63 +53,45 @@ export class GameValidationService {
         return new Set(choicesTexts).size === choicesTexts.length;
     }
 
-    findGeneralQuestionErrors(question: CreateQuestionDto): string[] {
-        const errorMessages: string[] = [];
-        const isValidPointsRange = this.isValidRange(question.points, MIN_POINTS, MAX_POINTS);
-        const isValidPointsMultiple = question.points % STEP_POINTS === 0;
-        const isValidQuestionName = this.isValidString(question.text);
-        const isCorrectType = question.type === QuestionType.CHOICE || question.type === QuestionType.LONG;
-        if (!isValidPointsRange || !isValidPointsMultiple) {
-            errorMessages.push(ERROR_POINTS);
-        }
-        if (!isValidQuestionName) {
-            errorMessages.push(ERROR_EMPTY_QUESTION);
-        }
-        if (!isCorrectType) {
-            errorMessages.push(ERROR_QUESTION_TYPE);
-        }
+    checkErrors(errorConditions: Map<string, boolean>, errorMessages: string[]) {
+        errorConditions.forEach((hasError: boolean, message: string) => {
+            if (hasError) errorMessages.push(message);
+        });
         return errorMessages;
+    }
+
+    findGeneralQuestionErrors(question: CreateQuestionDto): string[] {
+        const errorConditions: Map<string, boolean> = new Map([
+            [ERROR_POINTS, !this.isValidRange(question.points, MIN_POINTS, MAX_POINTS) || question.points % STEP_POINTS !== 0],
+            [ERROR_EMPTY_QUESTION, !this.isValidString(question.text)],
+            [ERROR_QUESTION_TYPE, question.type !== QuestionType.MultipleChoice && question.type !== QuestionType.LongAnswer],
+        ]);
+        return this.checkErrors(errorConditions, []);
     }
 
     findChoicesQuestionErrors(question: CreateQuestionDto): string[] {
         const errorMessages: string[] = this.findGeneralQuestionErrors(question);
-        const isUniqueChoices = this.isUniqueChoices(question.choices);
-        const isValidChoicesNumber = this.isValidRange(question.choices.length, MIN_CHOICES_NUMBER, MAX_CHOICES_NUMBER);
-        const isValidChoicesRatio = this.isValidChoicesRatio(question);
-        if (!isValidChoicesNumber) {
-            errorMessages.push(ERROR_CHOICES_NUMBER);
-        }
-        if (!isUniqueChoices) {
-            errorMessages.push(ERROR_REPEAT_CHOICES);
-        }
-        if (!isValidChoicesRatio) {
-            errorMessages.push(ERROR_CHOICES_RATIO);
-        }
-        return errorMessages;
+        const errorConditions: Map<string, boolean> = new Map([
+            [ERROR_CHOICES_NUMBER, !this.isValidRange(question.choices.length, MIN_CHOICES_NUMBER, MAX_CHOICES_NUMBER)],
+            [ERROR_REPEAT_CHOICES, !this.isUniqueChoices(question.choices)],
+            [ERROR_CHOICES_RATIO, !this.isValidChoicesRatio(question)],
+        ]);
+        return this.checkErrors(errorConditions, errorMessages);
     }
 
     findGameErrors(game: Game): string[] {
-        const errorMessages: string[] = [];
-        const isValidTitle = this.isValidString(game.title);
-        const isValidDescription = this.isValidString(game.description);
-        const isValidDuration = this.isValidRange(game.duration, MIN_DURATION, MAX_DURATION);
-        const isValidQuestionsNumber = game.questions.length >= MIN_QUESTIONS_NUMBER;
+        const errorConditions: Map<string, boolean> = new Map([
+            [ERROR_EMPTY_TITLE, !this.isValidString(game.title)],
+            [ERROR_EMPTY_DESCRIPTION, !this.isValidString(game.description)],
+            [ERROR_DURATION, !this.isValidRange(game.duration, MIN_DURATION, MAX_DURATION)],
+            [ERROR_QUESTIONS_NUMBER, game.questions.length < MIN_QUESTIONS_NUMBER],
+        ]);
 
-        if (!isValidTitle) {
-            errorMessages.push(ERROR_EMPTY_TITLE);
-        }
-        if (!isValidDescription) {
-            errorMessages.push(ERROR_EMPTY_DESCRIPTION);
-        }
-        if (!isValidDuration) {
-            errorMessages.push(ERROR_DURATION);
-        }
-        if (!isValidQuestionsNumber) {
-            errorMessages.push(ERROR_QUESTIONS_NUMBER);
-        }
+        const errorMessages = this.checkErrors(errorConditions, []);
+
         game.questions.forEach((question: CreateQuestionDto, index: number) => {
             const questionErrorMessages = this.findQuestionErrors(question);
-            if (questionErrorMessages.length !== 0) {
+            if (questionErrorMessages.length) {
                 errorMessages.push(`La question ${index + 1} est invalide:`);
                 questionErrorMessages.forEach((message: string) => errorMessages.push(message));
             }
@@ -125,6 +100,6 @@ export class GameValidationService {
     }
 
     findQuestionErrors(question: Question): string[] {
-        return question.type === QuestionType.CHOICE ? this.findChoicesQuestionErrors(question) : this.findGeneralQuestionErrors(question);
+        return question.type === QuestionType.MultipleChoice ? this.findChoicesQuestionErrors(question) : this.findGeneralQuestionErrors(question);
     }
 }

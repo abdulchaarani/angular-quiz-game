@@ -1,6 +1,8 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatAccordion } from '@angular/material/expansion';
 import { QuestionCreationFormComponent } from '@app/components/question-creation-form/question-creation-form.component';
+import { TEMPLATE_QUESTION } from '@app/constants/question-creation';
 import { ManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
 import { BankService } from '@app/services/bank/bank.service';
@@ -16,14 +18,10 @@ export class AdminQuestionBankComponent implements OnInit {
     @Input() createNewQuestionButton: boolean = false;
     @Input() createNewQuestionToBankButton: boolean = false;
 
+    @ViewChild(MatAccordion) accordion: MatAccordion;
+
     response: string = '';
-    newQuestion: Question = {
-        id: 'X',
-        type: 'QCM',
-        text: 'Quelle est la capitale du canada?',
-        points: 20,
-        lastModification: '2024-01-26T14:21:19+00:00',
-    };
+    newQuestion: Question = TEMPLATE_QUESTION;
     dialogState: unknown;
 
     constructor(
@@ -46,6 +44,7 @@ export class AdminQuestionBankComponent implements OnInit {
 
     updateQuestion(newQuestion: Question) {
         this.bankService.updateQuestion(newQuestion);
+        this.accordion.closeAll();
     }
 
     openDialog() {

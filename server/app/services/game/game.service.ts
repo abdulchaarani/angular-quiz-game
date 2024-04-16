@@ -62,7 +62,7 @@ export class GameService {
         newGame = this.creationService.completeIsCorrectField(newGame);
         try {
             const errorMessages = this.validation.findGameErrors(newGame);
-            if (errorMessages.length === 0) {
+            if (!errorMessages.length) {
                 await this.gameModel.create(newGame);
                 return newGame;
             } else {
@@ -89,7 +89,7 @@ export class GameService {
         const filterQuery = { id: game.id };
         try {
             const errorMessages = this.validation.findGameErrors(game);
-            if (errorMessages.length !== 0) {
+            if (errorMessages.length) {
                 return Promise.reject(`${ERROR_INVALID_GAME}\n${errorMessages.join('\n')}`);
             }
             game = this.creationService.updateDateAndVisibility(game);

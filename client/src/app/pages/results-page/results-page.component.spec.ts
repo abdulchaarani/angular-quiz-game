@@ -7,16 +7,17 @@ import { FormsModule } from '@angular/forms';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { PLAYER_MOCK } from '@app/constants/chat-mocks';
 import { Player } from '@app/interfaces/player';
+import { ConfettiService } from '@app/services/confetti/confetti.service';
 import { HistogramService } from '@app/services/histogram/histogram.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
 import { ChoiceTally } from '@common/interfaces/choice-tally';
-import { Histogram } from '@common/interfaces/histogram';
+import { GradesHistogram, Histogram, MultipleChoiceHistogram } from '@common/interfaces/histogram';
 import { AgChartsAngularModule } from 'ag-charts-angular';
 import { AgChartOptions } from 'ag-charts-community';
-import { ResultsPageComponent } from './results-page.component';
 import { Subject, Subscription } from 'rxjs';
-import { ConfettiService } from '@app/services/confetti/confetti.service';
+import { ResultsPageComponent } from './results-page.component';
 
 @Component({
     // Component is provided by Angular Material; therefore, its selector starts with mat
@@ -46,6 +47,7 @@ class MockChatComponent {}
 })
 class MockPlayersListComponent {
     @Input() players: Player[];
+    @Input() canHostToggleChatState: boolean = true;
 }
 
 @Component({
@@ -76,11 +78,12 @@ describe('ResultsPageComponent', () => {
     let histogramServiceSpy: jasmine.SpyObj<HistogramService>;
     let confettiServiceSpy: jasmine.SpyObj<ConfettiService>;
     let histogramSubject: Subject<Histogram[]>;
+    const playersMock = [PLAYER_MOCK];
 
     beforeEach(() => {
         matchRoomServiceSpy = jasmine.createSpyObj('MatchRoomService', ['disconnect', 'gameOver']);
         histogramServiceSpy = jasmine.createSpyObj('HistogramService', ['onHistogramHistory']);
-        confettiServiceSpy = jasmine.createSpyObj('ConfettiService', ['getWinner']);
+        confettiServiceSpy = jasmine.createSpyObj('ConfettiService', ['onWinner']);
         TestBed.configureTestingModule({
             declarations: [
                 ResultsPageComponent,
@@ -104,11 +107,39 @@ describe('ResultsPageComponent', () => {
         histogramSubject = new Subject<Histogram[]>();
         histogramServiceSpy.histogramHistory$ = histogramSubject.asObservable();
 
+        component['matchRoomService'].players = playersMock;
+
         fixture.detectChanges();
     });
 
     it('should create', () => {
         expect(component).toBeTruthy();
+    });
+
+    it('should get current multiple choice histogram', () => {
+        const mockHistogram = { type: 'QCM' } as MultipleChoiceHistogram;
+        component['histogramsGame'] = [mockHistogram];
+        expect(component.currentMultipleChoiceHistogram).toEqual(mockHistogram);
+    });
+
+    it('should get current long answer histogram', () => {
+        const mockHistogram = { type: 'QRL' } as GradesHistogram;
+        component['histogramsGame'] = [mockHistogram];
+        expect(component.currentLongAnswerHistogram).toEqual(mockHistogram);
+    });
+
+    it('should check if question is multiple choice', () => {
+        const mockHistogram = { type: 'QCM' } as MultipleChoiceHistogram;
+        component['histogramsGame'] = [mockHistogram];
+        expect(component.isQuestionMultipleChoice()).toBeTrue();
+        expect(component.isQuestionLongAnswer()).toBeFalse();
+    });
+
+    it('should check if question is long answer', () => {
+        const mockHistogram = { type: 'QRL' } as MultipleChoiceHistogram;
+        component['histogramsGame'] = [mockHistogram];
+        expect(component.isQuestionMultipleChoice()).toBeFalse();
+        expect(component.isQuestionLongAnswer()).toBeTrue();
     });
 
     it('should unsubscribe from subscriptions on ngOnDestroy', () => {

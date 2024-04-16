@@ -4,8 +4,12 @@ import { MatchContext } from '@app/constants/states';
 @Injectable({
     providedIn: 'root',
 })
-export class QuestionContextService {
+export class MatchContextService {
     private context: MatchContext;
+
+    resetContext(): void {
+        this.context = MatchContext.Null;
+    }
 
     setContext(context: MatchContext): void {
         this.context = context;

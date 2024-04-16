@@ -6,15 +6,14 @@ import { ManagementState } from '@app/constants/states';
 import { Game } from '@app/interfaces/game';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { NotificationService } from '@app/services/notification/notification.service';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
 })
 export class GameService extends CommunicationService<Game> {
     games: Game[];
-    isPendingChangesObservable: Observable<boolean>;
-    isPendingChangesSource = new BehaviorSubject<boolean>(false);
+    isLoadingGames: boolean;
 
     constructor(
         http: HttpClient,
@@ -23,12 +22,16 @@ export class GameService extends CommunicationService<Game> {
     ) {
         super(http, 'admin/games');
         this.games = [];
-        this.isPendingChangesObservable = this.isPendingChangesSource.asObservable();
+        this.isLoadingGames = false;
     }
 
     getGames(): void {
+        this.isLoadingGames = true;
         this.getAll().subscribe({
-            next: (data: Game[]) => (this.games = [...data]),
+            next: (data: Game[]) => {
+                this.games = [...data];
+                this.isLoadingGames = false;
+            },
             error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`Échec d'obtention des jeux 😿\n ${error.message}`),
         });
     }
@@ -48,6 +51,7 @@ export class GameService extends CommunicationService<Game> {
             error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`Échec de supression du jeu 😿\n ${error.message}`),
         });
     }
+
     addGame(newGame: Game): Observable<HttpResponse<string>> {
         return this.add(newGame, '');
     }
@@ -72,33 +76,6 @@ export class GameService extends CommunicationService<Game> {
         });
     }
 
-    onFileSelected(event: Event): void {
-        // Reference: https://blog.angular-university.io/angular-file-upload/
-        // Reference: https://stackoverflow.com/questions/43176560/property-files-does-not-exist-on-type-eventtarget-error-in-typescript
-        const target = event.target as HTMLInputElement;
-        const file: File = (target.files as FileList)[0];
-        this.readFile(file);
-    }
-
-    async readFile(file: File): Promise<void | undefined> {
-        // Reference: https://stackoverflow.com/questions/47581687/read-a-file-and-parse-its-content
-        return new Promise<void>(() => {
-            const fileReader = new FileReader();
-            fileReader.onload = () => {
-                const stringifiedGame = fileReader.result?.toString();
-                this.addStringifiedGame(stringifiedGame);
-            };
-            fileReader.readAsText(file);
-        });
-    }
-
-    addStringifiedGame(newGameStringified: string | undefined): void {
-        if (newGameStringified) {
-            const newGame = JSON.parse(newGameStringified);
-            this.uploadGame(newGame);
-        }
-    }
-
     openDialog(newGame: Game): void {
         const dialogRef = this.dialog.open(DialogTextInputComponent, {
             data: { input: '', title: 'Veillez renommer le jeu.', placeholder: 'Nouveau titre' },
@@ -116,13 +93,5 @@ export class GameService extends CommunicationService<Game> {
 
     submitGame(game: Game, state: ManagementState) {
         return state === ManagementState.GameModify ? this.replaceGame(game) : this.addGame(game);
-    }
-
-    markPendingChanges() {
-        this.isPendingChangesSource.next(true);
-    }
-
-    resetPendingChanges() {
-        this.isPendingChangesSource.next(false);
     }
 }

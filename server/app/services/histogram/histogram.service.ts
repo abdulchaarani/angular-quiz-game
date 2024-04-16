@@ -18,7 +18,8 @@ export class HistogramService {
 
     @OnEvent(TimerDurationEvents.Timer)
     onTimerTick(roomCode: string, currentTimer: TimerInfo) {
-        if (this.questionStrategyContext.getQuestionStrategy() !== 'QRL') return;
+        if (!this.matchRoomService.isGamePlaying(roomCode)) return;
+        if (this.questionStrategyContext.getQuestionStrategy(roomCode) !== 'QRL') return;
         if (currentTimer.currentTime % HISTOGRAM_UPDATE_TIME_SECONDS === 0) {
             const matchRoom = this.matchRoomService.getRoom(roomCode);
             this.buildHistogram(matchRoom);
@@ -38,14 +39,13 @@ export class HistogramService {
     sendHistogramHistory(matchRoomCode: string) {
         const matchRoom = this.matchRoomService.getRoom(matchRoomCode);
         const histograms: Histogram[] = matchRoom.matchHistograms;
-
         matchRoom.hostSocket.emit(HistogramEvents.HistogramHistory, histograms);
         return histograms;
     }
 
     resetChoiceTracker(matchRoomCode: string) {
         const matchRoom = this.matchRoomService.getRoom(matchRoomCode);
-        if (matchRoom.game.questions.length !== 0) {
+        if (matchRoom.game.questions.length) {
             const currentQuestion = matchRoom.game.questions[matchRoom.currentQuestionIndex];
             matchRoom.choiceTracker.resetChoiceTracker(currentQuestion.text, currentQuestion.choices);
         }
@@ -58,6 +58,7 @@ export class HistogramService {
     sendEmptyHistogram(roomCode: string) {
         const matchRoom = this.matchRoomService.getRoom(roomCode);
         const histogram: Histogram = this.questionStrategyContext.buildHistogram(matchRoom);
+        this.saveHistogram(histogram, matchRoom);
         matchRoom.hostSocket.emit(HistogramEvents.CurrentHistogram, histogram);
     }
 }

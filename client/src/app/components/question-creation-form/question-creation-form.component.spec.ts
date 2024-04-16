@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { MatOptionModule } from '@angular/material/core';
@@ -15,6 +15,10 @@ import { QuestionListItemComponent } from '@app/components/question-list-item/qu
 import { ManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
 import { DialogManagement, QuestionCreationFormComponent } from './question-creation-form.component';
+import { QuestionService } from '@app/services/question/question.service';
+import { QuestionType } from '@common/constants/question-types';
+import { BankService } from '@app/services/bank/bank.service';
+import { forwardRef } from '@angular/core';
 
 const mockQuestion: Question = {
     id: '1',
@@ -35,11 +39,16 @@ describe('QuestionCreationFormComponent', () => {
     let component: QuestionCreationFormComponent;
     let fixture: ComponentFixture<QuestionCreationFormComponent>;
     let snackBarSpy: jasmine.SpyObj<MatSnackBar>;
+    let questionServiceSpy: jasmine.SpyObj<QuestionService>;
+    let bankServiceSpy: jasmine.SpyObj<BankService>;
     let formBuilder: FormBuilder;
     const dialogData: DialogManagement = { modificationState: ManagementState.GameCreate };
 
     beforeEach(() => {
         const snackBarSpyObj = jasmine.createSpyObj('MatSnackBar', ['open']);
+        questionServiceSpy = jasmine.createSpyObj('QuestionService', ['validateChoicesLength']);
+        bankServiceSpy = jasmine.createSpyObj('QuestionService', ['addQuestion']);
+
         TestBed.configureTestingModule({
             declarations: [QuestionCreationFormComponent, QuestionListItemComponent],
             imports: [
@@ -51,10 +60,20 @@ describe('QuestionCreationFormComponent', () => {
                 MatFormFieldModule,
                 MatInputModule,
                 NoopAnimationsModule,
-                // BrowserAnimationsModule,
                 MatIconModule,
             ],
-            providers: [{ provide: MatSnackBar, useValue: snackBarSpyObj }, FormBuilder, { provide: MAT_DIALOG_DATA, useValue: dialogData }],
+            providers: [
+                { provide: MatSnackBar, useValue: snackBarSpyObj },
+                FormBuilder,
+                { provide: MAT_DIALOG_DATA, useValue: dialogData },
+                { provide: QuestionService, useValue: questionServiceSpy },
+                { provide: BankService, useValue: bankServiceSpy },
+                {
+                    provide: NG_VALUE_ACCESSOR,
+                    useExisting: forwardRef(() => 'bankToggle'),
+                    multi: true,
+                },
+            ],
         }).compileComponents();
 
         snackBarSpy = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
@@ -108,6 +127,15 @@ describe('QuestionCreationFormComponent', () => {
         expect(component.question).toEqual(component.questionForm.value);
     });
 
+    it('should remove choices control when question type is QRL', () => {
+        component.questionForm.patchValue({
+            text: 'Test question',
+            points: 10,
+            type: QuestionType.LongAnswer,
+        });
+        expect(component.questionForm.contains('choices')).toBeFalse();
+    });
+
     it('should submit the form to create a question in the question list', () => {
         spyOn(component.createQuestionEvent, 'emit');
         component.onSubmit();
@@ -131,6 +159,18 @@ describe('QuestionCreationFormComponent', () => {
         expect(component.modifyQuestionEvent.emit).toHaveBeenCalledWith(mockQuestionSubmit);
     });
 
+    it('should create copy of question in the bank if toggled', () => {
+        spyOn(component.modifyQuestionEvent, 'emit');
+
+        bankServiceSpy.addToBank = false;
+        component.modificationState = ManagementState.GameModify;
+        component.onSubmit();
+        bankServiceSpy.addToBank = true;
+        component.onSubmit();
+
+        expect(bankServiceSpy.addQuestion).toHaveBeenCalledTimes(1);
+    });
+
     it('should update form values when ngOnChanges is called', () => {
         spyOn(component, 'ngOnChanges').and.callThrough();
         const changedQuestion = {
@@ -152,36 +192,6 @@ describe('QuestionCreationFormComponent', () => {
         component.questionForm.value.lastModification = '2024-01-26T14:21:19+00:00';
         component.questionForm.value.id = '1';
         expect(component.questionForm.value).toEqual(changedQuestion);
-    });
-
-    it('should not submit a question without at least one correct and incorrect choices - Case when all is true', () => {
-        spyOn(component.createQuestionEvent, 'emit');
-        component.questionForm.setValue({
-            text: 'Test ',
-            points: 10,
-            type: 'QCM',
-            choices: [
-                { text: 'Choice 1', isCorrect: true },
-                { text: 'Choice 2', isCorrect: true },
-            ],
-        });
-        component.onSubmit();
-        expect(component.createQuestionEvent.emit).not.toHaveBeenCalled();
-    });
-
-    it('should not submit a question without at least one correct and incorrect choices - Case when all is false', () => {
-        spyOn(component.createQuestionEvent, 'emit');
-        component.questionForm.setValue({
-            text: 'Test ',
-            points: 10,
-            type: 'QCM',
-            choices: [
-                { text: 'Choice 1', isCorrect: false },
-                { text: 'Choice 2', isCorrect: false },
-            ],
-        });
-        component.onSubmit();
-        expect(component.createQuestionEvent.emit).not.toHaveBeenCalled();
     });
 
     it('should not submit an invalid form', () => {

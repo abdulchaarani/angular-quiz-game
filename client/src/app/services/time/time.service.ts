@@ -1,24 +1,28 @@
 import { Injectable } from '@angular/core';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
-import { BehaviorSubject } from 'rxjs';
 import { TimerInfo } from '@common/interfaces/timer-info';
-import { MULTIPLICATION_FACTOR } from '@common/constants/match-constants';
+import { MULTIPLICATION_FACTOR, PANIC_ALERT_DELAY } from '@common/constants/match-constants';
 import { TimerEvents } from '@common/events/timer.events';
 
 @Injectable({
     providedIn: 'root',
 })
 export class TimeService {
+    isTimerPaused: boolean;
+    isPanicModeDisabled: boolean;
     isPanicking: boolean;
+    isAlertDisplayed: boolean;
+    alertSymbol: string;
     private counter: number;
     private initialValue: number;
-    private timerFinished: BehaviorSubject<boolean>;
 
     constructor(private readonly socketService: SocketHandlerService) {
         this.counter = 0;
         this.initialValue = 0;
+        this.isPanicModeDisabled = false;
         this.isPanicking = false;
-        this.timerFinished = new BehaviorSubject<boolean>(false);
+        this.isAlertDisplayed = false;
+        this.isTimerPaused = false;
     }
 
     get time() {
@@ -29,12 +33,17 @@ export class TimeService {
         return this.initialValue;
     }
 
-    get timerFinished$() {
-        return this.timerFinished.asObservable();
-    }
-
     set time(newTime: number) {
         this.counter = newTime;
+    }
+
+    listenToTimerEvents() {
+        this.handleTimer();
+        this.handleStopTimer();
+        this.onPanicTimer();
+        this.onPauseTimer();
+        this.onResumeTimer();
+        this.onDisablePanicTimer();
     }
 
     startTimer(roomCode: string, time: number): void {
@@ -49,7 +58,7 @@ export class TimeService {
         this.socketService.send(TimerEvents.PauseTimer, roomCode);
     }
 
-    panicTimer(roomCode: string): void {
+    triggerPanicTimer(roomCode: string): void {
         this.isPanicking = true;
         this.socketService.send(TimerEvents.PanicTimer, roomCode);
     }
@@ -63,12 +72,49 @@ export class TimeService {
 
     handleStopTimer(): void {
         this.socketService.on(TimerEvents.StopTimer, () => {
-            this.timerFinished.next(true);
             this.isPanicking = false;
+        });
+    }
+
+    onPanicTimer() {
+        this.socketService.on(TimerEvents.PanicTimer, () => {
+            this.alertSymbol = '❗';
+            this.displayPanicAlert();
+        });
+    }
+
+    onPauseTimer() {
+        this.socketService.on(TimerEvents.PauseTimer, () => {
+            this.alertSymbol = 'II';
+            this.displayPanicAlert();
+        });
+    }
+
+    onResumeTimer() {
+        this.socketService.on(TimerEvents.ResumeTimer, () => {
+            this.alertSymbol = '▶';
+            this.displayPanicAlert();
+        });
+    }
+
+    onDisablePanicTimer(): void {
+        this.socketService.on(TimerEvents.DisablePanicTimer, () => {
+            this.isPanicModeDisabled = true;
         });
     }
 
     computeTimerProgress(): number {
         return (this.time / this.duration) * MULTIPLICATION_FACTOR;
+    }
+
+    togglePauseStatus() {
+        this.isTimerPaused = !this.isTimerPaused;
+    }
+
+    private displayPanicAlert() {
+        this.isAlertDisplayed = true;
+        setTimeout(() => {
+            this.isAlertDisplayed = false;
+        }, PANIC_ALERT_DELAY);
     }
 }

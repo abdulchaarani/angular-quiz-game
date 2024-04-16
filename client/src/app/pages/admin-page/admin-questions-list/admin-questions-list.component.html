@@ -1,34 +1,72 @@
-<div class="main-container" [class.sidenav-active]="isSideBarActive">
-    <mat-drawer-container class="bank-container container" autosize>
-        <h1 class="page-title">{{ getTitle() }} du jeu</h1>
-        <mat-icon class="pending-changes" *ngIf="this.isPendingChanges">circle</mat-icon>
-
-        <div class="buttons-container buttons-rack">
-            <div>
-                <button
-                    class="submit-button"
-                    mat-raised-button
-                    color="accent"
-                    (click)="handleSubmit()"
-                    [disabled]="gameForm.invalid || game.questions.length === 0"
-                >
-                    <mat-icon>done</mat-icon> {{ getButtonText() }}
-                </button>
-            </div>
-
-            <div class="buttons-container question-buttons">
-                <button mat-raised-button color="primary" (click)="openCreateQuestionDialog()" id="admin-question-creation-form-button">
-                    <mat-icon>add</mat-icon>Ajouter une nouvelle question
-                </button>
-
-                <button mat-raised-button color="basic" (click)="drawer.toggle()" (click)="toggleSideBarClass()">
-                    <mat-icon>question_mark</mat-icon>Banque de question
-                </button>
-            </div>
+<mat-sidenav-container class="sidenav-container" [hasBackdrop]="false">
+    <mat-sidenav #sidenav [mode]="'over'" [position]="'end'">
+        <div class="sidenav-close">
+            <button mat-button (click)="sidenav.toggle()">✖</button>
         </div>
-        <div>
-            <form [formGroup]="gameForm">
-                <div class="game-form-details">
+        <p class="bank-message">{{ gameModificationService.currentBankMessage }}</p>
+
+        <!-- <app-pulse-loader *ngIf="!gameModificationService.bankQuestions.length"></app-pulse-loader> -->
+
+        <cdk-virtual-scroll-viewport class="bank-scroll" itemSize="50">
+            <div
+                id="bank-questions"
+                cdkDropList
+                [cdkDropListData]="gameModificationService.bankQuestions"
+                cdkDropListConnectedTo="quiz-questions"
+                class="list bank-questions-list"
+            >
+                <app-short-question
+                    class="question short-question"
+                    *ngFor="let question of gameModificationService.bankQuestions | sortByLastModification: 'descending'"
+                    [question]="question"
+                    cdkDrag
+                    [cdkDragData]="question"
+                    (mousedown)="gameModificationService.dragBankQuestion()"
+                    (mouseup)="gameModificationService.dropBankQuestion()"
+                    (cdkDragStarted)="gameModificationService.dragBankQuestion()"
+                    (cdkDragEnded)="gameModificationService.dropBankQuestion()"
+                ></app-short-question>
+            </div>
+        </cdk-virtual-scroll-viewport>
+    </mat-sidenav>
+
+    <mat-sidenav-content>
+        <h1 class="page-title">{{ state === managementState.GameModify ? 'Modification' : 'Création' }} du jeu</h1>
+
+        <div class="buttons-container">
+            <button
+                class="submit-button"
+                mat-raised-button
+                (click)="gameModificationService.handleSubmit()"
+                [disabled]="gameModificationService.gameForm.invalid || game.questions.length === 0"
+            >
+                <mat-icon>done</mat-icon> {{ state === managementState.GameModify ? 'Appliquer les modifications' : 'Créer le jeu' }}
+            </button>
+
+            <button
+                class="question-bank-button"
+                mat-raised-button
+                color="primary"
+                (click)="gameModificationService.openCreateQuestionDialog()"
+                id="admin-question-creation-form-button"
+            >
+                <mat-icon>add</mat-icon>Ajouter une nouvelle question
+            </button>
+
+            <button class="question-bank-button" mat-raised-button color="primary" (click)="sidenav.toggle()">
+                <mat-icon>question_mark</mat-icon>Banque de questions
+            </button>
+
+            <button class="cancel-button" mat-raised-button routerLink="/admin/games">
+                <mat-icon *ngIf="!this.gameModificationService.isPendingChanges">clear</mat-icon>
+                <mat-icon class="pending-changes" *ngIf="this.gameModificationService.isPendingChanges">pending</mat-icon>
+                Annuler la {{ state === managementState.GameModify ? 'modification' : 'création' }} du jeu
+            </button>
+        </div>
+
+        <div class="game-container">
+            <form [formGroup]="gameModificationService.gameForm">
+                <div class="game-form-details item-container">
                     <mat-form-field class="game-title">
                         <mat-label>Titre</mat-label>
                         <input matInput id="text" type="text" formControlName="title" />
@@ -40,72 +78,52 @@
                     </mat-form-field>
                 </div>
 
-                <mat-card>
-                    <mat-card-content class="time-slider">
-                        <p>Durée de la minuterie</p>
+                <mat-card class="duration-card item-container">
+                    <mat-card-content class="duration-slider">
+                        <p>Temps par QCM</p>
                         <mat-slider min="10" max="60" step="5" discrete="thumblabel">
-                            <input matSliderThumb [value]="game.duration" (change)="changeDuration($event)" formControlName="duration" />
+                            <input matSliderThumb [value]="game.duration" formControlName="duration" />
                         </mat-slider>
                         <p>{{ game.duration }} secondes</p>
                     </mat-card-content>
                 </mat-card>
             </form>
 
-            <div class="drop-destination" [class.visible]="isBankQuestionDragged">
-                <h3 class="">👇 Déposez la question dans la liste! 👇</h3>
-            </div>
+            <app-pulse-loader *ngIf="state !== managementState.GameCreate && !game.questions.length"></app-pulse-loader>
+
             <div
                 id="quiz-questions"
-                class="list game-questions-list"
+                class="list game-questions-list item-container"
                 cdkDropList
                 [cdkDropListData]="game.questions"
                 cdkDropListConnectedTo="bank-questions"
-                (cdkDropListDropped)="dropInQuizList($event)"
+                (cdkDropListDropped)="gameModificationService.dropInQuizList($event)"
                 [class.empty-list]="game.questions.length === 0"
+                [class.visible]="gameModificationService.isBankQuestionDragged"
             >
                 <mat-accordion>
                     <p *ngIf="game.questions.length === 0" class="create-notice">
-                        Le jeu doit contenir au moins 1 question. Clicker sur Ajouter une nouvelle question ou importer une question de la banque.
+                        Le jeu doit contenir au moins 1 question. Cliquez sur "Ajouter une nouvelle question" ou importez une question de la banque.
                     </p>
-                    <app-question-list-item
-                        class="question game-question"
-                        *ngFor="let question of game.questions"
-                        [index]="game.questions.indexOf(question) + 1"
-                        [question]="question"
-                        [isBankQuestion]="false"
-                        (deleteQuestionEvent)="deleteQuestion($event)"
-                        (cdkDragStarted)="dragQuizQuestion(question)"
-                        (cdkDragEnded)="dropQuizQuestion($event)"
-                        cdkDrag
-                    >
-                        <div cdkDragHandle></div>
-                    </app-question-list-item>
+
+                    <cdk-virtual-scroll-viewport class="game-scroll" itemSize="350">
+                        <app-question-list-item
+                            class="question game-question"
+                            *ngFor="let question of game.questions; let i = index"
+                            [isExpanded]="i === 0 && gameModificationService.isFirstInteraction"
+                            [index]="game.questions.indexOf(question) + 1"
+                            [question]="question"
+                            [isBankQuestion]="false"
+                            (deleteQuestionEvent)="gameModificationService.deleteQuestion($event)"
+                            (cdkDragStarted)="gameModificationService.dragQuizQuestion(question)"
+                            (cdkDragEnded)="gameModificationService.dropQuizQuestion($event)"
+                            cdkDrag
+                        >
+                            <div cdkDragHandle></div>
+                        </app-question-list-item>
+                    </cdk-virtual-scroll-viewport>
                 </mat-accordion>
             </div>
         </div>
-
-        <mat-drawer #drawer class="sidenav" mode="side" position="end" id="test">
-            <h3 class="bank-message">{{ currentBankMessage }}</h3>
-            <h3 class="bank-message">Déposez une question ci-bas pour l'ajouter à la banque</h3>
-            <cdk-virtual-scroll-viewport class="virtual-scroll" itemSize="50">
-                <div
-                    id="bank-questions"
-                    cdkDropList
-                    [cdkDropListData]="bankQuestions"
-                    cdkDropListConnectedTo="quiz-questions"
-                    class="list bank-questions-list"
-                >
-                    <app-short-question
-                        class="question short-question"
-                        *ngFor="let question of bankQuestions | sortByLastModification: 'descending'"
-                        [question]="question"
-                        cdkDrag
-                        [cdkDragData]="question"
-                        (cdkDragStarted)="dragBankQuestion()"
-                        (cdkDragEnded)="dropBankQuestion()"
-                    ></app-short-question>
-                </div>
-            </cdk-virtual-scroll-viewport>
-        </mat-drawer>
-    </mat-drawer-container>
-</div>
+    </mat-sidenav-content>
+</mat-sidenav-container>

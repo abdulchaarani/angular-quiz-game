@@ -1,12 +1,15 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Component, EventEmitter, Inject, Input, OnChanges, OnInit, Optional, Output, SimpleChanges } from '@angular/core';
-import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MAX_CHOICES, MIN_CHOICES, SNACK_BAR_DISPLAY_TIME } from '@app/constants/question-creation';
-import { QuestionTypes } from '@app/constants/question-types';
+import { QuestionType } from '@common/constants/question-types';
 import { ManagementState } from '@app/constants/states';
 import { Question } from '@app/interfaces/question';
+import { QuestionService } from '@app/services/question/question.service';
+import { BankService } from '@app/services/bank/bank.service';
+
 export interface DialogManagement {
     modificationState: ManagementState;
 }
@@ -27,10 +30,15 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
     questionForm: FormGroup;
     checked: boolean;
     disabled: boolean;
+    notificationShown: boolean = false;
 
+    // Allow more constructor parameters to reduce logic in the component
+    // eslint-disable-next-line max-params
     constructor(
         private readonly snackBar: MatSnackBar,
         private readonly formBuilder: FormBuilder,
+        private readonly questionService: QuestionService,
+        public bankService: BankService,
         @Optional() @Inject(MAT_DIALOG_DATA) public dialogData: DialogManagement,
     ) {
         this.initializeForm();
@@ -43,35 +51,15 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
         return this.questionForm.get('choices') as FormArray;
     }
 
+    get managementState(): typeof ManagementState {
+        return ManagementState;
+    }
+
     buildChoices(): FormGroup {
         return this.formBuilder.group({
             text: ['', Validators.required],
             isCorrect: [false, Validators.required],
         });
-    }
-
-    validateChoicesLength(control: AbstractControl): ValidationErrors | null {
-        if (control.get('type')?.value !== 'QCM') return null;
-
-        const choices = control.get('choices') as FormArray;
-        let hasCorrect = false;
-        let hasIncorrect = false;
-
-        for (let i = 0; i < choices.length; i++) {
-            const isCorrect = choices.at(i).get('isCorrect')?.value;
-
-            if (isCorrect) {
-                hasCorrect = true;
-            } else if (!isCorrect) {
-                hasIncorrect = true;
-            }
-        }
-
-        if (hasCorrect && hasIncorrect) {
-            return null;
-        } else {
-            return { invalidChoicesLength: true };
-        }
     }
 
     addChoice() {
@@ -99,14 +87,14 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
     onSubmit() {
         if (this.questionForm.valid) {
             const newQuestion: Question = this.questionForm.value;
-            if (newQuestion.type === 'QRL') {
-                newQuestion.choices = [];
-            }
             newQuestion.lastModification = new Date().toLocaleString();
             if (this.modificationState === ManagementState.BankModify) {
                 this.modifyQuestionEvent.emit(newQuestion);
             } else {
                 this.createQuestionEvent.emit(newQuestion);
+            }
+            if (this.bankService.addToBank) {
+                this.bankService.addQuestion(newQuestion, true);
             }
         }
     }
@@ -160,40 +148,38 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
     }
 
     isActiveSubmit() {
-        return this.modificationState !== ManagementState.GameModify;
+        return this.modificationState !== ManagementState.GameModify && this.modificationState !== ManagementState.BankModify;
     }
 
     private initializeForm(): void {
+        this.bankService.addToBank = false;
         this.questionForm = this.formBuilder.group(
             {
                 text: ['', Validators.required],
                 points: ['', Validators.required],
-                type: [''],
+                type: ['', Validators.required],
             },
-            { validators: this.validateChoicesLength },
+            { validators: this.questionService.validateChoicesLength },
         );
-        this.questionForm.get('type')?.valueChanges.subscribe((type: string) => {
-            if (type === QuestionTypes.CHOICE) {
-                this.questionForm.addControl(
-                    'choices',
-                    this.formBuilder.array([
-                        this.formBuilder.group({
-                            text: ['', Validators.required],
-                            isCorrect: [true, Validators.required],
-                        }),
-                        this.formBuilder.group({
-                            text: ['', Validators.required],
-                            isCorrect: [false, Validators.required],
-                        }),
-                    ]),
-                );
-            } else if (type === QuestionTypes.LONG) {
-                this.questionForm.removeControl('choices');
+
+        this.questionForm.statusChanges.subscribe((status) => {
+            if (status === 'INVALID' && this.questionForm.get('text')?.invalid) {
+                if (!this.notificationShown) {
+                    this.openSnackBar('Le champ de la question est requis !', SNACK_BAR_DISPLAY_TIME);
+                    this.notificationShown = true;
+                }
+            } else if (this.questionForm.invalid && this.questionForm.get('choices')?.invalid && this.questionForm.hasError('invalidChoicesLength')) {
+                if (!this.notificationShown) {
+                    this.openSnackBar('Il faut au moins une réponse correcte et une incorrecte !', SNACK_BAR_DISPLAY_TIME);
+                    this.notificationShown = true;
+                }
+            } else {
+                this.notificationShown = false;
             }
         });
 
         this.questionForm.get('type')?.valueChanges.subscribe((type: string) => {
-            if (type === QuestionTypes.CHOICE) {
+            if (type === QuestionType.MultipleChoice) {
                 this.questionForm.addControl(
                     'choices',
                     this.formBuilder.array([
@@ -207,7 +193,7 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
                         }),
                     ]),
                 );
-            } else if (type === QuestionTypes.LONG) {
+            } else if (type === QuestionType.LongAnswer) {
                 this.questionForm.removeControl('choices');
             }
         });
@@ -225,7 +211,7 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
         if (!choicesArray) return;
         choicesArray.clear();
         this.question.choices?.forEach((choice) => {
-            if (choice.text.trim() !== '') {
+            if (choice.text) {
                 choicesArray.push(
                     this.formBuilder.group({
                         text: choice.text,
@@ -236,10 +222,3 @@ export class QuestionCreationFormComponent implements OnInit, OnChanges {
         });
     }
 }
-
-// References:
-// https://stackoverflow.com/questions/49782253/angular-reactive-form
-// https://stackoverflow.com/questions/53362983/angular-reactiveforms-nested-formgroup-within-formarray-no-control-found?rq=3
-// https://stackblitz.com/edit/angular-nested-formarray-dynamic-forms?file=src%2Fapp%2Fapp.component.html
-// https://stackoverflow.com/questions/67834802/template-error-type-abstractcontrol-is-not-assignable-to-type-formcontrol
-// https://stackoverflow.com/questions/39679637/angular-2-form-cannot-find-control-with-path

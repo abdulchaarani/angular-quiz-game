@@ -23,6 +23,7 @@ export class HomePageComponent {
         private readonly joinMatchService: JoinMatchService,
         private readonly notificationService: NotificationService,
     ) {}
+
     openAdminDialog(): void {
         const dialogRef = this.dialog.open(DialogAdminPasswordComponent, {
             data: { password: this.password },

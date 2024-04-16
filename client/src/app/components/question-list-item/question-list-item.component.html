@@ -1,20 +1,21 @@
-<mat-expansion-panel class="question-card" *ngIf="question" [ngClass]="question.type === 'QRL' ? 'color-variant' : ''">
+<mat-expansion-panel class="question-card" *ngIf="question" [ngClass]="question.type === 'QRL' ? 'color-variant' : ''" [expanded]="isExpanded">
     <mat-expansion-panel-header>
         <mat-panel-title class="question-text">
             <p class="question-text">{{ index }} {{ question.text }}</p>
         </mat-panel-title>
         <mat-panel-description class="question-options">
             <p>{{ question.points }} points</p>
-            <p *ngIf="question.type === 'QCM'" class="question-type">QCM<i class="material-icons">dataset</i></p>
+            <p *ngIf="question.type === 'QCM'" class="question-type">QCM<i class="material-icons">widgets</i></p>
             <p *ngIf="question.type === 'QRL'" class="question-type">QRL<i class="material-icons">article</i></p>
-            <p>Dernière modification: {{ question.lastModification | date: 'dd/MM/yyyy, hh:mm:ss' }}</p>
+            <p>Dernière modification: {{ question.lastModification | date: 'dd/MM/yyyy, hh:mm' }}</p>
             <div class="question-buttons-container">
                 <button
                     mat-icon-button
                     color="warn"
-                    aria-label="Example icon button with a menu icon"
                     appClickStopPropagation
                     (click)="deleteQuestion()"
+                    matTooltip="Supprimer la question"
+                    matTooltipClass="button-tooltip"
                 >
                     <mat-icon>delete</mat-icon>
                 </button>

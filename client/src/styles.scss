@@ -28,7 +28,6 @@ $main-theme: mat.define-light-theme(
 html,
 body {
     height: 100%;
-    // overflow: hidden;
 }
 body {
     margin: 0;
@@ -37,7 +36,6 @@ body {
 
 .top-page {
     display: flex;
-    // justify-content: space-between;
 }
 
 .add-button-container {
@@ -58,9 +56,10 @@ body {
 }
 .main-container {
     padding: 1rem 8rem;
+    margin-bottom: 25vh;
     display: flex;
     flex-direction: column;
-    height: 100%;
+    min-height: 100%;
 }
 
 .container {
@@ -75,10 +74,6 @@ body {
 
 .buttons-rack {
     flex-direction: column;
-}
-
-.submit-button {
-    width: 100%;
 }
 
 .error-snackbar {
@@ -139,15 +134,77 @@ body {
 }
 
 .short-question {
-    width: 100%;
+    width: 13vw;
     padding: 20px 10px;
     border-bottom: solid 1px #ccc;
+}
+
+.mat-button-toggle-button,
+.toggle {
+    height: inherit;
+    width: inherit;
+}
+
+.spaced {
+    margin-bottom: 1rem;
+}
+
+.nav {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0;
+}
+
+.navigation-buttons {
+    margin: 0;
 }
 
 .virtual-scroll {
     height: 100vh;
 }
 
-.mat-button-toggle-button {
-    height: inherit;
+.centered-container {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.question-type {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+}
+
+.color-variant {
+    background-color: rgb(247, 246, 255) !important;
+}
+
+.controls-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    gap: 0.75rem;
+    width: 20vw;
+    height: 20vh;
+    z-index: 99;
+}
+
+.exit-button {
+    display: flex;
+    gap: 1rem;
+}
+
+.material-icons {
+    font-size: 1.5rem;
+}
+
+.controls-container button {
+    width: 15vw;
 }

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Game } from '@app/interfaces/game';
 import { GameService } from '@app/services/game/game.service';
 import { HistoryService } from '@app/services/history/history.service';
+import { UploadGameService } from '@app/services/upload-game/upload-game.service';
 
 @Component({
     selector: 'app-admin-page',
@@ -11,9 +12,11 @@ import { HistoryService } from '@app/services/history/history.service';
 export class AdminPageComponent implements OnInit {
     order: string = 'ascending';
     subject: string = 'date';
+
     constructor(
         readonly gameService: GameService,
         readonly historyService: HistoryService,
+        private readonly uploadService: UploadGameService,
     ) {}
 
     ngOnInit(): void {
@@ -26,7 +29,7 @@ export class AdminPageComponent implements OnInit {
     }
 
     onFileSelected(event: Event) {
-        this.gameService.onFileSelected(event);
+        this.uploadService.onFileSelected(event);
     }
 
     addGame(newGame: Game): void {

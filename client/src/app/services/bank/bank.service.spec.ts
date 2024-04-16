@@ -15,6 +15,7 @@ import { NotificationService } from '@app/services/notification/notification.ser
 import { QuestionService } from '@app/services/question/question.service';
 import { of, throwError } from 'rxjs';
 import { BankService } from './bank.service';
+import { GameStatus } from '@app/constants/feedback-messages';
 
 describe('BankService', () => {
     let service: BankService;
@@ -109,6 +110,15 @@ describe('BankService', () => {
         const expectedLength = mockQuestions.length + 1;
         service.addQuestion(newQuestionMock);
         expect(questionSpy.createQuestion).toHaveBeenCalledWith(newQuestionMock);
+        expect(service.questions.length).toBe(expectedLength);
+    });
+
+    it('should add a question coming from game management page', () => {
+        service.questions = mockQuestions;
+        const expectedLength = mockQuestions.length + 1;
+        service.addQuestion(newQuestionMock, true);
+        expect(questionSpy.createQuestion).toHaveBeenCalledWith(newQuestionMock);
+        expect(notificationSpy.displaySuccessMessage).toHaveBeenCalledWith(GameStatus.ARCHIVED);
         expect(service.questions.length).toBe(expectedLength);
     });
 

@@ -9,6 +9,7 @@
 #game-card {
     box-shadow: 2px 0 2.5px 0 10px;
     border-radius: 5pt;
+    min-height: 3rem;
 }
 
 #game-card-content {
@@ -25,4 +26,8 @@
     flex-direction: row;
     justify-content: flex-end;
     align-items: center;
+}
+
+.full-grid {
+    grid-area: 1 / 1 / 2 / 4;
 }

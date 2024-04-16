@@ -4,22 +4,22 @@
 import { ExpiredTimerEvents } from '@app/constants/expired-timer-events';
 import { MOCK_CHOICES, getMockGame } from '@app/constants/game-mocks';
 import { INVALID_CODE, LOCKED_ROOM } from '@app/constants/match-login-errors';
-import { MOCK_MATCH_ROOM, MOCK_PLAYER, MOCK_ROOM_CODE } from '@app/constants/match-mocks';
+import { MOCK_MATCH_ROOM, MOCK_PLAYER, MOCK_RANDOM_MATCH_ROOM, MOCK_ROOM_CODE } from '@app/constants/match-mocks';
 import { getMockQuestion } from '@app/constants/question-mocks';
-import { ChoiceTracker } from '@app/model/tally-trackers/choice-tracker/choice-tracker';
 import { FAKE_ROOM_ID } from '@app/constants/time-mocks';
 import { PlayerInfo } from '@app/model/schema/answer.schema';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
+import { ChoiceTracker } from '@app/model/tally-trackers/choice-tracker/choice-tracker';
+import { LongAnswerStrategy } from '@app/question-strategies/long-answer-strategy/long-answer-strategy';
+import { MultipleChoiceStrategy } from '@app/question-strategies/multiple-choice-strategy/multiple-choice-strategy';
+import { QuestionStrategyContext } from '@app/services/question-strategy-context/question-strategy-context.service';
 import { TimeService } from '@app/services/time/time.service';
+import { MatchEvents } from '@common/events/match.events';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { Socket } from 'socket.io';
 import { MatchRoomService } from './match-room.service';
-import { QuestionStrategyContext } from '@app/services/question-strategy-context/question-strategy-context.service';
-import { MultipleChoiceStrategy } from '@app/question-strategies/multiple-choice-strategy/multiple-choice-strategy';
-import { LongAnswerStrategy } from '@app/question-strategies/long-answer-strategy/long-answer-strategy';
-import { MatchEvents } from '@common/events/match.events';
 
 const MAXIMUM_CODE_LENGTH = 4;
 const MOCK_YEAR = 2024;
@@ -27,6 +27,7 @@ const MOCK_DATE = new Date(MOCK_YEAR, 1, 1);
 describe('MatchRoomService', () => {
     let service: MatchRoomService;
     let timeService: TimeService;
+    let questionStrategyService: QuestionStrategyContext;
     let socket: SinonStubbedInstance<Socket>;
     let startTimerMock: jest.Mock;
     let mockServer;
@@ -43,6 +44,7 @@ describe('MatchRoomService', () => {
 
         service = module.get<MatchRoomService>(MatchRoomService);
         timeService = module.get<TimeService>(TimeService);
+        questionStrategyService = module.get<QuestionStrategyContext>(QuestionStrategyContext);
         startTimerMock = jest.fn();
         timeService.startTimer = startTimerMock;
 
@@ -133,6 +135,7 @@ describe('MatchRoomService', () => {
     it('addRoom() should generate a room code add the new MatchRoom in the rooms list', () => {
         service.matchRooms = [];
         const generateSpy = jest.spyOn(service, 'generateRoomCode').mockReturnValue(MOCK_ROOM_CODE);
+        const strategySpy = jest.spyOn<any, any>(service, 'setQuestionStrategy').mockImplementation();
         const mockGame = getMockGame();
         const expectedResult: MatchRoom = {
             code: MOCK_ROOM_CODE,
@@ -159,8 +162,29 @@ describe('MatchRoomService', () => {
 
         const result = service.addRoom(mockGame, socket);
         expect(generateSpy).toHaveBeenCalled();
+        expect(strategySpy).toHaveBeenCalled();
         expect(result).toEqual(expectedResult);
         expect(service.matchRooms.length).toEqual(1);
+    });
+
+    it('addRoom() should set isLocked and isPlaying attributes approprietly if room is a test page', () => {
+        service.matchRooms = [];
+        jest.spyOn(service, 'generateRoomCode').mockReturnValue(MOCK_ROOM_CODE);
+        jest.spyOn<any, any>(service, 'setQuestionStrategy').mockImplementation();
+        const mockGame = getMockGame();
+        const result = service.addRoom(mockGame, socket, false, true);
+        expect(result.isLocked).toEqual(false);
+        expect(result.isPlaying).toEqual(false);
+    });
+
+    it('addRoom() should set isLocked and isPlaying attributes approprietly if room is a random page', () => {
+        service.matchRooms = [];
+        jest.spyOn(service, 'generateRoomCode').mockReturnValue(MOCK_ROOM_CODE);
+        jest.spyOn<any, any>(service, 'setQuestionStrategy').mockImplementation();
+        const mockGame = getMockGame();
+        const result = service.addRoom(mockGame, socket, true, false);
+        expect(result.isLocked).toEqual(true);
+        expect(result.isPlaying).toEqual(true);
     });
 
     it('getRoomCodeByHostSocket() should return code of the room where the host belongs', () => {
@@ -259,15 +283,30 @@ describe('MatchRoomService', () => {
         });
     });
 
+    it('canStartMatch() should return true if room is  locked and is random mode', () => {
+        const randomRoom = { ...MOCK_RANDOM_MATCH_ROOM };
+        randomRoom.isLocked = true;
+        randomRoom.isRandomMode = true;
+
+        jest.spyOn(service, 'getRoom').mockReturnValue(randomRoom);
+        const result = service['canStartMatch'](randomRoom.code);
+        expect(result).toBeTruthy();
+    });
+
+    it('resetPlayerSubmissionCount() should reset submitted players to 0 when called', () => {
+        matchRoom.submittedPlayers = 3;
+        expect(service.getRoom(MOCK_ROOM_CODE).submittedPlayers).toEqual(3);
+        service.resetPlayerSubmissionCount(MOCK_ROOM_CODE);
+        expect(service.getRoom(MOCK_ROOM_CODE).submittedPlayers).toEqual(0);
+    });
+
     it('incrementCurrentQuestionIndex() should increment currentQuestionIndex when called', () => {
-        service.matchRooms.push(MOCK_MATCH_ROOM);
         expect(service.getRoom(MOCK_ROOM_CODE).currentQuestionIndex).toEqual(0);
         service.incrementCurrentQuestionIndex(MOCK_ROOM_CODE);
         expect(service.getRoom(MOCK_ROOM_CODE).currentQuestionIndex).toEqual(1);
     });
 
     it('startMatch() should start match and timer with a 5 seconds countdown', () => {
-        service.matchRooms = [MOCK_MATCH_ROOM];
         jest.spyOn(service, 'getRoomIndex').mockReturnValue(0);
 
         jest.spyOn<any, any>(service, 'canStartMatch').mockReturnValue(true);
@@ -320,7 +359,7 @@ describe('MatchRoomService', () => {
         matchRoom.hostSocket = mockHostSocket;
         const currentQuestion = matchRoom.game.questions[0];
         service.sendNextQuestion(mockServer, MOCK_ROOM_CODE);
-        expect(emitMock).toHaveBeenCalledWith('nextQuestion', currentQuestion);
+        expect(emitMock).toHaveBeenCalledWith('goToNextQuestion', currentQuestion);
         expect(startTimerMock).toHaveBeenCalledWith(mockServer, MOCK_ROOM_CODE, matchRoom.game.duration, ExpiredTimerEvents.QuestionTimerExpired);
     });
 
@@ -369,7 +408,6 @@ describe('MatchRoomService', () => {
         expect(matchRoom.players[1].socket.emit).not.toHaveBeenCalledWith(MatchEvents.Winner);
     });
 
-    // TODO : Getting same error as timeService service.to tests. Probably a mock error
     it('should call pauseTimer from timeService when pauseMatchTimer() is called', () => {
         const spy = jest.spyOn(timeService, 'pauseTimer').mockReturnThis();
         service.pauseMatchTimer(mockServer, FAKE_ROOM_ID);
@@ -377,8 +415,20 @@ describe('MatchRoomService', () => {
     });
 
     it('should call panicTimer from timeService when panicMatchTimer() is called', () => {
-        const spy = jest.spyOn(timeService, 'panicTimer').mockReturnThis();
-        service.panicMatchTimer(mockServer, FAKE_ROOM_ID);
+        const spy = jest.spyOn(timeService, 'startPanicTimer').mockReturnThis();
+        service.triggerPanicMode(mockServer, FAKE_ROOM_ID);
         expect(spy).toHaveBeenCalled();
+    });
+
+    it('setQuestionStrategy should set question strategy and panic timer treshhold', () => {
+        timeService.currentPanicThresholdTime = 0;
+        const panicTreshold = 20;
+        const spy = jest.spyOn(questionStrategyService, 'setQuestionStrategy').mockReturnThis();
+        jest.spyOn(questionStrategyService, 'getQuestionPanicThreshold').mockReturnValue(panicTreshold);
+
+        service['setQuestionStrategy'](matchRoom);
+
+        expect(spy).toHaveBeenCalled();
+        expect(timeService.currentPanicThresholdTime).toEqual(panicTreshold);
     });
 });

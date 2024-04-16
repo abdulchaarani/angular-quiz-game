@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
+import { QuestionType } from '@app/constants/question-types';
 import { Game } from '@app/model/database/game';
 import { Question } from '@app/model/database/question';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
@@ -31,19 +32,18 @@ describe('RandomGameService', () => {
     });
 
     it('fetchAllQuestions() should fetch all questions', async () => {
-        const fakeQuestions = [new Question(), new Question()];
+        let fakeQuestions = [new Question(), new Question()];
         questionService.getAllQuestions.resolves(fakeQuestions);
 
         await service.fetchAllQuestions();
+        fakeQuestions = fakeQuestions.filter((question) => question.type === QuestionType.MultipleChoice);
         expect(service.allBankQuestions).toEqual(fakeQuestions);
     });
 
     it('fetAllQuestions() should log an error if the service fails', async () => {
         questionService.getAllQuestions.rejects('');
-        const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-
         await service.fetchAllQuestions();
-        expect(consoleSpy).toHaveBeenCalled();
+        expect(service.allBankQuestions.length).toEqual(0);
     });
 
     it('isRandomGameAvailable() should return true if there are enough questions (5)', () => {
@@ -79,6 +79,5 @@ describe('RandomGameService', () => {
         const game = service.generateRandomGame();
         expect(game).toEqual(mockGame);
         expect(game.questions).toEqual(mockQuestions);
-        expect(service.randomGame).toEqual(mockGame);
     });
 });

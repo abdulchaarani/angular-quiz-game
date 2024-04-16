@@ -1,18 +1,17 @@
-.color-variant {
-    background-color: rgb(247, 246, 255);
-}
 .question-text {
     flex: 1;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
     margin-right: 1rem;
+    font-size: 1.25rem;
 }
 
 .question-card {
     box-shadow: 2px 0 2.5px 0 10px;
     border-radius: 5pt;
     width: 100%;
+    margin-bottom: 1rem;
 }
 
 .question-container {
@@ -30,13 +29,7 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-}
-
-.question-type {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 1rem;
+    font-size: 1rem;
 }
 
 .question-description {

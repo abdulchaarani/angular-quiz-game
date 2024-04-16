@@ -1,13 +1,13 @@
-import { BANNED_USERNAME, HOST_CONFLICT, USED_USERNAME } from '@app/constants/match-login-errors';
+import { BANNED_USERNAME, EMPTY_USERNAME, HOST_CONFLICT, USED_USERNAME } from '@app/constants/match-login-errors';
+import { MultipleChoiceAnswer } from '@app/model/answer-types/multiple-choice-answer/multiple-choice-answer';
 import { MatchRoom } from '@app/model/schema/match-room.schema';
 import { Player } from '@app/model/schema/player.schema';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
+import { AnswerCorrectness } from '@common/constants/answer-correctness';
 import { PlayerState } from '@common/constants/player-states';
 import { MatchEvents } from '@common/events/match.events';
 import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
-import { MultipleChoiceAnswer } from '@app/model/answer-types/multiple-choice-answer/multiple-choice-answer';
-import { AnswerCorrectness } from '@common/constants/answer-correctness';
 
 const INDEX_NOT_FOUND = -1;
 const HOST_USERNAME = 'ORGANISATEUR';
@@ -41,6 +41,7 @@ export class PlayerRoomService {
             answerCorrectness: AnswerCorrectness.WRONG,
             bonusCount: 0,
             isPlaying: true,
+            isChatActive: true,
             socket: playerSocket,
             state: PlayerState.default,
         };
@@ -74,6 +75,18 @@ export class PlayerRoomService {
         return this.getPlayers(matchRoomCode).find((player: Player) => {
             return player.username.toUpperCase() === username.toUpperCase();
         });
+    }
+
+    getPlayerBySocket(socketId: string): Player | undefined {
+        let foundPlayer: Player;
+        this.matchRoomService.matchRooms.forEach((matchRoom: MatchRoom) => {
+            const playerByMatchRoom = matchRoom.players.find((player: Player) => player.socket.id === socketId);
+            if (playerByMatchRoom) {
+                foundPlayer = playerByMatchRoom;
+                return;
+            }
+        });
+        return foundPlayer;
     }
 
     makePlayerInactive(matchRoomCode: string, username: string): void {
@@ -112,21 +125,32 @@ export class PlayerRoomService {
         const usernameIndex = bannedUsernames.findIndex((name: string) => {
             return name.toUpperCase() === username.toUpperCase();
         });
-        return usernameIndex === INDEX_NOT_FOUND ? false : true;
+        return usernameIndex !== INDEX_NOT_FOUND;
+    }
+
+    isHostPlayer(matchRoomCode: string): boolean {
+        return !!this.getPlayerByUsername(matchRoomCode, HOST_USERNAME);
+    }
+
+    isHostUsernameCorrect(matchRoomCode: string, username: string): boolean {
+        const matchRoom = this.matchRoomService.getRoom(matchRoomCode);
+        const isHostUsername = username.trim().toUpperCase() === HOST_USERNAME.toUpperCase();
+        return matchRoom.isTestRoom && isHostUsername && !this.isHostPlayer(matchRoomCode);
     }
 
     getUsernameErrors(matchRoomCode: string, username: string): string {
         let errors = '';
-        if (this.matchRoomService.getRoom(matchRoomCode).isTestRoom) return errors;
-        if (username.trim().toUpperCase() === HOST_USERNAME) {
-            errors += HOST_CONFLICT;
-        }
-        if (this.isBannedUsername(matchRoomCode, username)) {
-            errors += BANNED_USERNAME;
-        }
-        if (this.getPlayerByUsername(matchRoomCode, username)) {
-            errors += USED_USERNAME;
-        }
+        if (this.isHostUsernameCorrect(matchRoomCode, username)) return errors;
+        const usernameToValidate = username.trim().toUpperCase();
+        const errorConditions: Map<string, boolean> = new Map([
+            [EMPTY_USERNAME, !usernameToValidate],
+            [HOST_CONFLICT, usernameToValidate === HOST_USERNAME],
+            [BANNED_USERNAME, this.isBannedUsername(matchRoomCode, usernameToValidate)],
+            [USED_USERNAME, !!this.getPlayerByUsername(matchRoomCode, usernameToValidate)],
+        ]);
+        errorConditions.forEach((hasError: boolean, message: string) => {
+            if (hasError) errors += message;
+        });
         return errors;
     }
 

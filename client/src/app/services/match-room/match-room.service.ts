@@ -1,19 +1,19 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
+import { MatchStatus } from '@app/constants/feedback-messages';
 import { MatchContext } from '@app/constants/states';
 import { Message } from '@app/interfaces/message';
 import { Player } from '@app/interfaces/player';
 import { Question } from '@app/interfaces/question';
 import { NotificationService } from '@app/services/notification/notification.service';
+import { MatchContextService } from '@app/services/question-context/question-context.service';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 import { HOST_USERNAME } from '@common/constants/match-constants';
 import { PlayerState } from '@common/constants/player-states';
+import { ChatEvents } from '@common/events/chat.events';
 import { MatchEvents } from '@common/events/match.events';
+import { GameOverInfo } from '@common/interfaces/game-over-info';
 import { UserInfo } from '@common/interfaces/user-info';
-import { BehaviorSubject } from 'rxjs';
-import { Observable } from 'rxjs/internal/Observable';
-import { Subject } from 'rxjs/internal/Subject';
-import { QuestionContextService } from '@app/services/question-context/question-context.service';
 
 @Injectable({
     providedIn: 'root',
@@ -21,34 +21,28 @@ import { QuestionContextService } from '@app/services/question-context/question-
 export class MatchRoomService {
     players: Player[];
     messages: Message[];
+    isMatchStarted: boolean;
     isResults: boolean;
     isWaitOver: boolean;
     isBanned: boolean;
     isPlaying: boolean;
+    gameTitle: string;
+    gameDuration: number;
+    currentQuestion: Question;
+    isHostPlaying: boolean;
+    isCooldown: boolean;
+    isQuitting: boolean;
 
-    startMatch$: Observable<boolean>;
-    gameTitle$: Observable<string>;
-    isHostPlaying$: Observable<boolean>;
-    currentQuestion$: Observable<Question>;
-    displayCooldown$: Observable<boolean>;
-    isBanned$: Observable<boolean>;
-
-    private startMatchSource = new Subject<boolean>();
-    private gameTitleSource = new Subject<string>();
-    private currentQuestionSource = new Subject<Question>();
-    private hostPlayingSource = new BehaviorSubject<boolean>(false);
-    private displayCooldownSource = new BehaviorSubject<boolean>(false);
-    private bannedSource = new BehaviorSubject<boolean>(false);
     private matchRoomCode: string;
     private username: string;
 
-    // Services are required to decouple logic
+    // Allow more constructor parameters
     // eslint-disable-next-line max-params
     constructor(
         public socketService: SocketHandlerService,
         private readonly router: Router,
         private readonly notificationService: NotificationService,
-        private readonly questionContextService: QuestionContextService,
+        private readonly matchContextService: MatchContextService,
     ) {}
 
     get socketId() {
@@ -66,7 +60,6 @@ export class MatchRoomService {
     connect() {
         if (!this.socketService.isSocketAlive()) {
             this.resetMatchValues();
-            this.initialiseMatchSubjects();
             this.socketService.connect();
             this.onRedirectAfterDisconnection();
             this.onFetchPlayersData();
@@ -78,10 +71,14 @@ export class MatchRoomService {
             this.onHostQuit();
             this.onPlayerKick();
             this.handleError();
+            this.onPlayerChatStateToggle();
+            this.handleChatStateNotifications();
+            this.onRouteToResultsPage();
         }
     }
 
     disconnect() {
+        this.matchContextService.resetContext();
         this.socketService.disconnect();
     }
 
@@ -90,11 +87,26 @@ export class MatchRoomService {
             this.matchRoomCode = res.code;
             this.username = HOST_USERNAME;
             if (isTestRoom) {
-                this.players = [{ username: this.username, score: 0, bonusCount: 0, isPlaying: true, state: PlayerState.default }];
-                this.router.navigateByUrl('/play-test');
+                this.players = [
+                    { username: this.username, score: 0, bonusCount: 0, isChatActive: true, isPlaying: true, state: PlayerState.default },
+                ];
             } else {
                 this.sendPlayersData(this.matchRoomCode);
                 this.router.navigateByUrl('/match-room');
+            }
+        });
+    }
+
+    getPlayerByUsername(username: string): Player | null {
+        const playerToFindByUsername = this.players.find((player) => player.username === username);
+        return playerToFindByUsername ? playerToFindByUsername : null;
+    }
+
+    onPlayerChatStateToggle() {
+        this.socketService.on(ChatEvents.ReturnCurrentChatState, (currentChatState: boolean) => {
+            const player = this.getPlayerByUsername(this.username);
+            if (player) {
+                player.isChatActive = currentChatState;
             }
         });
     }
@@ -103,7 +115,7 @@ export class MatchRoomService {
         const sentInfo: UserInfo = { roomCode, username };
         this.socketService.send(MatchEvents.JoinRoom, sentInfo, (res: { code: string; username: string; isRandomMode: boolean }) => {
             if (res.isRandomMode) {
-                this.questionContextService.setContext(MatchContext.RandomMode);
+                this.matchContextService.setContext(MatchContext.RandomMode);
             }
             this.matchRoomCode = res.code;
             this.username = res.username;
@@ -136,16 +148,17 @@ export class MatchRoomService {
     }
 
     startMatch() {
+        this.isMatchStarted = true;
         this.socketService.send(MatchEvents.StartMatch, this.matchRoomCode);
     }
 
     onMatchStarted() {
         this.socketService.on(MatchEvents.MatchStarting, (data: { start: boolean; gameTitle: string }) => {
             if (data.start) {
-                this.startMatchSource.next(true);
+                this.isMatchStarted = data.start;
             }
             if (data.gameTitle) {
-                this.gameTitleSource.next(data.gameTitle);
+                this.gameTitle = data.gameTitle;
             }
         });
     }
@@ -153,39 +166,42 @@ export class MatchRoomService {
     onBeginQuiz() {
         this.socketService.on(MatchEvents.BeginQuiz, (data: { firstQuestion: Question; gameDuration: number; isTestRoom: boolean }) => {
             this.isWaitOver = true;
-            const { firstQuestion, gameDuration, isTestRoom } = data;
-            if (isTestRoom) {
-                this.router.navigate(['/play-test'], { state: { question: firstQuestion, duration: gameDuration } });
-            } else this.router.navigate(['/play-match'], { state: { question: firstQuestion, duration: gameDuration } });
+            this.currentQuestion = data.firstQuestion;
+            this.gameDuration = data.gameDuration;
+            const { firstQuestion, gameDuration } = data;
+            this.router.navigate(['/play-match'], { state: { question: firstQuestion, duration: gameDuration } });
         });
     }
 
-    nextQuestion() {
-        this.socketService.send(MatchEvents.NextQuestion, this.matchRoomCode);
+    goToNextQuestion() {
+        this.socketService.send(MatchEvents.GoToNextQuestion, this.matchRoomCode);
     }
 
     onStartCooldown() {
         this.socketService.on(MatchEvents.StartCooldown, () => {
-            this.displayCooldownSource.next(true);
+            this.isCooldown = true;
+            const context = this.matchContextService.getContext();
+            if (this.isCooldown && context !== MatchContext.TestPage && context !== MatchContext.RandomMode) {
+                this.currentQuestion.text = MatchStatus.PREPARE;
+            }
         });
     }
 
     onGameOver() {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        this.socketService.on(MatchEvents.GameOver, (data: any) => {
-            const { isTestRoom, isRandomMode } = data;
+        this.socketService.on(MatchEvents.GameOver, (gameOverInfo: GameOverInfo) => {
+            const { isTestRoom, isRandomMode } = gameOverInfo;
             if (isTestRoom && !isRandomMode) {
                 this.router.navigateByUrl('/host');
-            } else if (isRandomMode) {
+            } else if (isRandomMode && this.username === HOST_USERNAME) {
                 this.routeToResultsPage();
             }
         });
     }
 
     onNextQuestion() {
-        this.socketService.on(MatchEvents.NextQuestion, (question: Question) => {
-            this.displayCooldownSource.next(false);
-            this.currentQuestionSource.next(question);
+        this.socketService.on(MatchEvents.GoToNextQuestion, (question: Question) => {
+            this.isCooldown = false;
+            this.currentQuestion = question;
         });
     }
 
@@ -197,7 +213,7 @@ export class MatchRoomService {
 
     onHostQuit() {
         this.socketService.on(MatchEvents.HostQuitMatch, () => {
-            this.hostPlayingSource.next(false);
+            this.isHostPlaying = false;
         });
     }
 
@@ -215,8 +231,8 @@ export class MatchRoomService {
         this.messages = [];
         this.isResults = false;
         this.isWaitOver = false;
-        this.isBanned = false;
         this.isPlaying = false;
+        this.isCooldown = false;
     }
 
     routeToResultsPage() {
@@ -232,23 +248,14 @@ export class MatchRoomService {
 
     onPlayerKick() {
         this.socketService.on(MatchEvents.KickPlayer, () => {
-            this.bannedSource.next(true);
+            this.isBanned = true;
             this.disconnect();
         });
     }
 
-    private initialiseMatchSubjects() {
-        this.startMatchSource = new Subject<boolean>();
-        this.gameTitleSource = new Subject<string>();
-        this.currentQuestionSource = new Subject<Question>();
-        this.hostPlayingSource = new BehaviorSubject<boolean>(true);
-        this.displayCooldownSource = new BehaviorSubject<boolean>(false);
-        this.bannedSource = new BehaviorSubject<boolean>(false);
-        this.startMatch$ = this.startMatchSource.asObservable();
-        this.gameTitle$ = this.gameTitleSource.asObservable();
-        this.isHostPlaying$ = this.hostPlayingSource.asObservable();
-        this.currentQuestion$ = this.currentQuestionSource.asObservable();
-        this.displayCooldown$ = this.displayCooldownSource.asObservable();
-        this.isBanned$ = this.bannedSource.asObservable();
+    handleChatStateNotifications() {
+        this.socketService.on(ChatEvents.ChatReactivated, (notificationMessage: string) => {
+            this.notificationService.displaySuccessMessage(notificationMessage);
+        });
     }
 }

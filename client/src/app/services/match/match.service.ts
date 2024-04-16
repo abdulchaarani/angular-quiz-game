@@ -4,7 +4,7 @@ import { MatchContext } from '@app/constants/states';
 import { Game } from '@app/interfaces/game';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
-import { QuestionContextService } from '@app/services/question-context/question-context.service';
+import { MatchContextService } from '@app/services/question-context/question-context.service';
 import { Subject } from 'rxjs';
 
 @Injectable({
@@ -12,36 +12,21 @@ import { Subject } from 'rxjs';
 })
 export class MatchService extends CommunicationService<Game> {
     questionAdvanced: Subject<void>;
-    private currentQuestionId: string;
+    currentGame: Game;
 
+    questionId: string;
     private questionAdvanceSubject = new Subject<void>();
-    private selectedGame: Game;
 
     constructor(
         http: HttpClient,
         private readonly matchRoomService: MatchRoomService,
-        private readonly questionContextService: QuestionContextService,
+        private readonly matchContextService: MatchContextService,
     ) {
         super(http, 'match');
     }
 
     get questionAdvanced$() {
         return this.questionAdvanceSubject.asObservable();
-    }
-
-    get currentGame() {
-        return this.selectedGame;
-    }
-
-    get questionId() {
-        return this.currentQuestionId;
-    }
-    set currentGame(game: Game) {
-        this.selectedGame = game;
-    }
-
-    set questionId(id: string) {
-        this.currentQuestionId = id;
     }
 
     getAllGames() {
@@ -65,9 +50,9 @@ export class MatchService extends CommunicationService<Game> {
     }
 
     createMatch() {
-        const isTestPage = this.questionContextService.getContext() === MatchContext.TestPage;
-        const isRandomMode = this.questionContextService.getContext() === MatchContext.RandomMode;
+        const isTestPage = this.matchContextService.getContext() === MatchContext.TestPage;
+        const isRandomMode = this.matchContextService.getContext() === MatchContext.RandomMode;
         this.matchRoomService.connect();
-        this.matchRoomService.createRoom(this.selectedGame.id, isTestPage, isRandomMode);
+        this.matchRoomService.createRoom(this.currentGame.id, isTestPage, isRandomMode);
     }
 }

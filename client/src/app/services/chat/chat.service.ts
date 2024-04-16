@@ -39,4 +39,8 @@ export class ChatService {
             this.matchRoomService.messages.push(messageInfo.message);
         });
     }
+
+    toggleChatState(roomCode: string, playerUsername: string) {
+        this.socketHandler.send(ChatEvents.ChangeChatState, { roomCode, playerUsername });
+    }
 }

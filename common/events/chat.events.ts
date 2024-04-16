@@ -3,4 +3,8 @@ export enum ChatEvents {
     SendMessagesHistory = 'sendMessagesHistory',
     FetchOldMessages = 'fetchOldMessages',
     NewMessage = 'newMessage',
+    ChangeChatState = 'changeChatState',
+    ToggleChatState = 'toggleChatState',
+    ReturnCurrentChatState = 'returnCurrentChatState',
+    ChatReactivated = 'chatReactivated'
 }

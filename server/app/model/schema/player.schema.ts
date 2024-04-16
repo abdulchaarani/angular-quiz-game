@@ -10,6 +10,7 @@ export interface Player {
     answerCorrectness: AnswerCorrectness;
     bonusCount: number;
     isPlaying: boolean;
+    isChatActive: boolean;
     socket: Socket;
     state: string;
 }

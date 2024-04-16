@@ -1,14 +1,15 @@
 import { BANNED_USERNAME, HOST_CONFLICT, USED_USERNAME } from '@app/constants/match-login-errors';
 import { MOCK_MATCH_ROOM, MOCK_PLAYER, MOCK_PLAYER_ROOM, MOCK_ROOM_CODE, MOCK_USERNAME } from '@app/constants/match-mocks';
+import { MultipleChoiceAnswer } from '@app/model/answer-types/multiple-choice-answer/multiple-choice-answer';
 import { Player } from '@app/model/schema/player.schema';
 import { MatchRoomService } from '@app/services/match-room/match-room.service';
+import { AnswerCorrectness } from '@common/constants/answer-correctness';
+import { HOST_USERNAME } from '@common/constants/match-constants';
 import { PlayerState } from '@common/constants/player-states';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { Socket } from 'socket.io';
 import { PlayerRoomService } from './player-room.service';
-import { MultipleChoiceAnswer } from '@app/model/answer-types/multiple-choice-answer/multiple-choice-answer';
-import { AnswerCorrectness } from '@common/constants/answer-correctness';
 
 describe('PlayerRoomService', () => {
     let emitMock;
@@ -50,7 +51,7 @@ describe('PlayerRoomService', () => {
         const expectedResult =
             // disable max lines since cant be split for string comparision
             // eslint-disable-next-line max-len
-            '[{"username":"","answer":{"isSubmitted":false,"selectedChoices":{}},"score":0,"answerCorrectness":0,"bonusCount":0,"isPlaying":true,"state":"default"}]';
+            '[{"username":"","answer":{"isSubmitted":false,"selectedChoices":{}},"score":0,"answerCorrectness":0,"bonusCount":0,"isPlaying":true,"isChatActive":true,"state":"default"}]';
         const result = service.getPlayersStringified('');
         expect(result).toEqual(expectedResult);
     });
@@ -73,6 +74,7 @@ describe('PlayerRoomService', () => {
             answerCorrectness: AnswerCorrectness.WRONG,
             bonusCount: 0,
             isPlaying: true,
+            isChatActive: true,
             socket,
             state: PlayerState.default,
         };
@@ -97,6 +99,16 @@ describe('PlayerRoomService', () => {
         expect(result).toEqual(MOCK_PLAYER_ROOM.code);
         expect(deleteSpy).toHaveBeenCalled();
         expect(inactiveSpy).not.toHaveBeenCalled();
+    });
+
+    it('getPlayerBySocket() should delete the player if the foundMatchRoom is not playing yet', () => {
+        const mockRoom = MOCK_PLAYER_ROOM;
+        const mockPlayer = MOCK_PLAYER;
+        mockPlayer.socket = socket;
+        mockRoom.players = [mockPlayer];
+        matchRoomSpy.matchRooms = [mockRoom];
+        const result = service.getPlayerBySocket(socket.id);
+        expect(result).toEqual(MOCK_PLAYER);
     });
 
     it('deletePlayerBySocket() should make the player inactive if the foundMatchRoom is playing', () => {
@@ -201,7 +213,7 @@ describe('PlayerRoomService', () => {
     it('getUsernameErrors() should applicable errors', () => {
         const testCases = [
             { username: MOCK_USERNAME, isBanned: false, isUsed: false, expectedResult: '' },
-            { username: 'Organisateur', isBanned: false, isUsed: false, expectedResult: HOST_CONFLICT },
+            { username: HOST_USERNAME, isBanned: false, isUsed: false, expectedResult: HOST_CONFLICT },
             { username: MOCK_USERNAME, isBanned: true, isUsed: false, expectedResult: BANNED_USERNAME },
             { username: MOCK_USERNAME, isBanned: false, isUsed: true, expectedResult: USED_USERNAME },
         ];
@@ -215,9 +227,14 @@ describe('PlayerRoomService', () => {
         }
     });
 
-    it('getUsernameErrors() should always return empty string if used in testPage', () => {
+    it('getUsernameErrors() should return empty string if used in testPage', () => {
         matchRoomSpy.getRoom(MOCK_ROOM_CODE).isTestRoom = true;
-        const result = service.getUsernameErrors(MOCK_ROOM_CODE, '');
+        MOCK_PLAYER.username = HOST_USERNAME;
+        matchRoomSpy.getRoom(MOCK_ROOM_CODE).players = [];
+        jest.spyOn(service, 'isHostPlayer').mockReturnValue(true);
+        jest.spyOn(service, 'isHostUsernameCorrect').mockReturnValue(true);
+
+        const result = service.getUsernameErrors(MOCK_ROOM_CODE, HOST_USERNAME);
         expect(result).toBe('');
     });
 
@@ -261,5 +278,48 @@ describe('PlayerRoomService', () => {
         service.sendPlayersToHost(mockRoom.code);
         expect(getSpy).toHaveBeenCalledWith(mockRoom.code);
         expect(stringifySpy).toHaveBeenCalledWith(mockRoom.code);
+    });
+    it('isHostPlayer() should return true if the host player exists in the MatchRoom', () => {
+        const mockRoom = MOCK_PLAYER_ROOM;
+        const mockPlayer = MOCK_PLAYER;
+        mockPlayer.username = HOST_USERNAME;
+        mockRoom.players = [mockPlayer];
+        matchRoomSpy.matchRooms = [mockRoom];
+
+        const result = service.isHostPlayer(MOCK_ROOM_CODE);
+        expect(result).toEqual(true);
+    });
+
+    it('isHostPlayer() should return false if the host player does not exist in the MatchRoom', () => {
+        const mockRoom = MOCK_PLAYER_ROOM;
+        const mockPlayer = MOCK_PLAYER;
+        mockPlayer.username = 'otherPlayer';
+        mockRoom.players = [mockPlayer];
+        matchRoomSpy.matchRooms = [mockRoom];
+
+        const result = service.isHostPlayer(MOCK_ROOM_CODE);
+        expect(result).toEqual(false);
+    });
+    it("isHostUsernameCorrect() should return true if the username is the host's and the room is a test room and the player is not the host", () => {
+        const matchRoomCode = 'test-room';
+        const username = HOST_USERNAME;
+        const matchRoom = MOCK_MATCH_ROOM;
+        matchRoom.isTestRoom = true;
+        jest.spyOn(matchRoomSpy, 'getRoom').mockReturnValue(matchRoom);
+        jest.spyOn(service, 'isHostPlayer').mockReturnValue(false);
+
+        const result = service.isHostUsernameCorrect(matchRoomCode, username);
+
+        expect(result).toBe(true);
+    });
+
+    it('should return an empty string if isHostUsernameCorrect() returns true', () => {
+        const username = HOST_USERNAME;
+        const matchRoom = MOCK_MATCH_ROOM;
+
+        jest.spyOn(service, 'isHostUsernameCorrect').mockReturnValue(true);
+        const result = service.getUsernameErrors(matchRoom.code, username);
+
+        expect(result).toBe('');
     });
 });

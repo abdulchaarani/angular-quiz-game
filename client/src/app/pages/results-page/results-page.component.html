@@ -31,7 +31,11 @@
             ></app-long-answer-histogram>
         </div>
     </div>
-
-    <button mat-raised-button id="exit-button" (click)="handleDisconnect()" routerLink="/home">Quitter</button>
+    <div class="controls-container">
+        <button mat-raised-button class="exit-button" color="primary" (click)="handleDisconnect()" routerLink="/home">
+            <mat-icon class="material-icons">logout</mat-icon>
+            <p>QUITTER</p>
+        </button>
+    </div>
 </div>
-<app-players-list [players]="players"></app-players-list>
+<app-players-list [players]="players" [canHostToggleChatState]="false"></app-players-list>

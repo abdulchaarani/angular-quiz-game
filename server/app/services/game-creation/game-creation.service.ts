@@ -29,11 +29,9 @@ export class GameCreationService {
     }
 
     completeIsCorrectChoice(question: Question): Question {
-        if (question.type !== QuestionType.LONG) {
+        if (question.type !== QuestionType.LongAnswer) {
             question.choices.forEach((choice: Choice) => {
-                if (choice.isCorrect !== true) {
-                    choice.isCorrect = false;
-                }
+                choice.isCorrect = !!choice.isCorrect;
             });
         }
         return question;

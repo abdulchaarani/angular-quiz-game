@@ -14,25 +14,22 @@ export class GameListItemComponent {
     @Output() deleteGameFromList: EventEmitter<string> = new EventEmitter<string>();
 
     constructor(
-        private readonly gamesService: GameService,
+        private readonly gameService: GameService,
         private readonly downloadGameService: DownloadGameService,
     ) {}
 
     toggleGameVisibility() {
-        if (this.isAdminMode) {
-            this.gamesService.toggleGameVisibility(this.game).subscribe();
-        }
+        if (!this.isAdminMode) return;
+        this.gameService.toggleGameVisibility(this.game).subscribe();
     }
 
     downloadGameAsJson() {
-        if (this.isAdminMode) {
-            this.downloadGameService.downloadGameAsJson(this.game);
-        }
+        if (!this.isAdminMode) return;
+        this.downloadGameService.downloadGameAsJson(this.game);
     }
 
     deleteGame() {
-        if (this.isAdminMode) {
-            this.deleteGameFromList.emit(this.game.id);
-        }
+        if (!this.isAdminMode) return;
+        this.deleteGameFromList.emit(this.game.id);
     }
 }

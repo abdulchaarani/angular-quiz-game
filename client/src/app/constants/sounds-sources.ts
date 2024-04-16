@@ -1,1 +1,1 @@
-export const PANIC_SOUND = '../../../assets/audio/panic.mp3';
+export const PANIC_SOUND = '/assets/audio/panic.mp3';

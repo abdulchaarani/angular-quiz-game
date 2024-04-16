@@ -32,6 +32,7 @@ export class AudioPlayerService {
 
     private playAudio() {
         this.audioObject.play().catch((error) => {
+            console.log(PANIC_SOUND);
             console.log(error);
             this.notificationService.displayErrorMessage('❗ MODE PANIQUE ACTIVÉ! ❗');
         });

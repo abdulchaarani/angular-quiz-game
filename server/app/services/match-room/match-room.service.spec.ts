@@ -345,13 +345,22 @@ describe('MatchRoomService', () => {
         expect(startTimerMock).toHaveBeenCalledWith(mockServer, MOCK_ROOM_CODE, matchRoom.game.duration, ExpiredTimerEvents.QuestionTimerExpired);
     });
 
-    it('sendNextQuestion() should emit gameOver if last question', () => {
+    it('sendNextQuestion() should emit gameOver if is last question and is not a random page', () => {
         matchRoom.currentQuestionIndex = 2;
         matchRoom.gameLength = 2;
         matchRoom.isTestRoom = true;
         jest.spyOn(service, 'getRoom').mockReturnValue(matchRoom);
         service.sendNextQuestion(mockServer, matchRoom.code);
         expect(emitMock).toHaveBeenCalledWith('gameOver', { isRandomMode: false, isTestRoom: true });
+    });
+
+    it('sendNextQuestion() should not emit gamOver if is last question and is a random page', () => {
+        matchRoom.currentQuestionIndex = 2;
+        matchRoom.gameLength = 2;
+        matchRoom.isRandomMode = true;
+        jest.spyOn(service, 'getRoom').mockReturnValue(matchRoom);
+        service.sendNextQuestion(mockServer, matchRoom.code);
+        expect(emitMock).not.toHaveBeenCalled();
     });
 
     it('sendNextQuestion() should emit the next question if there are any and start a timer with the game duration as its value', () => {

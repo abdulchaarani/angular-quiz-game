@@ -159,6 +159,7 @@ mat-sidenav {
 .game-container {
     display: flex;
     flex-direction: column;
+    margin-top: 10rem;
 }
 
 .bank-scroll {
@@ -172,4 +173,11 @@ mat-sidenav {
 .submit-button:not([disabled]) {
     background-color: #499d37;
     color: white;
+}
+
+#header-bar {
+    position: fixed;
+    z-index: 999;
+    background-color: #fafafa;
+    width: 75vw;
 }

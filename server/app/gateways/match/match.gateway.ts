@@ -153,6 +153,11 @@ export class MatchGateway implements OnGatewayDisconnect {
         }
     }
 
+    @OnEvent(MatchEvents.RouteToResultsPage)
+    onRouteToResultsPage(matchRoomCode: string) {
+        this.routeToResultsPage({} as Socket, matchRoomCode);
+    }
+
     handleDisconnect(@ConnectedSocket() socket: Socket) {
         const isHostDisconnected = this.handleHostDisconnect(socket);
         if (!isHostDisconnected) this.handlePlayersDisconnect(socket);
@@ -211,7 +216,7 @@ export class MatchGateway implements OnGatewayDisconnect {
         this.server.to(socketId).emit(MatchEvents.Error, error);
     }
 
-    sendMessageOnDisconnect(roomCode, username) {
+    sendMessageOnDisconnect(roomCode: string, username: string) {
         this.server
             .to(roomCode)
             .emit(ChatEvents.NewMessage, { roomCode, message: { author: '', text: `${username} a quitté la partie.`, date: new Date() } });

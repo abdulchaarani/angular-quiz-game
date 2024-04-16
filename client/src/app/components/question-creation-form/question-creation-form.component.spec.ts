@@ -194,21 +194,6 @@ describe('QuestionCreationFormComponent', () => {
         expect(component.questionForm.value).toEqual(changedQuestion);
     });
 
-    // it('should not submit a question without at least one correct and incorrect choices - Case when all is false', () => {
-    //     spyOn(component.createQuestionEvent, 'emit');
-    //     component.questionForm.setValue({
-    //         text: 'Test ',
-    //         points: 10,
-    //         type: 'QCM',
-    //         choices: [
-    //             { text: 'Choice 1', isCorrect: false },
-    //             { text: 'Choice 2', isCorrect: false },
-    //         ],
-    //     });
-    //     component.onSubmit();
-    //     expect(component.createQuestionEvent.emit).not.toHaveBeenCalled();
-    // });
-
     it('should not submit an invalid form', () => {
         spyOn(component.createQuestionEvent, 'emit');
         component.questionForm.setValue({

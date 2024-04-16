@@ -8,6 +8,10 @@ import { AnswerService } from '@app/services/answer/answer.service';
 import { getMockQuestion } from '@app/constants/question-mocks';
 import { Question } from '@app/interfaces/question';
 import spyObj = jasmine.SpyObj;
+import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule, MatHint, MatLabel } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('LongAnswerComponent', () => {
     let component: LongAnswerAreaComponent;
@@ -48,7 +52,8 @@ describe('LongAnswerComponent', () => {
         matchRoomSpy.currentQuestion = mockQuestion;
 
         TestBed.configureTestingModule({
-            declarations: [LongAnswerAreaComponent],
+            imports: [MatIconModule, MatFormFieldModule, MatInputModule, NoopAnimationsModule],
+            declarations: [LongAnswerAreaComponent, MatHint, MatLabel],
 
             providers: [
                 { provide: AnswerService, useValue: answerSpy },

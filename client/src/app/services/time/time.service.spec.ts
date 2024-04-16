@@ -179,4 +179,12 @@ describe('TimeService', () => {
         tick(1);
         expect(service.isAlertDisplayed).toBeFalse();
     }));
+
+    it('should toggle pause status', () => {
+        service.isTimerPaused = false;
+        service.togglePauseStatus();
+        expect(service.isTimerPaused).toBeTrue();
+        service.togglePauseStatus();
+        expect(service.isTimerPaused).toBeFalse();
+    });
 });

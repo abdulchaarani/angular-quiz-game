@@ -66,6 +66,7 @@ export class AnswerService {
         this.isEndGame = false;
         this.currentLongAnswer = '';
         this.timeService.isPanicModeDisabled = false;
+        this.timeService.isTimerPaused = false;
     }
 
     selectChoice(choice: string, userInfo: UserInfo) {

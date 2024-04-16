@@ -24,7 +24,6 @@ export class QuestionAreaComponent implements OnInit {
     gameDuration: number;
     context: MatchContext;
     isFirstQuestion: boolean = true;
-    paused: boolean = false;
 
     // Allow more constructor parameters to decouple services
     // eslint-disable-next-line max-params

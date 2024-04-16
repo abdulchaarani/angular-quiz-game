@@ -8,6 +8,7 @@ import { TimerEvents } from '@common/events/timer.events';
     providedIn: 'root',
 })
 export class TimeService {
+    isTimerPaused: boolean;
     isPanicModeDisabled: boolean;
     isPanicking: boolean;
     isAlertDisplayed: boolean;
@@ -21,6 +22,7 @@ export class TimeService {
         this.isPanicModeDisabled = false;
         this.isPanicking = false;
         this.isAlertDisplayed = false;
+        this.isTimerPaused = false;
     }
 
     get time() {
@@ -103,6 +105,10 @@ export class TimeService {
 
     computeTimerProgress(): number {
         return (this.time / this.duration) * MULTIPLICATION_FACTOR;
+    }
+
+    togglePauseStatus() {
+        this.isTimerPaused = !this.isTimerPaused;
     }
 
     private displayPanicAlert() {

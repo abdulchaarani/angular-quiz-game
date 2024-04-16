@@ -89,12 +89,15 @@
             <p>QUESTION SUIVANTE</p>
         </button>
         <div id="timer-controls" *ngIf="!answerService.showFeedback && !answerService.gradeAnswers">
-            <button mat-raised-button id="pause-button" (click)="pauseTimer()" (click)="paused = !paused" [disabled]="time === 0">
-                <mat-icon class="material-icons" *ngIf="!paused">pause</mat-icon>
-                <p *ngIf="!paused">SUSPENDRE LA MINUTERIE</p>
-
-                <mat-icon class="material-icons" *ngIf="paused">play_arrow</mat-icon>
-                <p *ngIf="paused">PARTIR LA MINUTERIE</p>
+            <button mat-raised-button id="pause-button" (click)="pauseTimer()" (click)="timeService.togglePauseStatus()" [disabled]="time === 0">
+                <div class="timer-button-description">
+                    <mat-icon *ngIf="!timeService.isTimerPaused">pause</mat-icon>
+                    <p *ngIf="!timeService.isTimerPaused">SUSPENDRE LA MINUTERIE</p>
+                </div>
+                <div class="timer-button-description">
+                    <mat-icon *ngIf="timeService.isTimerPaused">play_arrow</mat-icon>
+                    <p *ngIf="timeService.isTimerPaused">PARTIR LA MINUTERIE</p>
+                </div>
             </button>
 
             <button
@@ -104,8 +107,10 @@
                 [disabled]="this.timeService.isPanicModeDisabled || this.timeService.isPanicking"
                 (click)="triggerPanicTimer()"
             >
-                <mat-icon class="material-icons">priority_high</mat-icon>
-                <p>MODE PANIQUE</p>
+                <div class="timer-button-description">
+                    <mat-icon>priority_high</mat-icon>
+                    <p>MODE PANIQUE</p>
+                </div>
             </button>
         </div>
     </div>

@@ -9,6 +9,7 @@ import { getMockQuestion } from '@app/constants/question-mocks';
 import { Player } from '@app/interfaces/player';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
+import { HOST_USERNAME } from '@common/constants/match-constants';
 import { PlayerState } from '@common/constants/player-states';
 import { Socket } from 'socket.io-client';
 import { MatchRoomService } from './match-room.service';
@@ -301,12 +302,13 @@ describe('MatchRoomService', () => {
         expect(router.navigateByUrl).toHaveBeenCalledWith('/host');
     });
 
-    it('onGameOver() should route to resuts page in random mode', () => {
+    it('onGameOver() should route to resuts page in random mode if username is HOST_USERNAME', () => {
         // Any is required to simulate Function type in tests
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const onSpy = spyOn(socketSpy, 'on').and.callFake((event: string, cb: (param: any) => any) => {
             cb({ isTestRoom: true, isRandomMode: true });
         });
+        service['username'] = HOST_USERNAME;
         spyOn(service, 'routeToResultsPage');
         service.onGameOver();
         socketHelper.peerSideEmit('gameOver', true);

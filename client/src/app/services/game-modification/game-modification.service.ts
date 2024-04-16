@@ -42,6 +42,8 @@ export class GameModificationService {
 
     isFirstInteraction: boolean = true;
     isPendingChanges: boolean = false;
+    isLoadingGame: boolean = false;
+    isLoadingBank: boolean = false;
 
     gameForm = new FormGroup({
         title: new FormControl('', Validators.required),
@@ -62,10 +64,12 @@ export class GameModificationService {
     setGame(id: string) {
         this.state = ManagementState.GameModify;
         this.game = { ...this.newGame };
+        this.isLoadingGame = true;
         this.gameService.getGameById(id).subscribe({
             next: (game: Game) => {
                 this.game = game;
                 this.resetStateForNewGame();
+                this.isLoadingGame = false;
             },
         });
     }
@@ -164,11 +168,13 @@ export class GameModificationService {
     }
 
     private setBankQuestions() {
+        this.isLoadingBank = true;
         this.questionService.getAllQuestions().subscribe({
             next: (questions: Question[]) => {
                 this.originalBankQuestions = [...questions];
                 this.bankQuestions = this.filterBankQuestions(this.originalBankQuestions, this.game.questions);
                 this.setBankMessage();
+                this.isLoadingBank = false;
             },
             error: (error: HttpErrorResponse) => this.notificationService.displayErrorMessage(`${BankStatus.UNRETRIEVED}\n ${error.message}`),
         });

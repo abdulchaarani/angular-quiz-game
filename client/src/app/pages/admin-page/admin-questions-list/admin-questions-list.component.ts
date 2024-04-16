@@ -20,9 +20,9 @@ export class AdminQuestionsListComponent implements OnInit, CanComponentDeactiva
     state: ManagementState;
 
     constructor(
+        public gameModificationService: GameModificationService,
         private readonly notificationService: NotificationService,
         private readonly route: ActivatedRoute,
-        public gameModificationService: GameModificationService,
     ) {}
 
     get game() {

@@ -73,7 +73,6 @@ export class MatchRoomService {
             this.handleError();
             this.onPlayerChatStateToggle();
             this.handleChatStateNotifications();
-            this.onGameOver();
             this.onRouteToResultsPage();
         }
     }

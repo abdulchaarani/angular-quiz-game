@@ -88,6 +88,7 @@ export class MatchGateway implements OnGatewayDisconnect {
         this.playerRoomService.setStateForAll(matchRoomCode, PlayerState.default);
         this.server.to(matchRoomCode).emit(MatchEvents.RouteToResultsPage);
         this.emitHistogramHistory(matchRoomCode);
+
         this.matchRoomService.declareWinner(matchRoomCode);
         this.historyService.createHistoryItem(this.matchRoomService.getRoom(matchRoomCode));
 

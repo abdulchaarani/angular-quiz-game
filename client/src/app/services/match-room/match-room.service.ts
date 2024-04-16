@@ -12,8 +12,8 @@ import { HOST_USERNAME } from '@common/constants/match-constants';
 import { PlayerState } from '@common/constants/player-states';
 import { ChatEvents } from '@common/events/chat.events';
 import { MatchEvents } from '@common/events/match.events';
-import { UserInfo } from '@common/interfaces/user-info';
 import { GameOverInfo } from '@common/interfaces/game-over-info';
+import { UserInfo } from '@common/interfaces/user-info';
 
 @Injectable({
     providedIn: 'root',
@@ -193,7 +193,7 @@ export class MatchRoomService {
             const { isTestRoom, isRandomMode } = gameOverInfo;
             if (isTestRoom && !isRandomMode) {
                 this.router.navigateByUrl('/host');
-            } else if (isRandomMode) {
+            } else if (isRandomMode && this.username === HOST_USERNAME) {
                 this.routeToResultsPage();
             }
         });
